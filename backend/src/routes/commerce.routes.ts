@@ -17,6 +17,7 @@ import {
   calculateCart,
   wcExport,
   listOrders,
+  createOrder,
   updateOrderStatus,
 } from "../controllers/commerce.controller.js";
 
@@ -26,8 +27,8 @@ const router = Router({ mergeParams: true });
 router.get("/:websiteId/commerce/settings", requireAuth, getCommerceSettings);
 router.put("/:websiteId/commerce/settings", requireAuth, updateCommerceSettings);
 
-// Products
-router.get("/:websiteId/commerce/products", requireAuth, listProducts);
+// Products (public list for storefront, auth for mutation)
+router.get("/:websiteId/commerce/products", listProducts);
 router.post("/:websiteId/commerce/products", requireAuth, createProduct);
 router.put("/:websiteId/commerce/products/:productId", requireAuth, updateProduct);
 router.delete("/:websiteId/commerce/products/:productId", requireAuth, deleteProduct);
@@ -45,6 +46,7 @@ router.get("/:websiteId/commerce/wc-export", requireAuth, wcExport);
 
 // Orders
 router.get("/:websiteId/commerce/orders", requireAuth, listOrders);
+router.post("/:websiteId/commerce/orders", createOrder);
 router.patch("/:websiteId/commerce/orders/:orderId/status", requireAuth, updateOrderStatus);
 
 export default router;

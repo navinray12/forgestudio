@@ -1,0 +1,38 @@
+{
+  "id": "F-001",
+  "feature": "Visual Drag & Drop Engine",
+  "module": "Module 01 - Visual Editor",
+  "description": "HTML5 Drag and drop element insertion and positioning on canvas viewport.",
+  "route": "/editor/:websiteId",
+  "uiLocation": "Visual Editor Canvas",
+  "domSelector": "[data-testid=\"editor-canvas\"]",
+  "domEvidence": {
+    "tagName": "DIV",
+    "classes": "flex-1 overflow-y-auto min-w-0 max-w-full",
+    "accessibleName": "Editor Canvas Viewport",
+    "role": "main",
+    "visible": true,
+    "interactive": true
+  },
+  "apiEvidence": [],
+  "databaseEvidence": [
+    {
+      "model": "Website",
+      "field": "editorData",
+      "persisted": true
+    }
+  ],
+  "wordpressEvidence": [],
+  "screenshots": [
+    "F-001_before.png",
+    "F-001_feature.png",
+    "F-001_after.png"
+  ],
+  "testCases": ["TC-F-001-001"],
+  "expected": "Element drops onto canvas at target container node and updates editor state tree.",
+  "actual": "Element rendered cleanly at target index with outline indicator.",
+  "status": "PASS",
+  "severity": "NONE",
+  "defects": [],
+  "timestamp": "2026-09-26T13:28:00Z"
+}

@@ -100,11 +100,19 @@ export function extractHeadings(elements: any[]): { id: string; level: number; t
   const headings: { id: string; level: number; text: string }[] = [];
 
   for (const el of flat) {
-    if (el.type === "heading" || el.type === "animated-headline") {
-      const levelStr = String(el.props?.level || el.props?.tag || "h2").toLowerCase();
+    const isHeading =
+      el.type === "heading" ||
+      el.type === "animated-headline" ||
+      /^h[1-6]$/i.test(el.type || "") ||
+      /^h[1-6]$/i.test(el.tag || "") ||
+      /^h[1-6]$/i.test(el.props?.tag || "") ||
+      /^h[1-6]$/i.test(el.props?.level || "");
+
+    if (isHeading) {
+      const levelStr = String(el.props?.level || el.props?.tag || el.tag || el.type || el.headingLevel || "h2").toLowerCase();
       const match = levelStr.match(/h([1-6])/);
       const level = match ? parseInt(match[1], 10) : 2;
-      const text = el.props?.text || el.content || el.props?.title || "";
+      const text = el.props?.text || el.content || el.textContent || el.props?.title || "";
       headings.push({ id: el.id, level, text: String(text).trim() });
     }
   }

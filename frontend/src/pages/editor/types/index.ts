@@ -19,10 +19,17 @@ export type ElementType =
   | "off-canvas" | "search-bar" | "import-asset" | "favorite-widgets"
   | "reusable-components" | "basic-media-carousel" | "basic-gallery"
   | "audio-playlist" | "dynamic-lightbox" | "custom-svg" | "icon-library"
-  | "wc-product-title" | "wc-product-price" | "wc-product-images"
-  | "wc-add-to-cart" | "wc-product-rating" | "wp-menu" | "menu-widget"
+  | "wc-builder" | "wc-product" | "wc-product-title" | "wc-product-images" | "wc-product-price"
+  | "wc-add-to-cart" | "wc-product-rating" | "wc-product-stock" | "wc-product-meta" | "wc-product-content"
+  | "wc-short-description" | "wc-product-data-tabs" | "wc-additional-info" | "wc-related-products" | "wc-upsells"
+  | "wc-products" | "wc-custom-add-to-cart" | "wc-product-categories" | "wc-menu-cart" | "wc-cart"
+  | "wc-checkout" | "wc-my-account" | "wc-purchase-summary" | "wc-notices" | "wc-shop-layouts"
+  | "wc-product-archive" | "wc-product-page-templates" | "wc-product-archive-templates"
+  | "wc-product-addons"
+  | "wp-menu" | "menu-widget"
   | "breadcrumbs" | "menu-anchor" | "post-nav" | "off-canvas-nav"
   | "site-search" | "search-form" | "taxonomy-filter"
+  | "loop-grid"
   | "facebook-integration" | "facebook-feed" | "facebook-like-button"
   | "google-calendar" | "paypal" | "stripe" | "wordpress-shortcode"
   | "dynamic-data" | "lms-compat" | "crm-integration" | "webhook-integration"
@@ -43,6 +50,15 @@ export interface SiteProduct {
   category?: string;
   inStock?: boolean;
   url?: string;
+}
+
+export interface ProductAddonItem {
+  id: string;
+  label: string;
+  type: "checkbox" | "radio" | "select" | "text";
+  priceAdjustment: number;
+  required?: boolean;
+  options?: string[];
 }
 
 export interface NavSubmenuItem {
@@ -147,9 +163,10 @@ export type AnimatedHeadlineStyle = "typing" | "fade" | "slide-up" | "zoom" | "f
 export interface WidgetRegistryItem {
   type: ElementType;
   name: string;
-  category: "Layout" | "Basic" | "Content" | "Interactive" | "Media" | "Commerce" | "Social";
+  category: "Layout" | "Basic" | "Content" | "Interactive" | "Media" | "Commerce" | "Social" | "navigation" | "Navigation" | string;
   icon: string;
   description: string;
+  label?: string;
 }
 
 export const ALL_WIDGET_REGISTRY: WidgetRegistryItem[] = [
@@ -158,7 +175,7 @@ export const ALL_WIDGET_REGISTRY: WidgetRegistryItem[] = [
   { type: "off-canvas", name: "Off Canvas", category: "Layout", icon: "🚪", description: "Sliding drawer panel container for navigation & tools" },
   { type: "mega-menu", name: "Mega Menu", category: "Layout", icon: "📑", description: "Multi-column rich navigation dropdown header" },
   { type: "nav-menu", name: "Nav Menu", category: "Layout", icon: "🧭", description: "Horizontal or vertical site navigation menu" },
-  
+
   // Basic
   { type: "search-bar", name: "Search Bar", category: "Basic", icon: "🔍", description: "Sidebar active widgets search filter bar" },
   { type: "import-asset", name: "Import Asset / File", category: "Basic", icon: "📁", description: "Direct file upload button for images, vectors & media assets" },
@@ -172,6 +189,7 @@ export const ALL_WIDGET_REGISTRY: WidgetRegistryItem[] = [
 
   // Content
   { type: "posts", name: "Posts", category: "Content", icon: "📰", description: "Blog posts and articles grid layout" },
+  { type: "loop-grid", name: "Loop Grid", category: "Content", icon: "➿", description: "Dynamic query loop grid repeating post cards and custom templates" },
   { type: "portfolio", name: "Portfolio", category: "Content", icon: "💼", description: "Filterable project showcase portfolio grid" },
   { type: "price-table", name: "Price Table", category: "Content", icon: "🏷️", description: "SaaS pricing table card with features list" },
   { type: "price-list", name: "Price List", category: "Content", icon: "📋", description: "Menu or service items price list" },
@@ -206,12 +224,36 @@ export const ALL_WIDGET_REGISTRY: WidgetRegistryItem[] = [
   { type: "custom-svg", name: "SVG / Custom Icon", category: "Media", icon: "⚡", description: "Sanitized custom SVG vector graphic asset viewer" },
   { type: "icon-library", name: "Icon Library", category: "Media", icon: "🎨", description: "Searchable ready-to-use vector icon picker library" },
 
-  // WooCommerce Store Widgets
+  // WooCommerce Store Widgets (F-292 to F-319)
+  { type: "wc-builder", name: "WooCommerce Builder", category: "Commerce", icon: "🏪", description: "Main e-commerce builder & WooCommerce store settings container" },
+  { type: "wc-product", name: "Single Product Card", category: "Commerce", icon: "📦", description: "Displays a selected single product container card" },
   { type: "wc-product-title", name: "Product Title", category: "Commerce", icon: "🏷️", description: "Displays WooCommerce product title" },
-  { type: "wc-product-price", name: "Product Price", category: "Commerce", icon: "💰", description: "Displays product pricing & sale discounts" },
   { type: "wc-product-images", name: "Product Images", category: "Commerce", icon: "🖼️", description: "Displays main product gallery & thumbnails" },
+  { type: "wc-product-price", name: "Product Price", category: "Commerce", icon: "💰", description: "Displays product pricing & sale discounts" },
   { type: "wc-add-to-cart", name: "Add to Cart", category: "Commerce", icon: "🛒", description: "Customizable purchase & add to cart button" },
   { type: "wc-product-rating", name: "Product Rating", category: "Commerce", icon: "⭐", description: "Displays product review star rating" },
+  { type: "wc-product-stock", name: "Product Stock Status", category: "Commerce", icon: "📦", description: "Displays current stock availability & status" },
+  { type: "wc-product-meta", name: "Product Meta", category: "Commerce", icon: "🔖", description: "Displays SKU, category & tag product metadata" },
+  { type: "wc-product-content", name: "Product Content", category: "Commerce", icon: "📄", description: "Full product description content area" },
+  { type: "wc-short-description", name: "Short Description", category: "Commerce", icon: "📝", description: "Brief product summary description" },
+  { type: "wc-product-data-tabs", name: "Product Data Tabs", category: "Commerce", icon: "🗂️", description: "Product info, reviews & specification tabs" },
+  { type: "wc-additional-info", name: "Additional Info", category: "Commerce", icon: "📋", description: "Product attributes & additional specifications table" },
+  { type: "wc-related-products", name: "Related Products", category: "Commerce", icon: "🔄", description: "Recommended related products grid" },
+  { type: "wc-upsells", name: "Upsells & Cross-sells", category: "Commerce", icon: "📈", description: "Configured upsell & cross-sell products carousel" },
+  { type: "wc-products", name: "Products Query Grid", category: "Commerce", icon: "🛍️", description: "Filterable store products grid catalogue" },
+  { type: "wc-custom-add-to-cart", name: "Custom Add to Cart", category: "Commerce", icon: "➕", description: "Custom purchase control with quantity selector" },
+  { type: "wc-product-categories", name: "Product Categories", category: "Commerce", icon: "🗂️", description: "Store product categories grid & list" },
+  { type: "wc-menu-cart", name: "Menu Cart Drawer", category: "Commerce", icon: "🛍️", description: "Navigation menu cart count badge & drawer" },
+  { type: "wc-cart", name: "Shopping Cart", category: "Commerce", icon: "🛒", description: "Full shopping cart page & item list" },
+  { type: "wc-checkout", name: "Checkout Form", category: "Commerce", icon: "💳", description: "Customer checkout form & payment gateway fields" },
+  { type: "wc-my-account", name: "My Account Dashboard", category: "Commerce", icon: "👤", description: "Customer dashboard & order tracking" },
+  { type: "wc-purchase-summary", name: "Purchase Summary", category: "Commerce", icon: "🧾", description: "Order confirmation receipt & purchase summary" },
+  { type: "wc-notices", name: "WooCommerce Notices", category: "Commerce", icon: "⚠️", description: "Store notifications, messages & checkout alerts" },
+  { type: "wc-shop-layouts", name: "Shop Layout Switcher", category: "Commerce", icon: "📐", description: "Grid / List shop layout control" },
+  { type: "wc-product-archive", name: "Product Archive", category: "Commerce", icon: "📁", description: "Product archive & category catalog listing" },
+  { type: "wc-product-page-templates", name: "Product Page Template", category: "Commerce", icon: "🔲", description: "Single product page layout template layout" },
+  { type: "wc-product-archive-templates", name: "Product Archive Template", category: "Commerce", icon: "🗄️", description: "Product archive layout template" },
+  { type: "wc-product-addons", name: "Product Add-Ons", category: "Commerce", icon: "🧩", description: "Configurable product options, customizations & dynamic add-on pricing engine" },
 
   // Commerce
   { type: "paypal-button", name: "PayPal Button", category: "Commerce", icon: "💳", description: "Direct PayPal express checkout button" },
@@ -220,6 +262,13 @@ export const ALL_WIDGET_REGISTRY: WidgetRegistryItem[] = [
   // Social
   { type: "share-buttons", name: "Share Buttons", category: "Social", icon: "🔗", description: "Social media sharing action buttons" },
   { type: "facebook-page", name: "Facebook Integration", category: "Social", icon: "📘", description: "Facebook Page feed, Like button, Post embed & Comments widget" },
+
+  // Navigation (Module 10 / F-223 to F-233)
+  { type: "breadcrumbs", name: "Breadcrumbs", label: "Breadcrumbs", category: "navigation", icon: "🧭", description: "Hierarchical page path breadcrumbs navigation" },
+  { type: "wp-menu", name: "WP Menu", label: "WP Menu", category: "navigation", icon: "🌐", description: "WordPress remote menu tree navigation" },
+  { type: "menu-anchor", name: "Menu Anchor", label: "Menu Anchor", category: "navigation", icon: "⚓", description: "In-page smooth-scroll jump anchor point" },
+  { type: "post-nav", name: "Post Nav", label: "Post Nav", category: "navigation", icon: "↔️", description: "Previous and next post navigation links" },
+  { type: "taxonomy-filter", name: "Taxonomy Filter", label: "Taxonomy Filter", category: "navigation", icon: "🏷️", description: "Category and tag filtering buttons" },
 ];
 
 export const DEFAULT_VISIBLE_WIDGETS: ElementType[] = ALL_WIDGET_REGISTRY.map((w) => w.type);
@@ -345,7 +394,9 @@ export type FormFieldType =
   | "textarea"
   | "select"
   | "checkbox"
-  | "radio";
+  | "radio"
+  | "date"
+  | "file";
 
 export interface FormStepItem {
   id: string;
@@ -363,6 +414,12 @@ export interface FormFieldItem {
   defaultValue?: string;
   width?: "full" | "half";
   stepId?: string;
+  conditionalLogic?: {
+    action: "show" | "hide";
+    targetFieldId: string;
+    operator: "equals" | "not_equals" | "contains" | "not_empty";
+    value: string;
+  };
 }
 
 export interface SlideItem {
@@ -437,7 +494,7 @@ export interface ContainerLayout {
   justifyContent?: "flex-start" | "center" | "flex-end" | "space-between" | "space-around" | "space-evenly";
   alignItems?: "stretch" | "flex-start" | "center" | "flex-end";
   gap?: number;
-rowGap?: number | string;
+  rowGap?: number | string;
   columnGap?: number | string;
 
   // CSS Grid Controls (F-041, F-043)
@@ -481,7 +538,7 @@ export interface ElementStyles {
   marginLeft?: string;
   lineHeight?: string;
 
-// Alignment & Self Alignment
+  // Alignment & Self Alignment
   alignSelf?: "auto" | "flex-start" | "center" | "flex-end" | "stretch" | "baseline";
   justifySelf?: "auto" | "start" | "center" | "end" | "stretch";
 
@@ -795,7 +852,7 @@ export interface EditorElement {
   slidesAlignment?: "left" | "center" | "right";
   slidesShowArrows?: boolean;
   slidesShowDots?: boolean;
-  formMode?: "simple" | "step-by-step";
+  formMode?: "simple" | "standard" | "step-by-step";
   formSteps?: FormStepItem[];
   formNextText?: string;
   formBackText?: string;
@@ -815,6 +872,17 @@ export interface EditorElement {
   formSubmitBtnBg?: string;
   formSubmitBtnColor?: string;
   formSubmitBtnFullWidth?: boolean;
+  formEnableHoneypot?: boolean;
+  formActions?: {
+    saveToDb?: boolean;
+    sendEmail?: boolean;
+    toEmail?: string;
+    emailSubject?: string;
+    webhook?: boolean;
+    webhookUrl?: string;
+    redirect?: boolean;
+    redirectUrl?: string;
+  };
   loginTitle?: string;
   loginSubtitle?: string;
   loginEmailLabel?: string;
@@ -1181,6 +1249,45 @@ export interface EditorElement {
   productStarColor?: string;
   productSource?: "manual" | "existing";
   productId?: string;
+  productAddons?: ProductAddonItem[];
+  stockThreshold?: number;
+  inStockLabel?: string;
+  lowStockLabel?: string;
+  outOfStockLabel?: string;
+  inStockColor?: string;
+  lowStockColor?: string;
+  outOfStockColor?: string;
+  metaShowSku?: boolean;
+  metaShowCategory?: boolean;
+  metaShowTags?: boolean;
+  metaSeparator?: string;
+  productDescriptionOverride?: string;
+  productTextColor?: string;
+  productTypography?: string;
+  tabsData?: { id: string; title: string; content: string }[];
+  additionalInfoAttributes?: { key: string; value: string }[];
+  relatedLimit?: number;
+  relatedColumns?: number;
+  relatedCriteria?: "category" | "tag" | "all";
+  upsellsLimit?: number;
+  upsellsColumns?: number;
+  productsOrderBy?: "date" | "price_asc" | "price_desc" | "rating";
+  productsLayout?: "grid" | "list";
+  productsPerPage?: number;
+  customAddToCartProductId?: string;
+  shopLayoutColumns?: number;
+  shopLayoutGap?: number;
+  cartAccentColor?: string;
+  cartButtonLabel?: string;
+  cartShowCoupons?: boolean;
+  cartShowShippingCalc?: boolean;
+  checkoutAccentColor?: string;
+  checkoutButtonLabel?: string;
+  checkoutShowCoupons?: boolean;
+  checkoutShowShippingCalc?: boolean;
+  text?: string;
+  image_asset_id?: string;
+  settings?: Record<string, any>;
   codeFontSize?: string;
   codePadding?: string;
   codeAlignment?: "left" | "center" | "right";
@@ -1354,6 +1461,17 @@ export interface EditorElement {
   queryLimit?: number;
   queryOrderBy?: string;
   queryOrder?: string;
+  queryTaxonomy?: string;
+  queryTerms?: string[];
+  queryOffset?: number;
+  queryExcludeCurrent?: boolean;
+  querySource?: "custom" | "current_query" | "related";
+  loopColumns?: number;
+  loopGap?: number;
+  loopTemplateId?: string;
+  alternateTemplateId?: string;
+  paginationType?: "none" | "numbers" | "load-more" | "infinite";
+  targetGridId?: string;
   displayConditions?: any[];
   semanticTag?: string;
   // WP Legacy Widget fields (X-787)
@@ -1385,21 +1503,201 @@ export interface EditorElement {
   interactions?: InteractionRule[];
 }
 
+export type ThemeBuilderScope =
+  | "page"
+  | "header"
+  | "footer"
+  | "single"
+  | "archive"
+  | "404"
+  | "search-results";
+
+export interface SitePartSection {
+  enabled?: boolean;
+  isEnabled?: boolean;
+  elements: EditorElement[];
+  customCss?: string;
+  conditions?: string[];
+}
+
 export interface SitePartsConfig {
-  header?: {
-    enabled?: boolean;
-    isEnabled?: boolean;
-    elements: EditorElement[];
-    customCss?: string;
-    conditions?: string[];
+  header?: SitePartSection;
+  footer?: SitePartSection;
+  single?: SitePartSection;
+  archive?: SitePartSection;
+  notFound404?: SitePartSection;
+  searchResults?: SitePartSection;
+}
+
+/**
+ * Dynamic Context for frontend live token interpolation & request parameters
+ */
+export interface DynamicContext {
+  siteName?: string;
+  pageTitle?: string;
+  request?: Record<string, any>;
+  site?: {
+    id?: string;
+    name?: string;
+    slug?: string;
+    siteSettings?: {
+      siteName?: string;
+      siteLanguage?: string;
+      [key: string]: any;
+    };
+    [key: string]: any;
   };
-  footer?: {
-    enabled?: boolean;
-    isEnabled?: boolean;
-    elements: EditorElement[];
-    customCss?: string;
-    conditions?: string[];
+  page?: {
+    id?: string;
+    name?: string;
+    title?: string;
+    slug?: string;
+    isHome?: boolean;
+    [key: string]: any;
   };
+  entry?: {
+    id?: string;
+    title?: string;
+    slug?: string;
+    data?: Record<string, any>;
+    [key: string]: any;
+  };
+  post?: {
+    id?: string;
+    title?: string;
+    name?: string;
+    slug?: string;
+    excerpt?: string;
+    date?: string;
+    author?: string;
+    featuredImage?: string;
+    data?: Record<string, any>;
+    [key: string]: any;
+  } | any;
+  query?: Record<string, any>;
+  requestParams?: Record<string, string>;
+  custom?: Record<string, string>;
+}
+
+/**
+ * Replaces {{site.name}}, {{page.title}}, {{current.year}}, {{entry.field}}, {{post.field}}, {{request.param}}, etc. tokens inside a string.
+ */
+export function resolveDynamicTokens(content: string, context: DynamicContext = {}): string {
+  if (typeof content !== "string" || !content.includes("{{")) {
+    return content;
+  }
+
+  const site = context.site || {};
+  const siteSettings = site.siteSettings || {};
+  const page = context.page || {};
+  const entry = context.entry || {};
+  const post = context.post || context.entry || {};
+  const query = context.query || context.requestParams || {};
+  const custom = context.custom || {};
+
+  return content.replace(/\{\{([^{}]+)\}\}/g, (match, rawKey) => {
+    const key = rawKey.trim();
+
+    // Site level tokens
+    if (key === "site.name" || key === "site.title") {
+      return siteSettings.siteName || site.name || "";
+    }
+    if (key === "site.slug") {
+      return site.slug || "";
+    }
+    if (key === "site.language" || key === "site.lang") {
+      return siteSettings.siteLanguage || "en";
+    }
+
+    // System tokens
+    if (key === "current.year") {
+      return new Date().getFullYear().toString();
+    }
+    if (key === "current.date") {
+      return new Date().toISOString().split("T")[0];
+    }
+
+    // Page level tokens
+    if (key === "page.title") {
+      return page.title || page.name || "";
+    }
+    if (key === "page.name") {
+      return page.name || page.title || "";
+    }
+    if (key === "page.slug") {
+      return page.slug || "";
+    }
+
+    // Request / Query parameter tokens: {{request.param}}, {{query.param}}
+    if (key.startsWith("request.") || key.startsWith("query.")) {
+      const param = key.replace(/^(request|query)\./, "");
+      if (query[param] !== undefined) {
+        return String(query[param]);
+      }
+      return "";
+    }
+
+    // Post / Article level tokens: {{post.title}}, {{post.excerpt}}, {{post.date}}, {{post.author}}, {{post.featuredImage}}
+    if (key.startsWith("post.")) {
+      const field = key.replace(/^post\./, "");
+      const postData = post.data || {};
+      if (field === "title" || field === "name") return post.title || post.name || "";
+      if (field === "slug") return post.slug || "";
+      if (field === "excerpt") return post.excerpt || postData.excerpt || postData.description || "";
+      if (field === "date") return post.date || postData.date || post.createdAt || "";
+      if (field === "author") return post.author || postData.author || "";
+      if (field === "featuredImage" || field === "image") return post.featuredImage || postData.featuredImage || postData.image || "";
+      if (postData[field] !== undefined) {
+        return String(postData[field]);
+      }
+      if (post[field] !== undefined) {
+        return String(post[field]);
+      }
+      return "";
+    }
+
+    // CPT / Dynamic Entry tokens: {{entry.fieldName}}, {{cpt.fieldName}}
+    if (key.startsWith("entry.") || key.startsWith("cpt.")) {
+      const field = key.replace(/^(entry|cpt)\./, "");
+      if (field === "title" || field === "name") return entry.title || "";
+      if (field === "slug") return entry.slug || "";
+      if (entry.data && entry.data[field] !== undefined) {
+        return String(entry.data[field]);
+      }
+      if (entry[field] !== undefined) {
+        return String(entry[field]);
+      }
+      return "";
+    }
+
+    // Custom dictionary fallback
+    if (custom[key] !== undefined) {
+      return custom[key];
+    }
+
+    return match;
+  });
+}
+
+/**
+ * Recursively resolves dynamic tag tokens across an object tree or array on the frontend.
+ */
+export function resolveTokensInTree(obj: any, context: DynamicContext): any {
+  if (obj === null || obj === undefined) return obj;
+  if (typeof obj === "string") {
+    return resolveDynamicTokens(obj, context);
+  }
+  if (Array.isArray(obj)) {
+    return obj.map((item) => resolveTokensInTree(item, context));
+  }
+  if (typeof obj === "object") {
+    const resolved: Record<string, any> = {};
+    for (const [k, v] of Object.entries(obj)) {
+      resolved[k] = resolveTokensInTree(v, context);
+    }
+    return resolved;
+  }
+  return obj;
 }
 
 /**
@@ -1410,9 +1708,10 @@ export function matchesThemeCondition(
   pageContext: { pageId?: string; isHome?: boolean; slug?: string }
 ): boolean {
   if (!conditions || !Array.isArray(conditions) || conditions.length === 0) {
-    return true;
+    return true; // Default: include everywhere
   }
 
+  // 1. Check exclusions first (exclusion takes priority)
   for (const cond of conditions) {
     if (cond === "exclude:all") return false;
     if (cond === "exclude:singular:home" && pageContext.isHome) return false;
@@ -1422,6 +1721,7 @@ export function matchesThemeCondition(
     }
   }
 
+  // 2. Check inclusions
   let explicitlyIncluded = false;
   let hasInclusionRule = false;
 
@@ -1474,6 +1774,8 @@ export interface GlobalStylesConfig {
   bodyFont?: string;
   borderRadius?: string;
   containerMaxWidth?: string;
+  variables?: any[];
+  globalClasses?: any[];
 }
 
 export type DeploymentStatus =
@@ -1570,8 +1872,6 @@ export interface WebsiteData {
   name: string;
   slug: string;
   status: string;
-  workspaceId?: string;
-  organizationId?: string;
   userPermission?: string;
   editorData?: CanonicalWebsiteData | any;
 }

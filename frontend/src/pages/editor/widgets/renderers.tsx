@@ -24,6 +24,8 @@ import { sanitizeSvg } from "../../../utils/svgSanitizer";
 // Types & Interfaces
 // ==========================================
 
+import { useWooCommerce } from "../../../context/WooCommerceContext";
+
 
 import type {
   ElementType,
@@ -53,7 +55,12 @@ import type {
   PageConfig,
   MegaMenuColumn,
   MegaMenuColumnLink,
-  SiteProduct
+  SiteProduct,
+  ProductAddonItem
+} from "../types";
+import {
+  resolveDynamicTokens,
+  resolveTokensInTree
 } from "../types";
 import {
   resolveImageUrl,
@@ -299,14 +306,54 @@ export const FormWidgetRenderer = ({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [honeypotVal, setHoneypotVal] = useState("");
 
   // Active step fields
   const activeStep = steps[currentStepIndex] || steps[0];
   const isMultiStep = formMode === "step-by-step" && steps.length > 1;
 
-  const visibleFields = isMultiStep
+  // Client-Side Conditional Logic (X-788)
+  const isFieldVisible = (field: FormFieldItem, currentData: Record<string, any>): boolean => {
+    if (!field.conditionalLogic || !field.conditionalLogic.targetFieldId) {
+      return true;
+    }
+    const { action, targetFieldId, operator, value } = field.conditionalLogic;
+    const targetVal = currentData[targetFieldId];
+    const strTargetVal = targetVal !== undefined && targetVal !== null ? String(targetVal) : "";
+    const ruleValue = value !== undefined && value !== null ? String(value) : "";
+
+    let conditionMet = false;
+    switch (operator) {
+      case "equals":
+        conditionMet = strTargetVal === ruleValue;
+        break;
+      case "not_equals":
+        conditionMet = strTargetVal !== ruleValue;
+        break;
+      case "contains":
+        conditionMet = strTargetVal.toLowerCase().includes(ruleValue.toLowerCase());
+        break;
+      case "not_empty":
+        conditionMet = strTargetVal.trim().length > 0;
+        break;
+      default:
+        conditionMet = strTargetVal === ruleValue;
+        break;
+    }
+
+    if (action === "show") {
+      return conditionMet;
+    } else if (action === "hide") {
+      return !conditionMet;
+    }
+    return true;
+  };
+
+  const currentStepFields = isMultiStep
     ? fields.filter((f) => (f.stepId ? f.stepId === activeStep.id : currentStepIndex === 0))
     : fields;
+
+  const visibleFields = currentStepFields.filter((f) => isFieldVisible(f, formData));
 
   const validateStepFields = (fieldsToValidate: FormFieldItem[]) => {
     setValidationError(null);
@@ -380,6 +427,8 @@ export const FormWidgetRenderer = ({
           formId: el.id,
           formName: el.formTitle || el.content || "Website Form",
           fields: formData,
+          data: formData,
+          honeypotValue: honeypotVal,
         };
         const res = await fetch(`${apiUrl}/api/forms/submit`, {
           method: "POST",
@@ -466,6 +515,16 @@ export const FormWidgetRenderer = ({
         boxSizing: "border-box",
       }}
     >
+      {/* Honeypot Trap (F-277) */}
+      <input
+        type="text"
+        name="_fs_hp_check"
+        value={honeypotVal}
+        onChange={(e) => setHoneypotVal(e.target.value)}
+        style={{ display: "none", opacity: 0, position: "absolute", top: -9999, left: -9999 }}
+        tabIndex={-1}
+        autoComplete="off"
+      />
       {/* Form Header Title & Subtitle */}
       {(title || subtitle) && (
         <div className="mb-6">
@@ -564,7 +623,30 @@ export const FormWidgetRenderer = ({
               )}
 
               {/* Field Inputs */}
-              {field.type === "textarea" ? (
+              {field.type === "date" ? (
+                <input
+                  type="date"
+                  required={field.required}
+                  value={formData[field.id] || ""}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, [field.id]: e.target.value }))}
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50/60 px-4 py-3 text-xs sm:text-sm font-medium text-slate-800 placeholder-slate-400 outline-none transition duration-200 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 hover:border-slate-300"
+                />
+              ) : field.type === "file" ? (
+                <div className="flex flex-col gap-1.5">
+                  <input
+                    type="file"
+                    required={field.required}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      setFormData((prev) => ({ ...prev, [field.id]: file ? file.name : "" }));
+                    }}
+                    className="w-full rounded-2xl border border-dashed border-slate-300 bg-slate-50/60 px-4 py-3 text-xs sm:text-sm font-medium text-slate-700 file:mr-3 file:rounded-xl file:border-0 file:bg-emerald-50 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer"
+                  />
+                  {formData[field.id] && (
+                    <span className="text-[11px] text-slate-500 truncate">Selected: {formData[field.id]}</span>
+                  )}
+                </div>
+              ) : field.type === "textarea" ? (
                 <textarea
                   rows={4}
                   required={field.required}
@@ -6489,8 +6571,25 @@ export const OffCanvasWidgetRenderer = ({
   const btnBg = el.offCanvasButtonBgColor || "#0f172a";
   const btnText = el.offCanvasButtonTextColor || "#ffffff";
   const panelBg = el.offCanvasPanelBgColor || "#ffffff";
-
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen]);
 
   return (
     <div
@@ -7758,54 +7857,45 @@ export const ShareButtonsWidgetRenderer = ({
 // ==========================================
 
 export const WcProductTitleWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any; siteProducts?: SiteProduct[] }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts }) => {
+  const wc = useWooCommerce();
   const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  let title = el.content || el.productTitle || "Sample Product Title";
+  const prodList = siteProducts && siteProducts.length > 0 ? siteProducts : wc.products;
+  const connected = prodList.find((p) => p.id === el.productId) || prodList[0];
+  const title = (el.productSource as string) === "existing" && connected ? connected.name : (el.wooProductTitle || el.content || "Aura Pro Wireless Headphones");
 
-  if (el.productSource === "existing" && el.productId) {
-    const prod = siteProducts?.find((p) => p.id === el.productId);
-    if (prod) {
-      title = prod.name;
-    } else {
-      title = "⚠️ Product Unavailable";
-    }
-  }
-
-  return <h2 style={styles as React.CSSProperties} className="font-bold text-slate-900">{title}</h2>;
+  return (
+    <h1 style={styles as React.CSSProperties} className="font-extrabold text-2xl tracking-tight text-slate-900" id={`wc-title-${el.id}`}>
+      {title}
+    </h1>
+  );
 };
 
 export const WcProductPriceWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any; siteProducts?: SiteProduct[] }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts }) => {
+  const wc = useWooCommerce();
   const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  let price = el.content || el.productPrice || "$99.99";
-  let regularPrice = "";
-
-  if (el.productSource === "existing" && el.productId) {
-    const prod = siteProducts?.find((p) => p.id === el.productId);
-    if (prod) {
-      price = prod.price;
-      regularPrice = prod.regularPrice || "";
-    } else {
-      price = "$0.00";
-    }
-  }
+  const prodList = siteProducts && siteProducts.length > 0 ? siteProducts : wc.products;
+  const connected = prodList.find((p) => p.id === el.productId) || prodList[0];
+  const price = (el.productSource as string) === "existing" && connected ? connected.price : (el.wooPrice || el.content || "$199.99");
+  const regularPrice = connected?.regularPrice || "$249.99";
 
   return (
-    <div style={styles as React.CSSProperties} className="flex items-baseline gap-2 font-bold text-emerald-600">
-      <span className="text-xl">{price}</span>
-      {regularPrice && <span className="text-xs text-slate-400 line-through font-normal">{regularPrice}</span>}
+    <div style={styles as React.CSSProperties} className="inline-flex items-baseline gap-2 font-bold" aria-label={`Price ${price}`}>
+      <span className="text-2xl font-extrabold text-emerald-600">{price}</span>
+      {regularPrice && <span className="text-sm text-slate-400 line-through font-normal">{regularPrice}</span>}
+      <span className="text-[10px] uppercase tracking-wider font-extrabold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800">
+        In Stock
+      </span>
     </div>
   );
 };
 
 export const WcProductImagesWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any; siteProducts?: SiteProduct[] }> = ({ el, getMergedStyles, activeDevice, isPreview, mergedStyles, siteProducts }) => {
+  const wc = useWooCommerce();
   const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  let imgSrc = el.src || el.productImage || (el.content && (el.content.startsWith("http") || el.content.startsWith("blob:")) ? el.content : "") || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600";
-
-  if (el.productSource === "existing" && el.productId) {
-    const prod = siteProducts?.find((p) => p.id === el.productId);
-    if (prod && prod.image) {
-      imgSrc = prod.image;
-    }
-  }
+  const prodList = siteProducts && siteProducts.length > 0 ? siteProducts : wc.products;
+  const connected = prodList.find((p) => p.id === el.productId) || prodList[0];
+  const imgSrc = el.src || el.productImage || connected?.image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800";
+  const [activeImg, setActiveImg] = useState(imgSrc);
 
   const handleLocalImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -7814,67 +7904,1108 @@ export const WcProductImagesWidgetRenderer: React.FC<{ el: EditorElement; getMer
       el.src = url;
       el.productImage = url;
       el.content = url;
+      setActiveImg(url);
     }
   };
 
   return (
-    <div style={styles as React.CSSProperties} className="relative group overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-2 transition">
-      <img src={imgSrc} alt={el.alt || "Product"} className="h-auto w-full rounded-lg object-cover shadow-xs" />
+    <div style={styles as React.CSSProperties} className="relative group overflow-hidden rounded-2xl border border-slate-200 bg-white p-3 shadow-xs space-y-3">
+      <div className="relative overflow-hidden rounded-xl bg-slate-50 aspect-square">
+        <img src={activeImg} alt={el.alt || connected?.name || "Product Image"} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+        {connected?.badge && (
+          <span className="absolute top-3 left-3 px-3 py-1 bg-indigo-600 text-white font-extrabold text-[10px] uppercase rounded-full shadow-md">
+            {connected.badge}
+          </span>
+        )}
+      </div>
+
+      <div className="flex gap-2 justify-center">
+        {[imgSrc, "https://images.unsplash.com/photo-1545454675-3531b543be5d?w=400", "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=400"].map((thumb, idx) => (
+          <button
+            key={idx}
+            type="button"
+            onClick={() => setActiveImg(thumb)}
+            className={`h-12 w-12 rounded-lg border-2 overflow-hidden transition ${activeImg === thumb ? "border-indigo-600 scale-105" : "border-slate-200 opacity-70 hover:opacity-100"}`}
+          >
+            <img src={thumb} alt={`Thumbnail ${idx + 1}`} className="h-full w-full object-cover" />
+          </button>
+        ))}
+      </div>
 
       {!isPreview && (
-        <div className="absolute inset-2 rounded-lg bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-all flex flex-col items-center justify-center gap-2 p-2">
+        <div className="absolute inset-3 rounded-xl bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-all flex flex-col items-center justify-center gap-2 p-2 z-10">
           <label className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white text-slate-800 rounded-lg text-xs font-bold shadow-md hover:bg-slate-100 cursor-pointer transition active:scale-95">
-            <span>📁 Change Product Image</span>
+            <span>📁 Upload Custom Product Image</span>
             <input type="file" accept="image/*" className="hidden" onChange={handleLocalImageSelect} />
           </label>
-          <span className="text-[10px] font-medium text-white/90 drop-shadow">Upload local file or edit in Inspector</span>
         </div>
       )}
     </div>
   );
 };
 
-export const WcAddToCartWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any }> = ({ el, getMergedStyles, activeDevice, mergedStyles }) => {
+export const WcAddToCartWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any; siteProducts?: SiteProduct[] }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts }) => {
+  const wc = useWooCommerce();
   const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
+  const prodList = siteProducts && siteProducts.length > 0 ? siteProducts : wc.products;
+  const connected = prodList.find((p) => p.id === el.productId) || prodList[0];
+  const [added, setAdded] = useState(false);
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (connected) {
+      wc.addToCart(connected, 1);
+      setAdded(true);
+      setTimeout(() => setAdded(false), 2000);
+    }
+  };
+
   return (
-    <button type="button" style={styles as React.CSSProperties} className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 py-3 font-bold text-white shadow-md transition hover:bg-slate-800 cursor-pointer">
-      🛒 {el.content || el.buttonText || "Add to Cart"}
+    <button
+      type="button"
+      style={styles as React.CSSProperties}
+      onClick={handleClick}
+      aria-label={`Add ${connected?.name || "Product"} to cart`}
+      className={`inline-flex items-center justify-center gap-2.5 rounded-xl px-6 py-3.5 font-bold text-white shadow-md transition-all active:scale-95 cursor-pointer ${
+        added ? "bg-emerald-600 hover:bg-emerald-700" : "bg-slate-900 hover:bg-slate-800"
+      }`}
+    >
+      <span className="text-base">{added ? "✓" : "🛒"}</span>
+      <span>{added ? "Added to Cart!" : el.content || el.buttonText || "Add to Cart"}</span>
     </button>
   );
 };
 
 export const WcProductRatingWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; isPreview?: boolean; mergedStyles?: React.CSSProperties | ElementStyles | any; siteProducts?: SiteProduct[] }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts }) => {
+  const wc = useWooCommerce();
   const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
-  let rating = el.productRating ?? 5;
-  let count = el.productRatingCount ?? 128;
-  let text = el.productRatingText;
+  const prodList = siteProducts && siteProducts.length > 0 ? siteProducts : wc.products;
+  const connected = prodList.find((p) => p.id === el.productId) || prodList[0];
+  const rating = connected?.rating ?? el.productRating ?? 4.9;
+  const count = connected?.ratingCount ?? el.productRatingCount ?? 142;
 
-  if (el.productSource === "existing" && el.productId) {
-    const prod = siteProducts?.find((p) => p.id === el.productId);
-    if (prod) {
-      rating = prod.rating ?? 5;
-      count = prod.ratingCount ?? 0;
-    }
-  }
-
-  const roundedRating = Math.min(5, Math.max(1, rating));
-  const fullStars = Math.floor(roundedRating);
-  const hasHalfStar = roundedRating % 1 >= 0.5;
-  const emptyStars = Math.max(0, 5 - fullStars - (hasHalfStar ? 1 : 0));
-
+  const fullStars = Math.floor(rating);
   const starColor = el.productStarColor || "#f59e0b";
-  const starSize = el.productStarSize || "14px";
 
   return (
-    <div style={styles as React.CSSProperties} className="flex items-center gap-1 font-bold">
-      <span className="flex items-center" style={{ color: starColor, fontSize: starSize }}>
+    <div style={styles as React.CSSProperties} className="inline-flex items-center gap-1.5 font-bold" aria-label={`Rated ${rating} out of 5 stars from ${count} reviews`}>
+      <div className="flex items-center text-amber-500 text-sm" style={{ color: starColor }}>
         {"★".repeat(fullStars)}
-        {hasHalfStar && "½"}
-        {"☆".repeat(emptyStars)}
-      </span>
-      <span className="text-xs text-slate-600 ml-1 font-semibold">
-        {rating.toFixed(1)} <span className="text-slate-400 font-normal">({text || `${count} Reviews`})</span>
-      </span>
+        {"☆".repeat(5 - fullStars)}
+      </div>
+      <span className="text-xs text-slate-900 font-extrabold">{rating.toFixed(1)}</span>
+      <span className="text-xs text-slate-500 font-medium">({count} customer reviews)</span>
+    </div>
+  );
+};
+
+export const WcBuilderWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; mergedStyles?: any }> = ({ el, getMergedStyles, activeDevice, mergedStyles }) => {
+  const wc = useWooCommerce();
+  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
+  return (
+    <div style={styles as React.CSSProperties} className="rounded-2xl border border-indigo-200 bg-gradient-to-br from-indigo-50/80 via-purple-50/60 to-white p-6 shadow-sm space-y-4">
+      <div className="flex items-center justify-between border-b border-indigo-100 pb-3">
+        <div className="flex items-center gap-3">
+          <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-600 text-white text-xl font-extrabold shadow-md">🏪</span>
+          <div>
+            <h3 className="font-extrabold text-sm text-slate-900">{el.content || "WooCommerce Engine Core"}</h3>
+            <p className="text-[11px] text-slate-500">Full Parity WooCommerce Architecture • {wc.products.length} Products Active</p>
+          </div>
+        </div>
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-[11px] font-extrabold text-emerald-800">
+          <span className="h-2 w-2 rounded-full bg-emerald-500 animate-ping" /> Synchronized
+        </span>
+      </div>
+      <div className="grid grid-cols-3 gap-3 text-center text-xs font-bold">
+        <div className="rounded-xl bg-white p-3 border border-slate-200/80 shadow-2xs">
+          <span className="block text-lg">📦</span> {wc.products.length} Products
+        </div>
+        <div className="rounded-xl bg-white p-3 border border-slate-200/80 shadow-2xs">
+          <span className="block text-lg">🛒</span> {wc.cartCount} Cart Items
+        </div>
+        <div className="rounded-xl bg-white p-3 border border-slate-200/80 shadow-2xs">
+          <span className="block text-lg">💳</span> Live Checkout Ready
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const WcProductWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; mergedStyles?: any; siteProducts?: SiteProduct[] }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts }) => {
+  const wc = useWooCommerce();
+  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
+  const prodList = siteProducts && siteProducts.length > 0 ? siteProducts : wc.products;
+  const prod = prodList.find((p) => p.id === el.productId) || prodList[0];
+
+  return (
+    <div style={styles as React.CSSProperties} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition space-y-3.5 max-w-sm">
+      <div className="relative overflow-hidden rounded-xl bg-slate-50 aspect-video">
+        <img src={prod?.image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600"} alt={prod?.name} className="w-full h-full object-cover" />
+        {prod?.badge && (
+          <span className="absolute top-2 left-2 px-2.5 py-0.5 rounded-full bg-indigo-600 text-white text-[10px] font-extrabold uppercase">
+            {prod.badge}
+          </span>
+        )}
+      </div>
+      <h3 className="font-extrabold text-slate-900 text-sm line-clamp-1">{prod?.name || "Aura Pro Headphones"}</h3>
+      <div className="flex items-center justify-between pt-1">
+        <span className="text-lg font-extrabold text-emerald-600">{prod?.price || "$199.99"}</span>
+        <button
+          type="button"
+          onClick={() => prod && wc.addToCart(prod, 1)}
+          className="px-4 py-2 rounded-xl bg-indigo-600 text-white font-bold text-xs hover:bg-indigo-700 transition active:scale-95"
+        >
+          Add to Cart
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export const WcProductStockWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; mergedStyles?: any; siteProducts?: SiteProduct[] }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts }) => {
+  const wc = useWooCommerce();
+  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
+  const prodList = siteProducts && siteProducts.length > 0 ? siteProducts : wc.products;
+  const prod = prodList.find((p) => p.id === el.productId) || prodList[0];
+  const inStock = prod?.inStock ?? true;
+
+  const threshold = el.stockThreshold ?? 5;
+  const isLowStock = inStock && threshold > 0 && typeof (prod as any)?.stock === "number" && (prod as any).stock <= threshold;
+
+  const label = !inStock
+    ? (el.outOfStockLabel || "Out of Stock")
+    : isLowStock
+    ? (el.lowStockLabel || `Low Stock - Only ${(prod as any).stock} left!`)
+    : (el.inStockLabel || "In Stock (Ready to Ship)");
+
+  const badgeBg = !inStock
+    ? (el.outOfStockColor ? `${el.outOfStockColor}15` : undefined)
+    : isLowStock
+    ? (el.lowStockColor ? `${el.lowStockColor}15` : undefined)
+    : (el.inStockColor ? `${el.inStockColor}15` : undefined);
+
+  const badgeColor = !inStock
+    ? (el.outOfStockColor || "#be123c")
+    : isLowStock
+    ? (el.lowStockColor || "#b45309")
+    : (el.inStockColor || "#047857");
+
+  const badgeBorder = !inStock
+    ? (el.outOfStockColor ? `${el.outOfStockColor}30` : undefined)
+    : isLowStock
+    ? (el.lowStockColor ? `${el.lowStockColor}30` : undefined)
+    : (el.inStockColor ? `${el.inStockColor}30` : undefined);
+
+  return (
+    <div
+      style={{
+        ...styles,
+        backgroundColor: badgeBg || (inStock ? (isLowStock ? "#fffbeb" : "#ecfdf5") : "#fff1f2"),
+        color: badgeColor,
+        borderColor: badgeBorder || (inStock ? (isLowStock ? "#fde68a" : "#a7f3d0") : "#fecdd3"),
+      } as React.CSSProperties}
+      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-extrabold border"
+    >
+      <span
+        style={{ backgroundColor: badgeColor }}
+        className={`h-2.5 w-2.5 rounded-full ${inStock ? "animate-pulse" : ""}`}
+      />
+      <span>{label}</span>
+    </div>
+  );
+};
+
+export const WcProductMetaWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; mergedStyles?: any; siteProducts?: SiteProduct[] }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts }) => {
+  const wc = useWooCommerce();
+  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
+  const prodList = siteProducts && siteProducts.length > 0 ? siteProducts : wc.products;
+  const prod = prodList.find((p) => p.id === el.productId) || prodList[0];
+
+  const showSku = el.metaShowSku ?? true;
+  const showCategory = el.metaShowCategory ?? true;
+  const showTags = el.metaShowTags ?? true;
+  const separator = el.metaSeparator || " • ";
+
+  return (
+    <div style={styles as React.CSSProperties} className="text-xs space-y-1.5 text-slate-600 border-t border-slate-200 pt-3">
+      {showSku && (
+        <p>
+          <strong className="text-slate-900 font-extrabold">SKU:</strong>{" "}
+          <span className="font-mono text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md">{prod?.id || "WC-PROD-101"}</span>
+        </p>
+      )}
+      {showCategory && (
+        <p>
+          <strong className="text-slate-900 font-extrabold">Category:</strong>{" "}
+          <button type="button" onClick={() => wc.setActiveCategory(prod?.category || null)} className="text-indigo-600 font-bold hover:underline ml-1">
+            {prod?.category || "Audio & Sound"}
+          </button>
+        </p>
+      )}
+      {showTags && (
+        <p>
+          <strong className="text-slate-900 font-extrabold">Tags:</strong>{" "}
+          <span className="text-slate-500 font-medium">Electronics{separator}Wireless{separator}Studio Audio</span>
+        </p>
+      )}
+    </div>
+  );
+};
+
+export const WcProductContentWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; mergedStyles?: any; siteProducts?: SiteProduct[] }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts }) => {
+  const wc = useWooCommerce();
+  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
+  const prodList = siteProducts && siteProducts.length > 0 ? siteProducts : wc.products;
+  const prod = prodList.find((p) => p.id === el.productId) || prodList[0];
+  const description = el.productDescriptionOverride || el.content || prod?.description || "Experience crystal-clear acoustic fidelity with custom dynamic drivers, memory foam cushions, active noise cancellation, and up to 40 hours of continuous wireless playback.";
+
+  return (
+    <div
+      style={{
+        ...styles,
+        color: el.productTextColor || (styles as any)?.color || undefined,
+        fontFamily: el.productTypography || (styles as any)?.fontFamily || undefined,
+      } as React.CSSProperties}
+      className="prose prose-slate text-xs leading-relaxed text-slate-600 bg-white p-4 rounded-xl border border-slate-100"
+    >
+      <p>{description}</p>
+    </div>
+  );
+};
+
+export const WcShortDescriptionWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; mergedStyles?: any; siteProducts?: SiteProduct[] }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts }) => {
+  const wc = useWooCommerce();
+  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
+  const prodList = siteProducts && siteProducts.length > 0 ? siteProducts : wc.products;
+  const prod = prodList.find((p) => p.id === el.productId) || prodList[0];
+  const shortDesc = el.productDescriptionOverride || el.content || prod?.description || "Ultra-lightweight wireless headphones engineered for studio acoustic purity and all-day comfort.";
+
+  return (
+    <p
+      style={{
+        ...styles,
+        color: el.productTextColor || (styles as any)?.color || undefined,
+        fontFamily: el.productTypography || (styles as any)?.fontFamily || undefined,
+      } as React.CSSProperties}
+      className="text-xs text-slate-600 font-medium leading-normal italic border-l-2 border-indigo-500 pl-3 py-1"
+    >
+      {shortDesc}
+    </p>
+  );
+};
+
+export const WcProductDataTabsWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; mergedStyles?: any; siteProducts?: SiteProduct[] }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts }) => {
+  const wc = useWooCommerce();
+  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
+  const prodList = siteProducts && siteProducts.length > 0 ? siteProducts : wc.products;
+  const prod = prodList.find((p) => p.id === el.productId) || prodList[0];
+
+  const customTabs = el.tabsData && el.tabsData.length > 0 ? el.tabsData : [
+    { id: "desc", title: "Description", content: prod?.description || "Crafted with surgical-grade aluminum and plush protein leather ear cushions, this product delivers uncompromised performance and active noise cancellation." },
+    { id: "specs", title: "Additional Info", content: "Driver Size: 40mm Neodymium • Battery Life: 40 Hours • Warranty: 2 Years Global" },
+    { id: "reviews", title: "Customer Reviews", content: "★★★★★ Alex M. — Exceptional clarity, studio bass, and incredible battery stamina!" },
+  ];
+
+  const [activeTabId, setActiveTabId] = useState<string>(customTabs[0]?.id || "desc");
+  const currentTab = customTabs.find((t) => t.id === activeTabId) || customTabs[0];
+
+  return (
+    <div style={styles as React.CSSProperties} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs space-y-4 text-xs">
+      <div className="flex border-b border-slate-200 gap-4 overflow-x-auto font-bold text-slate-600">
+        {customTabs.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            onClick={() => setActiveTabId(t.id)}
+            className={`pb-2.5 transition whitespace-nowrap border-b-2 cursor-pointer ${
+              activeTabId === t.id ? "border-indigo-600 text-indigo-600 font-extrabold" : "border-transparent hover:text-slate-900"
+            }`}
+          >
+            {t.title}
+          </button>
+        ))}
+      </div>
+
+      <div className="text-slate-600 leading-relaxed min-h-[60px]">
+        {currentTab?.content}
+      </div>
+    </div>
+  );
+};
+
+export const WcAdditionalInfoWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; mergedStyles?: any }> = ({ el, getMergedStyles, activeDevice, mergedStyles }) => {
+  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
+  const attrs = el.additionalInfoAttributes && el.additionalInfoAttributes.length > 0
+    ? el.additionalInfoAttributes
+    : [
+        { key: "Weight", value: "250 grams" },
+        { key: "Dimensions", value: "18 x 15 x 8 cm" },
+        { key: "Material", value: "Anodized Aerospace Aluminum" },
+        { key: "Connectivity", value: "Bluetooth 5.3 + 3.5mm AUX" },
+        { key: "Warranty", value: "2 Years Manufacturer Warranty" },
+      ];
+
+  return (
+    <div style={styles as React.CSSProperties} className="rounded-xl border border-slate-200 overflow-hidden bg-white text-xs shadow-2xs">
+      <table className="w-full text-left border-collapse">
+        <tbody>
+          {attrs.map((attr, idx) => (
+            <tr key={idx} className={`border-b border-slate-100 ${idx % 2 === 0 ? "bg-slate-50/70" : "bg-white"}`}>
+              <th className="p-3 font-bold text-slate-800 w-1/3">{attr.key}</th>
+              <td className="p-3 text-slate-600">{attr.value}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+export const WcRelatedProductsWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; mergedStyles?: any; siteProducts?: SiteProduct[] }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts }) => {
+  const wc = useWooCommerce();
+  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
+  let list = siteProducts && siteProducts.length > 0 ? siteProducts : wc.products;
+  const connected = list.find((p) => p.id === el.productId);
+
+  if (el.relatedCriteria === "category" && connected?.category) {
+    const filtered = list.filter((p) => p.id !== connected.id && p.category === connected.category);
+    if (filtered.length > 0) list = filtered;
+  }
+
+  const limit = Math.min(Math.max(el.relatedLimit || 3, 2), 8);
+  const displayItems = list.slice(0, limit);
+  const cols = Math.min(Math.max(el.relatedColumns || 3, 1), 6);
+
+  return (
+    <div style={styles as React.CSSProperties} className="space-y-3">
+      <h4 className="font-extrabold text-sm text-slate-900 flex items-center gap-2">
+        <span>🔄 Related Products</span>
+      </h4>
+      <div
+        className="grid gap-3"
+        style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
+      >
+        {displayItems.map((p) => (
+          <div key={p.id} className="rounded-xl border border-slate-200 bg-white p-3 space-y-2 shadow-2xs hover:shadow-md transition">
+            <img src={p.image} alt={p.name} className="h-24 w-full rounded-lg object-cover" />
+            <p className="font-bold text-xs text-slate-900 line-clamp-1">{p.name}</p>
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-extrabold text-emerald-600">{p.price}</span>
+              <button type="button" onClick={() => wc.addToCart(p, 1)} className="px-2.5 py-1 rounded-md bg-indigo-600 text-white font-bold text-[10px] hover:bg-indigo-700 cursor-pointer">Add</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export const WcUpsellsWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; mergedStyles?: any; siteProducts?: SiteProduct[] }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts }) => {
+  const wc = useWooCommerce();
+  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
+  const [added, setAdded] = useState(false);
+  const limit = el.upsellsLimit || 2;
+
+  return (
+    <div style={styles as React.CSSProperties} className="rounded-2xl border border-amber-300 bg-amber-50/80 p-4 space-y-2.5 text-xs shadow-2xs">
+      <div className="flex items-center justify-between text-amber-950 font-extrabold">
+        <span className="flex items-center gap-1.5">🚀 Frequently Bought Together</span>
+        <span className="px-2 py-0.5 rounded-full bg-amber-200 text-amber-900 text-[10px] font-bold">Save 20%</span>
+      </div>
+      <p className="text-amber-900">Add 2-Year Full Damage Protection & Hard Travel Case bundle for only <strong>$29.99</strong>!</p>
+      <button
+        type="button"
+        onClick={() => {
+          wc.addNotice("success", "➕ Added Protection Plan & Travel Case to your order!");
+          setAdded(true);
+        }}
+        className={`px-4 py-2 rounded-xl font-bold text-white transition active:scale-95 cursor-pointer ${added ? "bg-emerald-600" : "bg-amber-600 hover:bg-amber-700"}`}
+      >
+        {added ? "✓ Bundle Added to Order!" : "Add Protection Bundle ($29.99)"}
+      </button>
+    </div>
+  );
+};
+
+export const WcProductsWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; mergedStyles?: any; siteProducts?: SiteProduct[] }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts }) => {
+  const wc = useWooCommerce();
+  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
+  let list = siteProducts && siteProducts.length > 0 ? [...siteProducts] : [...wc.products];
+
+  if (wc.activeCategory) {
+    list = list.filter((p) => p.category === wc.activeCategory);
+  }
+
+  // Handle orderBy
+  const orderBy = el.productsOrderBy || "date";
+  if (orderBy === "price_asc") {
+    list.sort((a, b) => (parseFloat(a.price.replace(/[^0-9.]/g, "")) || 0) - (parseFloat(b.price.replace(/[^0-9.]/g, "")) || 0));
+  } else if (orderBy === "price_desc") {
+    list.sort((a, b) => (parseFloat(b.price.replace(/[^0-9.]/g, "")) || 0) - (parseFloat(a.price.replace(/[^0-9.]/g, "")) || 0));
+  } else if (orderBy === "rating") {
+    list.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+  }
+
+  const perPage = el.productsPerPage || 8;
+  const displayList = list.slice(0, perPage);
+  const layout = el.productsLayout || wc.activeShopLayout || "grid";
+
+  return (
+    <div style={styles as React.CSSProperties} className={`grid gap-4 ${layout === "list" ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3"}`}>
+      {displayList.map((p) => (
+        <div key={p.id} className={`rounded-2xl border border-slate-200 bg-white p-4 shadow-sm hover:shadow-md transition ${layout === "list" ? "flex items-center gap-4" : "flex flex-col justify-between space-y-3"}`}>
+          <img src={p.image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400"} alt={p.name} className={`${layout === "list" ? "h-24 w-24 rounded-xl object-cover shrink-0" : "w-full h-36 rounded-xl object-cover"}`} />
+          <div className="flex-1 space-y-1">
+            <h4 className="font-extrabold text-xs text-slate-900 line-clamp-1">{p.name}</h4>
+            <p className="text-[11px] text-slate-500 line-clamp-1">{p.description}</p>
+            <div className="flex items-center justify-between pt-1">
+              <span className="font-extrabold text-xs text-emerald-600">{p.price}</span>
+              <button type="button" onClick={() => wc.addToCart(p, 1)} className="px-3 py-1.5 rounded-lg bg-indigo-600 text-white font-bold text-[11px] hover:bg-indigo-700 transition active:scale-95 cursor-pointer">Add to Cart</button>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+export const WcCustomAddToCartWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; mergedStyles?: any; siteProducts?: SiteProduct[] }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts }) => {
+  const wc = useWooCommerce();
+  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
+  const prodList = siteProducts && siteProducts.length > 0 ? siteProducts : wc.products;
+  const targetId = el.customAddToCartProductId || el.productId;
+  const prod = prodList.find((p) => p.id === targetId) || prodList[0];
+  const [qty, setQty] = useState(1);
+
+  return (
+    <div style={styles as React.CSSProperties} className="inline-flex items-center gap-3 bg-white p-2 rounded-2xl border border-slate-200 shadow-2xs">
+      <div className="flex items-center border border-slate-300 rounded-xl overflow-hidden bg-slate-50">
+        <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))} className="px-3 py-1.5 font-bold text-slate-700 hover:bg-slate-200 cursor-pointer">-</button>
+        <span className="px-3 py-1.5 font-extrabold text-xs text-slate-900">{qty}</span>
+        <button type="button" onClick={() => setQty((q) => q + 1)} className="px-3 py-1.5 font-bold text-slate-700 hover:bg-slate-200 cursor-pointer">+</button>
+      </div>
+      <button
+        type="button"
+        onClick={() => prod && wc.addToCart(prod, qty)}
+        className="px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-extrabold text-xs shadow-md hover:bg-indigo-700 transition active:scale-95 cursor-pointer"
+      >
+        🛒 Add ({qty}) to Cart
+      </button>
+    </div>
+  );
+};
+
+export const WcProductCategoriesWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; mergedStyles?: any }> = ({ el, getMergedStyles, activeDevice, mergedStyles }) => {
+  const wc = useWooCommerce();
+  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
+  const cats = ["Audio & Sound", "Wearables", "Accessories", "All Products"];
+
+  return (
+    <div style={styles as React.CSSProperties} className="flex flex-wrap gap-2">
+      {cats.map((c) => {
+        const catValue = c === "All Products" ? null : c;
+        const isActive = wc.activeCategory === catValue;
+        return (
+          <button
+            key={c}
+            type="button"
+            onClick={() => wc.setActiveCategory(catValue)}
+            className={`px-3.5 py-2 rounded-xl text-xs font-extrabold border transition active:scale-95 cursor-pointer ${
+              isActive ? "bg-indigo-600 text-white border-indigo-600 shadow-sm" : "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200"
+            }`}
+          >
+            📂 {c}
+          </button>
+        );
+      })}
+    </div>
+  );
+};
+
+export const WcMenuCartWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; mergedStyles?: any }> = ({ el, getMergedStyles, activeDevice, mergedStyles }) => {
+  const wc = useWooCommerce();
+  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div style={styles as React.CSSProperties} className="relative inline-block">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        aria-label="View shopping cart"
+        className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-slate-900 text-white font-extrabold text-xs shadow-md hover:bg-slate-800 transition active:scale-95 cursor-pointer"
+      >
+        <span className="text-sm">🛒</span>
+        <span>Cart</span>
+        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-slate-950 font-black text-[10px]">
+          {wc.cartCount}
+        </span>
+        <span className="text-slate-300 font-mono pl-1 border-l border-slate-700">${wc.cartSubtotal.toFixed(2)}</span>
+      </button>
+
+      {open && (
+        <div className="absolute right-0 mt-2 w-80 rounded-2xl border border-slate-200 bg-white p-4 shadow-xl z-50 space-y-3 text-xs">
+          <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+            <span className="font-extrabold text-slate-900">Your Cart ({wc.cartCount})</span>
+            <button type="button" onClick={() => setOpen(false)} className="text-slate-400 hover:text-slate-600 font-bold cursor-pointer">✕</button>
+          </div>
+          {wc.cart.length === 0 ? (
+            <p className="text-slate-500 text-center py-4 italic">Your cart is currently empty</p>
+          ) : (
+            <div className="space-y-2 max-h-56 overflow-y-auto">
+              {wc.cart.map((item) => (
+                <div key={item.product.id} className="flex justify-between items-center py-1">
+                  <div>
+                    <p className="font-bold text-slate-900">{item.product.name}</p>
+                    <p className="text-[11px] text-slate-500">Qty: {item.quantity} × {item.customPrice ? `$${item.customPrice.toFixed(2)}` : item.product.price}</p>
+                  </div>
+                  <button type="button" onClick={() => wc.removeFromCart(item.product.id)} className="text-rose-500 text-xs font-bold hover:underline cursor-pointer">Remove</button>
+                </div>
+              ))}
+            </div>
+          )}
+          <div className="border-t border-slate-100 pt-2 flex justify-between items-center font-extrabold text-slate-900">
+            <span>Total</span>
+            <span className="text-emerald-600">${wc.cartSubtotal.toFixed(2)}</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export const WcCartWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; mergedStyles?: any }> = ({ el, getMergedStyles, activeDevice, mergedStyles }) => {
+  const wc = useWooCommerce();
+  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
+  const [couponCode, setCouponCode] = useState("");
+  const [applied, setApplied] = useState(false);
+
+  const accentColor = el.cartAccentColor || "#4f46e5";
+  const btnLabel = el.cartButtonLabel || "Apply";
+  const showCoupons = el.cartShowCoupons ?? true;
+  const showShippingCalc = el.cartShowShippingCalc ?? true;
+
+  return (
+    <div style={styles as React.CSSProperties} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-5">
+      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 className="font-extrabold text-base text-slate-900 flex items-center gap-2">
+          <span>🛒</span> Shopping Cart
+        </h3>
+        {wc.cart.length > 0 && (
+          <button type="button" onClick={wc.clearCart} className="text-xs text-rose-600 font-bold hover:underline cursor-pointer">Clear Cart</button>
+        )}
+      </div>
+
+      {wc.cart.length === 0 ? (
+        <div className="text-center py-8 space-y-2">
+          <span className="text-4xl block">🛍️</span>
+          <p className="font-bold text-slate-700 text-sm">Your cart is currently empty.</p>
+          <p className="text-xs text-slate-500">Explore our catalog and add your favorite items!</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {wc.cart.map((item) => (
+            <div key={item.product.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
+              <div className="flex items-center gap-3">
+                <img src={item.product.image} alt={item.product.name} className="h-12 w-12 rounded-lg object-cover" />
+                <div>
+                  <h4 className="font-bold text-xs text-slate-900">{item.product.name}</h4>
+                  <span className="text-xs text-slate-500">{item.customPrice ? `$${item.customPrice.toFixed(2)}` : item.product.price}</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center border border-slate-300 rounded-lg overflow-hidden bg-white">
+                  <button type="button" onClick={() => wc.updateCartQuantity(item.product.id, item.quantity - 1)} className="px-2 py-1 text-xs font-bold hover:bg-slate-100 cursor-pointer">-</button>
+                  <span className="px-2 py-1 text-xs font-bold text-slate-900">{item.quantity}</span>
+                  <button type="button" onClick={() => wc.updateCartQuantity(item.product.id, item.quantity + 1)} className="px-2 py-1 text-xs font-bold hover:bg-slate-100 cursor-pointer">+</button>
+                </div>
+                <button type="button" onClick={() => wc.removeFromCart(item.product.id)} className="text-rose-500 text-xs font-bold cursor-pointer">✕</button>
+              </div>
+            </div>
+          ))}
+
+          {showCoupons && (
+            <div className="flex gap-2 pt-2">
+              <input
+                type="text"
+                placeholder="Coupon Code"
+                value={couponCode}
+                onChange={(e) => setCouponCode(e.target.value)}
+                className="px-3 py-2 text-xs rounded-xl border border-slate-300 flex-1 font-mono uppercase"
+              />
+              <button
+                type="button"
+                style={{ backgroundColor: accentColor, color: "#fff" }}
+                onClick={() => {
+                  if (couponCode.trim()) {
+                    setApplied(true);
+                    wc.addNotice("success", `🎉 Coupon "${couponCode}" applied successfully! 10% discount applied.`);
+                  }
+                }}
+                className="px-4 py-2 text-xs font-bold rounded-xl shadow-xs cursor-pointer hover:opacity-95"
+              >
+                {applied ? "Applied!" : btnLabel}
+              </button>
+            </div>
+          )}
+
+          <div className="border-t border-slate-200 pt-3 space-y-1.5 text-xs">
+            <div className="flex justify-between text-slate-600"><span>Subtotal:</span><span>${wc.cartSubtotal.toFixed(2)}</span></div>
+            {showShippingCalc && (
+              <div className="flex justify-between text-slate-600"><span>Estimated Shipping:</span><span className="text-emerald-600 font-bold">{wc.cartSubtotal > 50 ? "FREE" : "$9.99"}</span></div>
+            )}
+            {applied && <div className="flex justify-between text-emerald-600 font-bold"><span>Discount (10% OFF):</span><span>-${(wc.cartSubtotal * 0.1).toFixed(2)}</span></div>}
+            <div className="flex justify-between font-extrabold text-sm text-slate-900 pt-2 border-t border-slate-100">
+              <span>Total:</span>
+              <span className="text-emerald-600">${(wc.cartSubtotal * (applied ? 0.9 : 1)).toFixed(2)}</span>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export const WcCheckoutWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; mergedStyles?: any }> = ({ el, getMergedStyles, activeDevice, mergedStyles }) => {
+  const wc = useWooCommerce();
+  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
+  const [email, setEmail] = useState("customer@forgestudio.com");
+  const [name, setName] = useState("John Doe");
+  const [loading, setLoading] = useState(false);
+
+  const accentColor = el.checkoutAccentColor || "#10b981";
+  const btnLabel = el.checkoutButtonLabel || "Place Order";
+  const showShippingCalc = el.checkoutShowShippingCalc ?? true;
+
+  const handleCheckout = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    await wc.placeOrder({ customerEmail: email, customerName: name, billingAddress: "123 Innovation Way, Tech City" });
+    setLoading(false);
+  };
+
+  return (
+    <form style={styles as React.CSSProperties} onSubmit={handleCheckout} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4 text-xs">
+      <h3 className="font-extrabold text-base text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
+        <span>💳</span> Live Store Checkout
+      </h3>
+
+      <div className="space-y-3">
+        <label className="block space-y-1 font-bold text-slate-700">
+          Full Name
+          <input type="text" required value={name} onChange={(e) => setName(e.target.value)} className="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-normal focus:bg-white focus:ring-2 focus:ring-indigo-500 transition outline-none" />
+        </label>
+        <label className="block space-y-1 font-bold text-slate-700">
+          Email Address
+          <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-normal focus:bg-white focus:ring-2 focus:ring-indigo-500 transition outline-none" />
+        </label>
+      </div>
+
+      <div className="rounded-xl bg-slate-50 p-3 border border-slate-200 space-y-1">
+        <div className="flex justify-between font-bold text-slate-700"><span>Order Subtotal:</span><span>${wc.cartSubtotal.toFixed(2)}</span></div>
+        {showShippingCalc && (
+          <div className="flex justify-between font-bold text-slate-700"><span>Shipping:</span><span className="text-emerald-600 font-extrabold">{wc.cartSubtotal > 50 ? "FREE" : "$9.99"}</span></div>
+        )}
+        <div className="flex justify-between font-extrabold text-sm text-slate-900 pt-1 border-t border-slate-200"><span>Total Due:</span><span className="text-emerald-600">${wc.cartSubtotal.toFixed(2)}</span></div>
+      </div>
+
+      <button
+        type="submit"
+        disabled={loading || wc.cart.length === 0}
+        style={{ backgroundColor: accentColor }}
+        className="w-full py-3.5 rounded-xl text-white font-extrabold text-xs shadow-md disabled:opacity-50 cursor-pointer active:scale-95 transition"
+      >
+        {loading ? "Processing Order..." : `${btnLabel} ($${wc.cartSubtotal.toFixed(2)})`}
+      </button>
+    </form>
+  );
+};
+
+export const WcMyAccountWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; mergedStyles?: any }> = ({ el, getMergedStyles, activeDevice, mergedStyles }) => {
+  const wc = useWooCommerce();
+  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
+  const [tab, setTab] = useState<"orders" | "addresses" | "account">("orders");
+
+  return (
+    <div style={styles as React.CSSProperties} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-5 text-xs">
+      <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
+        <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-100 font-extrabold text-indigo-700 text-xl shadow-xs">👤</span>
+        <div>
+          <h4 className="font-extrabold text-slate-900 text-sm">Customer Dashboard</h4>
+          <p className="text-slate-500 text-[11px]">Welcome back! Manage your active orders and profile settings.</p>
+        </div>
+      </div>
+
+      <div className="flex gap-2">
+        <button type="button" onClick={() => setTab("orders")} className={`px-4 py-2 rounded-xl font-extrabold transition ${tab === "orders" ? "bg-indigo-600 text-white shadow-xs" : "bg-slate-100 text-slate-700 hover:bg-slate-200"}`}>
+          📦 Orders ({wc.lastOrder ? 1 : 0})
+        </button>
+        <button type="button" onClick={() => setTab("addresses")} className={`px-4 py-2 rounded-xl font-extrabold transition ${tab === "addresses" ? "bg-indigo-600 text-white shadow-xs" : "bg-slate-100 text-slate-700 hover:bg-slate-200"}`}>
+          📍 Shipping Addresses
+        </button>
+        <button type="button" onClick={() => setTab("account")} className={`px-4 py-2 rounded-xl font-extrabold transition ${tab === "account" ? "bg-indigo-600 text-white shadow-xs" : "bg-slate-100 text-slate-700 hover:bg-slate-200"}`}>
+          ⚙️ Account Settings
+        </button>
+      </div>
+
+      {tab === "orders" && (
+        <div>
+          {wc.lastOrder ? (
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+              <div className="flex justify-between font-extrabold text-slate-900">
+                <span>Order #{wc.lastOrder.id.slice(-6)}</span>
+                <span className="text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full text-[10px]">{wc.lastOrder.status}</span>
+              </div>
+              <p className="text-slate-600">Placed on: {new Date(wc.lastOrder.createdAt).toLocaleDateString()}</p>
+              <p className="font-extrabold text-slate-900">Total: ${wc.lastOrder.total.toFixed(2)}</p>
+            </div>
+          ) : (
+            <p className="text-slate-500 italic py-3">No orders placed yet.</p>
+          )}
+        </div>
+      )}
+
+      {tab === "addresses" && (
+        <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+          <p className="font-bold text-slate-900">Default Shipping Address</p>
+          <p className="text-slate-600">123 Innovation Way, Tech Suite 400, San Francisco, CA</p>
+        </div>
+      )}
+
+      {tab === "account" && (
+        <div className="space-y-2">
+          <input type="text" defaultValue="John Doe" className="w-full p-2.5 rounded-xl border border-slate-200" />
+          <input type="email" defaultValue="customer@forgestudio.com" className="w-full p-2.5 rounded-xl border border-slate-200" />
+        </div>
+      )}
+    </div>
+  );
+};
+
+export const WcPurchaseSummaryWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; mergedStyles?: any }> = ({ el, getMergedStyles, activeDevice, mergedStyles }) => {
+  const wc = useWooCommerce();
+  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
+  const order = wc.lastOrder;
+
+  return (
+    <div style={styles as React.CSSProperties} className="rounded-2xl border border-emerald-300 bg-emerald-50/90 p-6 shadow-sm space-y-4 text-xs">
+      <div className="flex items-center gap-3 text-emerald-950 font-extrabold text-base border-b border-emerald-200 pb-3">
+        <span className="text-2xl">🎉</span> Order Receipt & Confirmation
+      </div>
+      <p className="text-emerald-900 leading-relaxed font-medium">
+        Thank you for your purchase! Your order has been placed and is currently being processed by our fulfillment team.
+      </p>
+
+      {order ? (
+        <div className="space-y-2 bg-white/80 p-4 rounded-xl border border-emerald-200 text-slate-800">
+          <p><strong>Order ID:</strong> <span className="font-mono text-indigo-700">{order.id}</span></p>
+          <p><strong>Status:</strong> <span className="text-emerald-700 font-extrabold uppercase">{order.status}</span></p>
+          <p><strong>Total Paid:</strong> <span className="text-emerald-600 font-extrabold">${order.total.toFixed(2)}</span></p>
+          <p><strong>Items:</strong> {order.items.map((i) => i.name).join(", ")}</p>
+        </div>
+      ) : (
+        <div className="p-3 bg-white/60 rounded-xl text-slate-600 italic">
+          Sample Receipt: Order #WC-89240 • Total: $199.99
+        </div>
+      )}
+    </div>
+  );
+};
+
+export const WcNoticesWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; mergedStyles?: any }> = ({ el, getMergedStyles, activeDevice, mergedStyles }) => {
+  const wc = useWooCommerce();
+  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
+
+  return (
+    <div style={styles as React.CSSProperties} className="space-y-2">
+      {wc.notices.length === 0 ? (
+        <div className="rounded-xl border border-blue-200 bg-blue-50 p-3.5 text-xs text-blue-900 font-bold flex items-center justify-between shadow-2xs">
+          <span className="flex items-center gap-2"><span>ℹ️</span> Free Express Shipping on all orders over $50!</span>
+        </div>
+      ) : (
+        wc.notices.map((notice) => (
+          <div
+            key={notice.id}
+            className={`rounded-xl p-3.5 text-xs font-extrabold flex items-center justify-between shadow-2xs ${
+              notice.type === "error" ? "bg-rose-50 text-rose-900 border border-rose-200" : notice.type === "info" ? "bg-blue-50 text-blue-900 border border-blue-200" : "bg-emerald-50 text-emerald-900 border border-emerald-200"
+            }`}
+          >
+            <span>{notice.message}</span>
+            <button type="button" onClick={() => wc.dismissNotice(notice.id)} className="ml-2 opacity-70 hover:opacity-100 font-extrabold">✕</button>
+          </div>
+        ))
+      )}
+    </div>
+  );
+};
+
+export const WcShopLayoutsWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; mergedStyles?: any }> = ({ el, getMergedStyles, activeDevice, mergedStyles }) => {
+  const wc = useWooCommerce();
+  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
+
+  return (
+    <div style={styles as React.CSSProperties} className="inline-flex items-center gap-1 rounded-xl bg-slate-100 p-1 border border-slate-200 text-xs font-bold">
+      <button
+        type="button"
+        onClick={() => wc.setActiveShopLayout("grid")}
+        className={`px-3 py-1.5 rounded-lg transition active:scale-95 cursor-pointer ${
+          wc.activeShopLayout === "grid" ? "bg-white text-indigo-600 shadow-xs font-extrabold" : "text-slate-600 hover:bg-slate-200"
+        }`}
+      >
+        <span>▦ Grid View</span>
+      </button>
+      <button
+        type="button"
+        onClick={() => wc.setActiveShopLayout("list")}
+        className={`px-3 py-1.5 rounded-lg transition active:scale-95 cursor-pointer ${
+          wc.activeShopLayout === "list" ? "bg-white text-indigo-600 shadow-xs font-extrabold" : "text-slate-600 hover:bg-slate-200"
+        }`}
+      >
+        <span>☰ List View</span>
+      </button>
+    </div>
+  );
+};
+
+export const WcProductArchiveWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; mergedStyles?: any; siteProducts?: SiteProduct[] }> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts }) => {
+  const wc = useWooCommerce();
+  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
+
+  return (
+    <div style={styles as React.CSSProperties} className="space-y-4 rounded-2xl border border-slate-200 bg-slate-50/50 p-5">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-slate-200 pb-3 gap-2">
+        <div>
+          <h3 className="font-extrabold text-base text-slate-900">Product Archive Catalog</h3>
+          <p className="text-xs text-slate-500">Showing {wc.products.length} store items</p>
+        </div>
+        <WcShopLayoutsWidgetRenderer el={el} />
+      </div>
+      <WcProductsWidgetRenderer el={el} mergedStyles={{}} siteProducts={siteProducts} />
+    </div>
+  );
+};
+
+export const WcProductPageTemplatesWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; mergedStyles?: any }> = ({ el, getMergedStyles, activeDevice, mergedStyles }) => {
+  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
+  return (
+    <div style={styles as React.CSSProperties} className="rounded-2xl border border-indigo-200 bg-indigo-50/60 p-4 text-xs font-extrabold text-indigo-900 flex items-center gap-2">
+      <span>🔲 Single Product Template Activated • Auto-bound to product params</span>
+    </div>
+  );
+};
+
+export const WcProductArchiveTemplatesWidgetRenderer: React.FC<{ el: EditorElement; getMergedStyles?: any; activeDevice?: DeviceMode; mergedStyles?: any }> = ({ el, getMergedStyles, activeDevice, mergedStyles }) => {
+  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
+  return (
+    <div style={styles as React.CSSProperties} className="rounded-2xl border border-purple-200 bg-purple-50/60 p-4 text-xs font-extrabold text-purple-900 flex items-center gap-2">
+      <span>🗄️ Product Archive Template Activated • Full pagination & filters enabled</span>
+    </div>
+  );
+};
+
+export const WcProductAddOnsWidgetRenderer: React.FC<{
+  el: EditorElement;
+  getMergedStyles?: any;
+  activeDevice?: DeviceMode;
+  mergedStyles?: any;
+  siteProducts?: SiteProduct[];
+}> = ({ el, getMergedStyles, activeDevice, mergedStyles, siteProducts }) => {
+  const wc = useWooCommerce();
+  const styles = mergedStyles || (getMergedStyles ? getMergedStyles(el, activeDevice) : {});
+  const prodList = siteProducts && siteProducts.length > 0 ? siteProducts : wc.products;
+  const connected = prodList.find((p) => p.id === el.productId) || prodList[0];
+
+  const defaultAddons: ProductAddonItem[] = [
+    { id: "addon-gift", label: "Luxury Gift Wrapping & Ribbon", type: "checkbox", priceAdjustment: 4.99 },
+    { id: "addon-warranty", label: "2-Year Extended Hardware Protection", type: "checkbox", priceAdjustment: 19.99 },
+    { id: "addon-engrave", label: "Custom Laser Name Engraving", type: "text", priceAdjustment: 9.99 },
+    { id: "addon-cable", label: "Audio Cable Upgrade", type: "select", priceAdjustment: 14.99, options: ["Braided Silver-Plated 3.5mm (+$14.99)", "Balanced 4.4mm Pentaconn (+$24.99)"] },
+  ];
+
+  const addons: ProductAddonItem[] = el.productAddons && el.productAddons.length > 0
+    ? el.productAddons
+    : defaultAddons;
+
+  const [selectedAddons, setSelectedAddons] = useState<Record<string, any>>({});
+  const [quantity, setQuantity] = useState<number>(1);
+  const [added, setAdded] = useState(false);
+
+  const parsePrice = (p?: string) => {
+    if (!p) return 0;
+    return parseFloat(p.replace(/[^0-9.]/g, "")) || 0;
+  };
+
+  const basePrice = connected ? parsePrice(connected.price) : (el.wooPrice ? parsePrice(el.wooPrice) : 199.99);
+
+  // Compute add-ons total
+  const addOnsTotal = addons.reduce((sum, addon) => {
+    const val = selectedAddons[addon.id];
+    if (!val) return sum;
+    if (addon.type === "checkbox" && val === true) {
+      return sum + (addon.priceAdjustment || 0);
+    }
+    if (addon.type === "text" && typeof val === "string" && val.trim().length > 0) {
+      return sum + (addon.priceAdjustment || 0);
+    }
+    if (addon.type === "select" && typeof val === "string" && val) {
+      const match = val.match(/\+\s*\$?([0-9.]+)/);
+      const optPrice = match ? parseFloat(match[1]) : (addon.priceAdjustment || 0);
+      return sum + optPrice;
+    }
+    if (addon.type === "radio" && val) {
+      return sum + (addon.priceAdjustment || 0);
+    }
+    return sum;
+  }, 0);
+
+  const effectivePrice = Math.round((basePrice + addOnsTotal) * 100) / 100;
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (connected) {
+      wc.addToCart(connected, quantity, selectedAddons, effectivePrice);
+      setAdded(true);
+      setTimeout(() => setAdded(false), 2200);
+    }
+  };
+
+  return (
+    <div style={styles as React.CSSProperties} className="rounded-2xl border border-indigo-200/80 bg-white p-5 shadow-sm space-y-4 text-xs font-sans">
+      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div className="flex items-center gap-2">
+          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 text-base font-extrabold">🧩</span>
+          <div>
+            <h4 className="font-extrabold text-slate-900 text-sm">{el.content || "Custom Options & Add-Ons"}</h4>
+            <p className="text-[11px] text-slate-500">Configure personalization & optional hardware extensions</p>
+          </div>
+        </div>
+        <div className="text-right">
+          <span className="text-[10px] text-slate-400 uppercase font-bold block">Effective Price</span>
+          <span className="text-base font-extrabold text-emerald-600">${effectivePrice.toFixed(2)}</span>
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        {addons.map((addon) => {
+          const isSelected = !!selectedAddons[addon.id];
+          return (
+            <div key={addon.id} className={`p-3 rounded-xl border transition ${isSelected ? "border-indigo-500 bg-indigo-50/40" : "border-slate-200 bg-slate-50/50"}`}>
+              {addon.type === "checkbox" && (
+                <label className="flex items-center justify-between cursor-pointer">
+                  <div className="flex items-center gap-2.5">
+                    <input
+                      type="checkbox"
+                      checked={!!selectedAddons[addon.id]}
+                      onChange={(e) => {
+                        setSelectedAddons((prev) => ({
+                          ...prev,
+                          [addon.id]: e.target.checked,
+                        }));
+                      }}
+                      className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4 cursor-pointer"
+                    />
+                    <span className="font-bold text-slate-800">{addon.label}</span>
+                  </div>
+                  <span className="font-extrabold text-indigo-700 bg-indigo-100/70 px-2 py-0.5 rounded-md text-[11px]">
+                    +{addon.priceAdjustment > 0 ? `$${addon.priceAdjustment.toFixed(2)}` : "FREE"}
+                  </span>
+                </label>
+              )}
+
+              {addon.type === "text" && (
+                <div className="space-y-1.5">
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-slate-800">{addon.label}</span>
+                    <span className="font-extrabold text-indigo-700 bg-indigo-100/70 px-2 py-0.5 rounded-md text-[11px]">
+                      +{addon.priceAdjustment > 0 ? `$${addon.priceAdjustment.toFixed(2)}` : "FREE"}
+                    </span>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Enter custom text..."
+                    value={selectedAddons[addon.id] || ""}
+                    onChange={(e) => {
+                      setSelectedAddons((prev) => ({
+                        ...prev,
+                        [addon.id]: e.target.value,
+                      }));
+                    }}
+                    className="w-full p-2 text-xs rounded-lg border border-slate-200 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                  />
+                </div>
+              )}
+
+              {addon.type === "select" && (
+                <div className="space-y-1.5">
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-slate-800">{addon.label}</span>
+                  </div>
+                  <select
+                    value={selectedAddons[addon.id] || ""}
+                    onChange={(e) => {
+                      setSelectedAddons((prev) => ({
+                        ...prev,
+                        [addon.id]: e.target.value,
+                      }));
+                    }}
+                    className="w-full p-2 text-xs rounded-lg border border-slate-200 bg-white font-medium text-slate-800 outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="">-- Select an option (Standard) --</option>
+                    {(addon.options || []).map((opt, i) => (
+                      <option key={i} value={opt}>{opt}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {addon.type === "radio" && (
+                <div className="space-y-1.5">
+                  <span className="font-bold text-slate-800 block">{addon.label}</span>
+                  <div className="flex flex-wrap gap-2">
+                    {(addon.options || ["Standard (+ $0.00)", "Pro Upgrade (+ $10.00)"]).map((opt, i) => (
+                      <label key={i} className="inline-flex items-center gap-1.5 cursor-pointer bg-white px-2.5 py-1.5 rounded-lg border border-slate-200">
+                        <input
+                          type="radio"
+                          name={`addon-radio-${addon.id}`}
+                          value={opt}
+                          checked={selectedAddons[addon.id] === opt}
+                          onChange={(e) => {
+                            setSelectedAddons((prev) => ({
+                              ...prev,
+                              [addon.id]: e.target.value,
+                            }));
+                          }}
+                          className="text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                        />
+                        <span className="text-[11px] font-medium text-slate-700">{opt}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="border-t border-slate-100 pt-3 flex items-center justify-between gap-3">
+        <div className="flex items-center border border-slate-300 rounded-xl overflow-hidden bg-slate-50">
+          <button type="button" onClick={() => setQuantity((q) => Math.max(1, q - 1))} className="px-2.5 py-1 text-slate-600 font-bold hover:bg-slate-200 cursor-pointer">-</button>
+          <span className="px-2.5 py-1 font-extrabold text-slate-900">{quantity}</span>
+          <button type="button" onClick={() => setQuantity((q) => q + 1)} className="px-2.5 py-1 text-slate-600 font-bold hover:bg-slate-200 cursor-pointer">+</button>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleAddToCart}
+          className={`flex-1 py-3 px-4 rounded-xl text-white font-extrabold text-xs shadow-md transition active:scale-95 cursor-pointer flex items-center justify-center gap-2 ${
+            added ? "bg-emerald-600 hover:bg-emerald-700" : "bg-indigo-600 hover:bg-indigo-700"
+          }`}
+        >
+          <span>{added ? "✓" : "🛒"}</span>
+          <span>{added ? "Added with Customizations!" : `Add to Cart • $${(effectivePrice * quantity).toFixed(2)}`}</span>
+        </button>
+      </div>
     </div>
   );
 };
@@ -8393,6 +9524,495 @@ export const NestedAccordionWidgetRenderer = ({
           </div>
         );
       })}
+    </div>
+  );
+};
+
+// ==========================================================
+// F-248, F-250, F-254: Loop Grid & Query Engine Widget Renderer
+// ==========================================================
+
+export const DEFAULT_LOOP_ITEMS = [
+  {
+    id: "post-1",
+    title: "The Future of Headless Architecture & Design Systems",
+    slug: "future-of-headless-architecture",
+    excerpt: "Explore how composable frontend architectures and modern design systems empower agile product teams to ship faster.",
+    date: "Sep 24, 2026",
+    author: "Elena Rostova",
+    featuredImage: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&auto=format&fit=crop&q=80",
+    category: "Architecture",
+    categorySlug: "architecture",
+    tags: ["tech", "cloud", "headless"],
+    postType: "post",
+  },
+  {
+    id: "post-2",
+    title: "Mastering Atomic Loops & Composable Query Engines",
+    slug: "mastering-atomic-loops-query-engines",
+    excerpt: "A deep dive into declarative dynamic token bindings, responsive grid compilation, and client-side taxonomy filtering.",
+    date: "Sep 20, 2026",
+    author: "Marcus Vance",
+    featuredImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop&q=80",
+    category: "Development",
+    categorySlug: "development",
+    tags: ["design-systems", "tech", "react"],
+    postType: "post",
+  },
+  {
+    id: "post-3",
+    title: "Scaling Multi-Tenant Headless WordPress Deployments",
+    slug: "scaling-multitenant-wordpress",
+    excerpt: "Best practices for enterprise ACF fields synchronization, high-concurrency multisite REST endpoints, and edge caching.",
+    date: "Sep 15, 2026",
+    author: "Sophia Chen",
+    featuredImage: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80",
+    category: "WordPress",
+    categorySlug: "wordpress",
+    tags: ["wordpress", "cms", "multisite"],
+    postType: "post",
+  },
+  {
+    id: "post-4",
+    title: "Design Tokens in Production: Bridging Figma and Code",
+    slug: "design-tokens-in-production",
+    excerpt: "How automated pipeline syncing transforms color, typography, and spacing variables directly into reusable CSS primitives.",
+    date: "Sep 10, 2026",
+    author: "David Miller",
+    featuredImage: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=800&auto=format&fit=crop&q=80",
+    category: "Design",
+    categorySlug: "design",
+    tags: ["design-systems", "figma", "css"],
+    postType: "post",
+  },
+  {
+    id: "post-5",
+    title: "Micro-Frontends & Isomorphic Routing at Scale",
+    slug: "micro-frontends-isomorphic-routing",
+    excerpt: "Deconstruct monolithic single-page applications into isolated, independently deployable feature blocks with zero downtime.",
+    date: "Sep 5, 2026",
+    author: "Elena Rostova",
+    featuredImage: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&auto=format&fit=crop&q=80",
+    category: "Architecture",
+    categorySlug: "architecture",
+    tags: ["tech", "frontend", "scale"],
+    postType: "post",
+  },
+  {
+    id: "post-6",
+    title: "Accessibility-First Component Architecture in 2026",
+    slug: "accessibility-first-component-architecture",
+    excerpt: "Implementing strict WCAG 2.2 AAA keyboard navigation, focus traps, and screen-reader announcements seamlessly.",
+    date: "Aug 29, 2026",
+    author: "Alex Morgan",
+    featuredImage: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&auto=format&fit=crop&q=80",
+    category: "Development",
+    categorySlug: "development",
+    tags: ["a11y", "react", "ui"],
+    postType: "post",
+  },
+];
+
+export interface LoopGridWidgetRendererProps {
+  el: EditorElement;
+  isPreview?: boolean;
+  mergedStyles?: ElementStyles | any;
+  activeDevice?: DeviceMode;
+  pages?: PageConfig[];
+  onSwitchPage?: (page: PageConfig) => void;
+  apiUrl?: string;
+}
+
+export const LoopGridWidgetRenderer: React.FC<LoopGridWidgetRendererProps> = ({
+  el,
+  isPreview = false,
+  mergedStyles = {},
+  activeDevice = "desktop",
+  pages,
+  onSwitchPage,
+  apiUrl = "",
+}) => {
+  const [activeFilterSlug, setActiveFilterSlug] = useState<string>("all");
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [visibleCount, setVisibleCount] = useState<number>(() => el.queryLimit || 6);
+
+  // URL route term seeding (F-256) & live taxonomy filter listener (F-252, F-257)
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const match = window.location.pathname.match(/\/(category|tag)\/([^/?#]+)/i);
+      if (match && match[2]) {
+        setActiveFilterSlug(match[2].toLowerCase());
+      }
+    }
+
+    const handleTaxFilter = (e: any) => {
+      const { targetGridId, slug } = e.detail || {};
+      if (!targetGridId || targetGridId === el.id) {
+        setActiveFilterSlug(slug || "all");
+        setCurrentPage(1);
+      }
+    };
+
+    if (typeof window !== "undefined") {
+      window.addEventListener("fs-taxonomy-filter", handleTaxFilter);
+      return () => window.removeEventListener("fs-taxonomy-filter", handleTaxFilter);
+    }
+  }, [el.id]);
+
+  // Query Engine Evaluation (F-247, F-258)
+  const baseItems = Array.isArray(el.posts) && el.posts.length > 0 ? el.posts : DEFAULT_LOOP_ITEMS;
+
+  let filteredItems = baseItems.filter((item: any) => {
+    // Taxonomy Slug Filter
+    if (activeFilterSlug && activeFilterSlug !== "all") {
+      const itemCat = (item.categorySlug || item.category || "").toLowerCase();
+      const itemTags = Array.isArray(item.tags)
+        ? item.tags.map((t: string) => t.toLowerCase())
+        : [];
+      if (itemCat !== activeFilterSlug && !itemTags.includes(activeFilterSlug)) {
+        return false;
+      }
+    }
+
+    // Term config filter from Query Inspector (F-247)
+    if (Array.isArray(el.queryTerms) && el.queryTerms.length > 0) {
+      const terms = el.queryTerms.map((t: string) => t.toLowerCase().trim());
+      const itemCat = (item.categorySlug || item.category || "").toLowerCase();
+      const itemTags = Array.isArray(item.tags)
+        ? item.tags.map((t: string) => t.toLowerCase())
+        : [];
+      const matches = terms.some((term) => term === itemCat || itemTags.includes(term));
+      if (!matches) return false;
+    }
+
+    // Related Posts Preset mode (F-258)
+    if (el.querySource === "related") {
+      // In preview/canvas, match items with architecture or development
+      const itemCat = (item.categorySlug || item.category || "").toLowerCase();
+      if (!["architecture", "development", "wordpress"].includes(itemCat)) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+
+  // Exclude current item if requested
+  if (el.queryExcludeCurrent && filteredItems.length > 1) {
+    filteredItems = filteredItems.slice(1);
+  }
+
+  // Ordering
+  const orderDir = (el.queryOrder || "desc").toLowerCase();
+  filteredItems.sort((a: any, b: any) => {
+    if (el.queryOrderBy === "title") {
+      const res = (a.title || "").localeCompare(b.title || "");
+      return orderDir === "asc" ? res : -res;
+    }
+    // Default date
+    const dateA = new Date(a.date || 0).getTime();
+    const dateB = new Date(b.date || 0).getTime();
+    return orderDir === "asc" ? dateA - dateB : dateB - dateA;
+  });
+
+  // Offset
+  if (el.queryOffset && el.queryOffset > 0) {
+    filteredItems = filteredItems.slice(el.queryOffset);
+  }
+
+  // Limit
+  const maxLimit = el.queryLimit || 6;
+  filteredItems = filteredItems.slice(0, maxLimit);
+
+  // Pagination (F-251)
+  const paginationType = el.paginationType || "none";
+  let displayItems = filteredItems;
+  const itemsPerPage = Math.max(1, Math.min(3, Math.ceil(maxLimit / 2)));
+  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+
+  if (paginationType === "numbers") {
+    const startIdx = (currentPage - 1) * itemsPerPage;
+    displayItems = filteredItems.slice(startIdx, startIdx + itemsPerPage);
+  } else if (paginationType === "load-more") {
+    displayItems = filteredItems.slice(0, visibleCount);
+  }
+
+  // Columns & Gap calculation
+  const desktopCols = Math.min(Math.max(el.loopColumns || 3, 1), 6);
+  let activeCols = desktopCols;
+  if (activeDevice === "mobile") {
+    activeCols = 1;
+  } else if (activeDevice === "tablet") {
+    activeCols = Math.min(desktopCols, 2);
+  }
+  const gapPx = el.loopGap ?? 24;
+
+  // Resolve template elements: primary and alternate (modulo 2)
+  const childTemplates = el.children && el.children.length > 0 ? el.children : [];
+  const primaryTemplate = childTemplates[0] || null;
+  const alternateTemplate =
+    el.alternateTemplateId && childTemplates.length > 1
+      ? childTemplates.find((c) => c.id === el.alternateTemplateId) || childTemplates[1]
+      : (el.alternateTemplateId ? childTemplates[0] : null);
+
+  // Recursive element tree renderer with dynamic token binding
+  const renderTemplateElement = (templateEl: EditorElement, post: any, isAlternate: boolean): React.ReactNode => {
+    const ctx = { post };
+    const content = resolveDynamicTokens(templateEl.content || "", ctx);
+    const src = resolveDynamicTokens(templateEl.src || "", ctx);
+    const href = resolveDynamicTokens(templateEl.href || templateEl.linkUrl || "#", ctx);
+
+    const baseStyles: React.CSSProperties = {
+      ...(templateEl.styles as any),
+      ...(isAlternate && templateEl.type === "container"
+        ? {
+            borderColor: "#3b82f6",
+            borderWidth: "1.5px",
+            backgroundColor: "#fafbfc",
+          }
+        : {}),
+    };
+
+    switch (templateEl.type) {
+      case "heading":
+        return (
+          <h3 key={templateEl.id} style={baseStyles} className="transition group-hover:text-blue-600">
+            {content || post.title}
+          </h3>
+        );
+      case "text":
+        return (
+          <p key={templateEl.id} style={baseStyles}>
+            {content || post.excerpt}
+          </p>
+        );
+      case "image":
+        return (
+          <div key={templateEl.id} className="relative overflow-hidden w-full bg-slate-100 rounded-xl" style={{ height: baseStyles.height || "200px" }}>
+            <img
+              src={resolveImageUrl(src || post.featuredImage, apiUrl)}
+              alt={post.title}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+          </div>
+        );
+      case "button":
+        return (
+          <a
+            key={templateEl.id}
+            href={href || `/post/${post.slug}`}
+            onClick={(e) => {
+              if (!isPreview && onSwitchPage && pages) {
+                e.preventDefault();
+                const target = pages.find((p) => p.slug === post.slug);
+                if (target) onSwitchPage(target);
+              }
+            }}
+            style={baseStyles}
+            className="inline-flex items-center justify-center font-semibold transition active:scale-95 hover:opacity-90"
+          >
+            {content || "Read Article →"}
+          </a>
+        );
+      case "container":
+      default: {
+        const children = templateEl.children || [];
+        return (
+          <div
+            key={templateEl.id}
+            style={{
+              ...baseStyles,
+              display: "flex",
+              flexDirection: (templateEl.layout?.direction as any) || "column",
+              gap: `${templateEl.layout?.gap ?? 12}px`,
+            }}
+            className="w-full group"
+          >
+            {children.map((child) => renderTemplateElement(child, post, isAlternate))}
+          </div>
+        );
+      }
+    }
+  };
+
+  return (
+    <div
+      id={el.id}
+      data-widget-type="loop-grid"
+      className="w-full select-none"
+      style={{
+        marginTop: mergedStyles.marginTop || "16px",
+        marginBottom: mergedStyles.marginBottom || "16px",
+        paddingTop: mergedStyles.paddingTop,
+        paddingBottom: mergedStyles.paddingBottom,
+        paddingLeft: mergedStyles.paddingLeft,
+        paddingRight: mergedStyles.paddingRight,
+        backgroundColor: mergedStyles.backgroundColor || "transparent",
+      }}
+    >
+      {/* Active filter badge indicator */}
+      {activeFilterSlug !== "all" && (
+        <div className="mb-4 flex items-center justify-between rounded-lg bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 border border-blue-100">
+          <span className="flex items-center gap-1.5">
+            <span>🏷️</span> Filtering by: <strong className="uppercase">{activeFilterSlug}</strong> ({filteredItems.length} items)
+          </span>
+          <button
+            type="button"
+            onClick={() => setActiveFilterSlug("all")}
+            className="text-blue-500 hover:text-blue-800 underline text-[11px]"
+          >
+            Reset Filter
+          </button>
+        </div>
+      )}
+
+      {/* Empty State */}
+      {displayItems.length === 0 ? (
+        <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 p-12 text-center bg-slate-50/60">
+          <span className="text-3xl mb-2">🔍</span>
+          <p className="text-sm font-bold text-slate-700">No Query Items Found</p>
+          <p className="text-xs text-slate-400 mt-1 max-w-sm">
+            Try adjusting your taxonomy filters, query limit, or post type settings in the Query Builder inspector.
+          </p>
+        </div>
+      ) : (
+        /* Dynamic Grid Layout (F-248) */
+        <div
+          className={`fs-loop-grid fs-cols-${activeCols} grid`}
+          style={{
+            gridTemplateColumns: `repeat(${activeCols}, minmax(0, 1fr))`,
+            gap: `${gapPx}px`,
+          }}
+        >
+          {displayItems.map((item: any, idx: number) => {
+            // Alternating modulo 2 template check (F-254)
+            const isAlternate = idx % 2 === 1 && !!el.alternateTemplateId;
+            const chosenTemplate = isAlternate ? (alternateTemplate || primaryTemplate) : primaryTemplate;
+
+            return (
+              <article
+                key={item.id || idx}
+                data-loop-item-index={idx}
+                data-modulo={idx % 2}
+                className="group flex flex-col h-full"
+              >
+                {chosenTemplate ? (
+                  renderTemplateElement(chosenTemplate, item, isAlternate)
+                ) : (
+                  // Default Premium Card Template
+                  <div
+                    className={`flex flex-col flex-1 overflow-hidden rounded-2xl border transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${
+                      isAlternate
+                        ? "border-blue-200 bg-slate-50/80 shadow-xs"
+                        : "border-slate-200 bg-white shadow-xs"
+                    }`}
+                  >
+                    {/* Featured Image */}
+                    <div className="relative h-48 w-full overflow-hidden bg-slate-100">
+                      <img
+                        src={resolveImageUrl(item.featuredImage, apiUrl)}
+                        alt={item.title}
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      {item.category && (
+                        <span className="absolute top-3 left-3 rounded-full bg-slate-900/80 backdrop-blur-xs px-2.5 py-1 text-[10px] font-bold tracking-wider text-white uppercase shadow-sm">
+                          {item.category}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Content Body */}
+                    <div className="flex flex-1 flex-col p-5">
+                      <div className="mb-2 flex items-center gap-2 text-[11px] font-semibold text-slate-400">
+                        <span>{item.date}</span>
+                        <span>•</span>
+                        <span>By {item.author}</span>
+                      </div>
+
+                      <h3 className="text-base font-bold text-slate-900 leading-snug group-hover:text-blue-600 transition mb-2">
+                        {item.title}
+                      </h3>
+
+                      <p className="text-xs text-slate-500 leading-relaxed flex-1 line-clamp-3 mb-4">
+                        {item.excerpt}
+                      </p>
+
+                      <div className="pt-3 border-t border-slate-100 flex items-center justify-between mt-auto">
+                        <span className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 group-hover:translate-x-0.5 transition-transform">
+                          Read Article <span>→</span>
+                        </span>
+                        {isAlternate && (
+                          <span className="text-[10px] font-bold text-blue-500 uppercase tracking-wider bg-blue-50 px-2 py-0.5 rounded">
+                            Featured
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </article>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Interactive Pagination Controls (F-251) */}
+      {paginationType === "numbers" && totalPages > 1 && (
+        <div className="mt-8 flex items-center justify-center gap-1.5 select-none">
+          <button
+            type="button"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            className="flex h-8 items-center justify-center rounded-lg border border-slate-200 px-3 text-xs font-semibold text-slate-600 transition disabled:opacity-30 hover:bg-slate-100"
+          >
+            ‹ Prev
+          </button>
+
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+            <button
+              key={pageNum}
+              type="button"
+              onClick={() => setCurrentPage(pageNum)}
+              className={`flex h-8 w-8 items-center justify-center rounded-lg text-xs font-bold transition ${
+                currentPage === pageNum
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "border border-slate-200 text-slate-700 hover:bg-slate-100"
+              }`}
+            >
+              {pageNum}
+            </button>
+          ))}
+
+          <button
+            type="button"
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            className="flex h-8 items-center justify-center rounded-lg border border-slate-200 px-3 text-xs font-semibold text-slate-600 transition disabled:opacity-30 hover:bg-slate-100"
+          >
+            Next ›
+          </button>
+        </div>
+      )}
+
+      {paginationType === "load-more" && visibleCount < filteredItems.length && (
+        <div className="mt-8 flex justify-center">
+          <button
+            type="button"
+            onClick={() => setVisibleCount((prev) => prev + itemsPerPage)}
+            className="flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-blue-700 active:scale-95"
+          >
+            <span>Load More Posts</span>
+            <span className="text-[10px] opacity-75">({filteredItems.length - visibleCount} remaining)</span>
+          </button>
+        </div>
+      )}
+
+      {paginationType === "infinite" && (
+        <div className="mt-6 flex items-center justify-center gap-2 text-xs font-medium text-slate-400">
+          <span className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
+          <span>Infinite Loop Streaming Active</span>
+        </div>
+      )}
     </div>
   );
 };

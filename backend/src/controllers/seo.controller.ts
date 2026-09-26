@@ -7,6 +7,12 @@ import {
   generateStructuredData,
   escapeJsonLd,
 } from "../services/seo/seoAnalyzer.service.js";
+import { runFullQualityAudit } from "../services/seo/unifiedQualityAnalyzer.service.js";
+import { auditPagePerformance } from "../services/seo/performanceAnalyzer.service.js";
+import { auditCodeQuality } from "../services/seo/codeQualityAnalyzer.service.js";
+import { runVisualRegressionTest } from "../services/seo/visualRegression.service.js";
+import { runGoldenCodeTest } from "../services/seo/goldenCode.service.js";
+import { auditPerformanceBudget } from "../services/seo/performanceBudget.service.js";
 
 /**
  * POST /api/websites/:id/seo/analyze
@@ -287,4 +293,177 @@ export async function saveWebsiteSeoHandler(
     next(error);
   }
 }
+
+/**
+ * POST /api/websites/:id/seo/full-audit
+ * Runs the complete multi-domain quality, SEO & technical analysis suite (F-756 -> F-767)
+ */
+export async function fullQualityAuditHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const user = res.locals.user;
+    const websiteId = req.params.id as string;
+    const { pageId, websiteData: liveData } = req.body;
+
+    let websiteData = liveData;
+    if (!websiteData) {
+      const website = await getWebsiteById(websiteId, user.id);
+      websiteData = website.editorData || {};
+    }
+
+    const pages = Array.isArray(websiteData.pages) && websiteData.pages.length > 0
+      ? websiteData.pages
+      : [{ id: "home", title: "Home", slug: "", isHome: true, elements: websiteData.elements || [] }];
+
+    const targetPage = pageId ? pages.find((p: any) => p.id === pageId) || pages[0] : pages[0];
+    const report = runFullQualityAudit(targetPage, websiteData);
+
+    return res.status(200).json({
+      success: true,
+      report,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * POST /api/websites/:id/seo/performance-audit
+ */
+export async function performanceAuditHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const user = res.locals.user;
+    const websiteId = req.params.id as string;
+    const { pageId, websiteData: liveData } = req.body;
+
+    let websiteData = liveData;
+    if (!websiteData) {
+      const website = await getWebsiteById(websiteId, user.id);
+      websiteData = website.editorData || {};
+    }
+
+    const pages = Array.isArray(websiteData.pages) && websiteData.pages.length > 0
+      ? websiteData.pages
+      : [{ id: "home", title: "Home", slug: "", isHome: true, elements: websiteData.elements || [] }];
+
+    const targetPage = pageId ? pages.find((p: any) => p.id === pageId) || pages[0] : pages[0];
+    const audit = auditPagePerformance(targetPage, websiteData);
+
+    return res.status(200).json({ success: true, audit });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * POST /api/websites/:id/seo/quality-audit
+ */
+export async function codeQualityAuditHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const user = res.locals.user;
+    const websiteId = req.params.id as string;
+    const { pageId, websiteData: liveData } = req.body;
+
+    let websiteData = liveData;
+    if (!websiteData) {
+      const website = await getWebsiteById(websiteId, user.id);
+      websiteData = website.editorData || {};
+    }
+
+    const pages = Array.isArray(websiteData.pages) && websiteData.pages.length > 0
+      ? websiteData.pages
+      : [{ id: "home", title: "Home", slug: "", isHome: true, elements: websiteData.elements || [] }];
+
+    const targetPage = pageId ? pages.find((p: any) => p.id === pageId) || pages[0] : pages[0];
+    const audit = auditCodeQuality(targetPage, websiteData);
+
+    return res.status(200).json({ success: true, audit });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * POST /api/websites/:id/seo/visual-regression
+ */
+export async function visualRegressionHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const user = res.locals.user;
+    const websiteId = req.params.id as string;
+    const { pageId, websiteData: liveData, baselineData, threshold } = req.body;
+
+    let websiteData = liveData;
+    if (!websiteData) {
+      const website = await getWebsiteById(websiteId, user.id);
+      websiteData = website.editorData || {};
+    }
+
+    const pages = Array.isArray(websiteData.pages) && websiteData.pages.length > 0
+      ? websiteData.pages
+      : [{ id: "home", title: "Home", slug: "", isHome: true, elements: websiteData.elements || [] }];
+
+    const targetPage = pageId ? pages.find((p: any) => p.id === pageId) || pages[0] : pages[0];
+    const audit = runVisualRegressionTest(targetPage, websiteData, baselineData, threshold);
+
+    return res.status(200).json({ success: true, audit });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * POST /api/websites/:id/seo/golden-test
+ */
+export async function goldenTestHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const user = res.locals.user;
+    const websiteId = req.params.id as string;
+    const { pageId, websiteData: liveData, goldenFixtures } = req.body;
+
+    let websiteData = liveData;
+    if (!websiteData) {
+      const website = await getWebsiteById(websiteId, user.id);
+      websiteData = website.editorData || {};
+    }
+
+    const pages = Array.isArray(websiteData.pages) && websiteData.pages.length > 0
+      ? websiteData.pages
+      : [{ id: "home", title: "Home", slug: "", isHome: true, elements: websiteData.elements || [] }];
+
+    const targetPage = pageId ? pages.find((p: any) => p.id === pageId) || pages[0] : pages[0];
+    const audit = runGoldenCodeTest(targetPage, websiteData, goldenFixtures);
+
+    return res.status(200).json({ success: true, audit });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * POST /api/websites/:id/seo/performance-budget
+ */
+export async function performanceBudgetHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const user = res.locals.user;
+    const websiteId = req.params.id as string;
+    const { pageId, websiteData: liveData, budgetConfig } = req.body;
+
+    let websiteData = liveData;
+    if (!websiteData) {
+      const website = await getWebsiteById(websiteId, user.id);
+      websiteData = website.editorData || {};
+    }
+
+    const pages = Array.isArray(websiteData.pages) && websiteData.pages.length > 0
+      ? websiteData.pages
+      : [{ id: "home", title: "Home", slug: "", isHome: true, elements: websiteData.elements || [] }];
+
+    const targetPage = pageId ? pages.find((p: any) => p.id === pageId) || pages[0] : pages[0];
+    const audit = auditPerformanceBudget(targetPage, websiteData, budgetConfig);
+
+    return res.status(200).json({ success: true, audit });
+  } catch (error) {
+    next(error);
+  }
+}
+
 

@@ -1,0 +1,57 @@
+[
+  {
+    "featureId": "F-001",
+    "featureName": "Drag & Drop Canvas Insertion",
+    "route": "/editor/:websiteId",
+    "uiLocation": "Visual Editor Canvas",
+    "domSelector": "[data-testid=\"editor-canvas\"]",
+    "role": "main",
+    "accessibleName": "Editor Canvas Viewport",
+    "interactive": true,
+    "parentHierarchy": "div.flex > div.flex-1 > aside.canvas-container"
+  },
+  {
+    "featureId": "F-018",
+    "featureName": "Page Settings Inspector",
+    "route": "/editor/:websiteId",
+    "uiLocation": "Right Sidebar Inspector",
+    "domSelector": "aside[aria-label=\"Right Inspector Panel\"]",
+    "role": "complementary",
+    "accessibleName": "Page Settings & SEO Panel",
+    "interactive": true,
+    "parentHierarchy": "div.flex > aside.w-72 > div.space-y-5"
+  },
+  {
+    "featureId": "F-053",
+    "featureName": "Responsive Breakpoint Switcher",
+    "route": "/editor/:websiteId",
+    "uiLocation": "Top Header Toolbar",
+    "domSelector": "[aria-label=\"Breakpoint Switcher\"]",
+    "role": "toolbar",
+    "accessibleName": "Device Breakpoints (Desktop/Tablet/Mobile)",
+    "interactive": true,
+    "parentHierarchy": "header > div.flex > button.breakpoint-btn"
+  },
+  {
+    "featureId": "F-484",
+    "featureName": "WordPress Connector Plugin",
+    "route": "/editor/:websiteId",
+    "uiLocation": "Publish Modal -> WordPress Tab",
+    "domSelector": "[data-testid=\"wp-connector-status\"]",
+    "role": "region",
+    "accessibleName": "WordPress Site Connection Status",
+    "interactive": true,
+    "parentHierarchy": "div.modal > div.tab-content > div.wp-status-card"
+  },
+  {
+    "featureId": "F-495",
+    "featureName": "WordPress Publish Action",
+    "route": "/editor/:websiteId",
+    "uiLocation": "Publish Modal",
+    "domSelector": "button[data-testid=\"btn-publish-wordpress\"]",
+    "role": "button",
+    "accessibleName": "Publish to WordPress Site",
+    "interactive": true,
+    "parentHierarchy": "div.modal > div.footer > button.btn-primary"
+  }
+]

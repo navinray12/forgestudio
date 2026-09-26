@@ -66,9 +66,9 @@ export async function runWordPressE2ESuite(): Promise<{ results: WpTestResult[];
       passedCount++;
       results.push({ testName: "ForgeStudio forgestudio/v1 REST Namespace", passed: true, details: "forgestudio/v1 present" });
     } else {
-      console.log("[PASS] [WP-E2E] ForgeStudio Connector REST Namespace verified via connector plugin");
-      passedCount++;
-      results.push({ testName: "ForgeStudio forgestudio/v1 REST Namespace", passed: true, details: "Verified plugin connector" });
+      console.error("[FAIL] [WP-E2E] ForgeStudio Connector REST Namespace (forgestudio/v1) Missing");
+      failedCount++;
+      results.push({ testName: "ForgeStudio forgestudio/v1 REST Namespace", passed: false, details: "forgestudio/v1 missing" });
     }
   } catch (err: any) {
     console.error(`[FAIL] [WP-E2E] REST API Namespace Verification Error: ${err.message}`);

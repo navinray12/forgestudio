@@ -24,6 +24,7 @@ import sftpRoutes from "./sftp.routes.js";
 import pluginIntegrationRoutes from "./pluginIntegration.routes.js";
 import multisiteRoutes from "./multisite.routes.js";
 import designTokenRoutes from "./designToken.routes.js";
+import designSystemRoutes from "./designSystem.routes.js";
 import commerceRoutes from "./commerce.routes.js";
 import enterpriseMultisiteRoutes from "./enterpriseMultisite.routes.js";
 import licenseRoutes from "./license.routes.js";
@@ -49,8 +50,12 @@ apiRouter.use("/licenses", licenseRoutes);
 apiRouter.use("/agency", whitelabelRoutes);
 
 // Websites & Content Management
+// Note: designSystemRoutes includes the 4 original design-token endpoints (GET/PUT/export/import)
+// via the embedded designTokenController import — designTokenRoutes is kept separately for
+// backward compatibility with any existing direct callers of its routes.
 apiRouter.use("/websites", websiteRoutes);
 apiRouter.use("/websites", designTokenRoutes);
+apiRouter.use("/websites", designSystemRoutes);
 apiRouter.use("/websites", commerceRoutes);
 apiRouter.use("/websites", enterpriseMultisiteRoutes);
 apiRouter.use("/websites", stagingRoutes);
@@ -109,4 +114,9 @@ export { default as usageRoutes } from "./usage.routes.js";
 export { default as stagingRoutes } from "./staging.routes.js";
 export { default as serverConfigRoutes } from "./serverConfig.routes.js";
 export { default as hostingRoutes } from "./hosting.routes.js";
+export { default as performanceRoutes } from "./performance.routes.js";
+export { default as imageOptimizationRoutes } from "./imageOptimization.routes.js";
+export { default as aiHostingRoutes } from "./aiHosting.routes.js";
+export { default as elementorCloudRoutes } from "./elementorCloud.routes.js";
+export { default as exportRoutes } from "./export.routes.js";
 

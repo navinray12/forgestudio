@@ -17,6 +17,25 @@ export interface FormFieldOption {
   value: string;
 }
 
+export type LogicActionType = 'show' | 'hide' | 'require' | 'skip_to_step';
+export type LogicOperator = 'equals' | 'not_equals' | 'contains' | 'greater_than' | 'less_than' | 'is_empty' | 'is_not_empty';
+
+export interface ConditionalRule {
+  id: string;
+  fieldId: string; // The trigger field being observed
+  operator: LogicOperator;
+  value?: string | number | boolean;
+}
+
+export interface FormConditionalLogic {
+  id: string;
+  action: LogicActionType;
+  targetFieldId: string; // The field affected by the action
+  targetStepIndex?: number; // Used if action is 'skip_to_step'
+  matchType: 'all' | 'any'; // AND vs OR
+  rules: ConditionalRule[];
+}
+
 export interface FormFieldConfig {
   id: string;
   name: string; // Machine-readable key (e.g., "customer_email")
@@ -30,6 +49,7 @@ export interface FormFieldConfig {
   options?: FormFieldOption[]; // For select, radio, checkbox
   validationRegex?: string;
   customErrorMessage?: string;
+  conditionalLogic?: FormConditionalLogic[];
 }
 
 export interface FormStepConfig {
@@ -38,7 +58,15 @@ export interface FormStepConfig {
   description?: string;
 }
 
-export type PostSubmitActionType = "database" | "email" | "redirect" | "popup" | "webhook";
+export type PostSubmitActionType =
+  | "database"
+  | "email"
+  | "redirect"
+  | "popup"
+  | "webhook"
+  | "google_sheets"
+  | "mailchimp"
+  | "zapier";
 
 export interface EmailActionConfig {
   toEmail: string;
@@ -62,12 +90,38 @@ export interface WebhookActionConfig {
   secretKey?: string;
 }
 
+export interface GoogleSheetsActionConfig {
+  webhookUrl: string;
+  fieldMapping?: Record<string, string>; // Maps form fieldId/slug to Sheet Column name
+}
+
+export interface MailchimpActionConfig {
+  apiKey: string;
+  listId: string;
+  serverPrefix?: string;
+  tags?: string[];
+  fieldMapping?: {
+    email?: string;
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+  };
+}
+
+export interface ZapierActionConfig {
+  webhookUrl: string;
+  secretKey?: string;
+}
+
 export interface FormPostSubmitConfig {
   activeActions: PostSubmitActionType[];
   emailConfig?: EmailActionConfig;
   redirectConfig?: RedirectActionConfig;
   popupConfig?: PopupActionConfig;
   webhookConfig?: WebhookActionConfig;
+  googleSheetsConfig?: GoogleSheetsActionConfig;
+  mailchimpConfig?: MailchimpActionConfig;
+  zapierConfig?: ZapierActionConfig;
   successMessage: string;
   errorMessage: string;
 }
@@ -88,6 +142,7 @@ export interface FormWidgetConfig {
   submitButtonWidth: "auto" | "100%";
   actions: FormPostSubmitConfig; // F-276, F-280, F-281
   spamProtection: FormSpamProtectionConfig; // F-277
+  conditionalLogic?: FormConditionalLogic[];
 }
 
 export interface FormSubmissionRecord {
@@ -111,6 +166,10 @@ export function generateFieldId(): string {
 
 export function generateFormId(): string {
   return "form_" + Math.random().toString(36).substring(2, 9);
+}
+
+export function generateLogicRuleId(): string {
+  return "rule_" + Math.random().toString(36).substring(2, 9);
 }
 
 export function createDefaultFormConfig(formName = "Contact Form"): FormWidgetConfig {

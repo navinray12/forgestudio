@@ -9,6 +9,7 @@ import {
     initMotionRuntime
 } from "../editor/utils";
 import type { EditorElement, Breakpoint } from "../editor/types";
+import { resolveDynamicTokens } from "../editor/types";
 import type { PopupConfig } from "../../types/popup.types";
 
 const BackgroundSlideshow: React.FC<{ urls: string[]; interval?: number }> = ({ urls, interval }) => {
@@ -107,6 +108,11 @@ const HtmlNode = React.lazy(() => import("../../components/HtmlNode"));
 import { CookieConsentBanner } from "../../components/CookieConsentBanner";
 import { useLazyLoad } from "../../hooks/useLazyLoad";
 import { useDynamicFonts } from "../../utils/FontManager";
+import { SkipLinks } from "../../components/accessibility/SkipLinks";
+import { ReadingGuideBar } from "../../components/accessibility/ReadingGuideBar";
+import { AccessibilityWidget } from "../../components/accessibility/AccessibilityWidget";
+import { AccessibilityStatementModal } from "../../components/accessibility/AccessibilityStatementModal";
+import { WooCommerceProvider } from "../../context/WooCommerceContext";
 
 import {
     SlidesWidgetRenderer,
@@ -150,8 +156,43 @@ import {
     WcProductImagesWidgetRenderer,
     WcAddToCartWidgetRenderer,
     WcProductRatingWidgetRenderer,
-    resolveButtonHref
+    WcBuilderWidgetRenderer,
+    WcProductWidgetRenderer,
+    WcProductStockWidgetRenderer,
+    WcProductMetaWidgetRenderer,
+    WcProductContentWidgetRenderer,
+    WcShortDescriptionWidgetRenderer,
+    WcProductDataTabsWidgetRenderer,
+    WcAdditionalInfoWidgetRenderer,
+    WcRelatedProductsWidgetRenderer,
+    WcUpsellsWidgetRenderer,
+    WcProductsWidgetRenderer,
+    WcCustomAddToCartWidgetRenderer,
+    WcProductCategoriesWidgetRenderer,
+    WcMenuCartWidgetRenderer,
+    WcCartWidgetRenderer,
+    WcCheckoutWidgetRenderer,
+    WcMyAccountWidgetRenderer,
+    WcPurchaseSummaryWidgetRenderer,
+    WcNoticesWidgetRenderer,
+    WcShopLayoutsWidgetRenderer,
+    WcProductArchiveWidgetRenderer,
+    WcProductPageTemplatesWidgetRenderer,
+    WcProductArchiveTemplatesWidgetRenderer,
+    WcProductAddOnsWidgetRenderer,
+    resolveButtonHref,
+    SearchBarWidgetRenderer,
+    LoopGridWidgetRenderer,
+    DEFAULT_LOOP_ITEMS
 } from "../editor/widgets";
+import {
+    BreadcrumbsRenderer,
+    WpMenuRenderer,
+    PostNavigationRenderer,
+    TaxonomyFilterRenderer,
+    SiteSearchRenderer,
+    MenuAnchorRenderer
+} from "../editor/navigation/NavigationRenderers";
 import { IconRenderer } from "../editor/widgets/icons";
 
 // Default breakpoints (mirror core for stability)
@@ -183,6 +224,37 @@ const findTargetPage = (pagesList: PageConfig[] | undefined, target: string): Pa
             (clean === "" && (p.isHome || p.id === "home"))
     );
 };
+
+export function renderPublicElement(el: EditorElement, isPreview: boolean = true): React.ReactNode | null {
+    switch (el.type) {
+        case "breadcrumbs":
+            return <BreadcrumbsRenderer element={el} isPreview={isPreview} />;
+        case "wp-menu":
+            return <WpMenuRenderer element={el} isPreview={isPreview} />;
+        case "menu-anchor":
+            return (
+                <div
+                    id={(el as any).anchorId || (el as any).styles?.anchorId || el.content || el.id}
+                    style={{ scrollMarginTop: `${(el as any).anchorOffset || (el as any).styles?.anchorScrollOffset || 80}px`, height: 0 }}
+                />
+            );
+        case "post-nav":
+            return <PostNavigationRenderer element={el} isPreview={isPreview} />;
+        case "taxonomy-filter":
+            return <TaxonomyFilterRenderer element={el} isPreview={isPreview} />;
+        case "search-bar":
+        case "search-form":
+            return typeof SearchBarWidgetRenderer !== "undefined" ? (
+                <SearchBarWidgetRenderer el={el} isPreview={isPreview} mergedStyles={el.styles} />
+            ) : (
+                <SiteSearchRenderer element={el} isPreview={isPreview} />
+            );
+        case "site-search":
+            return <SiteSearchRenderer element={el} isPreview={isPreview} />;
+        default:
+            return null;
+    }
+}
 
 interface RenderNodeProps {
     el: EditorElement;
@@ -252,9 +324,33 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
     // Forward ref natively avoiding wrappers (F-351 / F-355 bounds)
     const assignRefIfTracked = (!isCritical && hasBgImage) ? observerRef : undefined;
 
-    if (el.type === "heading") return <React.Fragment key={el.id}><h2 ref={assignRefIfTracked as any} {...mergedProps} className={`${mergedProps.className} ${optInnerClass}`} style={{ fontSize: "32px", fontWeight: "700", color: "#0f172a", ...mergedProps.style, ...finalInnerStyles }}>{el.content}</h2></React.Fragment>;
+    // F-260, F-261: Client-Side Dynamic Token Interpolation Runtime
+    const urlQueryParams: Record<string, string> = {};
+    if (typeof window !== "undefined" && window.location.search) {
+        new URLSearchParams(window.location.search).forEach((val, key) => {
+            urlQueryParams[key] = val;
+        });
+    }
+    const tokenContext = {
+        siteName: globalSettings?.siteIdentity?.name || "ForgeStudio",
+        pageTitle: pages?.find(p => p.id === (el as any).pageId)?.name || "Page",
+        request: urlQueryParams,
+        query: urlQueryParams,
+        post: {
+            title: pages?.find(p => p.id === (el as any).pageId)?.name || "Dynamic Post",
+            date: new Date().toLocaleDateString(),
+        }
+    };
 
-    if (el.type === "text") return <React.Fragment key={el.id}><p ref={assignRefIfTracked as any} {...mergedProps} className={`${mergedProps.className} ${optInnerClass}`} style={{ fontSize: "16px", color: "#475569", ...mergedProps.style, ...finalInnerStyles }}>{el.content}</p></React.Fragment>;
+    if (el.type === "heading") {
+        const resolvedHeading = resolveDynamicTokens(el.content || "", tokenContext);
+        return <React.Fragment key={el.id}><h2 ref={assignRefIfTracked as any} {...mergedProps} className={`${mergedProps.className} ${optInnerClass}`} style={{ fontSize: "32px", fontWeight: "700", color: "#0f172a", ...mergedProps.style, ...finalInnerStyles }}>{resolvedHeading}</h2></React.Fragment>;
+    }
+
+    if (el.type === "text") {
+        const resolvedText = resolveDynamicTokens(el.content || "", tokenContext);
+        return <React.Fragment key={el.id}><p ref={assignRefIfTracked as any} {...mergedProps} className={`${mergedProps.className} ${optInnerClass}`} style={{ fontSize: "16px", color: "#475569", ...mergedProps.style, ...finalInnerStyles }}>{resolvedText}</p></React.Fragment>;
+    }
 
     if (el.type === "image") {
         const imageHref = (el.href || el.linkUrl || (el.pageId ? `page:${el.pageId}` : "") || "").trim();
@@ -473,6 +569,15 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
         </React.Fragment>
     );
 
+    // Module 10: Navigation & Search Runtime
+    const navNode = renderPublicElement(el, true);
+    if (navNode !== null) {
+        if (el.type === "menu-anchor") {
+            return navNode;
+        }
+        return <div ref={assignRefIfTracked as any} {...mergedProps}>{navNode}</div>;
+    }
+
     // Dynamic Widgets
     if (el.type === "slides") return <div ref={assignRefIfTracked as any} {...mergedProps}><SlidesWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
     if (el.type === "form") return <div ref={assignRefIfTracked as any} {...mergedProps}><FormWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} websiteId={websiteId} /></div>;
@@ -554,6 +659,33 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
     if (el.type === "wc-product-images") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductImagesWidgetRenderer el={el} getMergedStyles={() => finalMergedStyles} activeDevice="desktop" /></div>;
     if (el.type === "wc-add-to-cart") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcAddToCartWidgetRenderer el={el} getMergedStyles={() => finalMergedStyles} activeDevice="desktop" /></div>;
     if (el.type === "wc-product-rating") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductRatingWidgetRenderer el={el} getMergedStyles={() => finalMergedStyles} activeDevice="desktop" /></div>;
+
+    if (el.type === "wc-builder") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcBuilderWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-stock") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductStockWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-meta") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductMetaWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-content") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductContentWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-short-description") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcShortDescriptionWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-data-tabs") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductDataTabsWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-additional-info") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcAdditionalInfoWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-related-products") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcRelatedProductsWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-upsells") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcUpsellsWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-products") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductsWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-custom-add-to-cart") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcCustomAddToCartWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-categories") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductCategoriesWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-menu-cart") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcMenuCartWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-cart") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcCartWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-checkout") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcCheckoutWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-my-account") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcMyAccountWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-purchase-summary") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcPurchaseSummaryWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-notices") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcNoticesWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-shop-layouts") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcShopLayoutsWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-archive") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductArchiveWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-page-templates") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductPageTemplatesWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-archive-templates") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductArchiveTemplatesWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "wc-product-addons") return <div ref={assignRefIfTracked as any} {...mergedProps}><WcProductAddOnsWidgetRenderer el={el} mergedStyles={finalMergedStyles} /></div>;
+
+    if (el.type === "loop-grid") return <div ref={assignRefIfTracked as any} {...mergedProps}><LoopGridWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} activeDevice={activeBreakpointId === "mobile" ? "mobile" : activeBreakpointId === "tablet" ? "tablet" : "desktop"} pages={pages} onSwitchPage={onSwitchPage as any} apiUrl={apiUrl} /></div>;
 
     if (el.type === "nested-carousel") return (
         <div ref={assignRefIfTracked as any} {...mergedProps}>
@@ -696,7 +828,7 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
         prev.elementClassMap.get(prev.el.id) === next.elementClassMap.get(next.el.id);
 });
 
-export default function PublishedSite() {
+function PublishedSite() {
     const { websiteId, pageSlug } = useParams<{ websiteId: string; pageSlug?: string }>();
     const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -714,18 +846,44 @@ export default function PublishedSite() {
     const [globalVariables, setGlobalVariables] = useState<any[]>([]);
     const [globalClasses, setGlobalClasses] = useState<any[]>([]);
     const [cookieConsentConfig, setCookieConsentConfig] = useState<any>(null);
+    const [sitePartsState, setSitePartsState] = useState<any>(null);
+    const [siteStatus, setSiteStatus] = useState<string>("DRAFT");
+    const [_themeRules, _setThemeRules] = useState<any[]>([]);
+    const [statementOpen, setStatementOpen] = useState<boolean>(false);
+    const [experiments, setExperiments] = useState<any[]>([]);
+    const [assignedVariants, setAssignedVariants] = useState<Record<string, string>>({});
+    const [sitePartsState, setSitePartsState] = useState<any>(null);
 
     // F-339 & F-344: Compile Design System CSS Variables (:root) and Global Classes
     const compiledDesignTokensCss = useMemo(() => {
         let css = "";
         if (globalVariables && globalVariables.length > 0) {
-            css += ":root {\n";
+            css += "/* --- ForgeStudio Design Tokens (:root) --- */\n:root {\n";
             for (const v of globalVariables) {
-                if (v && v.token && v.value) {
-                    css += `  ${v.token}: ${v.value};\n`;
+                if (v && v.token) {
+                    const lightVal = v.modes?.light || v.value;
+                    if (lightVal) {
+                        css += `  ${v.token}: ${lightVal};\n`;
+                    }
                 }
             }
             css += "}\n\n";
+
+            // Multi-mode Dark Theme overrides
+            const darkModeVars = globalVariables.filter((v: any) => v && v.token && v.modes?.dark);
+            if (darkModeVars.length > 0) {
+                css += "/* --- ForgeStudio Design Tokens (Dark Theme Overrides) --- */\n[data-theme=\"dark\"], .dark {\n";
+                for (const v of darkModeVars) {
+                    css += `  ${v.token}: ${v.modes.dark};\n`;
+                }
+                css += "}\n\n";
+
+                css += "@media (prefers-color-scheme: dark) {\n  :root:not([data-theme=\"light\"]) {\n";
+                for (const v of darkModeVars) {
+                    css += `    ${v.token}: ${v.modes.dark};\n`;
+                }
+                css += "  }\n}\n\n";
+            }
         }
         if (globalClasses && globalClasses.length > 0) {
             for (const c of globalClasses) {
@@ -779,24 +937,51 @@ export default function PublishedSite() {
                 }
                 const editorData = rawEditorData?.publishedData || rawEditorData || {};
 
+                if (editorData?.siteParts) setSitePartsState(editorData.siteParts);
+                const loadedSiteParts = editorData?.siteParts;
+
                 if (editorData?.pages && editorData.pages.length > 0) {
                     const pagesList: PageConfig[] = editorData.pages;
                     setPages(pagesList);
                     const urlParams = new URLSearchParams(window.location.search);
                     const queryPage = urlParams.get("page");
                     const initialSlug = pageSlug || queryPage;
+                    const cleanSlug = initialSlug ? initialSlug.replace(/^\//, "") : "";
+                    const isPostRoute = cleanSlug.startsWith("post/") || cleanSlug.startsWith("blog/");
+                    const isTermRoute = cleanSlug.startsWith("category/") || cleanSlug.startsWith("tag/");
                     const matchedPage = initialSlug ? findTargetPage(pagesList, initialSlug) : undefined;
-                    const activePage = matchedPage || pagesList.find((p: any) => p.isHome || p.slug === "/") || pagesList[0];
-                    setActivePageId(activePage.id || "home");
-                    setElements(activePage.elements?.length ? activePage.elements : (editorData.elements || []));
+
+                    if (matchedPage) {
+                        setActivePageId(matchedPage.id || "home");
+                        setElements(matchedPage.elements?.length ? matchedPage.elements : (editorData.elements || []));
+                    } else if (isPostRoute && loadedSiteParts?.single?.elements?.length && (loadedSiteParts.single.isEnabled ?? true)) {
+                        // F-237: Single Post Template Fallback
+                        setActivePageId("single-post-template");
+                        setElements(loadedSiteParts.single.elements);
+                    } else if (isTermRoute && loadedSiteParts?.archive?.elements?.length && (loadedSiteParts.archive.isEnabled ?? true)) {
+                        // F-256: Term / Taxonomy Archive Template Fallback
+                        setActivePageId("archive-template");
+                        setElements(loadedSiteParts.archive.elements);
+                    } else if (isTermRoute) {
+                        // F-256: Fallback to archive page or home page with loop feed
+                        const archivePage = pagesList.find((p) => p.slug === "/archive" || p.slug === "archive" || p.slug === "/blog" || p.slug === "blog") || pagesList.find((p: any) => p.isHome || p.slug === "/") || pagesList[0];
+                        setActivePageId(archivePage?.id || "home");
+                        setElements(archivePage?.elements?.length ? archivePage.elements : (editorData.elements || []));
+                    } else if (initialSlug && loadedSiteParts?.notFound404?.elements?.length && (loadedSiteParts.notFound404.isEnabled ?? true)) {
+                        // F-239: 404 Template Fallback for unmatched route
+                        setActivePageId("404-template");
+                        setElements(loadedSiteParts.notFound404.elements);
+                    } else {
+                        const activePage = pagesList.find((p: any) => p.isHome || p.slug === "/") || pagesList[0];
+                        setActivePageId(activePage.id || "home");
+                        setElements(activePage.elements?.length ? activePage.elements : (editorData.elements || []));
+                    }
                 } else if (editorData?.elements && editorData.elements.length > 0) {
                     const defaultPage = { id: "home", name: "Home", slug: "/", customCss: "", elements: editorData.elements };
                     setPages([defaultPage]);
                     setActivePageId("home");
                     setElements(editorData.elements);
                 }
-
-                if (editorData?.siteParts) setSitePartsState(editorData.siteParts);
                 if (editorData?.popups) setPopups(editorData.popups);
                 if (editorData?.breakpoints) setBreakpoints(editorData.breakpoints);
                 if (editorData?.globalSettings) setGlobalSettings(editorData.globalSettings);
@@ -808,6 +993,9 @@ export default function PublishedSite() {
                 if (editorData?.siteSettings?.cookieConsent || editorData?.cookieConsent) {
                     setCookieConsentConfig(editorData.siteSettings?.cookieConsent || editorData.cookieConsent);
                 }
+                if (site?.editorData?.experiments) {
+                    setExperiments(site.editorData.experiments);
+                }
 
             } catch (_err: any) {
                 setErrorMessage("This website is unavailable.");
@@ -817,6 +1005,66 @@ export default function PublishedSite() {
         };
         fetchWebsite();
     }, [websiteId, apiUrl, pageSlug]);
+
+    // Phase 3 Subsystem 2: A/B Split Testing & Impression Telemetry
+    useEffect(() => {
+        if (!experiments || experiments.length === 0 || !websiteId) return;
+
+        const running = experiments.filter((e) => e.status === "RUNNING");
+        if (running.length === 0) return;
+
+        const assignments: Record<string, string> = {};
+
+        for (const exp of running) {
+            const storageKey = `fs_exp_${exp.id}`;
+            let variantId: string = localStorage.getItem(storageKey) || "";
+
+            if (!variantId || !exp.variants.some((v: any) => v.id === variantId)) {
+                // Weighted random traffic allocation
+                const rand = Math.random() * 100;
+                let cumulative = 0;
+                let selected = exp.variants[0]?.id || "control";
+
+                for (const v of exp.variants) {
+                    cumulative += v.trafficAllocation || 50;
+                    if (rand <= cumulative) {
+                        selected = v.id;
+                        break;
+                    }
+                }
+                variantId = selected;
+                try {
+                    localStorage.setItem(storageKey, variantId);
+                } catch {}
+            }
+
+            assignments[exp.id] = variantId;
+
+            // Dispatch impression telemetry (fire-and-forget)
+            fetch(`${apiUrl}/api/websites/${websiteId}/experiments/${exp.id}/impression`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ variantId }),
+            }).catch(() => {});
+        }
+
+        setAssignedVariants(assignments);
+    }, [experiments, websiteId, apiUrl]);
+
+    const recordConversionForGoal = (action: string) => {
+        if (!experiments || experiments.length === 0 || !websiteId) return;
+        const matching = experiments.filter((e) => e.status === "RUNNING" && e.goalAction === action);
+        for (const exp of matching) {
+            const variantId = assignedVariants[exp.id] || localStorage.getItem(`fs_exp_${exp.id}`);
+            if (variantId) {
+                fetch(`${apiUrl}/api/websites/${websiteId}/experiments/${exp.id}/conversion`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ variantId }),
+                }).catch(() => {});
+            }
+        }
+    };
 
     const handleSwitchPage = (page: PageConfig) => {
         setActivePageId(page.id);
@@ -836,7 +1084,7 @@ export default function PublishedSite() {
             if (!pages || pages.length === 0) return;
             const currentPath = window.location.pathname;
             const parts = currentPath.split("/").filter(Boolean);
-            const slugFromPath = parts.length >= 2 && parts[0] === "site" ? parts[2] : undefined;
+            const slugFromPath = parts.length >= 2 && parts[0] === "site" ? parts.slice(2).join("/") : undefined;
             const queryPage = new URLSearchParams(window.location.search).get("page");
             const targetSlug = slugFromPath || queryPage;
 
@@ -847,6 +1095,12 @@ export default function PublishedSite() {
             if (matched && matched.id !== activePageId) {
                 setActivePageId(matched.id);
                 setElements(matched.elements || []);
+            } else if (!matched && targetSlug && (targetSlug.startsWith("category/") || targetSlug.startsWith("tag/"))) {
+                const archivePage = pages.find((p) => p.slug === "/archive" || p.slug === "archive" || p.slug === "/blog" || p.slug === "blog") || pages.find((p: any) => p.isHome || p.slug === "/") || pages[0];
+                if (archivePage && archivePage.id !== activePageId) {
+                    setActivePageId(archivePage.id);
+                    setElements(archivePage.elements || []);
+                }
             }
         };
 
@@ -864,6 +1118,14 @@ export default function PublishedSite() {
         const siteSettings = (globalSettings as any)?.siteSettings || globalSettings || {};
         const title = pSettings.title || curPage.name || siteSettings.siteName || "Published Website";
         document.title = title;
+
+        // F-379 & F-380: Sync HTML language and RTL direction for published site
+        const siteLang = pSettings.siteLanguage || siteSettings.siteLanguage || "en";
+        const rtlLangs = ["ar", "he", "fa", "ur", "ar-sa", "he-il"];
+        const isRtl = pSettings.siteDirection === "rtl" || siteSettings.siteDirection === "rtl" || rtlLangs.includes(siteLang.toLowerCase());
+
+        document.documentElement.lang = siteLang;
+        document.documentElement.dir = isRtl ? "rtl" : "ltr";
 
         const upsertMeta = (name: string, content: string | undefined, isProperty = false) => {
             if (!content) return;
@@ -928,9 +1190,6 @@ export default function PublishedSite() {
             script.textContent = JSON.stringify(structuredData);
         }
     }, [pages, activePageId, globalSettings]);
-
-    const [siteStatus, setSiteStatus] = useState<string>("DRAFT");
-    const [_themeRules, _setThemeRules] = useState<any[]>([]);
 
     useEffect(() => {
         const handleResize = () => {
@@ -1045,7 +1304,14 @@ export default function PublishedSite() {
     }
 
     return (
+        <WooCommerceProvider websiteId={websiteId}>
         <div data-website-id={websiteId} data-page-id={activePageId} className={`fs-global-canvas-${websiteId || 'default'} fs-page-canvas-${websiteId || 'default'} w-full min-h-screen font-sans bg-white relative m-auto`} style={{ maxWidth: '100%', overflowX: 'hidden' }}>
+            {/* F-366: Keyboard Skip Link */}
+            <SkipLinks targetId="main-content" />
+
+            {/* F-376: Reading Guide Bar */}
+            <ReadingGuideBar />
+
             <style dangerouslySetInnerHTML={{ __html: getGlobalCustomCss(pages, popups, breakpoints, globalSettings, websiteId) }} />
             {compiledDesignTokensCss && <style id="fs-design-tokens-styles">{compiledDesignTokensCss}</style>}
             {optimizedGlobalCss && <style id="f353-optimized-styles">{optimizedGlobalCss}</style>}
@@ -1153,22 +1419,38 @@ export default function PublishedSite() {
                 </header>
             )}
 
-            {elements.map((el, index) => (
-                <RenderNode
-                    key={el.id}
-                    el={el}
-                    isCritical={index === 0}
-                    activeBreakpointId={activeBreakpointId}
-                    breakpoints={breakpoints}
-                    globalSettings={globalSettings}
-                    elementClassMap={elementClassMap}
-                    apiUrl={apiUrl}
-                    allElements={elements}
-                    pages={pages}
-                    onSwitchPage={handleSwitchPage}
-                    websiteId={websiteId}
-                />
-            ))}
+            {/* F-361: Semantic Main Container */}
+            <main id="main-content" className="w-full">
+                {elements.map((el, index) => (
+                    <RenderNode
+                        key={el.id}
+                        el={el}
+                        isCritical={index === 0}
+                        activeBreakpointId={activeBreakpointId}
+                        breakpoints={breakpoints}
+                        globalSettings={globalSettings}
+                        elementClassMap={elementClassMap}
+                        apiUrl={apiUrl}
+                        allElements={elements}
+                        pages={pages}
+                        onSwitchPage={handleSwitchPage}
+                        websiteId={websiteId}
+                    />
+                ))}
+            </main>
+
+            {/* F-364 & F-367 & F-374: Accessibility Visitor Widget */}
+            <AccessibilityWidget
+                config={globalSettings?.accessibilityWidget}
+                onOpenStatement={() => setStatementOpen(true)}
+            />
+
+            {/* F-373: Accessibility Statement Modal */}
+            <AccessibilityStatementModal
+                isOpen={statementOpen}
+                onClose={() => setStatementOpen(false)}
+                organizationName={globalSettings?.siteIdentity?.name || "Website"}
+            />
 
             {/* Configured Global Footer */}
             {sitePartsState?.footer?.elements && sitePartsState.footer.elements.length > 0 && (sitePartsState.footer.isEnabled ?? true) && (
@@ -1195,6 +1477,7 @@ export default function PublishedSite() {
             {/* F-438: Cookie Consent Runtime Banner */}
             <CookieConsentBanner config={cookieConsentConfig} />
         </div>
+        </WooCommerceProvider>
     );
 }
 

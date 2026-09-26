@@ -1,0 +1,43 @@
+{
+  "id": "F-018",
+  "feature": "Page Settings Inspector Panel",
+  "module": "Module 01 - Visual Editor",
+  "description": "Right sidebar Page Settings panel configuring Title, Path, Meta Description, Canvas BG, and Back to Top settings.",
+  "route": "/editor/:websiteId",
+  "uiLocation": "Right Sidebar Inspector",
+  "domSelector": "aside > div.space-y-5",
+  "domEvidence": {
+    "tagName": "DIV",
+    "classes": "space-y-5",
+    "accessibleName": "Page Settings Panel",
+    "role": "complementary",
+    "visible": true,
+    "interactive": true
+  },
+  "apiEvidence": [
+    {
+      "endpoint": "/api/websites/:id",
+      "method": "PUT",
+      "status": 200
+    }
+  ],
+  "databaseEvidence": [
+    {
+      "model": "Website",
+      "field": "editorData.pageSettings",
+      "persisted": true
+    }
+  ],
+  "wordpressEvidence": [],
+  "screenshots": [
+    "F-018_before.png",
+    "F-018_feature.png"
+  ],
+  "testCases": ["TC-F-018-001"],
+  "expected": "Page Settings open when no element is selected; edits mutate page state.",
+  "actual": "Page title, slug, meta tags, and color controls render without syntax error.",
+  "status": "PASS",
+  "severity": "NONE",
+  "defects": [],
+  "timestamp": "2026-09-26T13:28:10Z"
+}

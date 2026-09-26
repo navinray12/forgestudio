@@ -4,9 +4,12 @@
  * Provides on-demand and scheduled snapshot creation, listing,
  * restoration, and metadata for website backups.
  *
- * Backups are stored in Website.editorData.backups[] as JSON snapshots.
- * Additive only — does not replace or remove existing data.
+ * Durable Storage Architecture:
+ * 1. Primary snapshot metadata stored additively in Website.editorData.backups[].
+ * 2. Independent durable file archive written to disk at uploads/backups/:websiteId/:backupId.json.
  */
+import fs from "fs";
+import path from "path";
 
 export type BackupTrigger = "manual" | "scheduled" | "pre-publish" | "pre-restore";
 export type BackupStatus = "creating" | "ready" | "restoring" | "failed" | "expired";
@@ -26,6 +29,8 @@ export interface WebsiteBackup {
   sizeBytes: number;
   /** Schema version at time of backup */
   schemaVersion: number;
+  /** Durable disk storage path */
+  storagePath?: string;
   /** The full editorData snapshot (without nested backups to prevent recursion) */
   snapshot: Record<string, any>;
   /** Optional notes from the user */
@@ -40,6 +45,16 @@ export interface WebsiteBackup {
 
 /** Maximum number of backups retained per website (oldest pruned beyond limit) */
 export const MAX_BACKUPS_PER_WEBSITE = 25;
+
+const BACKUPS_STORAGE_DIR = path.join(process.cwd(), "uploads", "backups");
+
+function ensureBackupDir(websiteId: string): string {
+  const dir = path.join(BACKUPS_STORAGE_DIR, websiteId.replace(/[^a-zA-Z0-9_-]/g, "_"));
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+  return dir;
+}
 
 /** Default backup label pattern */
 function defaultLabel(trigger: BackupTrigger): string {
@@ -59,12 +74,13 @@ function defaultLabel(trigger: BackupTrigger): string {
 // ---------------------------------------------------------------------------
 
 /**
- * Creates a new backup record from the current editorData.
- * Strips the existing backups[] array from the snapshot to prevent recursion.
+ * Creates a new backup record from current editorData.
+ * Strips backups[] from snapshot and writes durable file to uploads/backups/:websiteId/:backupId.json.
  */
 export function createBackupRecord(
   editorData: Record<string, any>,
   options: {
+    websiteId?: string;
     trigger?: BackupTrigger;
     label?: string;
     notes?: string;
@@ -77,16 +93,29 @@ export function createBackupRecord(
   const { backups: _omit, ...snapshotData } = editorData;
   const snapshot = JSON.parse(JSON.stringify(snapshotData));
 
+  const id = generateBackupId();
   const sizeBytes = Buffer.byteLength(JSON.stringify(snapshot), "utf8");
 
+  let storagePath: string | undefined;
+  if (options.websiteId) {
+    try {
+      const dir = ensureBackupDir(options.websiteId);
+      storagePath = path.join(dir, `${id}.json`);
+      fs.writeFileSync(storagePath, JSON.stringify(snapshot, null, 2), "utf8");
+    } catch (e) {
+      console.warn(`[Backup] Non-fatal: Could not write backup file to disk:`, e);
+    }
+  }
+
   return {
-    id: generateBackupId(),
+    id,
     label: options.label || defaultLabel(trigger),
     trigger,
     status: "ready",
     createdAt: new Date().toISOString(),
     sizeBytes,
     schemaVersion: editorData.version || 1,
+    storagePath,
     snapshot,
     notes: options.notes,
     expiresAt: options.expiresAt,
@@ -102,7 +131,6 @@ export function createBackupRecord(
  */
 export function appendBackup(existing: WebsiteBackup[], newBackup: WebsiteBackup): WebsiteBackup[] {
   const updated = [newBackup, ...existing];
-  // Prune oldest — keep newest MAX_BACKUPS_PER_WEBSITE
   return updated.slice(0, MAX_BACKUPS_PER_WEBSITE);
 }
 
@@ -142,8 +170,8 @@ export function updateBackupRecord(
 // ---------------------------------------------------------------------------
 
 /**
- * Restores editorData from a backup snapshot.
- * Returns the merged editorData (backup snapshot + original backups[] preserved).
+ * Restores editorData from a backup snapshot or durable storage file.
+ * Returns merged editorData (backup snapshot + original backups[] preserved).
  */
 export function restoreFromBackup(
   currentEditorData: Record<string, any>,
@@ -153,14 +181,23 @@ export function restoreFromBackup(
     throw new Error(`Backup "${backup.id}" is not in a restorable state (status: ${backup.status})`);
   }
 
-  // Preserve the existing backups list through the restore
+  let snapshotData = backup.snapshot;
+
+  // Verify and read from durable file if available and valid
+  if (backup.storagePath && fs.existsSync(backup.storagePath)) {
+    try {
+      const raw = fs.readFileSync(backup.storagePath, "utf8");
+      snapshotData = JSON.parse(raw);
+    } catch (e) {
+      console.warn(`[Backup] Could not read durable backup file at ${backup.storagePath}, falling back to DB snapshot payload`, e);
+    }
+  }
+
   const existingBackups = Array.isArray(currentEditorData.backups) ? currentEditorData.backups : [];
 
   return {
-    ...backup.snapshot,
-    // Re-attach backups after restore
+    ...snapshotData,
     backups: existingBackups,
-    // Stamp the restore event
     _lastRestoredFrom: backup.id,
     _lastRestoredAt: new Date().toISOString(),
   };
@@ -170,13 +207,10 @@ export function restoreFromBackup(
 // Expiry Check
 // ---------------------------------------------------------------------------
 
-/**
- * Filters out expired backups from a list.
- */
 export function pruneExpiredBackups(backups: WebsiteBackup[]): WebsiteBackup[] {
   const now = new Date();
   return backups.filter((b) => {
-    if (!b.expiresAt) return true; // never expires
+    if (!b.expiresAt) return true;
     return new Date(b.expiresAt) > now;
   });
 }
@@ -187,7 +221,6 @@ export function pruneExpiredBackups(backups: WebsiteBackup[]): WebsiteBackup[] {
 
 export interface BackupSchedulePolicy {
   enabled: boolean;
-  /** Cron expression — e.g. "0 2 * * *" for 2 AM daily */
   cronExpression: string;
   retainCount: number;
   trigger: BackupTrigger;
@@ -214,10 +247,6 @@ export function validateBackupPolicy(raw: any): BackupSchedulePolicy {
       : "scheduled",
   };
 }
-
-// ---------------------------------------------------------------------------
-// Utility
-// ---------------------------------------------------------------------------
 
 function generateBackupId(): string {
   const ts = Date.now().toString(36);

@@ -1,0 +1,65 @@
+[
+  {
+    "endpoint": "/api/v1/auth/login",
+    "method": "POST",
+    "authRequired": false,
+    "rbacRole": "ANONYMOUS",
+    "service": "backend/src/routes/api-v1/auth.ts",
+    "expectedStatus": 200,
+    "featureIds": ["F-440", "F-547"]
+  },
+  {
+    "endpoint": "/api/v1/auth/me",
+    "method": "GET",
+    "authRequired": true,
+    "rbacRole": "USER",
+    "service": "backend/src/routes/api-v1/me.routes.ts",
+    "expectedStatus": 200,
+    "featureIds": ["F-441", "F-547"]
+  },
+  {
+    "endpoint": "/api/websites",
+    "method": "GET",
+    "authRequired": true,
+    "rbacRole": "USER",
+    "service": "backend/src/routes/website.routes.ts",
+    "expectedStatus": 200,
+    "featureIds": ["F-426", "F-449"]
+  },
+  {
+    "endpoint": "/api/websites/:id",
+    "method": "PUT",
+    "authRequired": true,
+    "rbacRole": "EDITOR",
+    "service": "backend/src/routes/website.routes.ts",
+    "expectedStatus": 200,
+    "featureIds": ["F-013", "F-018", "F-526"]
+  },
+  {
+    "endpoint": "/api/websites/:id/publish",
+    "method": "POST",
+    "authRequired": true,
+    "rbacRole": "OWNER_ADMIN",
+    "service": "backend/src/routes/website.routes.ts",
+    "expectedStatus": 200,
+    "featureIds": ["F-466", "F-495"]
+  },
+  {
+    "endpoint": "/api/v1/wordpress/connect",
+    "method": "POST",
+    "authRequired": true,
+    "rbacRole": "OWNER_ADMIN",
+    "service": "backend/src/routes/wordpress.routes.ts",
+    "expectedStatus": 200,
+    "featureIds": ["F-485", "F-486"]
+  },
+  {
+    "endpoint": "/wp-json/forgestudio/v1/publish",
+    "method": "POST",
+    "authRequired": true,
+    "rbacRole": "HMAC_SIGNED",
+    "service": "wordpress-plugin/forgestudio-connector.php",
+    "expectedStatus": 200,
+    "featureIds": ["F-484", "F-495", "F-500"]
+  }
+]

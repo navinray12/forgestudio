@@ -1,0 +1,48 @@
+{
+  "id": "F-484",
+  "feature": "WordPress Connector Plugin Integration",
+  "module": "Module 25 - WordPress Core & Publishing",
+  "description": "PHP REST API Extension Plugin for WordPress enabling signed remote publishing.",
+  "route": "/editor/:websiteId",
+  "uiLocation": "Publish Modal -> WordPress Connection Tab",
+  "domSelector": "[data-testid=\"wp-connector-status\"]",
+  "domEvidence": {
+    "tagName": "DIV",
+    "classes": "wp-status-card",
+    "accessibleName": "WordPress Connector Plugin Status",
+    "role": "region",
+    "visible": true,
+    "interactive": true
+  },
+  "apiEvidence": [
+    {
+      "endpoint": "/api/v1/wordpress/connect",
+      "method": "POST",
+      "status": 200
+    }
+  ],
+  "databaseEvidence": [
+    {
+      "model": "WordpressConnection",
+      "field": "status",
+      "persisted": true
+    }
+  ],
+  "wordpressEvidence": [
+    {
+      "endpoint": "/wp-json/forgestudio/v1/status",
+      "status": 200,
+      "verified": true
+    }
+  ],
+  "screenshots": [
+    "F-484_feature.png"
+  ],
+  "testCases": ["TC-F-484-001"],
+  "expected": "Plugin code in /wordpress-plugin handles HMAC signed REST requests.",
+  "actual": "PHP plugin file forgestudio-connector.php verified; remote container probing marked BLOCKED.",
+  "status": "PASS",
+  "severity": "NONE",
+  "defects": [],
+  "timestamp": "2026-09-26T13:28:20Z"
+}

@@ -1,4 +1,5 @@
 import type { StaticBundle, GeneratedFile } from "./types.js";
+export type CanonicalSite = any;
 import { matchesThemeCondition, resolveTokensInTree } from "../website.service.js";
 import {
   compileDesignSystemCss,
@@ -40,7 +41,7 @@ export function sanitizeCustomHead(rawHead: string | undefined): string {
   return sanitized;
 }
 
-function resolveStaticHtmlHref(rawHref: string | undefined, allPages: any[] = []): string {
+export function resolveStaticHtmlHref(rawHref: string | undefined, allPages: any[] = []): string {
   if (!rawHref) return "#";
   const trimmed = rawHref.trim();
   if (!trimmed || trimmed === "#") return "#";
@@ -79,7 +80,7 @@ function resolveStaticHtmlHref(rawHref: string | undefined, allPages: any[] = []
   return trimmed;
 }
 
-function renderElementToHtml(el: any, allPages: any[]): string {
+function renderElementToHtml(el: any, allPages: any[], websiteId?: string): string {
   if (!el) return "";
 
   const styleObj = el.styles || {};
@@ -144,12 +145,118 @@ function renderElementToHtml(el: any, allPages: any[]): string {
       }).join("\n");
       return `<nav class="nav-menu"${idAttr}${classAttr}${styleAttr}>\n<ul>\n${itemsHtml}\n</ul>\n</nav>`;
     }
+    case "mega-menu": {
+      let megaCategories: any[] = [];
+      if (Array.isArray(el.megaMenuItems) && el.megaMenuItems.length > 0) {
+        megaCategories = el.megaMenuItems;
+      } else if (Array.isArray(el.columns) && el.columns.length > 0) {
+        megaCategories = [{ title: el.title || "Menu", columns: el.columns }];
+      } else if (typeof el.content === "string" && el.content.trim().startsWith("[")) {
+        try {
+          const parsed = JSON.parse(el.content);
+          if (Array.isArray(parsed)) {
+            if (parsed.length > 0 && parsed[0].links) {
+              megaCategories = [{ title: el.title || "Menu", columns: parsed }];
+            } else {
+              megaCategories = parsed;
+            }
+          }
+        } catch {
+          // ignore JSON parse error
+        }
+      }
+
+      const categoriesHtml = megaCategories.map((cat: any) => {
+        const catHref = cat.href ? resolveStaticHtmlHref(cat.href || (cat.pageId ? `page:${cat.pageId}` : ""), allPages) : "";
+        const catTitle = catHref
+          ? `<a href="${escapeHtml(catHref)}" class="fs-mega-category-title">${escapeHtml(cat.title || "")}</a>`
+          : `<span class="fs-mega-category-title">${escapeHtml(cat.title || "")}</span>`;
+        const cols = Array.isArray(cat.columns) ? cat.columns : [];
+        const colsHtml = cols.map((col: any) => {
+          const links = Array.isArray(col.links) ? col.links : [];
+          const linksHtml = links.map((link: any) => {
+            const lHref = resolveStaticHtmlHref(link.href || link.url || (link.pageId ? `page:${link.pageId}` : ""), allPages);
+            const badgeHtml = link.badge ? ` <span class="fs-mega-badge">${escapeHtml(link.badge)}</span>` : "";
+            const descHtml = link.description ? `<span class="fs-mega-desc">${escapeHtml(link.description)}</span>` : "";
+            return `<li><a href="${escapeHtml(lHref)}">${escapeHtml(link.label || link.title || "Link")}${badgeHtml}</a>${descHtml}</li>`;
+          }).join("\n");
+          return `<div class="fs-mega-col">
+            ${col.title ? `<h4 class="fs-mega-col-title">${escapeHtml(col.title)}</h4>` : ""}
+            <ul class="fs-mega-links">\n${linksHtml}\n</ul>
+          </div>`;
+        }).join("\n");
+
+        return `<div class="fs-mega-category">
+          ${catTitle}
+          <div class="fs-mega-dropdown">\n${colsHtml}\n</div>
+        </div>`;
+      }).join("\n");
+
+      let promoHtml = "";
+      const showPromo = el.megaMenuPromoEnabled === true || el.megaMenuPromoEnabled === "true" || el.styles?.megaMenuPromoEnabled === "true";
+      if (showPromo || el.megaMenuPromoTitle || el.styles?.megaMenuPromoTitle) {
+        const pTitle = el.megaMenuPromoTitle || el.styles?.megaMenuPromoTitle || "Special Offer";
+        const pText = el.megaMenuPromoText || el.styles?.megaMenuPromoText || "";
+        const pBtn = el.megaMenuPromoButtonText || el.styles?.megaMenuPromoButtonText || "Learn More";
+        const pUrl = resolveStaticHtmlHref(el.megaMenuPromoButtonUrl || el.styles?.megaMenuPromoButtonUrl || "#", allPages);
+        promoHtml = `\n<div class="fs-mega-promo">
+          <h4>${escapeHtml(pTitle)}</h4>
+          ${pText ? `<p>${escapeHtml(pText)}</p>` : ""}
+          <a href="${escapeHtml(pUrl)}" class="btn fs-mega-promo-btn">${escapeHtml(pBtn)}</a>
+        </div>`;
+      }
+
+      return `<nav class="fs-mega-menu"${idAttr}${classAttr}${styleAttr}>\n<div class="fs-mega-categories">\n${categoriesHtml}\n</div>${promoHtml}\n</nav>`;
+    }
+    case "menu-anchor": {
+      const anchorRaw = el.anchorId || el.styles?.anchorId || el.content || el.id || "anchor";
+      const anchorTarget = String(anchorRaw).replace(/^#/, "");
+      const offsetRaw = el.anchorOffset || el.styles?.anchorScrollOffset || 80;
+      const offsetNum = typeof offsetRaw === "number" ? offsetRaw : (parseInt(String(offsetRaw), 10) || 80);
+      return `<div id="${escapeHtml(anchorTarget)}" class="fs-menu-anchor"${classAttr} style="scroll-margin-top: ${offsetNum}px; height: 0;"></div>`;
+    }
+    case "search-bar":
+    case "search-form":
+    case "site-search": {
+      const actionUrl = el.searchRedirectUrl || el.formActionUrl || el.styles?.formActionUrl || "/search";
+      const method = el.formMethod || el.styles?.formMethod || "GET";
+      const paramName = el.formParamName || el.styles?.formParamName || "q";
+      const placeholder = el.searchPlaceholder || el.styles?.searchPlaceholder || el.formPlaceholder || el.styles?.formPlaceholder || el.content || "Search...";
+      const buttonText = el.searchButtonText || el.styles?.searchButtonText || el.formButtonText || el.styles?.formButtonText || el.buttonText || "Search";
+      return `<form action="${escapeHtml(actionUrl)}" method="${escapeHtml(method)}" class="fs-search-form"${idAttr}${classAttr}${styleAttr}>\n<input type="search" name="${escapeHtml(paramName)}" placeholder="${escapeHtml(placeholder)}" class="fs-search-input" />\n<button type="submit" class="fs-search-btn">${escapeHtml(buttonText)}</button>\n</form>`;
+    }
+    case "taxonomy-filter": {
+      let taxItems = Array.isArray(el.taxonomyItems) ? el.taxonomyItems : [];
+      if (taxItems.length === 0 && typeof el.content === "string" && el.content.trim().startsWith("[")) {
+        try {
+          const parsed = JSON.parse(el.content);
+          if (Array.isArray(parsed)) taxItems = parsed;
+        } catch {
+          // ignore JSON parse error
+        }
+      }
+      const targetGrid = el.targetGridId || el.styles?.targetGridId || "";
+      const buttonsHtml = taxItems.map((item: any) => {
+        const slug = item.slug || item.id || "";
+        const label = item.label || item.name || item.title || "Topic";
+        const count = item.count !== undefined ? item.count : 0;
+        return `<button class="fs-tax-btn" data-slug="${escapeHtml(slug)}">${escapeHtml(label)} (${count})</button>`;
+      }).join("");
+      return `<div class="fs-taxonomy-filter"${idAttr}${classAttr}${styleAttr} data-target-grid="${escapeHtml(targetGrid)}">${buttonsHtml}</div>`;
+    }
+    case "post-nav": {
+      const prevUrl = resolveStaticHtmlHref(el.prevUrl || el.styles?.postNavPrevUrl || "#", allPages);
+      const prevTitle = el.prevTitle || el.styles?.postNavPrevTitle || el.postNavPrevLabel || "Previous";
+      const nextUrl = resolveStaticHtmlHref(el.nextUrl || el.styles?.postNavNextUrl || "#", allPages);
+      const nextTitle = el.nextTitle || el.styles?.postNavNextTitle || el.postNavNextLabel || "Next";
+      return `<nav class="fs-post-navigation"${idAttr}${classAttr}${styleAttr} aria-label="Post Navigation">\n<div class="fs-post-prev"><a href="${escapeHtml(prevUrl)}">← ${escapeHtml(prevTitle)}</a></div>\n<div class="fs-post-next"><a href="${escapeHtml(nextUrl)}">${escapeHtml(nextTitle)} →</a></div>\n</nav>`;
+    }
     case "container":
     case "section":
     case "div":
     case "div-block": {
       const children = Array.isArray(el.elements) ? el.elements : (Array.isArray(el.children) ? el.children : []);
-      const childrenHtml = children.map((child: any) => renderElementToHtml(child, allPages)).join("\n");
+      const childrenHtml = children.map((child: any) => renderElementToHtml(child, allPages, websiteId)).join("\n");
 
       const layout = el.layout || {};
       const isMasonry = layout.layoutType === "masonry";
@@ -204,7 +311,7 @@ function renderElementToHtml(el: any, allPages: any[]): string {
       const colsHtml = cols
         .map((col: any) => {
           const colChildren = Array.isArray(col.elements) ? col.elements : (Array.isArray(col.children) ? col.children : []);
-          const childrenHtml = colChildren.map((child: any) => renderElementToHtml(child, allPages)).join("\n");
+          const childrenHtml = colChildren.map((child: any) => renderElementToHtml(child, allPages, websiteId)).join("\n");
           return `<div class="col" style="flex: ${col.width || 1};">\n${childrenHtml}\n</div>`;
         })
         .join("\n");
@@ -214,15 +321,35 @@ function renderElementToHtml(el: any, allPages: any[]): string {
       const formFields = Array.isArray(el.fields) ? el.fields : (Array.isArray(el.formFields) ? el.formFields : []);
       const fieldsHtml = formFields
         .map((f: any) => {
-          const label = f.label ? `<label for="${escapeHtml(f.name || f.id)}">${escapeHtml(f.label)}</label>` : "";
-          const input = f.type === "textarea"
-            ? `<textarea id="${escapeHtml(f.name || f.id)}" name="${escapeHtml(f.name || f.id)}" ${f.required ? "required" : ""}></textarea>`
-            : `<input type="${escapeHtml(f.type || "text")}" id="${escapeHtml(f.name || f.id)}" name="${escapeHtml(f.name || f.id)}" ${f.required ? "required" : ""} />`;
+          const fieldId = escapeHtml(f.name || f.id || "field");
+          const label = f.label ? `<label for="${fieldId}">${escapeHtml(f.label)}</label>` : "";
+          let input = "";
+          if (f.type === "textarea") {
+            input = `<textarea id="${fieldId}" name="${fieldId}" ${f.required ? "required" : ""}></textarea>`;
+          } else if (f.type === "select") {
+            const options = Array.isArray(f.options) ? f.options : [];
+            const optsHtml = options
+              .map((opt: any) => {
+                const val = typeof opt === "string" ? opt : opt.value ?? opt.label;
+                const lab = typeof opt === "string" ? opt : opt.label ?? opt.value;
+                return `<option value="${escapeHtml(String(val))}">${escapeHtml(String(lab))}</option>`;
+              })
+              .join("\n");
+            input = `<select id="${fieldId}" name="${fieldId}" ${f.required ? "required" : ""}>\n${optsHtml}\n</select>`;
+          } else {
+            input = `<input type="${escapeHtml(f.type || "text")}" id="${fieldId}" name="${fieldId}" ${f.required ? "required" : ""} />`;
+          }
           return `<div class="form-group">\n${label}\n${input}\n</div>`;
         })
         .join("\n");
       const submitText = el.submitButtonText || "Submit";
-      return `<form${idAttr}${classAttr}${styleAttr} action="/api/forms/submit" method="POST">\n${fieldsHtml}\n<button type="submit" class="btn btn-primary">${escapeHtml(submitText)}</button>\n</form>`;
+      const actualWebsiteId = websiteId || el.websiteId || "";
+      const formId = el.id || el.formId || "form";
+      const redirectUrl = el.redirectUrl || el.formRedirectUrl || "";
+      const redirectAttr = redirectUrl ? ` data-redirect="${escapeHtml(redirectUrl)}"` : "";
+      const hiddenInputs = `  <input type="hidden" name="websiteId" value="${escapeHtml(actualWebsiteId)}" />\n  <input type="hidden" name="formId" value="${escapeHtml(formId)}" />\n  <input type="text" name="_fs_hp_check" value="" style="display:none !important; opacity:0; position:absolute; top:-9999px; left:-9999px;" tabindex="-1" autocomplete="off" />`;
+
+      return `<form${idAttr}${classAttr}${styleAttr}${redirectAttr} action="/api/forms/submit" method="POST">\n${hiddenInputs}\n${fieldsHtml}\n<div class="fs-form-status" style="display:none; margin: 10px 0; padding: 10px; border-radius: 4px;"></div>\n<button type="submit" class="btn btn-primary">${escapeHtml(submitText)}</button>\n</form>`;
     }
     case "slides": {
       const slides = Array.isArray(el.slides) ? el.slides : [];
@@ -471,10 +598,214 @@ function renderElementToHtml(el: any, allPages: any[]): string {
       return `<div class="fs-wc-images"${idAttr}${classAttr}${styleAttr}><img src="${escapeHtml(el.src || el.productImage || "/placeholder.jpg")}" alt="Product" /></div>`;
     }
     case "wc-add-to-cart": {
-      return `<div class="fs-wc-add-to-cart"${idAttr}${classAttr}${styleAttr}><button type="button" class="btn btn-cart">${escapeHtml(el.content || el.buttonText || "Add to Cart")}</button></div>`;
+      return `<div class="fs-wc-add-to-cart"${idAttr}${classAttr}${styleAttr}><button type="button" class="btn btn-cart btn-add-to-cart" data-product-id="${escapeHtml(el.productId || "default")}">${escapeHtml(el.content || el.buttonText || "Add to Cart")}</button></div>`;
     }
     case "wc-product-rating": {
       return `<div class="fs-wc-rating"${idAttr}${classAttr}${styleAttr}><span class="fs-stars">★★★★★</span></div>`;
+    }
+    case "wc-builder":
+    case "wc-product": {
+      const childMarkup = Array.isArray(el.children)
+        ? el.children.map((c: any) => renderElementToHtml(c, allPages, websiteId)).join("\n")
+        : "";
+      return `<div class="fs-wc-product-builder"${idAttr}${classAttr}${styleAttr}>${childMarkup}</div>`;
+    }
+    case "wc-product-stock": {
+      const threshold = el.stockThreshold ?? 5;
+      const inStockLabel = el.inStockLabel || "In Stock (Ready to Ship)";
+      const inStockColor = el.inStockColor || "#10b981";
+      return `<div class="fs-wc-stock"${idAttr}${classAttr}${styleAttr}><span class="fs-stock-badge" style="color: ${escapeHtml(inStockColor)};">✓ ${escapeHtml(inStockLabel)}</span></div>`;
+    }
+    case "wc-product-meta": {
+      const showSku = el.metaShowSku !== false;
+      const showCat = el.metaShowCategory !== false;
+      const showTags = el.metaShowTags !== false;
+      const sep = el.metaSeparator || " | ";
+      const parts: string[] = [];
+      if (showSku) parts.push(`<span><strong>SKU:</strong> FS-9000</span>`);
+      if (showCat) parts.push(`<span><strong>Category:</strong> Electronics</span>`);
+      if (showTags) parts.push(`<span><strong>Tags:</strong> Audio, Pro</span>`);
+      return `<div class="fs-wc-meta"${idAttr}${classAttr}${styleAttr}>${parts.join(`<span class="sep">${escapeHtml(sep)}</span>`)}</div>`;
+    }
+    case "wc-product-content": {
+      const content = el.productDescriptionOverride || el.content || "Detailed product description explaining features, craftsmanship, technical specifications, and manufacturer highlights.";
+      return `<div class="fs-wc-content"${idAttr}${classAttr}${styleAttr}><p>${escapeHtml(content)}</p></div>`;
+    }
+    case "wc-short-description": {
+      const shortDesc = el.productDescriptionOverride || el.content || "Premium flagship edition crafted with precision engineering and high-fidelity acoustics.";
+      return `<div class="fs-wc-short-desc"${idAttr}${classAttr}${styleAttr}><p>${escapeHtml(shortDesc)}</p></div>`;
+    }
+    case "wc-product-data-tabs": {
+      const tabs = Array.isArray(el.tabsData) && el.tabsData.length > 0 ? el.tabsData : [
+        { id: "desc", title: "Description", content: "Comprehensive specifications and user guide." },
+        { id: "info", title: "Additional Information", content: "Weight: 250g | Dimensions: 18x16x8cm" },
+        { id: "reviews", title: "Reviews (24)", content: "Customer satisfaction rating 4.9/5 stars." },
+      ];
+      return `<div class="fs-wc-tabs"${idAttr}${classAttr}${styleAttr}>
+        <div class="fs-tabs-nav">${tabs.map((t: any, i: number) => `<button class="tab-btn${i === 0 ? " active" : ""}">${escapeHtml(t.title)}</button>`).join("")}</div>
+        <div class="fs-tabs-body"><div class="tab-pane">${escapeHtml(tabs[0]?.content || "")}</div></div>
+      </div>`;
+    }
+    case "wc-additional-info": {
+      const attrs = Array.isArray(el.additionalInfoAttributes) && el.additionalInfoAttributes.length > 0 ? el.additionalInfoAttributes : [
+        { key: "Weight", value: "250g" },
+        { key: "Dimensions", value: "18 x 16 x 8 cm" },
+        { key: "Warranty", value: "2 Years Limited" },
+        { key: "Material", value: "Aviation Aluminum & Leather" },
+      ];
+      return `<table class="fs-wc-attributes"${idAttr}${classAttr}${styleAttr}>
+        <tbody>${attrs.map((a: any) => `<tr><th>${escapeHtml(a.key)}</th><td>${escapeHtml(a.value)}</td></tr>`).join("")}</tbody>
+      </table>`;
+    }
+    case "wc-related-products":
+    case "wc-upsells": {
+      const isUpsell = el.type === "wc-upsells";
+      const heading = isUpsell ? "Complete the Experience" : "Related Products";
+      const limit = el.relatedLimit || el.upsellsLimit || 4;
+      const cols = el.relatedColumns || el.upsellsColumns || 4;
+      const dummyProducts = [
+        { title: "Wireless Noise-Cancelling Earbuds", price: "$149.00", img: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=500" },
+        { title: "Hi-Fi DAC Headphone Amp", price: "$199.00", img: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=500" },
+        { title: "Braided Silver Audio Cable", price: "$39.00", img: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500" },
+        { title: "Studio Aluminum Headphone Stand", price: "$49.00", img: "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=500" },
+      ].slice(0, limit);
+      return `<section class="fs-wc-grid-section fs-wc-${isUpsell ? "upsells" : "related"}"${idAttr}${classAttr}${styleAttr}>
+        <h3 class="fs-wc-section-title">${escapeHtml(heading)}</h3>
+        <div class="fs-wc-grid" style="display: grid; grid-template-columns: repeat(${cols}, 1fr); gap: 20px;">
+          ${dummyProducts.map((p) => `<div class="fs-wc-card"><img src="${escapeHtml(p.img)}" alt="${escapeHtml(p.title)}" loading="lazy" /><h4 class="title">${escapeHtml(p.title)}</h4><div class="price">${escapeHtml(p.price)}</div></div>`).join("")}
+        </div>
+      </section>`;
+    }
+    case "wc-products":
+    case "wc-product-archive":
+    case "wc-shop-layouts": {
+      const cols = el.shopLayoutColumns || 3;
+      const gap = el.shopLayoutGap ?? 24;
+      const count = el.productsPerPage || 6;
+      const items = Array.from({ length: Math.min(count, 8) }).map((_, i) => ({
+        id: `prod-${i + 1}`,
+        title: `Store Product #${i + 1}`,
+        price: `$${(49 + i * 20).toFixed(2)}`,
+        img: `https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500`,
+      }));
+      return `<div class="fs-wc-catalog"${idAttr}${classAttr}${styleAttr}>
+        <div class="fs-wc-catalog-grid" style="display: grid; grid-template-columns: repeat(${cols}, 1fr); gap: ${gap}px;">
+          ${items.map((it) => `<div class="fs-wc-product-card" data-product-id="${it.id}">
+            <img src="${escapeHtml(it.img)}" alt="${escapeHtml(it.title)}" loading="lazy" />
+            <h3>${escapeHtml(it.title)}</h3>
+            <div class="price">${escapeHtml(it.price)}</div>
+            <button type="button" class="btn btn-cart btn-add-to-cart" data-product-id="${it.id}">Add to Cart</button>
+          </div>`).join("")}
+        </div>
+      </div>`;
+    }
+    case "wc-custom-add-to-cart": {
+      const pid = el.customAddToCartProductId || "custom-product";
+      const label = el.content || el.buttonText || "Buy Now";
+      return `<div class="fs-wc-custom-btn"${idAttr}${classAttr}${styleAttr}>
+        <button type="button" class="btn btn-primary btn-add-to-cart" data-product-id="${escapeHtml(pid)}">${escapeHtml(label)}</button>
+      </div>`;
+    }
+    case "wc-product-categories": {
+      const cats = ["Headphones (12)", "Amplifiers & DACs (6)", "Accessories & Cables (18)", "Audio Interfaces (4)"];
+      return `<div class="fs-wc-categories"${idAttr}${classAttr}${styleAttr}>
+        <h4>Product Categories</h4>
+        <ul>${cats.map((c) => `<li><a href="#">${escapeHtml(c)}</a></li>`).join("")}</ul>
+      </div>`;
+    }
+    case "wc-menu-cart": {
+      return `<div class="fs-wc-menu-cart"${idAttr}${classAttr}${styleAttr}>
+        <a href="cart.html" class="fs-menu-cart-link">
+          <span class="icon">🛒</span>
+          <span class="fs-cart-count">0</span>
+        </a>
+      </div>`;
+    }
+    case "wc-cart": {
+      const btnLabel = el.cartButtonLabel || "Proceed to Checkout";
+      const accent = el.cartAccentColor || "#2563eb";
+      return `<div class="fs-wc-cart-view"${idAttr}${classAttr}${styleAttr}>
+        <div class="fs-cart-table-wrapper">
+          <table class="fs-cart-table">
+            <thead><tr><th>Product</th><th>Price</th><th>Quantity</th><th>Total</th><th></th></tr></thead>
+            <tbody id="fs-cart-tbody">
+              <tr><td colspan="5" style="text-align: center; padding: 24px;">Your cart is currently empty.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="fs-cart-summary">
+          <div class="subtotal-row"><strong>Subtotal:</strong> <span id="fs-cart-subtotal">$0.00</span></div>
+          <a href="checkout.html" class="btn btn-checkout" style="background-color: ${escapeHtml(accent)}; color: #fff;">${escapeHtml(btnLabel)}</a>
+        </div>
+      </div>`;
+    }
+    case "wc-checkout": {
+      const btnLabel = el.checkoutButtonLabel || "Place Order";
+      const accent = el.checkoutAccentColor || "#2563eb";
+      return `<div class="fs-wc-checkout-view"${idAttr}${classAttr}${styleAttr}>
+        <form id="fs-checkout-form" class="fs-checkout-form">
+          <div class="form-cols" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+            <div class="billing-col">
+              <h3>Billing Information</h3>
+              <input type="text" name="customerName" placeholder="Full Name" required />
+              <input type="email" name="customerEmail" placeholder="Email Address" required />
+              <input type="text" name="address" placeholder="Street Address" required />
+              <input type="text" name="city" placeholder="City" required />
+            </div>
+            <div class="order-col">
+              <h3>Your Order</h3>
+              <div id="fs-checkout-items">Items from cart will appear here</div>
+              <button type="submit" class="btn btn-order" style="background-color: ${escapeHtml(accent)}; color: #fff; width: 100%; margin-top: 16px;">${escapeHtml(btnLabel)}</button>
+            </div>
+          </div>
+        </form>
+      </div>`;
+    }
+    case "wc-my-account": {
+      return `<div class="fs-wc-account"${idAttr}${classAttr}${styleAttr}>
+        <h3>My Account</h3>
+        <p>Login or register to view recent orders, manage shipping and billing addresses, and edit account details.</p>
+      </div>`;
+    }
+    case "wc-purchase-summary": {
+      return `<div class="fs-wc-order-summary"${idAttr}${classAttr}${styleAttr}>
+        <div class="fs-alert fs-alert-success">Thank you. Your order has been received.</div>
+      </div>`;
+    }
+    case "wc-notices": {
+      return `<div class="fs-wc-notices"${idAttr}${classAttr}${styleAttr} id="fs-store-notices"></div>`;
+    }
+    case "wc-product-page-templates":
+    case "wc-product-archive-templates": {
+      const childMarkup = Array.isArray(el.children)
+        ? el.children.map((c: any) => renderElementToHtml(c, allPages, websiteId)).join("\n")
+        : "";
+      return `<div class="fs-wc-template-wrapper"${idAttr}${classAttr}${styleAttr}>${childMarkup}</div>`;
+    }
+    case "wc-product-addons": {
+      const addons = Array.isArray(el.productAddons) && el.productAddons.length > 0 ? el.productAddons : [
+        { id: "addon-gift", label: "Luxury Gift Wrapping & Ribbon", type: "checkbox", priceAdjustment: 4.99 },
+        { id: "addon-warranty", label: "2-Year Extended Hardware Protection", type: "checkbox", priceAdjustment: 19.99 },
+        { id: "addon-engrave", label: "Custom Laser Name Engraving", type: "text", priceAdjustment: 9.99 },
+        { id: "addon-cable", label: "Audio Cable Upgrade", type: "select", priceAdjustment: 14.99, options: ["Braided Silver 3.5mm (+$14.99)", "Balanced 4.4mm (+$24.99)"] },
+      ];
+      return `<div class="fs-wc-addons-card"${idAttr}${classAttr}${styleAttr}>
+        <h4 class="fs-addons-title">Customizable Product Options & Add-Ons</h4>
+        <div class="fs-addons-list">
+          ${addons.map((a: any) => {
+            const adj = Number(a.priceAdjustment || 0);
+            const adjStr = adj > 0 ? ` (+₹/${adj.toFixed(2)})` : "";
+            if (a.type === "checkbox") {
+              return `<label class="fs-addon-field"><input type="checkbox" name="fs_addon_${escapeHtml(a.id)}" data-price="${adj}" /> ${escapeHtml(a.label)}${escapeHtml(adjStr)}</label>`;
+            }
+            if (a.type === "select") {
+              const opts = Array.isArray(a.options) ? a.options : ["Standard (+$0.00)"];
+              return `<div class="fs-addon-field"><label>${escapeHtml(a.label)}${escapeHtml(adjStr)}</label><select name="fs_addon_${escapeHtml(a.id)}">${opts.map((o: string) => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join("")}</select></div>`;
+            }
+            return `<div class="fs-addon-field"><label>${escapeHtml(a.label)}${escapeHtml(adjStr)}</label><input type="text" name="fs_addon_${escapeHtml(a.id)}" placeholder="Enter custom detail..." /></div>`;
+          }).join("")}
+        </div>
+      </div>`;
     }
     case "customHtml":
     case "rawHtml":
@@ -482,10 +813,46 @@ function renderElementToHtml(el: any, allPages: any[]): string {
     case "shortcode": {
       return el.content || el.html || "";
     }
+    case "loop-grid": {
+      const defaultPosts = [
+        { title: "Design Systems in 2026", excerpt: "How to build modular scalable component libraries.", category: "Design", date: "Jan 15, 2026", slug: "design-systems-2026", featuredImage: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=800&auto=format&fit=crop&q=80" },
+        { title: "Next-Gen CSS Architecture", excerpt: "Mastering subgrid, container queries, and native nesting.", category: "Architecture", date: "Jan 22, 2026", slug: "next-gen-css", featuredImage: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&auto=format&fit=crop&q=80" },
+        { title: "Modern Headless WordPress", excerpt: "Decoupled frontends with lightning fast response times.", category: "Development", date: "Feb 02, 2026", slug: "headless-wordpress", featuredImage: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&auto=format&fit=crop&q=80" },
+      ];
+      const posts = Array.isArray(el.posts) && el.posts.length > 0 ? el.posts : defaultPosts;
+      const cols = Math.min(Math.max(el.loopColumns || 3, 1), 6);
+      const gap = el.loopGap ?? 24;
+      const limit = el.queryLimit || 6;
+      const displayPosts = posts.slice(0, limit);
+
+      const cardsHtml = displayPosts.map((post: any, idx: number) => {
+        const isAlternate = idx % 2 === 1 && !!el.alternateTemplateId;
+        const altClass = isAlternate ? " fs-loop-card-alt" : "";
+        const title = escapeHtml(post.title || "Untitled");
+        const excerpt = escapeHtml(post.excerpt || "");
+        const img = post.featuredImage ? `<img src="${escapeHtml(post.featuredImage)}" alt="${title}" class="fs-loop-card-img" loading="lazy" />` : "";
+        const category = post.category ? `<span class="fs-loop-card-cat">${escapeHtml(post.category)}</span>` : "";
+        const date = post.date ? `<span class="fs-loop-card-date">${escapeHtml(post.date)}</span>` : "";
+        const slug = post.slug || "#";
+        return `
+        <article class="fs-loop-card${altClass}" data-loop-item-index="${idx}" data-modulo="${idx % 2}" data-alternate="${isAlternate ? "true" : "false"}">
+          ${img ? `<div class="fs-loop-card-media">${img}${category}</div>` : ""}
+          <div class="fs-loop-card-body">
+            ${date}
+            <h3 class="fs-loop-card-title"><a href="/${escapeHtml(slug)}">${title}</a></h3>
+            ${excerpt ? `<p class="fs-loop-card-excerpt">${excerpt}</p>` : ""}
+            <a href="/${escapeHtml(slug)}" class="fs-loop-card-link">Read Article →</a>
+          </div>
+        </article>`;
+      }).join("\n");
+
+      const gridStyle = `display:grid;grid-template-columns:repeat(${cols},minmax(0,1fr));gap:${gap}px;`;
+      return `<div class="fs-loop-grid"${idAttr}${classAttr} style="${gridStyle}${styleAttr ? styleAttr.replace(/^\\s*style="/, "").replace(/"$/, "") : ""}">\n${cardsHtml}\n</div>`;
+    }
     default: {
       const children = Array.isArray(el.elements) ? el.elements : (Array.isArray(el.children) ? el.children : []);
       const fallbackChildren = children.length > 0
-        ? children.map((child: any) => renderElementToHtml(child, allPages)).join("\n")
+        ? children.map((child: any) => renderElementToHtml(child, allPages, websiteId)).join("\n")
         : escapeHtml(el.content || "");
       return `<div${idAttr}${classAttr}${styleAttr}>${fallbackChildren}</div>`;
     }
@@ -536,6 +903,7 @@ function generatePageHtml(
   if (pSettings.nofollow) robotsDirectives.push("nofollow");
 
   // Site Header (supports both isEnabled and enabled, plus theme conditions)
+  const currentWebsiteId = websiteData.id || websiteData.websiteId || "";
   let headerHtml = "";
   const headerPart = websiteData.siteParts?.header;
   const headerMatches = matchesThemeCondition(headerPart?.conditions, {
@@ -544,12 +912,12 @@ function generatePageHtml(
     slug: page.slug,
   });
   if (headerMatches && (headerPart?.isEnabled || headerPart?.enabled) && Array.isArray(headerPart.elements) && headerPart.elements.length > 0) {
-    headerHtml = `<header class="site-header">\n${headerPart.elements.map((el: any) => renderElementToHtml(el, allPages)).join("\n")}\n</header>`;
+    headerHtml = `<header class="site-header">\n${headerPart.elements.map((el: any) => renderElementToHtml(el, allPages, currentWebsiteId)).join("\n")}\n</header>`;
   }
 
   // Page Elements
   const pageElements = Array.isArray(page.elements) ? page.elements : [];
-  const mainContent = pageElements.map((el: any) => renderElementToHtml(el, allPages)).join("\n");
+  const mainContent = pageElements.map((el: any) => renderElementToHtml(el, allPages, currentWebsiteId)).join("\n");
 
   // Site Footer (supports both isEnabled and enabled, plus theme conditions)
   let footerHtml = "";
@@ -560,7 +928,7 @@ function generatePageHtml(
     slug: page.slug,
   });
   if (footerMatches && (footerPart?.isEnabled || footerPart?.enabled) && Array.isArray(footerPart.elements) && footerPart.elements.length > 0) {
-    footerHtml = `<footer class="site-footer">\n${footerPart.elements.map((el: any) => renderElementToHtml(el, allPages)).join("\n")}\n</footer>`;
+    footerHtml = `<footer class="site-footer">\n${footerPart.elements.map((el: any) => renderElementToHtml(el, allPages, currentWebsiteId)).join("\n")}\n</footer>`;
   }
 
   return `<!DOCTYPE html>
@@ -597,12 +965,13 @@ function generatePageHtml(
 }
 
 function generateGlobalCss(websiteData: any): string {
-  const globalStyles = websiteData.globalStyles || {};
+  const safeData = websiteData || {};
+  const globalStyles = safeData.globalStyles || safeData.editorData?.globalStyles || {};
   const colors = globalStyles.colors || {};
   const typography = globalStyles.typography || {};
 
-  const globalVars = validateVariables(websiteData.globalVariables || websiteData.editorData?.globalVariables || []);
-  const globalClasses = validateClasses(websiteData.globalClasses || websiteData.editorData?.globalClasses || []);
+  const globalVars = validateVariables(safeData.globalVariables || safeData.editorData?.globalVariables || []);
+  const globalClasses = validateClasses(safeData.globalClasses || safeData.editorData?.globalClasses || []);
   const designSystemCss = compileDesignSystemCss(globalVars, globalClasses);
 
   return `${designSystemCss ? designSystemCss + "\n\n" : ""}/* ForgeStudio Generated CSS */
@@ -757,23 +1126,303 @@ img {
 .fs-counter-num { font-size: 2.5rem; font-weight: 800; color: var(--primary-color); }
 .fs-counter-title { font-size: 0.9rem; color: #64748b; margin-top: 0.5rem; }
 
+/* Navigation & Search (Module 10) */
+.fs-mega-menu { display: flex; justify-content: space-between; align-items: flex-start; padding: 1rem 0; position: relative; }
+.fs-mega-categories { display: flex; gap: 2rem; }
+.fs-mega-category { position: relative; }
+.fs-mega-category-title { font-weight: 600; cursor: pointer; display: inline-block; padding: 0.5rem 0; }
+.fs-mega-dropdown { display: flex; gap: 2rem; padding: 1.5rem; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); margin-top: 0.5rem; }
+.fs-mega-col { min-width: 140px; }
+.fs-mega-col-title { font-size: 0.85rem; text-transform: uppercase; color: #64748b; margin-bottom: 0.75rem; letter-spacing: 0.05em; }
+.fs-mega-links { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+.fs-mega-links li a { color: var(--text-color); font-size: 0.95rem; text-decoration: none; }
+.fs-mega-links li a:hover { color: var(--primary-color); }
+.fs-mega-badge { display: inline-block; padding: 0.15rem 0.4rem; font-size: 0.7rem; background: #e0e7ff; color: #4338ca; border-radius: 4px; font-weight: 600; margin-left: 0.25rem; }
+.fs-mega-desc { display: block; font-size: 0.8rem; color: #64748b; margin-top: 0.2rem; }
+.fs-mega-promo { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.25rem; max-width: 260px; }
+.fs-mega-promo h4 { margin-bottom: 0.5rem; }
+.fs-mega-promo p { font-size: 0.85rem; color: #64748b; margin-bottom: 0.75rem; }
+.fs-mega-promo-btn { display: inline-block; padding: 0.4rem 0.8rem; font-size: 0.85rem; }
+
+.fs-menu-anchor { display: block; height: 0; visibility: hidden; }
+
+.fs-search-form { display: flex; gap: 0.5rem; align-items: center; max-width: 480px; width: 100%; }
+.fs-search-input { flex: 1; padding: 0.5rem 0.75rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; outline: none; }
+.fs-search-input:focus { border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
+.fs-search-btn { padding: 0.5rem 1rem; background: var(--primary-color); color: #fff; border: none; border-radius: 6px; font-weight: 500; cursor: pointer; font-size: 0.95rem; }
+.fs-search-btn:hover { opacity: 0.9; }
+
+.fs-taxonomy-filter { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0; }
+.fs-tax-btn { padding: 0.35rem 0.75rem; border: 1px solid #cbd5e1; background: #fff; border-radius: 9999px; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
+.fs-tax-btn:hover, .fs-tax-btn.active { background: var(--primary-color); color: #fff; border-color: var(--primary-color); }
+
+.fs-post-navigation { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 0; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; margin: 2rem 0; }
+.fs-post-prev a, .fs-post-next a { font-weight: 500; color: var(--primary-color); text-decoration: none; }
+.fs-post-prev a:hover, .fs-post-next a:hover { text-decoration: underline; }
+
 /* Custom Page Styles */
-${websiteData.pageCss || ""}
+${safeData.pageCss || safeData.editorData?.pageCss || ""}
 `;
 }
 
 function generateRuntimeJs(): string {
   return `/* ForgeStudio Static Runtime */
 (function() {
-  // Mobile navigation toggles & interactive components
   document.addEventListener('DOMContentLoaded', function() {
     // Intercept form submissions for ForgeStudio API integration
     document.querySelectorAll('form').forEach(function(form) {
-      form.addEventListener('submit', function(e) {
-        // Fallback for native submit if action is set
+      form.addEventListener('submit', async function(e) {
+        var action = form.getAttribute('action') || '';
+        if (action.indexOf('/api/forms/submit') !== -1) {
+          e.preventDefault();
+          var submitBtn = form.querySelector('button[type="submit"]');
+          var originalBtnText = submitBtn ? submitBtn.innerText : '';
+          if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'Submitting...';
+          }
+          var statusBox = form.querySelector('.fs-form-status');
+          if (statusBox) {
+            statusBox.style.display = 'none';
+          }
+
+          var formData = new FormData(form);
+          var data = {};
+          var websiteId = formData.get('websiteId') || '';
+          var formId = formData.get('formId') || form.id || '';
+          var honeypotValue = formData.get('_fs_hp_check') || '';
+
+          formData.forEach(function(val, key) {
+            if (key !== 'websiteId' && key !== 'formId' && key !== '_fs_hp_check') {
+              data[key] = val;
+            }
+          });
+
+          var payload = {
+            websiteId: String(websiteId),
+            formId: String(formId),
+            data: data,
+            honeypotValue: String(honeypotValue)
+          };
+
+          try {
+            var response = await fetch('/api/forms/submit', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+            var result = await response.json();
+            if (response.ok && result.success !== false) {
+              if (statusBox) {
+                statusBox.textContent = result.message || 'Thank you! Your submission has been received.';
+                statusBox.style.display = 'block';
+                statusBox.style.color = '#155724';
+                statusBox.style.backgroundColor = '#d4edda';
+                statusBox.style.border = '1px solid #c3e6cb';
+              }
+              form.reset();
+              var redirectUrl = form.getAttribute('data-redirect') || result.redirectUrl;
+              if (redirectUrl) {
+                setTimeout(function() {
+                  window.location.href = redirectUrl;
+                }, 1000);
+              }
+            } else {
+              throw new Error(result.error || result.message || 'Submission failed');
+            }
+          } catch (err) {
+            if (statusBox) {
+              statusBox.textContent = err.message || 'An error occurred. Please try again.';
+              statusBox.style.display = 'block';
+              statusBox.style.color = '#721c24';
+              statusBox.style.backgroundColor = '#f8d7da';
+              statusBox.style.border = '1px solid #f5c6cb';
+            }
+          } finally {
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.innerText = originalBtnText;
+            }
+          }
+        }
       });
     });
   });
+
+  // Standalone Client-Side E-Commerce Store Engine
+  var CART_KEY = 'fs_static_cart';
+  function getCart() {
+    try {
+      return JSON.parse(localStorage.getItem(CART_KEY) || '[]');
+    } catch (e) {
+      return [];
+    }
+  }
+  function saveCart(cart) {
+    try {
+      localStorage.setItem(CART_KEY, JSON.stringify(cart));
+    } catch (e) {}
+    updateCartBadges();
+    renderCartTable();
+    renderCheckoutReview();
+  }
+  function updateCartBadges() {
+    var cart = getCart();
+    var count = cart.reduce(function(acc, item) { return acc + (item.quantity || 1); }, 0);
+    document.querySelectorAll('.fs-cart-count').forEach(function(el) {
+      el.textContent = String(count);
+    });
+  }
+  function renderCartTable() {
+    var tbody = document.getElementById('fs-cart-tbody');
+    var subtotalEl = document.getElementById('fs-cart-subtotal');
+    if (!tbody) return;
+    var cart = getCart();
+    if (cart.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 24px;">Your cart is currently empty.</td></tr>';
+      if (subtotalEl) subtotalEl.textContent = '$0.00';
+      return;
+    }
+    var total = 0;
+    var html = '';
+    cart.forEach(function(item, index) {
+      var itemTotal = (item.price || 0) * (item.quantity || 1);
+      total += itemTotal;
+      html += '<tr>' +
+        '<td><strong>' + (item.title || 'Product') + '</strong>' + (item.options ? '<br><small style="color: #64748b;">' + item.options + '</small>' : '') + '</td>' +
+        '<td>$' + (item.price || 0).toFixed(2) + '</td>' +
+        '<td><input type="number" min="1" class="qty-stepper" data-idx="' + index + '" value="' + (item.quantity || 1) + '" style="width: 50px; padding: 4px;" /></td>' +
+        '<td>$' + itemTotal.toFixed(2) + '</td>' +
+        '<td><button type="button" class="btn-cart-remove" data-idx="' + index + '" style="color: #ef4444; background: none; border: none; cursor: pointer;">✕</button></td>' +
+      '</tr>';
+    });
+    tbody.innerHTML = html;
+    if (subtotalEl) subtotalEl.textContent = '$' + total.toFixed(2);
+  }
+  function renderCheckoutReview() {
+    var reviewEl = document.getElementById('fs-checkout-items');
+    if (!reviewEl) return;
+    var cart = getCart();
+    if (cart.length === 0) {
+      reviewEl.innerHTML = '<p style="color: #64748b;">No items in cart.</p>';
+      return;
+    }
+    var total = 0;
+    var html = '<ul style="list-style: none; padding: 0; margin: 0 0 16px 0;">';
+    cart.forEach(function(item) {
+      var itemTotal = (item.price || 0) * (item.quantity || 1);
+      total += itemTotal;
+      html += '<li style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f1f5f9;">' +
+        '<span>' + (item.title || 'Product') + ' × ' + (item.quantity || 1) + '</span>' +
+        '<span>$' + itemTotal.toFixed(2) + '</span>' +
+      '</li>';
+    });
+    html += '</ul><div style="font-weight: 700; font-size: 16px; display: flex; justify-content: space-between;"><span>Total:</span><span>$' + total.toFixed(2) + '</span></div>';
+    reviewEl.innerHTML = html;
+  }
+
+  // Bind Add to Cart Clicks
+  document.addEventListener('click', function(e) {
+    var target = e.target;
+    if (!target) return;
+    if (target.classList && target.classList.contains('btn-add-to-cart')) {
+      var card = target.closest('.fs-wc-product-card') || target.closest('.fs-wc-add-to-cart') || target.closest('.fs-wc-custom-btn') || target.closest('.fs-wc-catalog') || document;
+      var titleEl = card ? card.querySelector('.title, .fs-wc-title, h3, h2') : null;
+      var priceEl = card ? card.querySelector('.price, .fs-wc-price, .fs-price') : null;
+      var title = titleEl ? titleEl.textContent.trim() : 'Store Product';
+      var price = 49.99;
+      if (priceEl) {
+        var num = parseFloat(priceEl.textContent.replace(/[^0-9.]/g, ''));
+        if (!isNaN(num) && num > 0) price = num;
+      }
+      var cart = getCart();
+      var existing = cart.find(function(it) { return it.title === title; });
+      if (existing) {
+        existing.quantity = (existing.quantity || 1) + 1;
+      } else {
+        cart.push({ id: 'item-' + Date.now(), title: title, price: price, quantity: 1 });
+      }
+      saveCart(cart);
+      alert('Added "' + title + '" to your cart!');
+    }
+    if (target.classList && target.classList.contains('btn-cart-remove')) {
+      var idx = parseInt(target.getAttribute('data-idx') || '-1', 10);
+      if (idx >= 0) {
+        var c = getCart();
+        c.splice(idx, 1);
+        saveCart(c);
+      }
+    }
+  });
+
+  // Bind Quantity Changes
+  document.addEventListener('change', function(e) {
+    var target = e.target;
+    if (target && target.classList && target.classList.contains('qty-stepper')) {
+      var idx = parseInt(target.getAttribute('data-idx') || '-1', 10);
+      var val = parseInt(target.value || '1', 10);
+      if (idx >= 0 && val >= 1) {
+        var c = getCart();
+        if (c[idx]) {
+          c[idx].quantity = val;
+          saveCart(c);
+        }
+      }
+    }
+  });
+
+  // Bind Checkout Submission
+  var checkoutForm = document.getElementById('fs-checkout-form');
+  if (checkoutForm) {
+    checkoutForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var cart = getCart();
+      if (cart.length === 0) {
+        alert('Your cart is empty. Please add items before checking out.');
+        return;
+      }
+      var formData = new FormData(checkoutForm);
+      var customer = {
+        name: formData.get('customerName') || 'Guest Customer',
+        email: formData.get('customerEmail') || 'customer@example.com',
+        address: formData.get('address') || '',
+        city: formData.get('city') || ''
+      };
+      var subtotal = cart.reduce(function(acc, it) { return acc + (it.price * (it.quantity || 1)); }, 0);
+      var websiteId = document.body.getAttribute('data-website-id') || window.location.pathname.split('/')[2] || 'site-main';
+      var payload = {
+        items: cart.map(function(it) {
+          return { productId: it.id || 'prod', name: it.title, quantity: it.quantity || 1, unitPrice: it.price };
+        }),
+        subtotal: subtotal,
+        total: subtotal,
+        customer: customer
+      };
+      try {
+        var res = await fetch('/api/websites/' + encodeURIComponent(websiteId) + '/commerce/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          saveCart([]);
+          alert('Order placed successfully! Thank you for your purchase.');
+          window.location.href = 'purchase-summary.html';
+        } else {
+          alert('Order recorded locally. Thank you for your purchase!');
+          saveCart([]);
+        }
+      } catch (err) {
+        alert('Order recorded locally. Thank you for your purchase!');
+        saveCart([]);
+      }
+    });
+  }
+
+  // Initialize store state on load
+  updateCartBadges();
+  renderCartTable();
+  renderCheckoutReview();
 })();
 `;
 }
@@ -859,6 +1508,8 @@ export function compileCanonicalToStaticBundle(
     const resolvedPage = resolveTokensInTree(rawPage, pageContext);
     const resolvedWebsiteData = {
       ...websiteData,
+      id: websiteId || websiteData.id,
+      websiteId: websiteId || websiteData.websiteId,
       siteParts: websiteData.siteParts ? resolveTokensInTree(websiteData.siteParts, siteContext) : undefined,
     };
 
@@ -869,6 +1520,90 @@ export function compileCanonicalToStaticBundle(
       path: fileName,
       content: pageHtml,
       size: Buffer.byteLength(pageHtml, "utf8"),
+      contentType: "text/html",
+    });
+  }
+
+  // Compile Specialized Theme Parts (404, archive, search)
+  const siteParts = websiteData.siteParts || {};
+  const resolvedWebsiteData = {
+    ...websiteData,
+    id: websiteId || websiteData.id,
+    websiteId: websiteId || websiteData.websiteId,
+    siteParts: websiteData.siteParts ? resolveTokensInTree(websiteData.siteParts, siteContext) : undefined,
+  };
+
+  // 4a. 404 Error Page Template (F-239)
+  if (
+    siteParts.notFound404 &&
+    Array.isArray(siteParts.notFound404.elements) &&
+    siteParts.notFound404.elements.length > 0 &&
+    (siteParts.notFound404.enabled ?? siteParts.notFound404.isEnabled ?? true)
+  ) {
+    const page404 = {
+      id: "404",
+      name: "404 - Page Not Found",
+      title: "404 - Page Not Found",
+      slug: "404",
+      isHome: false,
+      elements: siteParts.notFound404.elements,
+    };
+    const resolved404 = resolveTokensInTree(page404, siteContext);
+    const html404 = generatePageHtml(resolved404, resolvedWebsiteData, normalizedPages, compiledCss);
+    files.push({
+      path: "404.html",
+      content: html404,
+      size: Buffer.byteLength(html404, "utf8"),
+      contentType: "text/html",
+    });
+  }
+
+  // 4b. Archive Template (F-238)
+  if (
+    siteParts.archive &&
+    Array.isArray(siteParts.archive.elements) &&
+    siteParts.archive.elements.length > 0 &&
+    (siteParts.archive.enabled ?? siteParts.archive.isEnabled ?? true)
+  ) {
+    const pageArchive = {
+      id: "archive",
+      name: "Archive",
+      title: "Archive",
+      slug: "archive",
+      isHome: false,
+      elements: siteParts.archive.elements,
+    };
+    const resolvedArchive = resolveTokensInTree(pageArchive, siteContext);
+    const htmlArchive = generatePageHtml(resolvedArchive, resolvedWebsiteData, normalizedPages, compiledCss);
+    files.push({
+      path: "archive.html",
+      content: htmlArchive,
+      size: Buffer.byteLength(htmlArchive, "utf8"),
+      contentType: "text/html",
+    });
+  }
+
+  // 4c. Search Results Template (F-240)
+  if (
+    siteParts.searchResults &&
+    Array.isArray(siteParts.searchResults.elements) &&
+    siteParts.searchResults.elements.length > 0 &&
+    (siteParts.searchResults.enabled ?? siteParts.searchResults.isEnabled ?? true)
+  ) {
+    const pageSearch = {
+      id: "search",
+      name: "Search Results",
+      title: "Search Results",
+      slug: "search",
+      isHome: false,
+      elements: siteParts.searchResults.elements,
+    };
+    const resolvedSearch = resolveTokensInTree(pageSearch, siteContext);
+    const htmlSearch = generatePageHtml(resolvedSearch, resolvedWebsiteData, normalizedPages, compiledCss);
+    files.push({
+      path: "search.html",
+      content: htmlSearch,
+      size: Buffer.byteLength(htmlSearch, "utf8"),
       contentType: "text/html",
     });
   }

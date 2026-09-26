@@ -367,54 +367,28 @@ export async function initWebsiteTable() {
           role VARCHAR(50) NOT NULL DEFAULT 'MEMBER',
           "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
           "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-          CONSTRAINT "publish_approval_requests_websiteId_key" UNIQUE ("websiteId", "targetVersion")
+          CONSTRAINT "workspace_members_workspaceId_userId_key" UNIQUE ("workspaceId", "userId")
+        );
+      `);
+    } catch (wmErr) {}
+
+    try {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS publish_approval_requests (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          "websiteId" UUID NOT NULL REFERENCES websites(id) ON DELETE CASCADE,
+          "requesterId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          "reviewerId" UUID REFERENCES users(id) ON DELETE SET NULL,
+          status VARCHAR(50) NOT NULL DEFAULT 'PENDING',
+          "targetVersion" INTEGER NOT NULL,
+          "reviewNotes" VARCHAR(1000),
+          snapshot JSONB NOT NULL,
+          "reviewedAt" TIMESTAMP WITH TIME ZONE,
+          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
         );
       `);
     } catch (parErr) {}
-
-    try {
-      await prisma.$executeRawUnsafe(`
-        CREATE TABLE IF NOT EXISTS website_collaborators (
-          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          "websiteId" UUID NOT NULL REFERENCES websites(id) ON DELETE CASCADE,
-          "userId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-          permission VARCHAR(50) NOT NULL DEFAULT 'EDITOR',
-          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-          CONSTRAINT "website_collaborators_websiteId_userId_key" UNIQUE ("websiteId", "userId")
-        );
-      `);
-    } catch (wcErr) {}
-
-    try {
-      await prisma.$executeRawUnsafe(`
-        CREATE TABLE IF NOT EXISTS custom_code_snippets (
-          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          "websiteId" UUID NOT NULL REFERENCES websites(id) ON DELETE CASCADE,
-          name VARCHAR(255) NOT NULL,
-          location VARCHAR(50) NOT NULL DEFAULT 'HEADER',
-          code TEXT NOT NULL,
-          enabled BOOLEAN NOT NULL DEFAULT true,
-          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
-        );
-      `);
-    } catch (ccsErr) {}
-
-    try {
-      await prisma.$executeRawUnsafe(`
-        CREATE TABLE IF NOT EXISTS component_accesses (
-          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          "websiteId" UUID NOT NULL REFERENCES websites(id) ON DELETE CASCADE,
-          "componentId" VARCHAR(255) NOT NULL,
-          "elementId" VARCHAR(255) NOT NULL DEFAULT '',
-          "userId" UUID REFERENCES users(id) ON DELETE SET NULL,
-          permission VARCHAR(50) NOT NULL DEFAULT 'VIEW',
-          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
-        );
-      `);
-    } catch (caErr) {}
   } catch (error) {
     console.error("Website table initialization log:", error);
   }
@@ -665,69 +639,47 @@ export async function getWebsiteById(websiteId: string, userId: string) {
     let website: any = null;
     let permission = "NONE";
 
-    try {
-      if (db?.website?.findUnique) {
-        website = await db.website.findUnique({
-          where: { id: websiteId },
-          include: {
-            customCodeSnippets: true
-          }
-        });
+    if (db?.website?.findUnique) {
+      website = await db.website.findUnique({
+        where: { id: websiteId },
+        include: {
+          customCodeSnippets: true
+        }
+      });
 
-        if (website) {
-          if (website.userId === userId) {
-            permission = "OWNER";
-          } else {
-            // Check WebsiteCollaborator explicitly
-            try {
-              const collab = await db.websiteCollaborator.findUnique({
-                where: {
-                  websiteId_userId: { websiteId, userId }
-                }
-              });
-              if (collab) {
-                permission = collab.permission;
-              } else {
-                website = null; // Purge access
-              }
-            } catch {
-              website = null;
+      if (website) {
+        if (website.userId === userId) {
+          permission = "OWNER";
+        } else {
+          // Check WebsiteCollaborator explicitly
+          const collab = await db.websiteCollaborator.findUnique({
+            where: {
+              websiteId_userId: { websiteId, userId }
             }
+          });
+          if (collab) {
+            permission = collab.permission;
+          } else {
+            website = null; // Purge access
           }
         }
       }
-    } catch (err) {
-      website = null;
     }
 
     if (!website) {
       // Raw Fallback mapped exactly to original flow logic but integrating permissions
-      try {
-        const rawWebsites: any[] = await prisma.$queryRaw`
-          SELECT w.id, w."userId", w.name, w.slug, w.status, w."editorData", w."createdAt", w."updatedAt",
-                 CASE WHEN w."userId" = ${userId}::uuid THEN 'OWNER' ELSE COALESCE(c.permission, 'EDITOR') END as "userPermission"
-          FROM websites w
-          LEFT JOIN website_collaborators c ON c."websiteId" = w.id AND c."userId" = ${userId}::uuid
-          WHERE w.id = ${websiteId}::uuid AND (w."userId" = ${userId}::uuid OR c.id IS NOT NULL)
-          LIMIT 1
-        `;
-        if (rawWebsites && rawWebsites.length > 0) {
-          website = rawWebsites[0];
-          permission = website.userPermission || "REVIEWER";
-          delete website.userPermission;
-        }
-      } catch (rawErr) {
-        // Fallback without JOIN on website_collaborators if table missing
-        const rawWebsites: any[] = await prisma.$queryRaw`
-          SELECT w.id, w."userId", w.name, w.slug, w.status, w."editorData", w."createdAt", w."updatedAt"
-          FROM websites w
-          WHERE w.id = ${websiteId}::uuid AND w."userId" = ${userId}::uuid
-          LIMIT 1
-        `;
-        if (rawWebsites && rawWebsites.length > 0) {
-          website = rawWebsites[0];
-          permission = "OWNER";
-        }
+      const rawWebsites: any[] = await prisma.$queryRaw`
+        SELECT w.id, w."userId", w.name, w.slug, w.status, w."editorData", w."createdAt", w."updatedAt",
+               CASE WHEN w."userId" = ${userId}::uuid THEN 'OWNER' ELSE c.permission END as "userPermission"
+        FROM websites w
+        LEFT JOIN website_collaborators c ON c."websiteId" = w.id AND c."userId" = ${userId}::uuid
+        WHERE w.id = ${websiteId}::uuid AND (w."userId" = ${userId}::uuid OR c.id IS NOT NULL)
+        LIMIT 1
+      `;
+      if (rawWebsites && rawWebsites.length > 0) {
+        website = rawWebsites[0];
+        permission = website.userPermission || "REVIEWER";
+        delete website.userPermission;
       }
     }
 
@@ -960,16 +912,26 @@ export async function updateWebsiteEditorData(
 
       // If deleted by user
       if (!incoming) {
+        // If restricted role (!canEditDesign && canEditContent), deletion is forbidden - preserve element
+        if (!canEditDesign && canEditContent) {
+          mergedEls.push(cEl);
+          continue;
+        }
         // It's allowed to be deleted because they have rights.
         continue;
       }
 
-      // If !canEditDesign && canEditContent
+      // If !canEditDesign && canEditContent (Content-Only Sandbox / Client Mode)
       if (!canEditDesign && canEditContent) {
         if (incoming.content !== undefined) cEl.content = incoming.content;
+        if (incoming.text !== undefined) cEl.text = incoming.text;
         if (incoming.src !== undefined) cEl.src = incoming.src;
+        if (incoming.image_asset_id !== undefined) cEl.image_asset_id = incoming.image_asset_id;
         if (incoming.alt !== undefined) cEl.alt = incoming.alt;
         if (incoming.href !== undefined) cEl.href = incoming.href;
+        if (incoming.settings?.href !== undefined) {
+          cEl.settings = { ...(cEl.settings || {}), href: incoming.settings.href };
+        }
       } else {
         // Full design rights! Merge everything (classes, styles, etc).
         Object.assign(cEl, incoming);
@@ -983,10 +945,12 @@ export async function updateWebsiteEditorData(
       mergedEls.push(cEl);
     }
 
-    // Now append any newly created elements that didn't exist in currentEls
-    for (const nEl of newEls) {
-      if (!currentEls.find(c => c.id === nEl.id)) {
-        mergedEls.push(nEl);
+    // Now append any newly created elements that didn't exist in currentEls (only if user has design rights)
+    if (canEditDesign) {
+      for (const nEl of newEls) {
+        if (!currentEls.find(c => c.id === nEl.id)) {
+          mergedEls.push(nEl);
+        }
       }
     }
 
@@ -1491,6 +1455,21 @@ export interface DynamicContext {
     data?: Record<string, any>;
     [key: string]: any;
   };
+  post?: {
+    id?: string;
+    title?: string;
+    name?: string;
+    slug?: string;
+    excerpt?: string;
+    date?: string;
+    author?: string;
+    featuredImage?: string;
+    data?: Record<string, any>;
+    [key: string]: any;
+  };
+  request?: Record<string, string>;
+  query?: Record<string, string>;
+  requestParams?: Record<string, string>;
   custom?: Record<string, string>;
 }
 
@@ -1498,17 +1477,40 @@ export interface DynamicContext {
  * Evaluates theme builder display conditions (include:all, include:singular:home, include:page:id, exclude:page:id, etc.)
  */
 export function matchesThemeCondition(
-  conditions: string[] | undefined,
-  pageContext: { pageId?: string; isHome?: boolean; slug?: string }
+  conditions: Array<string | { type?: string; condition?: string }> | undefined,
+  pageContext: { pageId?: string; isHome?: boolean; slug?: string; isSearch?: boolean; is404?: boolean; isArchive?: boolean }
 ): boolean {
   if (!conditions || !Array.isArray(conditions) || conditions.length === 0) {
     return true; // Default: include everywhere
   }
 
+  // Normalize conditions to standard strings e.g. "include:all", "exclude:page:123"
+  const normalized: string[] = [];
+  for (const item of conditions) {
+    if (typeof item === "string") {
+      normalized.push(item);
+    } else if (item && typeof item === "object") {
+      const type = (item.type || "INCLUDE").toLowerCase();
+      const rawCond = (item.condition || "").toLowerCase().replace(/_/g, ":");
+      if (rawCond === "search:results" || rawCond === "search") {
+        normalized.push(`${type}:search`);
+      } else if (rawCond === "404" || rawCond === "notfound") {
+        normalized.push(`${type}:404`);
+      } else if (rawCond === "archive") {
+        normalized.push(`${type}:archive`);
+      } else if (rawCond) {
+        normalized.push(`${type}:${rawCond}`);
+      }
+    }
+  }
+
   // 1. Check exclusions first (exclusion takes priority)
-  for (const cond of conditions) {
+  for (const cond of normalized) {
     if (cond === "exclude:all") return false;
     if (cond === "exclude:singular:home" && pageContext.isHome) return false;
+    if (cond === "exclude:search" && pageContext.isSearch) return false;
+    if (cond === "exclude:404" && pageContext.is404) return false;
+    if (cond === "exclude:archive" && pageContext.isArchive) return false;
     if (cond.startsWith("exclude:page:")) {
       const target = cond.replace("exclude:page:", "").trim();
       if (target === pageContext.pageId || target === pageContext.slug) return false;
@@ -1519,11 +1521,14 @@ export function matchesThemeCondition(
   let explicitlyIncluded = false;
   let hasInclusionRule = false;
 
-  for (const cond of conditions) {
+  for (const cond of normalized) {
     if (cond.startsWith("include:")) {
       hasInclusionRule = true;
       if (cond === "include:all") explicitlyIncluded = true;
       if (cond === "include:singular:home" && pageContext.isHome) explicitlyIncluded = true;
+      if (cond === "include:search" && pageContext.isSearch) explicitlyIncluded = true;
+      if (cond === "include:404" && pageContext.is404) explicitlyIncluded = true;
+      if (cond === "include:archive" && pageContext.isArchive) explicitlyIncluded = true;
       if (cond.startsWith("include:page:")) {
         const target = cond.replace("include:page:", "").trim();
         if (target === pageContext.pageId || target === pageContext.slug) explicitlyIncluded = true;
@@ -1535,7 +1540,7 @@ export function matchesThemeCondition(
 }
 
 /**
- * Replaces {{site.name}}, {{page.title}}, {{current.year}}, {{entry.field}}, etc. tokens inside a string.
+ * Replaces {{site.name}}, {{page.title}}, {{current.year}}, {{entry.field}}, {{post.field}}, {{request.param}}, etc. tokens inside a string.
  */
 export function resolveDynamicTokens(content: string, context: DynamicContext = {}): string {
   if (typeof content !== "string" || !content.includes("{{")) {
@@ -1546,6 +1551,9 @@ export function resolveDynamicTokens(content: string, context: DynamicContext = 
   const siteSettings = site.siteSettings || {};
   const page = context.page || {};
   const entry = context.entry || {};
+  const post = context.post || context.entry || {};
+  const query = context.query || context.requestParams || context.request || {};
+  const request = context.request || context.requestParams || context.query || {};
   const custom = context.custom || {};
 
   return content.replace(/\{\{([^{}]+)\}\}/g, (match, rawKey) => {
@@ -1579,6 +1587,40 @@ export function resolveDynamicTokens(content: string, context: DynamicContext = 
     }
     if (key === "page.slug") {
       return page.slug || "";
+    }
+
+    // Request / Query parameter tokens: {{request.param}}, {{query.param}}
+    if (key.startsWith("request.") || key.startsWith("query.")) {
+      const param = key.replace(/^(request|query)\./, "");
+      if (key.startsWith("request.") && request[param] !== undefined) {
+        return String(request[param]);
+      }
+      if (query[param] !== undefined) {
+        return String(query[param]);
+      }
+      if (request[param] !== undefined) {
+        return String(request[param]);
+      }
+      return "";
+    }
+
+    // Post / Article level tokens: {{post.title}}, {{post.excerpt}}, {{post.date}}, {{post.author}}, {{post.featuredImage}}
+    if (key.startsWith("post.")) {
+      const field = key.replace(/^post\./, "");
+      const postData = post.data || {};
+      if (field === "title" || field === "name") return post.title || post.name || "";
+      if (field === "slug") return post.slug || "";
+      if (field === "excerpt") return post.excerpt || postData.excerpt || postData.description || "";
+      if (field === "date") return post.date || postData.date || post.createdAt || "";
+      if (field === "author") return post.author || postData.author || "";
+      if (field === "featuredImage" || field === "image") return post.featuredImage || postData.featuredImage || postData.image || "";
+      if (postData[field] !== undefined) {
+        return String(postData[field]);
+      }
+      if (post[field] !== undefined) {
+        return String(post[field]);
+      }
+      return "";
     }
 
     // CPT / Dynamic Entry tokens: {{entry.fieldName}}, {{cpt.fieldName}}
@@ -1669,8 +1711,17 @@ export async function getPublicWebsiteById(websiteId: string): Promise<PublicWeb
     throw new AppError("This website is unavailable.", 404, "NOT_FOUND");
   }
 
-  // Authoritative data: use published snapshot if present, otherwise working editorData (Comment 12)
-  let sourceData = rawEditorData.publishedData || rawEditorData;
+  // Authoritative atomic release resolution: resolve snapshot via currentReleaseId pointer
+  let activeReleaseSnapshot: any = null;
+  if (rawEditorData.currentReleaseId && Array.isArray(rawEditorData.releases)) {
+    const activeRelease = rawEditorData.releases.find((r: any) => r.releaseId === rawEditorData.currentReleaseId);
+    if (activeRelease?.snapshotData) {
+      activeReleaseSnapshot = activeRelease.snapshotData;
+    }
+  }
+
+  // Fallback to publishedData or working editorData (Comment 12)
+  let sourceData = activeReleaseSnapshot || rawEditorData.publishedData || rawEditorData;
   if (typeof sourceData === "string") {
     try {
       sourceData = JSON.parse(sourceData);

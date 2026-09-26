@@ -41,6 +41,8 @@ import {
   rollbackDeploymentHandler,
   downloadStaticExportHandler,
   downloadLatestStaticExportHandler,
+  getReleasesHandler,
+  instantRollbackHandler,
 } from "../controllers/publishing.controller.js";
 import {
   connectWordPressHandler,
@@ -182,6 +184,12 @@ import {
   auditAccessibilityHandler,
   generateStructuredDataHandler,
   saveWebsiteSeoHandler,
+  fullQualityAuditHandler,
+  performanceAuditHandler,
+  codeQualityAuditHandler,
+  visualRegressionHandler,
+  goldenTestHandler,
+  performanceBudgetHandler,
 } from "../controllers/seo.controller.js";
 
 const router = Router();
@@ -390,6 +398,8 @@ router.get("/:id/deployments/:deploymentId", authorizeCapability("VIEW"), getDep
 router.get("/:id/deployments/:deploymentId/export-download", authorizeCapability("VIEW"), downloadStaticExportHandler);
 router.get("/:id/export/zip", authorizeCapability("VIEW"), downloadLatestStaticExportHandler);
 router.post("/:id/deployments/:deploymentId/rollback", authorizeCapability("ROLLBACK"), rollbackDeploymentHandler);
+router.get("/:id/releases", authorizeCapability("VIEW"), getReleasesHandler);
+router.post("/:id/releases/:releaseId/rollback", authorizeCapability("ROLLBACK"), instantRollbackHandler);
 router.post("/:id/schedule-publish", authorizeCapability("PUBLISH"), schedulePublishHandler);
 router.post("/:id/cancel-scheduled-publish", authorizeCapability("PUBLISH"), cancelScheduledPublishHandler);
 router.post("/:id/promote", authorizeCapability("PUBLISH"), promoteDeploymentHandler);
@@ -400,6 +410,12 @@ router.post("/:id/seo/audit-images", authorizeCapability("VIEW"), auditImagesHan
 router.post("/:id/seo/audit-a11y", authorizeCapability("VIEW"), auditAccessibilityHandler);
 router.post("/:id/seo/structured-data", authorizeCapability("VIEW"), generateStructuredDataHandler);
 router.put("/:id/seo", authorizeCapability("EDIT_SEO"), saveWebsiteSeoHandler);
+router.post("/:id/seo/full-audit", authorizeCapability("VIEW"), fullQualityAuditHandler);
+router.post("/:id/seo/performance-audit", authorizeCapability("VIEW"), performanceAuditHandler);
+router.post("/:id/seo/quality-audit", authorizeCapability("VIEW"), codeQualityAuditHandler);
+router.post("/:id/seo/visual-regression", authorizeCapability("VIEW"), visualRegressionHandler);
+router.post("/:id/seo/golden-test", authorizeCapability("VIEW"), goldenTestHandler);
+router.post("/:id/seo/performance-budget", authorizeCapability("VIEW"), performanceBudgetHandler);
 
 // Revisions API
 router.get("/:id/revisions", authorizeCapability("VIEW"), getWebsiteRevisionsHandler);

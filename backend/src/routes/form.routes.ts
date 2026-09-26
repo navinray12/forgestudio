@@ -5,6 +5,7 @@ import {
   getWebsiteSubmissionsHandler,
   deleteSubmissionHandler,
   exportSubmissionsHandler,
+  downloadSubmissionPdfHandler,
 } from "../controllers/form.controller.js";
 
 const router = Router();
@@ -14,6 +15,7 @@ router.post("/submit", submitFormHandler);
 
 // Protected endpoints for website owners to inspect leads
 router.get("/:websiteId/submissions", requireAuth, getWebsiteSubmissionsHandler);
+router.get("/:websiteId/submissions/:submissionId/pdf", requireAuth, downloadSubmissionPdfHandler);
 router.delete("/:websiteId/submissions/:submissionId", requireAuth, deleteSubmissionHandler);
 router.get("/:websiteId/export", requireAuth, exportSubmissionsHandler);
 

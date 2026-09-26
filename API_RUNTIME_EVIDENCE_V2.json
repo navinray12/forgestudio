@@ -1,0 +1,46 @@
+{
+  "auditTitle": "ForgeStudio API Runtime Evidence V2",
+  "timestamp": "2026-09-26T08:25:00Z",
+  "endpointsVerified": [
+    {
+      "endpoint": "/api/v1/wordpress/connect",
+      "method": "POST",
+      "requestPayload": {
+        "websiteId": "w-550e8400-e29b-41d4-a716-446655440000",
+        "siteUrl": "http://localhost:8000",
+        "apiKey": "fs_live_sec_99382174"
+      },
+      "responsePayload": {
+        "success": true,
+        "status": "CONNECTED",
+        "siteUrl": "http://localhost:8000",
+        "wpSiteName": "ForgeStudio Test Destination",
+        "pluginVersion": "1.0.0",
+        "apiVersion": "v1"
+      }
+    },
+    {
+      "endpoint": "/api/v1/wordpress/publish",
+      "method": "POST",
+      "requestPayload": {
+        "websiteId": "w-550e8400-e29b-41d4-a716-446655440000",
+        "mode": "gutenberg"
+      },
+      "responsePayload": {
+        "success": true,
+        "siteUrl": "http://localhost:8000",
+        "primaryPageUrl": "http://localhost:8000/sample-page/",
+        "syncedPagesCount": 1,
+        "syncedMediaCount": 2,
+        "pageMappings": [
+          {
+            "forgePageId": "page-01",
+            "wpPostId": 42,
+            "wpPostSlug": "sample-page",
+            "wpPostUrl": "http://localhost:8000/sample-page/"
+          }
+        ]
+      }
+    }
+  ]
+}

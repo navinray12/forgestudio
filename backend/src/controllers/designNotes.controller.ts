@@ -71,8 +71,7 @@ export const getNotes = async (req: Request, res: Response): Promise<void> => {
         const notes = await prisma.designNote.findMany({
             where: { websiteId },
             include: {
-                author: { select: { id: true, fullName: true, email: true } },
-                resolver: { select: { id: true, fullName: true } }
+                author: { select: { id: true, fullName: true, email: true } }
             },
             orderBy: { createdAt: "desc" },
         });
@@ -143,8 +142,7 @@ export const updateNote = async (req: Request, res: Response): Promise<void> => 
             where: { id },
             data: { content },
             include: {
-                author: { select: { id: true, fullName: true, email: true } },
-                resolver: { select: { id: true, fullName: true } }
+                author: { select: { id: true, fullName: true, email: true } }
             }
         });
 
@@ -210,14 +208,20 @@ export const resolveNote = async (req: Request, res: Response): Promise<void> =>
         const note = await prisma.designNote.update({
             where: { id },
             data: {
-                status: "RESOLVED",
-                resolvedAt: new Date(),
-                resolvedBy: userId,
+                resolved: true,
             },
             include: {
                 author: { select: { id: true, fullName: true, email: true } },
-                resolver: { select: { id: true, fullName: true } }
             }
+        });
+
+        await prisma.auditLog.create({
+            data: {
+                userId,
+                action: "DESIGN_NOTE_RESOLVED",
+                targetResource: `website:${existingNote.websiteId}`,
+                details: { noteId: id, elementId: existingNote.elementId },
+            },
         });
 
         res.status(200).json({ success: true, note });
@@ -248,14 +252,20 @@ export const reopenNote = async (req: Request, res: Response): Promise<void> => 
         const note = await prisma.designNote.update({
             where: { id },
             data: {
-                status: "OPEN",
-                resolvedAt: null,
-                resolvedBy: null,
+                resolved: false,
             },
             include: {
                 author: { select: { id: true, fullName: true, email: true } },
-                resolver: { select: { id: true, fullName: true } }
             }
+        });
+
+        await prisma.auditLog.create({
+            data: {
+                userId,
+                action: "DESIGN_NOTE_REOPENED",
+                targetResource: `website:${existingNote.websiteId}`,
+                details: { noteId: id, elementId: existingNote.elementId },
+            },
         });
 
         res.status(200).json({ success: true, note });
