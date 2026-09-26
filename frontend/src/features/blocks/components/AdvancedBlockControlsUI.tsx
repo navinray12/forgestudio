@@ -9,7 +9,7 @@ interface AdvancedBlockControlsUIProps {
   onUpdateBlock: (updated: BlockNode) => void;
 }
 
-type TabCategory = "border" | "shadow" | "background" | "image" | "advanced";
+type TabCategory = "border" | "shadow" | "background" | "image" | "advanced" | "scrollsnap" | "masonry" | "wpwidget";
 
 export const AdvancedBlockControlsUI: React.FC<AdvancedBlockControlsUIProps> = ({
   block,
@@ -77,7 +77,7 @@ export const AdvancedBlockControlsUI: React.FC<AdvancedBlockControlsUIProps> = (
   return (
     <div className="space-y-4 text-xs">
       {/* Category Tabs */}
-      <div className="grid grid-cols-5 border-b border-slate-800 pb-2">
+      <div className="grid grid-cols-4 gap-1 border-b border-slate-800 pb-2">
         <button
           type="button"
           onClick={() => setActiveTab("border")}
@@ -97,6 +97,39 @@ export const AdvancedBlockControlsUI: React.FC<AdvancedBlockControlsUIProps> = (
         >
           <Sun className="w-3.5 h-3.5" />
           Shadow
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("scrollsnap")}
+          className={`flex flex-col items-center gap-1 text-[10px] font-semibold transition-colors ${
+            activeTab === "scrollsnap" ? "text-indigo-400 font-bold" : "text-slate-400 hover:text-slate-200"
+          }`}
+          id="tab-scroll-snap"
+        >
+          <span>🎯</span>
+          Snap
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("masonry")}
+          className={`flex flex-col items-center gap-1 text-[10px] font-semibold transition-colors ${
+            activeTab === "masonry" ? "text-indigo-400 font-bold" : "text-slate-400 hover:text-slate-200"
+          }`}
+          id="tab-masonry-layout"
+        >
+          <span>🧱</span>
+          Masonry
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("wpwidget")}
+          className={`flex flex-col items-center gap-1 text-[10px] font-semibold transition-colors ${
+            activeTab === "wpwidget" ? "text-indigo-400 font-bold" : "text-slate-400 hover:text-slate-200"
+          }`}
+          id="tab-wp-widget"
+        >
+          <span>🔌</span>
+          WP Widget
         </button>
         <button
           type="button"
@@ -359,6 +392,190 @@ export const AdvancedBlockControlsUI: React.FC<AdvancedBlockControlsUIProps> = (
           </div>
         </div>
       )}
+      {/* Scroll Snap Controls (F-050) */}
+      {activeTab === "scrollsnap" && (
+        <div className="space-y-3" id="scroll-snap-inspector">
+          <div className="font-semibold text-slate-300 uppercase tracking-wider text-[11px] flex items-center justify-between">
+            <span>🎯 Scroll Snap (F-050)</span>
+            <span className="text-[10px] text-indigo-400 font-bold bg-indigo-950 px-1.5 py-0.5 rounded border border-indigo-800">
+              {attributes.scrollSnapType && attributes.scrollSnapType !== "none" ? "ACTIVE" : "OFF"}
+            </span>
+          </div>
+
+          <div>
+            <label className="block text-slate-400 mb-1">Snap Type (Container)</label>
+            <select
+              value={attributes.scrollSnapType || "none"}
+              onChange={(e) => onUpdateBlock({ ...block, attributes: { ...attributes, scrollSnapType: e.target.value } })}
+              className="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-200"
+            >
+              <option value="none">Disabled (None)</option>
+              <option value="y mandatory">Vertical Mandatory (y mandatory)</option>
+              <option value="y proximity">Vertical Proximity (y proximity)</option>
+              <option value="x mandatory">Horizontal Mandatory (x mandatory)</option>
+              <option value="x proximity">Horizontal Proximity (x proximity)</option>
+              <option value="both mandatory">Both Axes Mandatory</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-slate-400 mb-1">Snap Alignment (Item)</label>
+            <select
+              value={attributes.scrollSnapAlign || "none"}
+              onChange={(e) => onUpdateBlock({ ...block, attributes: { ...attributes, scrollSnapAlign: e.target.value } })}
+              className="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-200"
+            >
+              <option value="none">Default (None)</option>
+              <option value="start">Start (Top / Left)</option>
+              <option value="center">Center</option>
+              <option value="end">End (Bottom / Right)</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-slate-400 mb-1">Snap Stop Behavior</label>
+            <select
+              value={attributes.scrollSnapStop || "normal"}
+              onChange={(e) => onUpdateBlock({ ...block, attributes: { ...attributes, scrollSnapStop: e.target.value } })}
+              className="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-200"
+            >
+              <option value="normal">Normal (Pass-through)</option>
+              <option value="always">Always Stop (Trap Snap)</option>
+            </select>
+          </div>
+        </div>
+      )}
+
+      {/* Masonry Layout Controls (F-051) */}
+      {activeTab === "masonry" && (
+        <div className="space-y-3" id="masonry-layout-inspector">
+          <div className="flex items-center justify-between font-semibold text-slate-300 uppercase tracking-wider text-[11px]">
+            <span>🧱 Masonry Layout (F-051)</span>
+            <input
+              type="checkbox"
+              checked={!!attributes.masonryMode}
+              onChange={(e) => onUpdateBlock({ ...block, attributes: { ...attributes, masonryMode: e.target.checked } })}
+              className="h-4 w-4 rounded bg-slate-900 border-slate-700 text-purple-600 focus:ring-purple-500 cursor-pointer"
+            />
+          </div>
+
+          {attributes.masonryMode && (
+            <div className="rounded-lg border border-purple-900/60 bg-purple-950/30 p-2.5 space-y-2.5">
+              <div>
+                <label className="block text-slate-400 mb-1">Columns Count</label>
+                <select
+                  value={attributes.masonryColumns || 3}
+                  onChange={(e) => onUpdateBlock({ ...block, attributes: { ...attributes, masonryColumns: Number(e.target.value) } })}
+                  className="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-200"
+                >
+                  <option value={1}>1 Column</option>
+                  <option value={2}>2 Columns</option>
+                  <option value={3}>3 Columns</option>
+                  <option value={4}>4 Columns</option>
+                  <option value={5}>5 Columns</option>
+                  <option value={6}>6 Columns</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-slate-400 mb-1">Gap Spacing (px)</label>
+                <input
+                  type="number"
+                  min={0}
+                  max={60}
+                  value={attributes.masonryGap ?? 16}
+                  onChange={(e) => onUpdateBlock({ ...block, attributes: { ...attributes, masonryGap: Number(e.target.value) } })}
+                  className="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-200"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-400 mb-1">Masonry Engine</label>
+                <select
+                  value={attributes.masonryEngine || "css-columns"}
+                  onChange={(e) => onUpdateBlock({ ...block, attributes: { ...attributes, masonryEngine: e.target.value } })}
+                  className="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-200"
+                >
+                  <option value="css-columns">CSS Multi-Column Auto-Wrap</option>
+                  <option value="js-auto-flow">Dynamic JS Height Auto-Pack Engine</option>
+                </select>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Legacy WP Widget Controls (X-787) */}
+      {activeTab === "wpwidget" && (
+        <div className="space-y-3" id="wp-legacy-widget-inspector">
+          <div className="font-semibold text-slate-300 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+            <span>🔌 Legacy WP Widget (X-787)</span>
+          </div>
+
+          <div>
+            <label className="block text-slate-400 mb-1">Widget Title</label>
+            <input
+              type="text"
+              value={attributes.wpWidgetTitle || "WordPress Widget"}
+              onChange={(e) => onUpdateBlock({ ...block, attributes: { ...attributes, wpWidgetTitle: e.target.value } })}
+              className="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-200"
+            />
+          </div>
+
+          <div>
+            <label className="block text-slate-400 mb-1">Select Legacy WP Widget</label>
+            <select
+              value={attributes.wpWidgetType || "calendar"}
+              onChange={(e) => onUpdateBlock({ ...block, attributes: { ...attributes, wpWidgetType: e.target.value } })}
+              className="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-200"
+            >
+              <option value="calendar">Calendar (WP_Widget_Calendar)</option>
+              <option value="search">Search Form (WP_Widget_Search)</option>
+              <option value="categories">Categories List (WP_Widget_Categories)</option>
+              <option value="recent_posts">Recent Posts (WP_Widget_Recent_Posts)</option>
+              <option value="tag_cloud">Tag Cloud (WP_Widget_Tag_Cloud)</option>
+              <option value="custom_html">Custom HTML Block (WP_Widget_Custom_HTML)</option>
+              <option value="nav_menu">Navigation Menu (WP_Widget_Nav_Menu)</option>
+              <option value="archives">Archives List (WP_Widget_Archives)</option>
+              <option value="meta">Site Meta Links (WP_Widget_Meta)</option>
+              <option value="rss">RSS Feed Reader (WP_Widget_RSS)</option>
+            </select>
+          </div>
+
+          {attributes.wpWidgetType === "custom_html" && (
+            <div>
+              <label className="block text-slate-400 mb-1">Widget Custom HTML</label>
+              <textarea
+                rows={3}
+                value={attributes.wpWidgetContent || ""}
+                onChange={(e) => onUpdateBlock({ ...block, attributes: { ...attributes, wpWidgetContent: e.target.value } })}
+                className="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-200 font-mono text-[11px]"
+              />
+            </div>
+          )}
+
+          <div className="space-y-2 pt-1">
+            <label className="flex items-center gap-2 text-slate-300 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={attributes.wpWidgetShowCount !== false}
+                onChange={(e) => onUpdateBlock({ ...block, attributes: { ...attributes, wpWidgetShowCount: e.target.checked } })}
+                className="rounded bg-slate-900 border-slate-700 text-indigo-600"
+              />
+              <span>Show Post/Category Counts</span>
+            </label>
+            <label className="flex items-center gap-2 text-slate-300 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={!!attributes.wpWidgetDropdown}
+                onChange={(e) => onUpdateBlock({ ...block, attributes: { ...attributes, wpWidgetDropdown: e.target.checked } })}
+                className="rounded bg-slate-900 border-slate-700 text-indigo-600"
+              />
+              <span>Display as Dropdown Select</span>
+            </label>
+          </div>
+        </div>
+      )}
 
       {/* Custom Classes, Anchors & Attributes (F-529, F-530, F-531) */}
       {activeTab === "advanced" && (
@@ -419,7 +636,7 @@ export const AdvancedBlockControlsUI: React.FC<AdvancedBlockControlsUIProps> = (
               <label className="text-slate-300 font-semibold uppercase tracking-wider text-[11px]">
                 Safe HTML Attributes (F-531)
               </label>
-              <Shield className="w-3.5 h-3.5 text-emerald-400" title="Whitelisted & Sanitized" />
+              <span title="Whitelisted & Sanitized"><Shield className="w-3.5 h-3.5 text-emerald-400" /></span>
             </div>
 
             <form onSubmit={handleAddAttribute} className="grid grid-cols-5 gap-2">

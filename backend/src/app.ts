@@ -83,8 +83,9 @@ app.use(
   })
 );
 
-app.use(express.json({ limit: "2mb" }));
-app.use(express.urlencoded({ extended: true, limit: "2mb" }));
+const jsonBodyLimit = process.env.JSON_BODY_LIMIT || "10mb";
+app.use(express.json({ limit: jsonBodyLimit }));
+app.use(express.urlencoded({ extended: true, limit: jsonBodyLimit }));
 app.use(cookieParser());
 app.use(passport.initialize());
 

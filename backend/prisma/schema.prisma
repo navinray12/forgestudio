@@ -57,6 +57,9 @@ model User {
   invoices                BillingInvoice[]
   blockPatterns           BlockPattern[]
   syncedPatternRevisions  SyncedPatternRevision[]
+  blockTemplates          BlockTemplate[]
+  templateParts           TemplatePart[]
+  globalStyleConfigs      GlobalStyleConfig[]
 
   @@index([status])
   @@index([role])
@@ -722,6 +725,9 @@ model Workspace {
   members        WorkspaceMember[]
   websites       Website[]
   blockPatterns  BlockPattern[]
+  blockTemplates BlockTemplate[]
+  templateParts  TemplatePart[]
+  globalStyleConfigs GlobalStyleConfig[]
 
   @@index([ownerId])
   @@index([organizationId])
@@ -742,6 +748,9 @@ model Organization {
   workspaces  Workspace[]
   websites    Website[]
   blockPatterns BlockPattern[]
+  blockTemplates BlockTemplate[]
+  templateParts  TemplatePart[]
+  globalStyleConfigs GlobalStyleConfig[]
 
   @@index([ownerId])
   @@map("organizations")

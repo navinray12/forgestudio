@@ -263,6 +263,31 @@ export type WhiteLabelConfig = $Result.DefaultSelection<Prisma.$WhiteLabelConfig
  * 
  */
 export type BillingInvoice = $Result.DefaultSelection<Prisma.$BillingInvoicePayload>
+/**
+ * Model BlockPattern
+ * 
+ */
+export type BlockPattern = $Result.DefaultSelection<Prisma.$BlockPatternPayload>
+/**
+ * Model SyncedPatternRevision
+ * 
+ */
+export type SyncedPatternRevision = $Result.DefaultSelection<Prisma.$SyncedPatternRevisionPayload>
+/**
+ * Model BlockTemplate
+ * 
+ */
+export type BlockTemplate = $Result.DefaultSelection<Prisma.$BlockTemplatePayload>
+/**
+ * Model TemplatePart
+ * 
+ */
+export type TemplatePart = $Result.DefaultSelection<Prisma.$TemplatePartPayload>
+/**
+ * Model GlobalStyleConfig
+ * 
+ */
+export type GlobalStyleConfig = $Result.DefaultSelection<Prisma.$GlobalStyleConfigPayload>
 
 /**
  * Enums
@@ -974,6 +999,56 @@ export class PrismaClient<
     * ```
     */
   get billingInvoice(): Prisma.BillingInvoiceDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.blockPattern`: Exposes CRUD operations for the **BlockPattern** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more BlockPatterns
+    * const blockPatterns = await prisma.blockPattern.findMany()
+    * ```
+    */
+  get blockPattern(): Prisma.BlockPatternDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.syncedPatternRevision`: Exposes CRUD operations for the **SyncedPatternRevision** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SyncedPatternRevisions
+    * const syncedPatternRevisions = await prisma.syncedPatternRevision.findMany()
+    * ```
+    */
+  get syncedPatternRevision(): Prisma.SyncedPatternRevisionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.blockTemplate`: Exposes CRUD operations for the **BlockTemplate** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more BlockTemplates
+    * const blockTemplates = await prisma.blockTemplate.findMany()
+    * ```
+    */
+  get blockTemplate(): Prisma.BlockTemplateDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.templatePart`: Exposes CRUD operations for the **TemplatePart** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TemplateParts
+    * const templateParts = await prisma.templatePart.findMany()
+    * ```
+    */
+  get templatePart(): Prisma.TemplatePartDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.globalStyleConfig`: Exposes CRUD operations for the **GlobalStyleConfig** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more GlobalStyleConfigs
+    * const globalStyleConfigs = await prisma.globalStyleConfig.findMany()
+    * ```
+    */
+  get globalStyleConfig(): Prisma.GlobalStyleConfigDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1470,7 +1545,12 @@ export namespace Prisma {
     License: 'License',
     LicenseActivation: 'LicenseActivation',
     WhiteLabelConfig: 'WhiteLabelConfig',
-    BillingInvoice: 'BillingInvoice'
+    BillingInvoice: 'BillingInvoice',
+    BlockPattern: 'BlockPattern',
+    SyncedPatternRevision: 'SyncedPatternRevision',
+    BlockTemplate: 'BlockTemplate',
+    TemplatePart: 'TemplatePart',
+    GlobalStyleConfig: 'GlobalStyleConfig'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1486,7 +1566,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "website" | "otpVerification" | "identity" | "session" | "passwordResetToken" | "subscriptionPlan" | "userSubscription" | "templates" | "customCodeSnippet" | "customCodeRevision" | "formSubmission" | "customPostType" | "themeLocationRule" | "auditLog" | "sftpConnection" | "pluginIntegration" | "multisiteNetwork" | "customField" | "customEntry" | "designNote" | "pluginCompatibility" | "developerApiKey" | "componentAccess" | "websiteCollaborator" | "websiteRevision" | "deployment" | "wordPressConnection" | "wordPressPageMapping" | "granularPermission" | "team" | "teamMember" | "teamInvitation" | "websiteInvitation" | "workspace" | "organization" | "organizationMember" | "workspaceMember" | "publishApprovalRequest" | "backgroundJob" | "mediaAsset" | "siteMailerConfig" | "emailDeliveryLog" | "sitePerformanceMetric" | "mediaOptimizationAsset" | "optimizationCreditLedger" | "license" | "licenseActivation" | "whiteLabelConfig" | "billingInvoice"
+      modelProps: "user" | "website" | "otpVerification" | "identity" | "session" | "passwordResetToken" | "subscriptionPlan" | "userSubscription" | "templates" | "customCodeSnippet" | "customCodeRevision" | "formSubmission" | "customPostType" | "themeLocationRule" | "auditLog" | "sftpConnection" | "pluginIntegration" | "multisiteNetwork" | "customField" | "customEntry" | "designNote" | "pluginCompatibility" | "developerApiKey" | "componentAccess" | "websiteCollaborator" | "websiteRevision" | "deployment" | "wordPressConnection" | "wordPressPageMapping" | "granularPermission" | "team" | "teamMember" | "teamInvitation" | "websiteInvitation" | "workspace" | "organization" | "organizationMember" | "workspaceMember" | "publishApprovalRequest" | "backgroundJob" | "mediaAsset" | "siteMailerConfig" | "emailDeliveryLog" | "sitePerformanceMetric" | "mediaOptimizationAsset" | "optimizationCreditLedger" | "license" | "licenseActivation" | "whiteLabelConfig" | "billingInvoice" | "blockPattern" | "syncedPatternRevision" | "blockTemplate" | "templatePart" | "globalStyleConfig"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -5190,6 +5270,376 @@ export namespace Prisma {
           }
         }
       }
+      BlockPattern: {
+        payload: Prisma.$BlockPatternPayload<ExtArgs>
+        fields: Prisma.BlockPatternFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.BlockPatternFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BlockPatternPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.BlockPatternFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BlockPatternPayload>
+          }
+          findFirst: {
+            args: Prisma.BlockPatternFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BlockPatternPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.BlockPatternFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BlockPatternPayload>
+          }
+          findMany: {
+            args: Prisma.BlockPatternFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BlockPatternPayload>[]
+          }
+          create: {
+            args: Prisma.BlockPatternCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BlockPatternPayload>
+          }
+          createMany: {
+            args: Prisma.BlockPatternCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.BlockPatternCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BlockPatternPayload>[]
+          }
+          delete: {
+            args: Prisma.BlockPatternDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BlockPatternPayload>
+          }
+          update: {
+            args: Prisma.BlockPatternUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BlockPatternPayload>
+          }
+          deleteMany: {
+            args: Prisma.BlockPatternDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.BlockPatternUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.BlockPatternUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BlockPatternPayload>[]
+          }
+          upsert: {
+            args: Prisma.BlockPatternUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BlockPatternPayload>
+          }
+          aggregate: {
+            args: Prisma.BlockPatternAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateBlockPattern>
+          }
+          groupBy: {
+            args: Prisma.BlockPatternGroupByArgs<ExtArgs>
+            result: $Utils.Optional<BlockPatternGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.BlockPatternCountArgs<ExtArgs>
+            result: $Utils.Optional<BlockPatternCountAggregateOutputType> | number
+          }
+        }
+      }
+      SyncedPatternRevision: {
+        payload: Prisma.$SyncedPatternRevisionPayload<ExtArgs>
+        fields: Prisma.SyncedPatternRevisionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SyncedPatternRevisionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SyncedPatternRevisionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SyncedPatternRevisionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SyncedPatternRevisionPayload>
+          }
+          findFirst: {
+            args: Prisma.SyncedPatternRevisionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SyncedPatternRevisionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SyncedPatternRevisionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SyncedPatternRevisionPayload>
+          }
+          findMany: {
+            args: Prisma.SyncedPatternRevisionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SyncedPatternRevisionPayload>[]
+          }
+          create: {
+            args: Prisma.SyncedPatternRevisionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SyncedPatternRevisionPayload>
+          }
+          createMany: {
+            args: Prisma.SyncedPatternRevisionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.SyncedPatternRevisionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SyncedPatternRevisionPayload>[]
+          }
+          delete: {
+            args: Prisma.SyncedPatternRevisionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SyncedPatternRevisionPayload>
+          }
+          update: {
+            args: Prisma.SyncedPatternRevisionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SyncedPatternRevisionPayload>
+          }
+          deleteMany: {
+            args: Prisma.SyncedPatternRevisionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SyncedPatternRevisionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.SyncedPatternRevisionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SyncedPatternRevisionPayload>[]
+          }
+          upsert: {
+            args: Prisma.SyncedPatternRevisionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SyncedPatternRevisionPayload>
+          }
+          aggregate: {
+            args: Prisma.SyncedPatternRevisionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSyncedPatternRevision>
+          }
+          groupBy: {
+            args: Prisma.SyncedPatternRevisionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SyncedPatternRevisionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SyncedPatternRevisionCountArgs<ExtArgs>
+            result: $Utils.Optional<SyncedPatternRevisionCountAggregateOutputType> | number
+          }
+        }
+      }
+      BlockTemplate: {
+        payload: Prisma.$BlockTemplatePayload<ExtArgs>
+        fields: Prisma.BlockTemplateFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.BlockTemplateFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BlockTemplatePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.BlockTemplateFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BlockTemplatePayload>
+          }
+          findFirst: {
+            args: Prisma.BlockTemplateFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BlockTemplatePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.BlockTemplateFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BlockTemplatePayload>
+          }
+          findMany: {
+            args: Prisma.BlockTemplateFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BlockTemplatePayload>[]
+          }
+          create: {
+            args: Prisma.BlockTemplateCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BlockTemplatePayload>
+          }
+          createMany: {
+            args: Prisma.BlockTemplateCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.BlockTemplateCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BlockTemplatePayload>[]
+          }
+          delete: {
+            args: Prisma.BlockTemplateDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BlockTemplatePayload>
+          }
+          update: {
+            args: Prisma.BlockTemplateUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BlockTemplatePayload>
+          }
+          deleteMany: {
+            args: Prisma.BlockTemplateDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.BlockTemplateUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.BlockTemplateUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BlockTemplatePayload>[]
+          }
+          upsert: {
+            args: Prisma.BlockTemplateUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BlockTemplatePayload>
+          }
+          aggregate: {
+            args: Prisma.BlockTemplateAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateBlockTemplate>
+          }
+          groupBy: {
+            args: Prisma.BlockTemplateGroupByArgs<ExtArgs>
+            result: $Utils.Optional<BlockTemplateGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.BlockTemplateCountArgs<ExtArgs>
+            result: $Utils.Optional<BlockTemplateCountAggregateOutputType> | number
+          }
+        }
+      }
+      TemplatePart: {
+        payload: Prisma.$TemplatePartPayload<ExtArgs>
+        fields: Prisma.TemplatePartFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TemplatePartFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TemplatePartPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TemplatePartFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TemplatePartPayload>
+          }
+          findFirst: {
+            args: Prisma.TemplatePartFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TemplatePartPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TemplatePartFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TemplatePartPayload>
+          }
+          findMany: {
+            args: Prisma.TemplatePartFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TemplatePartPayload>[]
+          }
+          create: {
+            args: Prisma.TemplatePartCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TemplatePartPayload>
+          }
+          createMany: {
+            args: Prisma.TemplatePartCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.TemplatePartCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TemplatePartPayload>[]
+          }
+          delete: {
+            args: Prisma.TemplatePartDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TemplatePartPayload>
+          }
+          update: {
+            args: Prisma.TemplatePartUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TemplatePartPayload>
+          }
+          deleteMany: {
+            args: Prisma.TemplatePartDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TemplatePartUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.TemplatePartUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TemplatePartPayload>[]
+          }
+          upsert: {
+            args: Prisma.TemplatePartUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TemplatePartPayload>
+          }
+          aggregate: {
+            args: Prisma.TemplatePartAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTemplatePart>
+          }
+          groupBy: {
+            args: Prisma.TemplatePartGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TemplatePartGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TemplatePartCountArgs<ExtArgs>
+            result: $Utils.Optional<TemplatePartCountAggregateOutputType> | number
+          }
+        }
+      }
+      GlobalStyleConfig: {
+        payload: Prisma.$GlobalStyleConfigPayload<ExtArgs>
+        fields: Prisma.GlobalStyleConfigFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.GlobalStyleConfigFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GlobalStyleConfigPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.GlobalStyleConfigFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GlobalStyleConfigPayload>
+          }
+          findFirst: {
+            args: Prisma.GlobalStyleConfigFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GlobalStyleConfigPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.GlobalStyleConfigFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GlobalStyleConfigPayload>
+          }
+          findMany: {
+            args: Prisma.GlobalStyleConfigFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GlobalStyleConfigPayload>[]
+          }
+          create: {
+            args: Prisma.GlobalStyleConfigCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GlobalStyleConfigPayload>
+          }
+          createMany: {
+            args: Prisma.GlobalStyleConfigCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.GlobalStyleConfigCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GlobalStyleConfigPayload>[]
+          }
+          delete: {
+            args: Prisma.GlobalStyleConfigDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GlobalStyleConfigPayload>
+          }
+          update: {
+            args: Prisma.GlobalStyleConfigUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GlobalStyleConfigPayload>
+          }
+          deleteMany: {
+            args: Prisma.GlobalStyleConfigDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.GlobalStyleConfigUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.GlobalStyleConfigUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GlobalStyleConfigPayload>[]
+          }
+          upsert: {
+            args: Prisma.GlobalStyleConfigUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GlobalStyleConfigPayload>
+          }
+          aggregate: {
+            args: Prisma.GlobalStyleConfigAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGlobalStyleConfig>
+          }
+          groupBy: {
+            args: Prisma.GlobalStyleConfigGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GlobalStyleConfigGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.GlobalStyleConfigCountArgs<ExtArgs>
+            result: $Utils.Optional<GlobalStyleConfigCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -5363,6 +5813,11 @@ export namespace Prisma {
     licenseActivation?: LicenseActivationOmit
     whiteLabelConfig?: WhiteLabelConfigOmit
     billingInvoice?: BillingInvoiceOmit
+    blockPattern?: BlockPatternOmit
+    syncedPatternRevision?: SyncedPatternRevisionOmit
+    blockTemplate?: BlockTemplateOmit
+    templatePart?: TemplatePartOmit
+    globalStyleConfig?: GlobalStyleConfigOmit
   }
 
   /* Types for Logging */
@@ -5474,6 +5929,11 @@ export namespace Prisma {
     creditLedgers: number
     licenses: number
     invoices: number
+    blockPatterns: number
+    syncedPatternRevisions: number
+    blockTemplates: number
+    templateParts: number
+    globalStyleConfigs: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5508,6 +5968,11 @@ export namespace Prisma {
     creditLedgers?: boolean | UserCountOutputTypeCountCreditLedgersArgs
     licenses?: boolean | UserCountOutputTypeCountLicensesArgs
     invoices?: boolean | UserCountOutputTypeCountInvoicesArgs
+    blockPatterns?: boolean | UserCountOutputTypeCountBlockPatternsArgs
+    syncedPatternRevisions?: boolean | UserCountOutputTypeCountSyncedPatternRevisionsArgs
+    blockTemplates?: boolean | UserCountOutputTypeCountBlockTemplatesArgs
+    templateParts?: boolean | UserCountOutputTypeCountTemplatePartsArgs
+    globalStyleConfigs?: boolean | UserCountOutputTypeCountGlobalStyleConfigsArgs
   }
 
   // Custom InputTypes
@@ -5736,6 +6201,41 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountInvoicesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: BillingInvoiceWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountBlockPatternsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BlockPatternWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountSyncedPatternRevisionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SyncedPatternRevisionWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountBlockTemplatesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BlockTemplateWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountTemplatePartsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TemplatePartWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountGlobalStyleConfigsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GlobalStyleConfigWhereInput
   }
 
 
@@ -6090,11 +6590,19 @@ export namespace Prisma {
   export type WorkspaceCountOutputType = {
     members: number
     websites: number
+    blockPatterns: number
+    blockTemplates: number
+    templateParts: number
+    globalStyleConfigs: number
   }
 
   export type WorkspaceCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     members?: boolean | WorkspaceCountOutputTypeCountMembersArgs
     websites?: boolean | WorkspaceCountOutputTypeCountWebsitesArgs
+    blockPatterns?: boolean | WorkspaceCountOutputTypeCountBlockPatternsArgs
+    blockTemplates?: boolean | WorkspaceCountOutputTypeCountBlockTemplatesArgs
+    templateParts?: boolean | WorkspaceCountOutputTypeCountTemplatePartsArgs
+    globalStyleConfigs?: boolean | WorkspaceCountOutputTypeCountGlobalStyleConfigsArgs
   }
 
   // Custom InputTypes
@@ -6122,6 +6630,34 @@ export namespace Prisma {
     where?: WebsiteWhereInput
   }
 
+  /**
+   * WorkspaceCountOutputType without action
+   */
+  export type WorkspaceCountOutputTypeCountBlockPatternsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BlockPatternWhereInput
+  }
+
+  /**
+   * WorkspaceCountOutputType without action
+   */
+  export type WorkspaceCountOutputTypeCountBlockTemplatesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BlockTemplateWhereInput
+  }
+
+  /**
+   * WorkspaceCountOutputType without action
+   */
+  export type WorkspaceCountOutputTypeCountTemplatePartsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TemplatePartWhereInput
+  }
+
+  /**
+   * WorkspaceCountOutputType without action
+   */
+  export type WorkspaceCountOutputTypeCountGlobalStyleConfigsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GlobalStyleConfigWhereInput
+  }
+
 
   /**
    * Count Type OrganizationCountOutputType
@@ -6131,12 +6667,20 @@ export namespace Prisma {
     members: number
     workspaces: number
     websites: number
+    blockPatterns: number
+    blockTemplates: number
+    templateParts: number
+    globalStyleConfigs: number
   }
 
   export type OrganizationCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     members?: boolean | OrganizationCountOutputTypeCountMembersArgs
     workspaces?: boolean | OrganizationCountOutputTypeCountWorkspacesArgs
     websites?: boolean | OrganizationCountOutputTypeCountWebsitesArgs
+    blockPatterns?: boolean | OrganizationCountOutputTypeCountBlockPatternsArgs
+    blockTemplates?: boolean | OrganizationCountOutputTypeCountBlockTemplatesArgs
+    templateParts?: boolean | OrganizationCountOutputTypeCountTemplatePartsArgs
+    globalStyleConfigs?: boolean | OrganizationCountOutputTypeCountGlobalStyleConfigsArgs
   }
 
   // Custom InputTypes
@@ -6171,6 +6715,34 @@ export namespace Prisma {
     where?: WebsiteWhereInput
   }
 
+  /**
+   * OrganizationCountOutputType without action
+   */
+  export type OrganizationCountOutputTypeCountBlockPatternsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BlockPatternWhereInput
+  }
+
+  /**
+   * OrganizationCountOutputType without action
+   */
+  export type OrganizationCountOutputTypeCountBlockTemplatesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BlockTemplateWhereInput
+  }
+
+  /**
+   * OrganizationCountOutputType without action
+   */
+  export type OrganizationCountOutputTypeCountTemplatePartsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TemplatePartWhereInput
+  }
+
+  /**
+   * OrganizationCountOutputType without action
+   */
+  export type OrganizationCountOutputTypeCountGlobalStyleConfigsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GlobalStyleConfigWhereInput
+  }
+
 
   /**
    * Count Type LicenseCountOutputType
@@ -6200,6 +6772,37 @@ export namespace Prisma {
    */
   export type LicenseCountOutputTypeCountActivationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: LicenseActivationWhereInput
+  }
+
+
+  /**
+   * Count Type BlockPatternCountOutputType
+   */
+
+  export type BlockPatternCountOutputType = {
+    revisions: number
+  }
+
+  export type BlockPatternCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    revisions?: boolean | BlockPatternCountOutputTypeCountRevisionsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * BlockPatternCountOutputType without action
+   */
+  export type BlockPatternCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BlockPatternCountOutputType
+     */
+    select?: BlockPatternCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * BlockPatternCountOutputType without action
+   */
+  export type BlockPatternCountOutputTypeCountRevisionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SyncedPatternRevisionWhereInput
   }
 
 
@@ -6510,6 +7113,11 @@ export namespace Prisma {
     licenses?: boolean | User$licensesArgs<ExtArgs>
     whiteLabelConfig?: boolean | User$whiteLabelConfigArgs<ExtArgs>
     invoices?: boolean | User$invoicesArgs<ExtArgs>
+    blockPatterns?: boolean | User$blockPatternsArgs<ExtArgs>
+    syncedPatternRevisions?: boolean | User$syncedPatternRevisionsArgs<ExtArgs>
+    blockTemplates?: boolean | User$blockTemplatesArgs<ExtArgs>
+    templateParts?: boolean | User$templatePartsArgs<ExtArgs>
+    globalStyleConfigs?: boolean | User$globalStyleConfigsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -6599,6 +7207,11 @@ export namespace Prisma {
     licenses?: boolean | User$licensesArgs<ExtArgs>
     whiteLabelConfig?: boolean | User$whiteLabelConfigArgs<ExtArgs>
     invoices?: boolean | User$invoicesArgs<ExtArgs>
+    blockPatterns?: boolean | User$blockPatternsArgs<ExtArgs>
+    syncedPatternRevisions?: boolean | User$syncedPatternRevisionsArgs<ExtArgs>
+    blockTemplates?: boolean | User$blockTemplatesArgs<ExtArgs>
+    templateParts?: boolean | User$templatePartsArgs<ExtArgs>
+    globalStyleConfigs?: boolean | User$globalStyleConfigsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -6640,6 +7253,11 @@ export namespace Prisma {
       licenses: Prisma.$LicensePayload<ExtArgs>[]
       whiteLabelConfig: Prisma.$WhiteLabelConfigPayload<ExtArgs> | null
       invoices: Prisma.$BillingInvoicePayload<ExtArgs>[]
+      blockPatterns: Prisma.$BlockPatternPayload<ExtArgs>[]
+      syncedPatternRevisions: Prisma.$SyncedPatternRevisionPayload<ExtArgs>[]
+      blockTemplates: Prisma.$BlockTemplatePayload<ExtArgs>[]
+      templateParts: Prisma.$TemplatePartPayload<ExtArgs>[]
+      globalStyleConfigs: Prisma.$GlobalStyleConfigPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -7083,6 +7701,11 @@ export namespace Prisma {
     licenses<T extends User$licensesArgs<ExtArgs> = {}>(args?: Subset<T, User$licensesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LicensePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     whiteLabelConfig<T extends User$whiteLabelConfigArgs<ExtArgs> = {}>(args?: Subset<T, User$whiteLabelConfigArgs<ExtArgs>>): Prisma__WhiteLabelConfigClient<$Result.GetResult<Prisma.$WhiteLabelConfigPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     invoices<T extends User$invoicesArgs<ExtArgs> = {}>(args?: Subset<T, User$invoicesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BillingInvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    blockPatterns<T extends User$blockPatternsArgs<ExtArgs> = {}>(args?: Subset<T, User$blockPatternsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BlockPatternPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    syncedPatternRevisions<T extends User$syncedPatternRevisionsArgs<ExtArgs> = {}>(args?: Subset<T, User$syncedPatternRevisionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SyncedPatternRevisionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    blockTemplates<T extends User$blockTemplatesArgs<ExtArgs> = {}>(args?: Subset<T, User$blockTemplatesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BlockTemplatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    templateParts<T extends User$templatePartsArgs<ExtArgs> = {}>(args?: Subset<T, User$templatePartsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TemplatePartPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    globalStyleConfigs<T extends User$globalStyleConfigsArgs<ExtArgs> = {}>(args?: Subset<T, User$globalStyleConfigsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GlobalStyleConfigPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8298,6 +8921,126 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: BillingInvoiceScalarFieldEnum | BillingInvoiceScalarFieldEnum[]
+  }
+
+  /**
+   * User.blockPatterns
+   */
+  export type User$blockPatternsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BlockPattern
+     */
+    select?: BlockPatternSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BlockPattern
+     */
+    omit?: BlockPatternOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlockPatternInclude<ExtArgs> | null
+    where?: BlockPatternWhereInput
+    orderBy?: BlockPatternOrderByWithRelationInput | BlockPatternOrderByWithRelationInput[]
+    cursor?: BlockPatternWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BlockPatternScalarFieldEnum | BlockPatternScalarFieldEnum[]
+  }
+
+  /**
+   * User.syncedPatternRevisions
+   */
+  export type User$syncedPatternRevisionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SyncedPatternRevision
+     */
+    select?: SyncedPatternRevisionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SyncedPatternRevision
+     */
+    omit?: SyncedPatternRevisionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SyncedPatternRevisionInclude<ExtArgs> | null
+    where?: SyncedPatternRevisionWhereInput
+    orderBy?: SyncedPatternRevisionOrderByWithRelationInput | SyncedPatternRevisionOrderByWithRelationInput[]
+    cursor?: SyncedPatternRevisionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SyncedPatternRevisionScalarFieldEnum | SyncedPatternRevisionScalarFieldEnum[]
+  }
+
+  /**
+   * User.blockTemplates
+   */
+  export type User$blockTemplatesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BlockTemplate
+     */
+    select?: BlockTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BlockTemplate
+     */
+    omit?: BlockTemplateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlockTemplateInclude<ExtArgs> | null
+    where?: BlockTemplateWhereInput
+    orderBy?: BlockTemplateOrderByWithRelationInput | BlockTemplateOrderByWithRelationInput[]
+    cursor?: BlockTemplateWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BlockTemplateScalarFieldEnum | BlockTemplateScalarFieldEnum[]
+  }
+
+  /**
+   * User.templateParts
+   */
+  export type User$templatePartsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TemplatePart
+     */
+    select?: TemplatePartSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TemplatePart
+     */
+    omit?: TemplatePartOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TemplatePartInclude<ExtArgs> | null
+    where?: TemplatePartWhereInput
+    orderBy?: TemplatePartOrderByWithRelationInput | TemplatePartOrderByWithRelationInput[]
+    cursor?: TemplatePartWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TemplatePartScalarFieldEnum | TemplatePartScalarFieldEnum[]
+  }
+
+  /**
+   * User.globalStyleConfigs
+   */
+  export type User$globalStyleConfigsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GlobalStyleConfig
+     */
+    select?: GlobalStyleConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GlobalStyleConfig
+     */
+    omit?: GlobalStyleConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GlobalStyleConfigInclude<ExtArgs> | null
+    where?: GlobalStyleConfigWhereInput
+    orderBy?: GlobalStyleConfigOrderByWithRelationInput | GlobalStyleConfigOrderByWithRelationInput[]
+    cursor?: GlobalStyleConfigWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: GlobalStyleConfigScalarFieldEnum | GlobalStyleConfigScalarFieldEnum[]
   }
 
   /**
@@ -46472,6 +47215,10 @@ export namespace Prisma {
     owner?: boolean | UserDefaultArgs<ExtArgs>
     members?: boolean | Workspace$membersArgs<ExtArgs>
     websites?: boolean | Workspace$websitesArgs<ExtArgs>
+    blockPatterns?: boolean | Workspace$blockPatternsArgs<ExtArgs>
+    blockTemplates?: boolean | Workspace$blockTemplatesArgs<ExtArgs>
+    templateParts?: boolean | Workspace$templatePartsArgs<ExtArgs>
+    globalStyleConfigs?: boolean | Workspace$globalStyleConfigsArgs<ExtArgs>
     _count?: boolean | WorkspaceCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["workspace"]>
 
@@ -46518,6 +47265,10 @@ export namespace Prisma {
     owner?: boolean | UserDefaultArgs<ExtArgs>
     members?: boolean | Workspace$membersArgs<ExtArgs>
     websites?: boolean | Workspace$websitesArgs<ExtArgs>
+    blockPatterns?: boolean | Workspace$blockPatternsArgs<ExtArgs>
+    blockTemplates?: boolean | Workspace$blockTemplatesArgs<ExtArgs>
+    templateParts?: boolean | Workspace$templatePartsArgs<ExtArgs>
+    globalStyleConfigs?: boolean | Workspace$globalStyleConfigsArgs<ExtArgs>
     _count?: boolean | WorkspaceCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type WorkspaceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -46536,6 +47287,10 @@ export namespace Prisma {
       owner: Prisma.$UserPayload<ExtArgs>
       members: Prisma.$WorkspaceMemberPayload<ExtArgs>[]
       websites: Prisma.$WebsitePayload<ExtArgs>[]
+      blockPatterns: Prisma.$BlockPatternPayload<ExtArgs>[]
+      blockTemplates: Prisma.$BlockTemplatePayload<ExtArgs>[]
+      templateParts: Prisma.$TemplatePartPayload<ExtArgs>[]
+      globalStyleConfigs: Prisma.$GlobalStyleConfigPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -46944,6 +47699,10 @@ export namespace Prisma {
     owner<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     members<T extends Workspace$membersArgs<ExtArgs> = {}>(args?: Subset<T, Workspace$membersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     websites<T extends Workspace$websitesArgs<ExtArgs> = {}>(args?: Subset<T, Workspace$websitesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WebsitePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    blockPatterns<T extends Workspace$blockPatternsArgs<ExtArgs> = {}>(args?: Subset<T, Workspace$blockPatternsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BlockPatternPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    blockTemplates<T extends Workspace$blockTemplatesArgs<ExtArgs> = {}>(args?: Subset<T, Workspace$blockTemplatesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BlockTemplatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    templateParts<T extends Workspace$templatePartsArgs<ExtArgs> = {}>(args?: Subset<T, Workspace$templatePartsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TemplatePartPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    globalStyleConfigs<T extends Workspace$globalStyleConfigsArgs<ExtArgs> = {}>(args?: Subset<T, Workspace$globalStyleConfigsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GlobalStyleConfigPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -47449,6 +48208,102 @@ export namespace Prisma {
   }
 
   /**
+   * Workspace.blockPatterns
+   */
+  export type Workspace$blockPatternsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BlockPattern
+     */
+    select?: BlockPatternSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BlockPattern
+     */
+    omit?: BlockPatternOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlockPatternInclude<ExtArgs> | null
+    where?: BlockPatternWhereInput
+    orderBy?: BlockPatternOrderByWithRelationInput | BlockPatternOrderByWithRelationInput[]
+    cursor?: BlockPatternWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BlockPatternScalarFieldEnum | BlockPatternScalarFieldEnum[]
+  }
+
+  /**
+   * Workspace.blockTemplates
+   */
+  export type Workspace$blockTemplatesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BlockTemplate
+     */
+    select?: BlockTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BlockTemplate
+     */
+    omit?: BlockTemplateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlockTemplateInclude<ExtArgs> | null
+    where?: BlockTemplateWhereInput
+    orderBy?: BlockTemplateOrderByWithRelationInput | BlockTemplateOrderByWithRelationInput[]
+    cursor?: BlockTemplateWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BlockTemplateScalarFieldEnum | BlockTemplateScalarFieldEnum[]
+  }
+
+  /**
+   * Workspace.templateParts
+   */
+  export type Workspace$templatePartsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TemplatePart
+     */
+    select?: TemplatePartSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TemplatePart
+     */
+    omit?: TemplatePartOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TemplatePartInclude<ExtArgs> | null
+    where?: TemplatePartWhereInput
+    orderBy?: TemplatePartOrderByWithRelationInput | TemplatePartOrderByWithRelationInput[]
+    cursor?: TemplatePartWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TemplatePartScalarFieldEnum | TemplatePartScalarFieldEnum[]
+  }
+
+  /**
+   * Workspace.globalStyleConfigs
+   */
+  export type Workspace$globalStyleConfigsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GlobalStyleConfig
+     */
+    select?: GlobalStyleConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GlobalStyleConfig
+     */
+    omit?: GlobalStyleConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GlobalStyleConfigInclude<ExtArgs> | null
+    where?: GlobalStyleConfigWhereInput
+    orderBy?: GlobalStyleConfigOrderByWithRelationInput | GlobalStyleConfigOrderByWithRelationInput[]
+    cursor?: GlobalStyleConfigWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: GlobalStyleConfigScalarFieldEnum | GlobalStyleConfigScalarFieldEnum[]
+  }
+
+  /**
    * Workspace without action
    */
   export type WorkspaceDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -47647,6 +48502,10 @@ export namespace Prisma {
     members?: boolean | Organization$membersArgs<ExtArgs>
     workspaces?: boolean | Organization$workspacesArgs<ExtArgs>
     websites?: boolean | Organization$websitesArgs<ExtArgs>
+    blockPatterns?: boolean | Organization$blockPatternsArgs<ExtArgs>
+    blockTemplates?: boolean | Organization$blockTemplatesArgs<ExtArgs>
+    templateParts?: boolean | Organization$templatePartsArgs<ExtArgs>
+    globalStyleConfigs?: boolean | Organization$globalStyleConfigsArgs<ExtArgs>
     _count?: boolean | OrganizationCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["organization"]>
 
@@ -47688,6 +48547,10 @@ export namespace Prisma {
     members?: boolean | Organization$membersArgs<ExtArgs>
     workspaces?: boolean | Organization$workspacesArgs<ExtArgs>
     websites?: boolean | Organization$websitesArgs<ExtArgs>
+    blockPatterns?: boolean | Organization$blockPatternsArgs<ExtArgs>
+    blockTemplates?: boolean | Organization$blockTemplatesArgs<ExtArgs>
+    templateParts?: boolean | Organization$templatePartsArgs<ExtArgs>
+    globalStyleConfigs?: boolean | Organization$globalStyleConfigsArgs<ExtArgs>
     _count?: boolean | OrganizationCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type OrganizationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -47704,6 +48567,10 @@ export namespace Prisma {
       members: Prisma.$OrganizationMemberPayload<ExtArgs>[]
       workspaces: Prisma.$WorkspacePayload<ExtArgs>[]
       websites: Prisma.$WebsitePayload<ExtArgs>[]
+      blockPatterns: Prisma.$BlockPatternPayload<ExtArgs>[]
+      blockTemplates: Prisma.$BlockTemplatePayload<ExtArgs>[]
+      templateParts: Prisma.$TemplatePartPayload<ExtArgs>[]
+      globalStyleConfigs: Prisma.$GlobalStyleConfigPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -48111,6 +48978,10 @@ export namespace Prisma {
     members<T extends Organization$membersArgs<ExtArgs> = {}>(args?: Subset<T, Organization$membersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrganizationMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     workspaces<T extends Organization$workspacesArgs<ExtArgs> = {}>(args?: Subset<T, Organization$workspacesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     websites<T extends Organization$websitesArgs<ExtArgs> = {}>(args?: Subset<T, Organization$websitesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WebsitePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    blockPatterns<T extends Organization$blockPatternsArgs<ExtArgs> = {}>(args?: Subset<T, Organization$blockPatternsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BlockPatternPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    blockTemplates<T extends Organization$blockTemplatesArgs<ExtArgs> = {}>(args?: Subset<T, Organization$blockTemplatesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BlockTemplatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    templateParts<T extends Organization$templatePartsArgs<ExtArgs> = {}>(args?: Subset<T, Organization$templatePartsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TemplatePartPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    globalStyleConfigs<T extends Organization$globalStyleConfigsArgs<ExtArgs> = {}>(args?: Subset<T, Organization$globalStyleConfigsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GlobalStyleConfigPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -48617,6 +49488,102 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: WebsiteScalarFieldEnum | WebsiteScalarFieldEnum[]
+  }
+
+  /**
+   * Organization.blockPatterns
+   */
+  export type Organization$blockPatternsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BlockPattern
+     */
+    select?: BlockPatternSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BlockPattern
+     */
+    omit?: BlockPatternOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlockPatternInclude<ExtArgs> | null
+    where?: BlockPatternWhereInput
+    orderBy?: BlockPatternOrderByWithRelationInput | BlockPatternOrderByWithRelationInput[]
+    cursor?: BlockPatternWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BlockPatternScalarFieldEnum | BlockPatternScalarFieldEnum[]
+  }
+
+  /**
+   * Organization.blockTemplates
+   */
+  export type Organization$blockTemplatesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BlockTemplate
+     */
+    select?: BlockTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BlockTemplate
+     */
+    omit?: BlockTemplateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlockTemplateInclude<ExtArgs> | null
+    where?: BlockTemplateWhereInput
+    orderBy?: BlockTemplateOrderByWithRelationInput | BlockTemplateOrderByWithRelationInput[]
+    cursor?: BlockTemplateWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BlockTemplateScalarFieldEnum | BlockTemplateScalarFieldEnum[]
+  }
+
+  /**
+   * Organization.templateParts
+   */
+  export type Organization$templatePartsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TemplatePart
+     */
+    select?: TemplatePartSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TemplatePart
+     */
+    omit?: TemplatePartOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TemplatePartInclude<ExtArgs> | null
+    where?: TemplatePartWhereInput
+    orderBy?: TemplatePartOrderByWithRelationInput | TemplatePartOrderByWithRelationInput[]
+    cursor?: TemplatePartWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TemplatePartScalarFieldEnum | TemplatePartScalarFieldEnum[]
+  }
+
+  /**
+   * Organization.globalStyleConfigs
+   */
+  export type Organization$globalStyleConfigsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GlobalStyleConfig
+     */
+    select?: GlobalStyleConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GlobalStyleConfig
+     */
+    omit?: GlobalStyleConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GlobalStyleConfigInclude<ExtArgs> | null
+    where?: GlobalStyleConfigWhereInput
+    orderBy?: GlobalStyleConfigOrderByWithRelationInput | GlobalStyleConfigOrderByWithRelationInput[]
+    cursor?: GlobalStyleConfigWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: GlobalStyleConfigScalarFieldEnum | GlobalStyleConfigScalarFieldEnum[]
   }
 
   /**
@@ -64685,6 +65652,6200 @@ export namespace Prisma {
 
 
   /**
+   * Model BlockPattern
+   */
+
+  export type AggregateBlockPattern = {
+    _count: BlockPatternCountAggregateOutputType | null
+    _avg: BlockPatternAvgAggregateOutputType | null
+    _sum: BlockPatternSumAggregateOutputType | null
+    _min: BlockPatternMinAggregateOutputType | null
+    _max: BlockPatternMaxAggregateOutputType | null
+  }
+
+  export type BlockPatternAvgAggregateOutputType = {
+    viewportWidth: number | null
+    version: number | null
+  }
+
+  export type BlockPatternSumAggregateOutputType = {
+    viewportWidth: number | null
+    version: number | null
+  }
+
+  export type BlockPatternMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+    title: string | null
+    description: string | null
+    category: string | null
+    viewportWidth: number | null
+    isSynced: boolean | null
+    syncStatus: string | null
+    workspaceId: string | null
+    organizationId: string | null
+    userId: string | null
+    version: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type BlockPatternMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+    title: string | null
+    description: string | null
+    category: string | null
+    viewportWidth: number | null
+    isSynced: boolean | null
+    syncStatus: string | null
+    workspaceId: string | null
+    organizationId: string | null
+    userId: string | null
+    version: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type BlockPatternCountAggregateOutputType = {
+    id: number
+    name: number
+    title: number
+    description: number
+    category: number
+    categories: number
+    content: number
+    viewportWidth: number
+    blockTypes: number
+    keywords: number
+    isSynced: number
+    syncStatus: number
+    workspaceId: number
+    organizationId: number
+    userId: number
+    version: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type BlockPatternAvgAggregateInputType = {
+    viewportWidth?: true
+    version?: true
+  }
+
+  export type BlockPatternSumAggregateInputType = {
+    viewportWidth?: true
+    version?: true
+  }
+
+  export type BlockPatternMinAggregateInputType = {
+    id?: true
+    name?: true
+    title?: true
+    description?: true
+    category?: true
+    viewportWidth?: true
+    isSynced?: true
+    syncStatus?: true
+    workspaceId?: true
+    organizationId?: true
+    userId?: true
+    version?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type BlockPatternMaxAggregateInputType = {
+    id?: true
+    name?: true
+    title?: true
+    description?: true
+    category?: true
+    viewportWidth?: true
+    isSynced?: true
+    syncStatus?: true
+    workspaceId?: true
+    organizationId?: true
+    userId?: true
+    version?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type BlockPatternCountAggregateInputType = {
+    id?: true
+    name?: true
+    title?: true
+    description?: true
+    category?: true
+    categories?: true
+    content?: true
+    viewportWidth?: true
+    blockTypes?: true
+    keywords?: true
+    isSynced?: true
+    syncStatus?: true
+    workspaceId?: true
+    organizationId?: true
+    userId?: true
+    version?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type BlockPatternAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BlockPattern to aggregate.
+     */
+    where?: BlockPatternWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BlockPatterns to fetch.
+     */
+    orderBy?: BlockPatternOrderByWithRelationInput | BlockPatternOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: BlockPatternWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BlockPatterns from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BlockPatterns.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned BlockPatterns
+    **/
+    _count?: true | BlockPatternCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: BlockPatternAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: BlockPatternSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: BlockPatternMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: BlockPatternMaxAggregateInputType
+  }
+
+  export type GetBlockPatternAggregateType<T extends BlockPatternAggregateArgs> = {
+        [P in keyof T & keyof AggregateBlockPattern]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateBlockPattern[P]>
+      : GetScalarType<T[P], AggregateBlockPattern[P]>
+  }
+
+
+
+
+  export type BlockPatternGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BlockPatternWhereInput
+    orderBy?: BlockPatternOrderByWithAggregationInput | BlockPatternOrderByWithAggregationInput[]
+    by: BlockPatternScalarFieldEnum[] | BlockPatternScalarFieldEnum
+    having?: BlockPatternScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: BlockPatternCountAggregateInputType | true
+    _avg?: BlockPatternAvgAggregateInputType
+    _sum?: BlockPatternSumAggregateInputType
+    _min?: BlockPatternMinAggregateInputType
+    _max?: BlockPatternMaxAggregateInputType
+  }
+
+  export type BlockPatternGroupByOutputType = {
+    id: string
+    name: string
+    title: string
+    description: string | null
+    category: string
+    categories: JsonValue
+    content: JsonValue
+    viewportWidth: number | null
+    blockTypes: JsonValue
+    keywords: JsonValue
+    isSynced: boolean
+    syncStatus: string
+    workspaceId: string | null
+    organizationId: string | null
+    userId: string
+    version: number
+    createdAt: Date
+    updatedAt: Date
+    _count: BlockPatternCountAggregateOutputType | null
+    _avg: BlockPatternAvgAggregateOutputType | null
+    _sum: BlockPatternSumAggregateOutputType | null
+    _min: BlockPatternMinAggregateOutputType | null
+    _max: BlockPatternMaxAggregateOutputType | null
+  }
+
+  type GetBlockPatternGroupByPayload<T extends BlockPatternGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<BlockPatternGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof BlockPatternGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], BlockPatternGroupByOutputType[P]>
+            : GetScalarType<T[P], BlockPatternGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type BlockPatternSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    title?: boolean
+    description?: boolean
+    category?: boolean
+    categories?: boolean
+    content?: boolean
+    viewportWidth?: boolean
+    blockTypes?: boolean
+    keywords?: boolean
+    isSynced?: boolean
+    syncStatus?: boolean
+    workspaceId?: boolean
+    organizationId?: boolean
+    userId?: boolean
+    version?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    workspace?: boolean | BlockPattern$workspaceArgs<ExtArgs>
+    organization?: boolean | BlockPattern$organizationArgs<ExtArgs>
+    revisions?: boolean | BlockPattern$revisionsArgs<ExtArgs>
+    _count?: boolean | BlockPatternCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["blockPattern"]>
+
+  export type BlockPatternSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    title?: boolean
+    description?: boolean
+    category?: boolean
+    categories?: boolean
+    content?: boolean
+    viewportWidth?: boolean
+    blockTypes?: boolean
+    keywords?: boolean
+    isSynced?: boolean
+    syncStatus?: boolean
+    workspaceId?: boolean
+    organizationId?: boolean
+    userId?: boolean
+    version?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    workspace?: boolean | BlockPattern$workspaceArgs<ExtArgs>
+    organization?: boolean | BlockPattern$organizationArgs<ExtArgs>
+  }, ExtArgs["result"]["blockPattern"]>
+
+  export type BlockPatternSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    title?: boolean
+    description?: boolean
+    category?: boolean
+    categories?: boolean
+    content?: boolean
+    viewportWidth?: boolean
+    blockTypes?: boolean
+    keywords?: boolean
+    isSynced?: boolean
+    syncStatus?: boolean
+    workspaceId?: boolean
+    organizationId?: boolean
+    userId?: boolean
+    version?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    workspace?: boolean | BlockPattern$workspaceArgs<ExtArgs>
+    organization?: boolean | BlockPattern$organizationArgs<ExtArgs>
+  }, ExtArgs["result"]["blockPattern"]>
+
+  export type BlockPatternSelectScalar = {
+    id?: boolean
+    name?: boolean
+    title?: boolean
+    description?: boolean
+    category?: boolean
+    categories?: boolean
+    content?: boolean
+    viewportWidth?: boolean
+    blockTypes?: boolean
+    keywords?: boolean
+    isSynced?: boolean
+    syncStatus?: boolean
+    workspaceId?: boolean
+    organizationId?: boolean
+    userId?: boolean
+    version?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type BlockPatternOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "title" | "description" | "category" | "categories" | "content" | "viewportWidth" | "blockTypes" | "keywords" | "isSynced" | "syncStatus" | "workspaceId" | "organizationId" | "userId" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["blockPattern"]>
+  export type BlockPatternInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    workspace?: boolean | BlockPattern$workspaceArgs<ExtArgs>
+    organization?: boolean | BlockPattern$organizationArgs<ExtArgs>
+    revisions?: boolean | BlockPattern$revisionsArgs<ExtArgs>
+    _count?: boolean | BlockPatternCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type BlockPatternIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    workspace?: boolean | BlockPattern$workspaceArgs<ExtArgs>
+    organization?: boolean | BlockPattern$organizationArgs<ExtArgs>
+  }
+  export type BlockPatternIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    workspace?: boolean | BlockPattern$workspaceArgs<ExtArgs>
+    organization?: boolean | BlockPattern$organizationArgs<ExtArgs>
+  }
+
+  export type $BlockPatternPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "BlockPattern"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+      workspace: Prisma.$WorkspacePayload<ExtArgs> | null
+      organization: Prisma.$OrganizationPayload<ExtArgs> | null
+      revisions: Prisma.$SyncedPatternRevisionPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: string
+      title: string
+      description: string | null
+      category: string
+      categories: Prisma.JsonValue
+      content: Prisma.JsonValue
+      viewportWidth: number | null
+      blockTypes: Prisma.JsonValue
+      keywords: Prisma.JsonValue
+      isSynced: boolean
+      syncStatus: string
+      workspaceId: string | null
+      organizationId: string | null
+      userId: string
+      version: number
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["blockPattern"]>
+    composites: {}
+  }
+
+  type BlockPatternGetPayload<S extends boolean | null | undefined | BlockPatternDefaultArgs> = $Result.GetResult<Prisma.$BlockPatternPayload, S>
+
+  type BlockPatternCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<BlockPatternFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: BlockPatternCountAggregateInputType | true
+    }
+
+  export interface BlockPatternDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['BlockPattern'], meta: { name: 'BlockPattern' } }
+    /**
+     * Find zero or one BlockPattern that matches the filter.
+     * @param {BlockPatternFindUniqueArgs} args - Arguments to find a BlockPattern
+     * @example
+     * // Get one BlockPattern
+     * const blockPattern = await prisma.blockPattern.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends BlockPatternFindUniqueArgs>(args: SelectSubset<T, BlockPatternFindUniqueArgs<ExtArgs>>): Prisma__BlockPatternClient<$Result.GetResult<Prisma.$BlockPatternPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one BlockPattern that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {BlockPatternFindUniqueOrThrowArgs} args - Arguments to find a BlockPattern
+     * @example
+     * // Get one BlockPattern
+     * const blockPattern = await prisma.blockPattern.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends BlockPatternFindUniqueOrThrowArgs>(args: SelectSubset<T, BlockPatternFindUniqueOrThrowArgs<ExtArgs>>): Prisma__BlockPatternClient<$Result.GetResult<Prisma.$BlockPatternPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BlockPattern that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BlockPatternFindFirstArgs} args - Arguments to find a BlockPattern
+     * @example
+     * // Get one BlockPattern
+     * const blockPattern = await prisma.blockPattern.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends BlockPatternFindFirstArgs>(args?: SelectSubset<T, BlockPatternFindFirstArgs<ExtArgs>>): Prisma__BlockPatternClient<$Result.GetResult<Prisma.$BlockPatternPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BlockPattern that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BlockPatternFindFirstOrThrowArgs} args - Arguments to find a BlockPattern
+     * @example
+     * // Get one BlockPattern
+     * const blockPattern = await prisma.blockPattern.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends BlockPatternFindFirstOrThrowArgs>(args?: SelectSubset<T, BlockPatternFindFirstOrThrowArgs<ExtArgs>>): Prisma__BlockPatternClient<$Result.GetResult<Prisma.$BlockPatternPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more BlockPatterns that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BlockPatternFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all BlockPatterns
+     * const blockPatterns = await prisma.blockPattern.findMany()
+     * 
+     * // Get first 10 BlockPatterns
+     * const blockPatterns = await prisma.blockPattern.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const blockPatternWithIdOnly = await prisma.blockPattern.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends BlockPatternFindManyArgs>(args?: SelectSubset<T, BlockPatternFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BlockPatternPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a BlockPattern.
+     * @param {BlockPatternCreateArgs} args - Arguments to create a BlockPattern.
+     * @example
+     * // Create one BlockPattern
+     * const BlockPattern = await prisma.blockPattern.create({
+     *   data: {
+     *     // ... data to create a BlockPattern
+     *   }
+     * })
+     * 
+     */
+    create<T extends BlockPatternCreateArgs>(args: SelectSubset<T, BlockPatternCreateArgs<ExtArgs>>): Prisma__BlockPatternClient<$Result.GetResult<Prisma.$BlockPatternPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many BlockPatterns.
+     * @param {BlockPatternCreateManyArgs} args - Arguments to create many BlockPatterns.
+     * @example
+     * // Create many BlockPatterns
+     * const blockPattern = await prisma.blockPattern.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends BlockPatternCreateManyArgs>(args?: SelectSubset<T, BlockPatternCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many BlockPatterns and returns the data saved in the database.
+     * @param {BlockPatternCreateManyAndReturnArgs} args - Arguments to create many BlockPatterns.
+     * @example
+     * // Create many BlockPatterns
+     * const blockPattern = await prisma.blockPattern.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many BlockPatterns and only return the `id`
+     * const blockPatternWithIdOnly = await prisma.blockPattern.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends BlockPatternCreateManyAndReturnArgs>(args?: SelectSubset<T, BlockPatternCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BlockPatternPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a BlockPattern.
+     * @param {BlockPatternDeleteArgs} args - Arguments to delete one BlockPattern.
+     * @example
+     * // Delete one BlockPattern
+     * const BlockPattern = await prisma.blockPattern.delete({
+     *   where: {
+     *     // ... filter to delete one BlockPattern
+     *   }
+     * })
+     * 
+     */
+    delete<T extends BlockPatternDeleteArgs>(args: SelectSubset<T, BlockPatternDeleteArgs<ExtArgs>>): Prisma__BlockPatternClient<$Result.GetResult<Prisma.$BlockPatternPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one BlockPattern.
+     * @param {BlockPatternUpdateArgs} args - Arguments to update one BlockPattern.
+     * @example
+     * // Update one BlockPattern
+     * const blockPattern = await prisma.blockPattern.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends BlockPatternUpdateArgs>(args: SelectSubset<T, BlockPatternUpdateArgs<ExtArgs>>): Prisma__BlockPatternClient<$Result.GetResult<Prisma.$BlockPatternPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more BlockPatterns.
+     * @param {BlockPatternDeleteManyArgs} args - Arguments to filter BlockPatterns to delete.
+     * @example
+     * // Delete a few BlockPatterns
+     * const { count } = await prisma.blockPattern.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends BlockPatternDeleteManyArgs>(args?: SelectSubset<T, BlockPatternDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BlockPatterns.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BlockPatternUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many BlockPatterns
+     * const blockPattern = await prisma.blockPattern.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends BlockPatternUpdateManyArgs>(args: SelectSubset<T, BlockPatternUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BlockPatterns and returns the data updated in the database.
+     * @param {BlockPatternUpdateManyAndReturnArgs} args - Arguments to update many BlockPatterns.
+     * @example
+     * // Update many BlockPatterns
+     * const blockPattern = await prisma.blockPattern.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more BlockPatterns and only return the `id`
+     * const blockPatternWithIdOnly = await prisma.blockPattern.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends BlockPatternUpdateManyAndReturnArgs>(args: SelectSubset<T, BlockPatternUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BlockPatternPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one BlockPattern.
+     * @param {BlockPatternUpsertArgs} args - Arguments to update or create a BlockPattern.
+     * @example
+     * // Update or create a BlockPattern
+     * const blockPattern = await prisma.blockPattern.upsert({
+     *   create: {
+     *     // ... data to create a BlockPattern
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the BlockPattern we want to update
+     *   }
+     * })
+     */
+    upsert<T extends BlockPatternUpsertArgs>(args: SelectSubset<T, BlockPatternUpsertArgs<ExtArgs>>): Prisma__BlockPatternClient<$Result.GetResult<Prisma.$BlockPatternPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of BlockPatterns.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BlockPatternCountArgs} args - Arguments to filter BlockPatterns to count.
+     * @example
+     * // Count the number of BlockPatterns
+     * const count = await prisma.blockPattern.count({
+     *   where: {
+     *     // ... the filter for the BlockPatterns we want to count
+     *   }
+     * })
+    **/
+    count<T extends BlockPatternCountArgs>(
+      args?: Subset<T, BlockPatternCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], BlockPatternCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a BlockPattern.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BlockPatternAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends BlockPatternAggregateArgs>(args: Subset<T, BlockPatternAggregateArgs>): Prisma.PrismaPromise<GetBlockPatternAggregateType<T>>
+
+    /**
+     * Group by BlockPattern.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BlockPatternGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends BlockPatternGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: BlockPatternGroupByArgs['orderBy'] }
+        : { orderBy?: BlockPatternGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, BlockPatternGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetBlockPatternGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the BlockPattern model
+   */
+  readonly fields: BlockPatternFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for BlockPattern.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__BlockPatternClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    workspace<T extends BlockPattern$workspaceArgs<ExtArgs> = {}>(args?: Subset<T, BlockPattern$workspaceArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    organization<T extends BlockPattern$organizationArgs<ExtArgs> = {}>(args?: Subset<T, BlockPattern$organizationArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    revisions<T extends BlockPattern$revisionsArgs<ExtArgs> = {}>(args?: Subset<T, BlockPattern$revisionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SyncedPatternRevisionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the BlockPattern model
+   */
+  interface BlockPatternFieldRefs {
+    readonly id: FieldRef<"BlockPattern", 'String'>
+    readonly name: FieldRef<"BlockPattern", 'String'>
+    readonly title: FieldRef<"BlockPattern", 'String'>
+    readonly description: FieldRef<"BlockPattern", 'String'>
+    readonly category: FieldRef<"BlockPattern", 'String'>
+    readonly categories: FieldRef<"BlockPattern", 'Json'>
+    readonly content: FieldRef<"BlockPattern", 'Json'>
+    readonly viewportWidth: FieldRef<"BlockPattern", 'Int'>
+    readonly blockTypes: FieldRef<"BlockPattern", 'Json'>
+    readonly keywords: FieldRef<"BlockPattern", 'Json'>
+    readonly isSynced: FieldRef<"BlockPattern", 'Boolean'>
+    readonly syncStatus: FieldRef<"BlockPattern", 'String'>
+    readonly workspaceId: FieldRef<"BlockPattern", 'String'>
+    readonly organizationId: FieldRef<"BlockPattern", 'String'>
+    readonly userId: FieldRef<"BlockPattern", 'String'>
+    readonly version: FieldRef<"BlockPattern", 'Int'>
+    readonly createdAt: FieldRef<"BlockPattern", 'DateTime'>
+    readonly updatedAt: FieldRef<"BlockPattern", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * BlockPattern findUnique
+   */
+  export type BlockPatternFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BlockPattern
+     */
+    select?: BlockPatternSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BlockPattern
+     */
+    omit?: BlockPatternOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlockPatternInclude<ExtArgs> | null
+    /**
+     * Filter, which BlockPattern to fetch.
+     */
+    where: BlockPatternWhereUniqueInput
+  }
+
+  /**
+   * BlockPattern findUniqueOrThrow
+   */
+  export type BlockPatternFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BlockPattern
+     */
+    select?: BlockPatternSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BlockPattern
+     */
+    omit?: BlockPatternOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlockPatternInclude<ExtArgs> | null
+    /**
+     * Filter, which BlockPattern to fetch.
+     */
+    where: BlockPatternWhereUniqueInput
+  }
+
+  /**
+   * BlockPattern findFirst
+   */
+  export type BlockPatternFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BlockPattern
+     */
+    select?: BlockPatternSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BlockPattern
+     */
+    omit?: BlockPatternOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlockPatternInclude<ExtArgs> | null
+    /**
+     * Filter, which BlockPattern to fetch.
+     */
+    where?: BlockPatternWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BlockPatterns to fetch.
+     */
+    orderBy?: BlockPatternOrderByWithRelationInput | BlockPatternOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BlockPatterns.
+     */
+    cursor?: BlockPatternWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BlockPatterns from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BlockPatterns.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BlockPatterns.
+     */
+    distinct?: BlockPatternScalarFieldEnum | BlockPatternScalarFieldEnum[]
+  }
+
+  /**
+   * BlockPattern findFirstOrThrow
+   */
+  export type BlockPatternFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BlockPattern
+     */
+    select?: BlockPatternSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BlockPattern
+     */
+    omit?: BlockPatternOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlockPatternInclude<ExtArgs> | null
+    /**
+     * Filter, which BlockPattern to fetch.
+     */
+    where?: BlockPatternWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BlockPatterns to fetch.
+     */
+    orderBy?: BlockPatternOrderByWithRelationInput | BlockPatternOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BlockPatterns.
+     */
+    cursor?: BlockPatternWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BlockPatterns from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BlockPatterns.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BlockPatterns.
+     */
+    distinct?: BlockPatternScalarFieldEnum | BlockPatternScalarFieldEnum[]
+  }
+
+  /**
+   * BlockPattern findMany
+   */
+  export type BlockPatternFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BlockPattern
+     */
+    select?: BlockPatternSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BlockPattern
+     */
+    omit?: BlockPatternOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlockPatternInclude<ExtArgs> | null
+    /**
+     * Filter, which BlockPatterns to fetch.
+     */
+    where?: BlockPatternWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BlockPatterns to fetch.
+     */
+    orderBy?: BlockPatternOrderByWithRelationInput | BlockPatternOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing BlockPatterns.
+     */
+    cursor?: BlockPatternWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BlockPatterns from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BlockPatterns.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BlockPatterns.
+     */
+    distinct?: BlockPatternScalarFieldEnum | BlockPatternScalarFieldEnum[]
+  }
+
+  /**
+   * BlockPattern create
+   */
+  export type BlockPatternCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BlockPattern
+     */
+    select?: BlockPatternSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BlockPattern
+     */
+    omit?: BlockPatternOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlockPatternInclude<ExtArgs> | null
+    /**
+     * The data needed to create a BlockPattern.
+     */
+    data: XOR<BlockPatternCreateInput, BlockPatternUncheckedCreateInput>
+  }
+
+  /**
+   * BlockPattern createMany
+   */
+  export type BlockPatternCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many BlockPatterns.
+     */
+    data: BlockPatternCreateManyInput | BlockPatternCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * BlockPattern createManyAndReturn
+   */
+  export type BlockPatternCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BlockPattern
+     */
+    select?: BlockPatternSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BlockPattern
+     */
+    omit?: BlockPatternOmit<ExtArgs> | null
+    /**
+     * The data used to create many BlockPatterns.
+     */
+    data: BlockPatternCreateManyInput | BlockPatternCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlockPatternIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * BlockPattern update
+   */
+  export type BlockPatternUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BlockPattern
+     */
+    select?: BlockPatternSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BlockPattern
+     */
+    omit?: BlockPatternOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlockPatternInclude<ExtArgs> | null
+    /**
+     * The data needed to update a BlockPattern.
+     */
+    data: XOR<BlockPatternUpdateInput, BlockPatternUncheckedUpdateInput>
+    /**
+     * Choose, which BlockPattern to update.
+     */
+    where: BlockPatternWhereUniqueInput
+  }
+
+  /**
+   * BlockPattern updateMany
+   */
+  export type BlockPatternUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update BlockPatterns.
+     */
+    data: XOR<BlockPatternUpdateManyMutationInput, BlockPatternUncheckedUpdateManyInput>
+    /**
+     * Filter which BlockPatterns to update
+     */
+    where?: BlockPatternWhereInput
+    /**
+     * Limit how many BlockPatterns to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * BlockPattern updateManyAndReturn
+   */
+  export type BlockPatternUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BlockPattern
+     */
+    select?: BlockPatternSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BlockPattern
+     */
+    omit?: BlockPatternOmit<ExtArgs> | null
+    /**
+     * The data used to update BlockPatterns.
+     */
+    data: XOR<BlockPatternUpdateManyMutationInput, BlockPatternUncheckedUpdateManyInput>
+    /**
+     * Filter which BlockPatterns to update
+     */
+    where?: BlockPatternWhereInput
+    /**
+     * Limit how many BlockPatterns to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlockPatternIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * BlockPattern upsert
+   */
+  export type BlockPatternUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BlockPattern
+     */
+    select?: BlockPatternSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BlockPattern
+     */
+    omit?: BlockPatternOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlockPatternInclude<ExtArgs> | null
+    /**
+     * The filter to search for the BlockPattern to update in case it exists.
+     */
+    where: BlockPatternWhereUniqueInput
+    /**
+     * In case the BlockPattern found by the `where` argument doesn't exist, create a new BlockPattern with this data.
+     */
+    create: XOR<BlockPatternCreateInput, BlockPatternUncheckedCreateInput>
+    /**
+     * In case the BlockPattern was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<BlockPatternUpdateInput, BlockPatternUncheckedUpdateInput>
+  }
+
+  /**
+   * BlockPattern delete
+   */
+  export type BlockPatternDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BlockPattern
+     */
+    select?: BlockPatternSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BlockPattern
+     */
+    omit?: BlockPatternOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlockPatternInclude<ExtArgs> | null
+    /**
+     * Filter which BlockPattern to delete.
+     */
+    where: BlockPatternWhereUniqueInput
+  }
+
+  /**
+   * BlockPattern deleteMany
+   */
+  export type BlockPatternDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BlockPatterns to delete
+     */
+    where?: BlockPatternWhereInput
+    /**
+     * Limit how many BlockPatterns to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * BlockPattern.workspace
+   */
+  export type BlockPattern$workspaceArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Workspace
+     */
+    select?: WorkspaceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Workspace
+     */
+    omit?: WorkspaceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceInclude<ExtArgs> | null
+    where?: WorkspaceWhereInput
+  }
+
+  /**
+   * BlockPattern.organization
+   */
+  export type BlockPattern$organizationArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Organization
+     */
+    select?: OrganizationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Organization
+     */
+    omit?: OrganizationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationInclude<ExtArgs> | null
+    where?: OrganizationWhereInput
+  }
+
+  /**
+   * BlockPattern.revisions
+   */
+  export type BlockPattern$revisionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SyncedPatternRevision
+     */
+    select?: SyncedPatternRevisionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SyncedPatternRevision
+     */
+    omit?: SyncedPatternRevisionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SyncedPatternRevisionInclude<ExtArgs> | null
+    where?: SyncedPatternRevisionWhereInput
+    orderBy?: SyncedPatternRevisionOrderByWithRelationInput | SyncedPatternRevisionOrderByWithRelationInput[]
+    cursor?: SyncedPatternRevisionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SyncedPatternRevisionScalarFieldEnum | SyncedPatternRevisionScalarFieldEnum[]
+  }
+
+  /**
+   * BlockPattern without action
+   */
+  export type BlockPatternDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BlockPattern
+     */
+    select?: BlockPatternSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BlockPattern
+     */
+    omit?: BlockPatternOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlockPatternInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model SyncedPatternRevision
+   */
+
+  export type AggregateSyncedPatternRevision = {
+    _count: SyncedPatternRevisionCountAggregateOutputType | null
+    _avg: SyncedPatternRevisionAvgAggregateOutputType | null
+    _sum: SyncedPatternRevisionSumAggregateOutputType | null
+    _min: SyncedPatternRevisionMinAggregateOutputType | null
+    _max: SyncedPatternRevisionMaxAggregateOutputType | null
+  }
+
+  export type SyncedPatternRevisionAvgAggregateOutputType = {
+    version: number | null
+  }
+
+  export type SyncedPatternRevisionSumAggregateOutputType = {
+    version: number | null
+  }
+
+  export type SyncedPatternRevisionMinAggregateOutputType = {
+    id: string | null
+    patternId: string | null
+    version: number | null
+    title: string | null
+    description: string | null
+    createdBy: string | null
+    createdAt: Date | null
+  }
+
+  export type SyncedPatternRevisionMaxAggregateOutputType = {
+    id: string | null
+    patternId: string | null
+    version: number | null
+    title: string | null
+    description: string | null
+    createdBy: string | null
+    createdAt: Date | null
+  }
+
+  export type SyncedPatternRevisionCountAggregateOutputType = {
+    id: number
+    patternId: number
+    version: number
+    title: number
+    content: number
+    description: number
+    createdBy: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type SyncedPatternRevisionAvgAggregateInputType = {
+    version?: true
+  }
+
+  export type SyncedPatternRevisionSumAggregateInputType = {
+    version?: true
+  }
+
+  export type SyncedPatternRevisionMinAggregateInputType = {
+    id?: true
+    patternId?: true
+    version?: true
+    title?: true
+    description?: true
+    createdBy?: true
+    createdAt?: true
+  }
+
+  export type SyncedPatternRevisionMaxAggregateInputType = {
+    id?: true
+    patternId?: true
+    version?: true
+    title?: true
+    description?: true
+    createdBy?: true
+    createdAt?: true
+  }
+
+  export type SyncedPatternRevisionCountAggregateInputType = {
+    id?: true
+    patternId?: true
+    version?: true
+    title?: true
+    content?: true
+    description?: true
+    createdBy?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type SyncedPatternRevisionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SyncedPatternRevision to aggregate.
+     */
+    where?: SyncedPatternRevisionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SyncedPatternRevisions to fetch.
+     */
+    orderBy?: SyncedPatternRevisionOrderByWithRelationInput | SyncedPatternRevisionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SyncedPatternRevisionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SyncedPatternRevisions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SyncedPatternRevisions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SyncedPatternRevisions
+    **/
+    _count?: true | SyncedPatternRevisionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: SyncedPatternRevisionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: SyncedPatternRevisionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SyncedPatternRevisionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SyncedPatternRevisionMaxAggregateInputType
+  }
+
+  export type GetSyncedPatternRevisionAggregateType<T extends SyncedPatternRevisionAggregateArgs> = {
+        [P in keyof T & keyof AggregateSyncedPatternRevision]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSyncedPatternRevision[P]>
+      : GetScalarType<T[P], AggregateSyncedPatternRevision[P]>
+  }
+
+
+
+
+  export type SyncedPatternRevisionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SyncedPatternRevisionWhereInput
+    orderBy?: SyncedPatternRevisionOrderByWithAggregationInput | SyncedPatternRevisionOrderByWithAggregationInput[]
+    by: SyncedPatternRevisionScalarFieldEnum[] | SyncedPatternRevisionScalarFieldEnum
+    having?: SyncedPatternRevisionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SyncedPatternRevisionCountAggregateInputType | true
+    _avg?: SyncedPatternRevisionAvgAggregateInputType
+    _sum?: SyncedPatternRevisionSumAggregateInputType
+    _min?: SyncedPatternRevisionMinAggregateInputType
+    _max?: SyncedPatternRevisionMaxAggregateInputType
+  }
+
+  export type SyncedPatternRevisionGroupByOutputType = {
+    id: string
+    patternId: string
+    version: number
+    title: string
+    content: JsonValue
+    description: string | null
+    createdBy: string | null
+    createdAt: Date
+    _count: SyncedPatternRevisionCountAggregateOutputType | null
+    _avg: SyncedPatternRevisionAvgAggregateOutputType | null
+    _sum: SyncedPatternRevisionSumAggregateOutputType | null
+    _min: SyncedPatternRevisionMinAggregateOutputType | null
+    _max: SyncedPatternRevisionMaxAggregateOutputType | null
+  }
+
+  type GetSyncedPatternRevisionGroupByPayload<T extends SyncedPatternRevisionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SyncedPatternRevisionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SyncedPatternRevisionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SyncedPatternRevisionGroupByOutputType[P]>
+            : GetScalarType<T[P], SyncedPatternRevisionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SyncedPatternRevisionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    patternId?: boolean
+    version?: boolean
+    title?: boolean
+    content?: boolean
+    description?: boolean
+    createdBy?: boolean
+    createdAt?: boolean
+    pattern?: boolean | BlockPatternDefaultArgs<ExtArgs>
+    creator?: boolean | SyncedPatternRevision$creatorArgs<ExtArgs>
+  }, ExtArgs["result"]["syncedPatternRevision"]>
+
+  export type SyncedPatternRevisionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    patternId?: boolean
+    version?: boolean
+    title?: boolean
+    content?: boolean
+    description?: boolean
+    createdBy?: boolean
+    createdAt?: boolean
+    pattern?: boolean | BlockPatternDefaultArgs<ExtArgs>
+    creator?: boolean | SyncedPatternRevision$creatorArgs<ExtArgs>
+  }, ExtArgs["result"]["syncedPatternRevision"]>
+
+  export type SyncedPatternRevisionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    patternId?: boolean
+    version?: boolean
+    title?: boolean
+    content?: boolean
+    description?: boolean
+    createdBy?: boolean
+    createdAt?: boolean
+    pattern?: boolean | BlockPatternDefaultArgs<ExtArgs>
+    creator?: boolean | SyncedPatternRevision$creatorArgs<ExtArgs>
+  }, ExtArgs["result"]["syncedPatternRevision"]>
+
+  export type SyncedPatternRevisionSelectScalar = {
+    id?: boolean
+    patternId?: boolean
+    version?: boolean
+    title?: boolean
+    content?: boolean
+    description?: boolean
+    createdBy?: boolean
+    createdAt?: boolean
+  }
+
+  export type SyncedPatternRevisionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "patternId" | "version" | "title" | "content" | "description" | "createdBy" | "createdAt", ExtArgs["result"]["syncedPatternRevision"]>
+  export type SyncedPatternRevisionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    pattern?: boolean | BlockPatternDefaultArgs<ExtArgs>
+    creator?: boolean | SyncedPatternRevision$creatorArgs<ExtArgs>
+  }
+  export type SyncedPatternRevisionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    pattern?: boolean | BlockPatternDefaultArgs<ExtArgs>
+    creator?: boolean | SyncedPatternRevision$creatorArgs<ExtArgs>
+  }
+  export type SyncedPatternRevisionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    pattern?: boolean | BlockPatternDefaultArgs<ExtArgs>
+    creator?: boolean | SyncedPatternRevision$creatorArgs<ExtArgs>
+  }
+
+  export type $SyncedPatternRevisionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SyncedPatternRevision"
+    objects: {
+      pattern: Prisma.$BlockPatternPayload<ExtArgs>
+      creator: Prisma.$UserPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      patternId: string
+      version: number
+      title: string
+      content: Prisma.JsonValue
+      description: string | null
+      createdBy: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["syncedPatternRevision"]>
+    composites: {}
+  }
+
+  type SyncedPatternRevisionGetPayload<S extends boolean | null | undefined | SyncedPatternRevisionDefaultArgs> = $Result.GetResult<Prisma.$SyncedPatternRevisionPayload, S>
+
+  type SyncedPatternRevisionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SyncedPatternRevisionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SyncedPatternRevisionCountAggregateInputType | true
+    }
+
+  export interface SyncedPatternRevisionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SyncedPatternRevision'], meta: { name: 'SyncedPatternRevision' } }
+    /**
+     * Find zero or one SyncedPatternRevision that matches the filter.
+     * @param {SyncedPatternRevisionFindUniqueArgs} args - Arguments to find a SyncedPatternRevision
+     * @example
+     * // Get one SyncedPatternRevision
+     * const syncedPatternRevision = await prisma.syncedPatternRevision.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SyncedPatternRevisionFindUniqueArgs>(args: SelectSubset<T, SyncedPatternRevisionFindUniqueArgs<ExtArgs>>): Prisma__SyncedPatternRevisionClient<$Result.GetResult<Prisma.$SyncedPatternRevisionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SyncedPatternRevision that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SyncedPatternRevisionFindUniqueOrThrowArgs} args - Arguments to find a SyncedPatternRevision
+     * @example
+     * // Get one SyncedPatternRevision
+     * const syncedPatternRevision = await prisma.syncedPatternRevision.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SyncedPatternRevisionFindUniqueOrThrowArgs>(args: SelectSubset<T, SyncedPatternRevisionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SyncedPatternRevisionClient<$Result.GetResult<Prisma.$SyncedPatternRevisionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SyncedPatternRevision that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SyncedPatternRevisionFindFirstArgs} args - Arguments to find a SyncedPatternRevision
+     * @example
+     * // Get one SyncedPatternRevision
+     * const syncedPatternRevision = await prisma.syncedPatternRevision.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SyncedPatternRevisionFindFirstArgs>(args?: SelectSubset<T, SyncedPatternRevisionFindFirstArgs<ExtArgs>>): Prisma__SyncedPatternRevisionClient<$Result.GetResult<Prisma.$SyncedPatternRevisionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SyncedPatternRevision that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SyncedPatternRevisionFindFirstOrThrowArgs} args - Arguments to find a SyncedPatternRevision
+     * @example
+     * // Get one SyncedPatternRevision
+     * const syncedPatternRevision = await prisma.syncedPatternRevision.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SyncedPatternRevisionFindFirstOrThrowArgs>(args?: SelectSubset<T, SyncedPatternRevisionFindFirstOrThrowArgs<ExtArgs>>): Prisma__SyncedPatternRevisionClient<$Result.GetResult<Prisma.$SyncedPatternRevisionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SyncedPatternRevisions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SyncedPatternRevisionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SyncedPatternRevisions
+     * const syncedPatternRevisions = await prisma.syncedPatternRevision.findMany()
+     * 
+     * // Get first 10 SyncedPatternRevisions
+     * const syncedPatternRevisions = await prisma.syncedPatternRevision.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const syncedPatternRevisionWithIdOnly = await prisma.syncedPatternRevision.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SyncedPatternRevisionFindManyArgs>(args?: SelectSubset<T, SyncedPatternRevisionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SyncedPatternRevisionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a SyncedPatternRevision.
+     * @param {SyncedPatternRevisionCreateArgs} args - Arguments to create a SyncedPatternRevision.
+     * @example
+     * // Create one SyncedPatternRevision
+     * const SyncedPatternRevision = await prisma.syncedPatternRevision.create({
+     *   data: {
+     *     // ... data to create a SyncedPatternRevision
+     *   }
+     * })
+     * 
+     */
+    create<T extends SyncedPatternRevisionCreateArgs>(args: SelectSubset<T, SyncedPatternRevisionCreateArgs<ExtArgs>>): Prisma__SyncedPatternRevisionClient<$Result.GetResult<Prisma.$SyncedPatternRevisionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many SyncedPatternRevisions.
+     * @param {SyncedPatternRevisionCreateManyArgs} args - Arguments to create many SyncedPatternRevisions.
+     * @example
+     * // Create many SyncedPatternRevisions
+     * const syncedPatternRevision = await prisma.syncedPatternRevision.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SyncedPatternRevisionCreateManyArgs>(args?: SelectSubset<T, SyncedPatternRevisionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many SyncedPatternRevisions and returns the data saved in the database.
+     * @param {SyncedPatternRevisionCreateManyAndReturnArgs} args - Arguments to create many SyncedPatternRevisions.
+     * @example
+     * // Create many SyncedPatternRevisions
+     * const syncedPatternRevision = await prisma.syncedPatternRevision.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many SyncedPatternRevisions and only return the `id`
+     * const syncedPatternRevisionWithIdOnly = await prisma.syncedPatternRevision.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends SyncedPatternRevisionCreateManyAndReturnArgs>(args?: SelectSubset<T, SyncedPatternRevisionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SyncedPatternRevisionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a SyncedPatternRevision.
+     * @param {SyncedPatternRevisionDeleteArgs} args - Arguments to delete one SyncedPatternRevision.
+     * @example
+     * // Delete one SyncedPatternRevision
+     * const SyncedPatternRevision = await prisma.syncedPatternRevision.delete({
+     *   where: {
+     *     // ... filter to delete one SyncedPatternRevision
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SyncedPatternRevisionDeleteArgs>(args: SelectSubset<T, SyncedPatternRevisionDeleteArgs<ExtArgs>>): Prisma__SyncedPatternRevisionClient<$Result.GetResult<Prisma.$SyncedPatternRevisionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SyncedPatternRevision.
+     * @param {SyncedPatternRevisionUpdateArgs} args - Arguments to update one SyncedPatternRevision.
+     * @example
+     * // Update one SyncedPatternRevision
+     * const syncedPatternRevision = await prisma.syncedPatternRevision.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SyncedPatternRevisionUpdateArgs>(args: SelectSubset<T, SyncedPatternRevisionUpdateArgs<ExtArgs>>): Prisma__SyncedPatternRevisionClient<$Result.GetResult<Prisma.$SyncedPatternRevisionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SyncedPatternRevisions.
+     * @param {SyncedPatternRevisionDeleteManyArgs} args - Arguments to filter SyncedPatternRevisions to delete.
+     * @example
+     * // Delete a few SyncedPatternRevisions
+     * const { count } = await prisma.syncedPatternRevision.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SyncedPatternRevisionDeleteManyArgs>(args?: SelectSubset<T, SyncedPatternRevisionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SyncedPatternRevisions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SyncedPatternRevisionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SyncedPatternRevisions
+     * const syncedPatternRevision = await prisma.syncedPatternRevision.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SyncedPatternRevisionUpdateManyArgs>(args: SelectSubset<T, SyncedPatternRevisionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SyncedPatternRevisions and returns the data updated in the database.
+     * @param {SyncedPatternRevisionUpdateManyAndReturnArgs} args - Arguments to update many SyncedPatternRevisions.
+     * @example
+     * // Update many SyncedPatternRevisions
+     * const syncedPatternRevision = await prisma.syncedPatternRevision.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more SyncedPatternRevisions and only return the `id`
+     * const syncedPatternRevisionWithIdOnly = await prisma.syncedPatternRevision.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends SyncedPatternRevisionUpdateManyAndReturnArgs>(args: SelectSubset<T, SyncedPatternRevisionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SyncedPatternRevisionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one SyncedPatternRevision.
+     * @param {SyncedPatternRevisionUpsertArgs} args - Arguments to update or create a SyncedPatternRevision.
+     * @example
+     * // Update or create a SyncedPatternRevision
+     * const syncedPatternRevision = await prisma.syncedPatternRevision.upsert({
+     *   create: {
+     *     // ... data to create a SyncedPatternRevision
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SyncedPatternRevision we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SyncedPatternRevisionUpsertArgs>(args: SelectSubset<T, SyncedPatternRevisionUpsertArgs<ExtArgs>>): Prisma__SyncedPatternRevisionClient<$Result.GetResult<Prisma.$SyncedPatternRevisionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of SyncedPatternRevisions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SyncedPatternRevisionCountArgs} args - Arguments to filter SyncedPatternRevisions to count.
+     * @example
+     * // Count the number of SyncedPatternRevisions
+     * const count = await prisma.syncedPatternRevision.count({
+     *   where: {
+     *     // ... the filter for the SyncedPatternRevisions we want to count
+     *   }
+     * })
+    **/
+    count<T extends SyncedPatternRevisionCountArgs>(
+      args?: Subset<T, SyncedPatternRevisionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SyncedPatternRevisionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SyncedPatternRevision.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SyncedPatternRevisionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SyncedPatternRevisionAggregateArgs>(args: Subset<T, SyncedPatternRevisionAggregateArgs>): Prisma.PrismaPromise<GetSyncedPatternRevisionAggregateType<T>>
+
+    /**
+     * Group by SyncedPatternRevision.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SyncedPatternRevisionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SyncedPatternRevisionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SyncedPatternRevisionGroupByArgs['orderBy'] }
+        : { orderBy?: SyncedPatternRevisionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SyncedPatternRevisionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSyncedPatternRevisionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SyncedPatternRevision model
+   */
+  readonly fields: SyncedPatternRevisionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SyncedPatternRevision.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SyncedPatternRevisionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    pattern<T extends BlockPatternDefaultArgs<ExtArgs> = {}>(args?: Subset<T, BlockPatternDefaultArgs<ExtArgs>>): Prisma__BlockPatternClient<$Result.GetResult<Prisma.$BlockPatternPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    creator<T extends SyncedPatternRevision$creatorArgs<ExtArgs> = {}>(args?: Subset<T, SyncedPatternRevision$creatorArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SyncedPatternRevision model
+   */
+  interface SyncedPatternRevisionFieldRefs {
+    readonly id: FieldRef<"SyncedPatternRevision", 'String'>
+    readonly patternId: FieldRef<"SyncedPatternRevision", 'String'>
+    readonly version: FieldRef<"SyncedPatternRevision", 'Int'>
+    readonly title: FieldRef<"SyncedPatternRevision", 'String'>
+    readonly content: FieldRef<"SyncedPatternRevision", 'Json'>
+    readonly description: FieldRef<"SyncedPatternRevision", 'String'>
+    readonly createdBy: FieldRef<"SyncedPatternRevision", 'String'>
+    readonly createdAt: FieldRef<"SyncedPatternRevision", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SyncedPatternRevision findUnique
+   */
+  export type SyncedPatternRevisionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SyncedPatternRevision
+     */
+    select?: SyncedPatternRevisionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SyncedPatternRevision
+     */
+    omit?: SyncedPatternRevisionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SyncedPatternRevisionInclude<ExtArgs> | null
+    /**
+     * Filter, which SyncedPatternRevision to fetch.
+     */
+    where: SyncedPatternRevisionWhereUniqueInput
+  }
+
+  /**
+   * SyncedPatternRevision findUniqueOrThrow
+   */
+  export type SyncedPatternRevisionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SyncedPatternRevision
+     */
+    select?: SyncedPatternRevisionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SyncedPatternRevision
+     */
+    omit?: SyncedPatternRevisionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SyncedPatternRevisionInclude<ExtArgs> | null
+    /**
+     * Filter, which SyncedPatternRevision to fetch.
+     */
+    where: SyncedPatternRevisionWhereUniqueInput
+  }
+
+  /**
+   * SyncedPatternRevision findFirst
+   */
+  export type SyncedPatternRevisionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SyncedPatternRevision
+     */
+    select?: SyncedPatternRevisionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SyncedPatternRevision
+     */
+    omit?: SyncedPatternRevisionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SyncedPatternRevisionInclude<ExtArgs> | null
+    /**
+     * Filter, which SyncedPatternRevision to fetch.
+     */
+    where?: SyncedPatternRevisionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SyncedPatternRevisions to fetch.
+     */
+    orderBy?: SyncedPatternRevisionOrderByWithRelationInput | SyncedPatternRevisionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SyncedPatternRevisions.
+     */
+    cursor?: SyncedPatternRevisionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SyncedPatternRevisions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SyncedPatternRevisions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SyncedPatternRevisions.
+     */
+    distinct?: SyncedPatternRevisionScalarFieldEnum | SyncedPatternRevisionScalarFieldEnum[]
+  }
+
+  /**
+   * SyncedPatternRevision findFirstOrThrow
+   */
+  export type SyncedPatternRevisionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SyncedPatternRevision
+     */
+    select?: SyncedPatternRevisionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SyncedPatternRevision
+     */
+    omit?: SyncedPatternRevisionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SyncedPatternRevisionInclude<ExtArgs> | null
+    /**
+     * Filter, which SyncedPatternRevision to fetch.
+     */
+    where?: SyncedPatternRevisionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SyncedPatternRevisions to fetch.
+     */
+    orderBy?: SyncedPatternRevisionOrderByWithRelationInput | SyncedPatternRevisionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SyncedPatternRevisions.
+     */
+    cursor?: SyncedPatternRevisionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SyncedPatternRevisions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SyncedPatternRevisions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SyncedPatternRevisions.
+     */
+    distinct?: SyncedPatternRevisionScalarFieldEnum | SyncedPatternRevisionScalarFieldEnum[]
+  }
+
+  /**
+   * SyncedPatternRevision findMany
+   */
+  export type SyncedPatternRevisionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SyncedPatternRevision
+     */
+    select?: SyncedPatternRevisionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SyncedPatternRevision
+     */
+    omit?: SyncedPatternRevisionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SyncedPatternRevisionInclude<ExtArgs> | null
+    /**
+     * Filter, which SyncedPatternRevisions to fetch.
+     */
+    where?: SyncedPatternRevisionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SyncedPatternRevisions to fetch.
+     */
+    orderBy?: SyncedPatternRevisionOrderByWithRelationInput | SyncedPatternRevisionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SyncedPatternRevisions.
+     */
+    cursor?: SyncedPatternRevisionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SyncedPatternRevisions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SyncedPatternRevisions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SyncedPatternRevisions.
+     */
+    distinct?: SyncedPatternRevisionScalarFieldEnum | SyncedPatternRevisionScalarFieldEnum[]
+  }
+
+  /**
+   * SyncedPatternRevision create
+   */
+  export type SyncedPatternRevisionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SyncedPatternRevision
+     */
+    select?: SyncedPatternRevisionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SyncedPatternRevision
+     */
+    omit?: SyncedPatternRevisionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SyncedPatternRevisionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a SyncedPatternRevision.
+     */
+    data: XOR<SyncedPatternRevisionCreateInput, SyncedPatternRevisionUncheckedCreateInput>
+  }
+
+  /**
+   * SyncedPatternRevision createMany
+   */
+  export type SyncedPatternRevisionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SyncedPatternRevisions.
+     */
+    data: SyncedPatternRevisionCreateManyInput | SyncedPatternRevisionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SyncedPatternRevision createManyAndReturn
+   */
+  export type SyncedPatternRevisionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SyncedPatternRevision
+     */
+    select?: SyncedPatternRevisionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SyncedPatternRevision
+     */
+    omit?: SyncedPatternRevisionOmit<ExtArgs> | null
+    /**
+     * The data used to create many SyncedPatternRevisions.
+     */
+    data: SyncedPatternRevisionCreateManyInput | SyncedPatternRevisionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SyncedPatternRevisionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * SyncedPatternRevision update
+   */
+  export type SyncedPatternRevisionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SyncedPatternRevision
+     */
+    select?: SyncedPatternRevisionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SyncedPatternRevision
+     */
+    omit?: SyncedPatternRevisionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SyncedPatternRevisionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a SyncedPatternRevision.
+     */
+    data: XOR<SyncedPatternRevisionUpdateInput, SyncedPatternRevisionUncheckedUpdateInput>
+    /**
+     * Choose, which SyncedPatternRevision to update.
+     */
+    where: SyncedPatternRevisionWhereUniqueInput
+  }
+
+  /**
+   * SyncedPatternRevision updateMany
+   */
+  export type SyncedPatternRevisionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SyncedPatternRevisions.
+     */
+    data: XOR<SyncedPatternRevisionUpdateManyMutationInput, SyncedPatternRevisionUncheckedUpdateManyInput>
+    /**
+     * Filter which SyncedPatternRevisions to update
+     */
+    where?: SyncedPatternRevisionWhereInput
+    /**
+     * Limit how many SyncedPatternRevisions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SyncedPatternRevision updateManyAndReturn
+   */
+  export type SyncedPatternRevisionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SyncedPatternRevision
+     */
+    select?: SyncedPatternRevisionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SyncedPatternRevision
+     */
+    omit?: SyncedPatternRevisionOmit<ExtArgs> | null
+    /**
+     * The data used to update SyncedPatternRevisions.
+     */
+    data: XOR<SyncedPatternRevisionUpdateManyMutationInput, SyncedPatternRevisionUncheckedUpdateManyInput>
+    /**
+     * Filter which SyncedPatternRevisions to update
+     */
+    where?: SyncedPatternRevisionWhereInput
+    /**
+     * Limit how many SyncedPatternRevisions to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SyncedPatternRevisionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * SyncedPatternRevision upsert
+   */
+  export type SyncedPatternRevisionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SyncedPatternRevision
+     */
+    select?: SyncedPatternRevisionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SyncedPatternRevision
+     */
+    omit?: SyncedPatternRevisionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SyncedPatternRevisionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the SyncedPatternRevision to update in case it exists.
+     */
+    where: SyncedPatternRevisionWhereUniqueInput
+    /**
+     * In case the SyncedPatternRevision found by the `where` argument doesn't exist, create a new SyncedPatternRevision with this data.
+     */
+    create: XOR<SyncedPatternRevisionCreateInput, SyncedPatternRevisionUncheckedCreateInput>
+    /**
+     * In case the SyncedPatternRevision was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SyncedPatternRevisionUpdateInput, SyncedPatternRevisionUncheckedUpdateInput>
+  }
+
+  /**
+   * SyncedPatternRevision delete
+   */
+  export type SyncedPatternRevisionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SyncedPatternRevision
+     */
+    select?: SyncedPatternRevisionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SyncedPatternRevision
+     */
+    omit?: SyncedPatternRevisionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SyncedPatternRevisionInclude<ExtArgs> | null
+    /**
+     * Filter which SyncedPatternRevision to delete.
+     */
+    where: SyncedPatternRevisionWhereUniqueInput
+  }
+
+  /**
+   * SyncedPatternRevision deleteMany
+   */
+  export type SyncedPatternRevisionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SyncedPatternRevisions to delete
+     */
+    where?: SyncedPatternRevisionWhereInput
+    /**
+     * Limit how many SyncedPatternRevisions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * SyncedPatternRevision.creator
+   */
+  export type SyncedPatternRevision$creatorArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * SyncedPatternRevision without action
+   */
+  export type SyncedPatternRevisionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SyncedPatternRevision
+     */
+    select?: SyncedPatternRevisionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SyncedPatternRevision
+     */
+    omit?: SyncedPatternRevisionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SyncedPatternRevisionInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model BlockTemplate
+   */
+
+  export type AggregateBlockTemplate = {
+    _count: BlockTemplateCountAggregateOutputType | null
+    _avg: BlockTemplateAvgAggregateOutputType | null
+    _sum: BlockTemplateSumAggregateOutputType | null
+    _min: BlockTemplateMinAggregateOutputType | null
+    _max: BlockTemplateMaxAggregateOutputType | null
+  }
+
+  export type BlockTemplateAvgAggregateOutputType = {
+    version: number | null
+  }
+
+  export type BlockTemplateSumAggregateOutputType = {
+    version: number | null
+  }
+
+  export type BlockTemplateMinAggregateOutputType = {
+    id: string | null
+    slug: string | null
+    title: string | null
+    description: string | null
+    type: string | null
+    templateLock: string | null
+    isDefault: boolean | null
+    workspaceId: string | null
+    organizationId: string | null
+    userId: string | null
+    version: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type BlockTemplateMaxAggregateOutputType = {
+    id: string | null
+    slug: string | null
+    title: string | null
+    description: string | null
+    type: string | null
+    templateLock: string | null
+    isDefault: boolean | null
+    workspaceId: string | null
+    organizationId: string | null
+    userId: string | null
+    version: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type BlockTemplateCountAggregateOutputType = {
+    id: number
+    slug: number
+    title: number
+    description: number
+    type: number
+    content: number
+    templateLock: number
+    isDefault: number
+    assignedPageIds: number
+    workspaceId: number
+    organizationId: number
+    userId: number
+    version: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type BlockTemplateAvgAggregateInputType = {
+    version?: true
+  }
+
+  export type BlockTemplateSumAggregateInputType = {
+    version?: true
+  }
+
+  export type BlockTemplateMinAggregateInputType = {
+    id?: true
+    slug?: true
+    title?: true
+    description?: true
+    type?: true
+    templateLock?: true
+    isDefault?: true
+    workspaceId?: true
+    organizationId?: true
+    userId?: true
+    version?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type BlockTemplateMaxAggregateInputType = {
+    id?: true
+    slug?: true
+    title?: true
+    description?: true
+    type?: true
+    templateLock?: true
+    isDefault?: true
+    workspaceId?: true
+    organizationId?: true
+    userId?: true
+    version?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type BlockTemplateCountAggregateInputType = {
+    id?: true
+    slug?: true
+    title?: true
+    description?: true
+    type?: true
+    content?: true
+    templateLock?: true
+    isDefault?: true
+    assignedPageIds?: true
+    workspaceId?: true
+    organizationId?: true
+    userId?: true
+    version?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type BlockTemplateAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BlockTemplate to aggregate.
+     */
+    where?: BlockTemplateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BlockTemplates to fetch.
+     */
+    orderBy?: BlockTemplateOrderByWithRelationInput | BlockTemplateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: BlockTemplateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BlockTemplates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BlockTemplates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned BlockTemplates
+    **/
+    _count?: true | BlockTemplateCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: BlockTemplateAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: BlockTemplateSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: BlockTemplateMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: BlockTemplateMaxAggregateInputType
+  }
+
+  export type GetBlockTemplateAggregateType<T extends BlockTemplateAggregateArgs> = {
+        [P in keyof T & keyof AggregateBlockTemplate]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateBlockTemplate[P]>
+      : GetScalarType<T[P], AggregateBlockTemplate[P]>
+  }
+
+
+
+
+  export type BlockTemplateGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BlockTemplateWhereInput
+    orderBy?: BlockTemplateOrderByWithAggregationInput | BlockTemplateOrderByWithAggregationInput[]
+    by: BlockTemplateScalarFieldEnum[] | BlockTemplateScalarFieldEnum
+    having?: BlockTemplateScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: BlockTemplateCountAggregateInputType | true
+    _avg?: BlockTemplateAvgAggregateInputType
+    _sum?: BlockTemplateSumAggregateInputType
+    _min?: BlockTemplateMinAggregateInputType
+    _max?: BlockTemplateMaxAggregateInputType
+  }
+
+  export type BlockTemplateGroupByOutputType = {
+    id: string
+    slug: string
+    title: string
+    description: string | null
+    type: string
+    content: JsonValue
+    templateLock: string | null
+    isDefault: boolean
+    assignedPageIds: string[]
+    workspaceId: string | null
+    organizationId: string | null
+    userId: string
+    version: number
+    createdAt: Date
+    updatedAt: Date
+    _count: BlockTemplateCountAggregateOutputType | null
+    _avg: BlockTemplateAvgAggregateOutputType | null
+    _sum: BlockTemplateSumAggregateOutputType | null
+    _min: BlockTemplateMinAggregateOutputType | null
+    _max: BlockTemplateMaxAggregateOutputType | null
+  }
+
+  type GetBlockTemplateGroupByPayload<T extends BlockTemplateGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<BlockTemplateGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof BlockTemplateGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], BlockTemplateGroupByOutputType[P]>
+            : GetScalarType<T[P], BlockTemplateGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type BlockTemplateSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    slug?: boolean
+    title?: boolean
+    description?: boolean
+    type?: boolean
+    content?: boolean
+    templateLock?: boolean
+    isDefault?: boolean
+    assignedPageIds?: boolean
+    workspaceId?: boolean
+    organizationId?: boolean
+    userId?: boolean
+    version?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    workspace?: boolean | BlockTemplate$workspaceArgs<ExtArgs>
+    organization?: boolean | BlockTemplate$organizationArgs<ExtArgs>
+  }, ExtArgs["result"]["blockTemplate"]>
+
+  export type BlockTemplateSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    slug?: boolean
+    title?: boolean
+    description?: boolean
+    type?: boolean
+    content?: boolean
+    templateLock?: boolean
+    isDefault?: boolean
+    assignedPageIds?: boolean
+    workspaceId?: boolean
+    organizationId?: boolean
+    userId?: boolean
+    version?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    workspace?: boolean | BlockTemplate$workspaceArgs<ExtArgs>
+    organization?: boolean | BlockTemplate$organizationArgs<ExtArgs>
+  }, ExtArgs["result"]["blockTemplate"]>
+
+  export type BlockTemplateSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    slug?: boolean
+    title?: boolean
+    description?: boolean
+    type?: boolean
+    content?: boolean
+    templateLock?: boolean
+    isDefault?: boolean
+    assignedPageIds?: boolean
+    workspaceId?: boolean
+    organizationId?: boolean
+    userId?: boolean
+    version?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    workspace?: boolean | BlockTemplate$workspaceArgs<ExtArgs>
+    organization?: boolean | BlockTemplate$organizationArgs<ExtArgs>
+  }, ExtArgs["result"]["blockTemplate"]>
+
+  export type BlockTemplateSelectScalar = {
+    id?: boolean
+    slug?: boolean
+    title?: boolean
+    description?: boolean
+    type?: boolean
+    content?: boolean
+    templateLock?: boolean
+    isDefault?: boolean
+    assignedPageIds?: boolean
+    workspaceId?: boolean
+    organizationId?: boolean
+    userId?: boolean
+    version?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type BlockTemplateOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "slug" | "title" | "description" | "type" | "content" | "templateLock" | "isDefault" | "assignedPageIds" | "workspaceId" | "organizationId" | "userId" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["blockTemplate"]>
+  export type BlockTemplateInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    workspace?: boolean | BlockTemplate$workspaceArgs<ExtArgs>
+    organization?: boolean | BlockTemplate$organizationArgs<ExtArgs>
+  }
+  export type BlockTemplateIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    workspace?: boolean | BlockTemplate$workspaceArgs<ExtArgs>
+    organization?: boolean | BlockTemplate$organizationArgs<ExtArgs>
+  }
+  export type BlockTemplateIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    workspace?: boolean | BlockTemplate$workspaceArgs<ExtArgs>
+    organization?: boolean | BlockTemplate$organizationArgs<ExtArgs>
+  }
+
+  export type $BlockTemplatePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "BlockTemplate"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+      workspace: Prisma.$WorkspacePayload<ExtArgs> | null
+      organization: Prisma.$OrganizationPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      slug: string
+      title: string
+      description: string | null
+      type: string
+      content: Prisma.JsonValue
+      templateLock: string | null
+      isDefault: boolean
+      assignedPageIds: string[]
+      workspaceId: string | null
+      organizationId: string | null
+      userId: string
+      version: number
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["blockTemplate"]>
+    composites: {}
+  }
+
+  type BlockTemplateGetPayload<S extends boolean | null | undefined | BlockTemplateDefaultArgs> = $Result.GetResult<Prisma.$BlockTemplatePayload, S>
+
+  type BlockTemplateCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<BlockTemplateFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: BlockTemplateCountAggregateInputType | true
+    }
+
+  export interface BlockTemplateDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['BlockTemplate'], meta: { name: 'BlockTemplate' } }
+    /**
+     * Find zero or one BlockTemplate that matches the filter.
+     * @param {BlockTemplateFindUniqueArgs} args - Arguments to find a BlockTemplate
+     * @example
+     * // Get one BlockTemplate
+     * const blockTemplate = await prisma.blockTemplate.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends BlockTemplateFindUniqueArgs>(args: SelectSubset<T, BlockTemplateFindUniqueArgs<ExtArgs>>): Prisma__BlockTemplateClient<$Result.GetResult<Prisma.$BlockTemplatePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one BlockTemplate that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {BlockTemplateFindUniqueOrThrowArgs} args - Arguments to find a BlockTemplate
+     * @example
+     * // Get one BlockTemplate
+     * const blockTemplate = await prisma.blockTemplate.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends BlockTemplateFindUniqueOrThrowArgs>(args: SelectSubset<T, BlockTemplateFindUniqueOrThrowArgs<ExtArgs>>): Prisma__BlockTemplateClient<$Result.GetResult<Prisma.$BlockTemplatePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BlockTemplate that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BlockTemplateFindFirstArgs} args - Arguments to find a BlockTemplate
+     * @example
+     * // Get one BlockTemplate
+     * const blockTemplate = await prisma.blockTemplate.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends BlockTemplateFindFirstArgs>(args?: SelectSubset<T, BlockTemplateFindFirstArgs<ExtArgs>>): Prisma__BlockTemplateClient<$Result.GetResult<Prisma.$BlockTemplatePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BlockTemplate that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BlockTemplateFindFirstOrThrowArgs} args - Arguments to find a BlockTemplate
+     * @example
+     * // Get one BlockTemplate
+     * const blockTemplate = await prisma.blockTemplate.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends BlockTemplateFindFirstOrThrowArgs>(args?: SelectSubset<T, BlockTemplateFindFirstOrThrowArgs<ExtArgs>>): Prisma__BlockTemplateClient<$Result.GetResult<Prisma.$BlockTemplatePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more BlockTemplates that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BlockTemplateFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all BlockTemplates
+     * const blockTemplates = await prisma.blockTemplate.findMany()
+     * 
+     * // Get first 10 BlockTemplates
+     * const blockTemplates = await prisma.blockTemplate.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const blockTemplateWithIdOnly = await prisma.blockTemplate.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends BlockTemplateFindManyArgs>(args?: SelectSubset<T, BlockTemplateFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BlockTemplatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a BlockTemplate.
+     * @param {BlockTemplateCreateArgs} args - Arguments to create a BlockTemplate.
+     * @example
+     * // Create one BlockTemplate
+     * const BlockTemplate = await prisma.blockTemplate.create({
+     *   data: {
+     *     // ... data to create a BlockTemplate
+     *   }
+     * })
+     * 
+     */
+    create<T extends BlockTemplateCreateArgs>(args: SelectSubset<T, BlockTemplateCreateArgs<ExtArgs>>): Prisma__BlockTemplateClient<$Result.GetResult<Prisma.$BlockTemplatePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many BlockTemplates.
+     * @param {BlockTemplateCreateManyArgs} args - Arguments to create many BlockTemplates.
+     * @example
+     * // Create many BlockTemplates
+     * const blockTemplate = await prisma.blockTemplate.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends BlockTemplateCreateManyArgs>(args?: SelectSubset<T, BlockTemplateCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many BlockTemplates and returns the data saved in the database.
+     * @param {BlockTemplateCreateManyAndReturnArgs} args - Arguments to create many BlockTemplates.
+     * @example
+     * // Create many BlockTemplates
+     * const blockTemplate = await prisma.blockTemplate.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many BlockTemplates and only return the `id`
+     * const blockTemplateWithIdOnly = await prisma.blockTemplate.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends BlockTemplateCreateManyAndReturnArgs>(args?: SelectSubset<T, BlockTemplateCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BlockTemplatePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a BlockTemplate.
+     * @param {BlockTemplateDeleteArgs} args - Arguments to delete one BlockTemplate.
+     * @example
+     * // Delete one BlockTemplate
+     * const BlockTemplate = await prisma.blockTemplate.delete({
+     *   where: {
+     *     // ... filter to delete one BlockTemplate
+     *   }
+     * })
+     * 
+     */
+    delete<T extends BlockTemplateDeleteArgs>(args: SelectSubset<T, BlockTemplateDeleteArgs<ExtArgs>>): Prisma__BlockTemplateClient<$Result.GetResult<Prisma.$BlockTemplatePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one BlockTemplate.
+     * @param {BlockTemplateUpdateArgs} args - Arguments to update one BlockTemplate.
+     * @example
+     * // Update one BlockTemplate
+     * const blockTemplate = await prisma.blockTemplate.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends BlockTemplateUpdateArgs>(args: SelectSubset<T, BlockTemplateUpdateArgs<ExtArgs>>): Prisma__BlockTemplateClient<$Result.GetResult<Prisma.$BlockTemplatePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more BlockTemplates.
+     * @param {BlockTemplateDeleteManyArgs} args - Arguments to filter BlockTemplates to delete.
+     * @example
+     * // Delete a few BlockTemplates
+     * const { count } = await prisma.blockTemplate.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends BlockTemplateDeleteManyArgs>(args?: SelectSubset<T, BlockTemplateDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BlockTemplates.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BlockTemplateUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many BlockTemplates
+     * const blockTemplate = await prisma.blockTemplate.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends BlockTemplateUpdateManyArgs>(args: SelectSubset<T, BlockTemplateUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BlockTemplates and returns the data updated in the database.
+     * @param {BlockTemplateUpdateManyAndReturnArgs} args - Arguments to update many BlockTemplates.
+     * @example
+     * // Update many BlockTemplates
+     * const blockTemplate = await prisma.blockTemplate.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more BlockTemplates and only return the `id`
+     * const blockTemplateWithIdOnly = await prisma.blockTemplate.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends BlockTemplateUpdateManyAndReturnArgs>(args: SelectSubset<T, BlockTemplateUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BlockTemplatePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one BlockTemplate.
+     * @param {BlockTemplateUpsertArgs} args - Arguments to update or create a BlockTemplate.
+     * @example
+     * // Update or create a BlockTemplate
+     * const blockTemplate = await prisma.blockTemplate.upsert({
+     *   create: {
+     *     // ... data to create a BlockTemplate
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the BlockTemplate we want to update
+     *   }
+     * })
+     */
+    upsert<T extends BlockTemplateUpsertArgs>(args: SelectSubset<T, BlockTemplateUpsertArgs<ExtArgs>>): Prisma__BlockTemplateClient<$Result.GetResult<Prisma.$BlockTemplatePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of BlockTemplates.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BlockTemplateCountArgs} args - Arguments to filter BlockTemplates to count.
+     * @example
+     * // Count the number of BlockTemplates
+     * const count = await prisma.blockTemplate.count({
+     *   where: {
+     *     // ... the filter for the BlockTemplates we want to count
+     *   }
+     * })
+    **/
+    count<T extends BlockTemplateCountArgs>(
+      args?: Subset<T, BlockTemplateCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], BlockTemplateCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a BlockTemplate.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BlockTemplateAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends BlockTemplateAggregateArgs>(args: Subset<T, BlockTemplateAggregateArgs>): Prisma.PrismaPromise<GetBlockTemplateAggregateType<T>>
+
+    /**
+     * Group by BlockTemplate.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BlockTemplateGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends BlockTemplateGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: BlockTemplateGroupByArgs['orderBy'] }
+        : { orderBy?: BlockTemplateGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, BlockTemplateGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetBlockTemplateGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the BlockTemplate model
+   */
+  readonly fields: BlockTemplateFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for BlockTemplate.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__BlockTemplateClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    workspace<T extends BlockTemplate$workspaceArgs<ExtArgs> = {}>(args?: Subset<T, BlockTemplate$workspaceArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    organization<T extends BlockTemplate$organizationArgs<ExtArgs> = {}>(args?: Subset<T, BlockTemplate$organizationArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the BlockTemplate model
+   */
+  interface BlockTemplateFieldRefs {
+    readonly id: FieldRef<"BlockTemplate", 'String'>
+    readonly slug: FieldRef<"BlockTemplate", 'String'>
+    readonly title: FieldRef<"BlockTemplate", 'String'>
+    readonly description: FieldRef<"BlockTemplate", 'String'>
+    readonly type: FieldRef<"BlockTemplate", 'String'>
+    readonly content: FieldRef<"BlockTemplate", 'Json'>
+    readonly templateLock: FieldRef<"BlockTemplate", 'String'>
+    readonly isDefault: FieldRef<"BlockTemplate", 'Boolean'>
+    readonly assignedPageIds: FieldRef<"BlockTemplate", 'String[]'>
+    readonly workspaceId: FieldRef<"BlockTemplate", 'String'>
+    readonly organizationId: FieldRef<"BlockTemplate", 'String'>
+    readonly userId: FieldRef<"BlockTemplate", 'String'>
+    readonly version: FieldRef<"BlockTemplate", 'Int'>
+    readonly createdAt: FieldRef<"BlockTemplate", 'DateTime'>
+    readonly updatedAt: FieldRef<"BlockTemplate", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * BlockTemplate findUnique
+   */
+  export type BlockTemplateFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BlockTemplate
+     */
+    select?: BlockTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BlockTemplate
+     */
+    omit?: BlockTemplateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlockTemplateInclude<ExtArgs> | null
+    /**
+     * Filter, which BlockTemplate to fetch.
+     */
+    where: BlockTemplateWhereUniqueInput
+  }
+
+  /**
+   * BlockTemplate findUniqueOrThrow
+   */
+  export type BlockTemplateFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BlockTemplate
+     */
+    select?: BlockTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BlockTemplate
+     */
+    omit?: BlockTemplateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlockTemplateInclude<ExtArgs> | null
+    /**
+     * Filter, which BlockTemplate to fetch.
+     */
+    where: BlockTemplateWhereUniqueInput
+  }
+
+  /**
+   * BlockTemplate findFirst
+   */
+  export type BlockTemplateFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BlockTemplate
+     */
+    select?: BlockTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BlockTemplate
+     */
+    omit?: BlockTemplateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlockTemplateInclude<ExtArgs> | null
+    /**
+     * Filter, which BlockTemplate to fetch.
+     */
+    where?: BlockTemplateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BlockTemplates to fetch.
+     */
+    orderBy?: BlockTemplateOrderByWithRelationInput | BlockTemplateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BlockTemplates.
+     */
+    cursor?: BlockTemplateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BlockTemplates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BlockTemplates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BlockTemplates.
+     */
+    distinct?: BlockTemplateScalarFieldEnum | BlockTemplateScalarFieldEnum[]
+  }
+
+  /**
+   * BlockTemplate findFirstOrThrow
+   */
+  export type BlockTemplateFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BlockTemplate
+     */
+    select?: BlockTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BlockTemplate
+     */
+    omit?: BlockTemplateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlockTemplateInclude<ExtArgs> | null
+    /**
+     * Filter, which BlockTemplate to fetch.
+     */
+    where?: BlockTemplateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BlockTemplates to fetch.
+     */
+    orderBy?: BlockTemplateOrderByWithRelationInput | BlockTemplateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BlockTemplates.
+     */
+    cursor?: BlockTemplateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BlockTemplates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BlockTemplates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BlockTemplates.
+     */
+    distinct?: BlockTemplateScalarFieldEnum | BlockTemplateScalarFieldEnum[]
+  }
+
+  /**
+   * BlockTemplate findMany
+   */
+  export type BlockTemplateFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BlockTemplate
+     */
+    select?: BlockTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BlockTemplate
+     */
+    omit?: BlockTemplateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlockTemplateInclude<ExtArgs> | null
+    /**
+     * Filter, which BlockTemplates to fetch.
+     */
+    where?: BlockTemplateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BlockTemplates to fetch.
+     */
+    orderBy?: BlockTemplateOrderByWithRelationInput | BlockTemplateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing BlockTemplates.
+     */
+    cursor?: BlockTemplateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BlockTemplates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BlockTemplates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BlockTemplates.
+     */
+    distinct?: BlockTemplateScalarFieldEnum | BlockTemplateScalarFieldEnum[]
+  }
+
+  /**
+   * BlockTemplate create
+   */
+  export type BlockTemplateCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BlockTemplate
+     */
+    select?: BlockTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BlockTemplate
+     */
+    omit?: BlockTemplateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlockTemplateInclude<ExtArgs> | null
+    /**
+     * The data needed to create a BlockTemplate.
+     */
+    data: XOR<BlockTemplateCreateInput, BlockTemplateUncheckedCreateInput>
+  }
+
+  /**
+   * BlockTemplate createMany
+   */
+  export type BlockTemplateCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many BlockTemplates.
+     */
+    data: BlockTemplateCreateManyInput | BlockTemplateCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * BlockTemplate createManyAndReturn
+   */
+  export type BlockTemplateCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BlockTemplate
+     */
+    select?: BlockTemplateSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BlockTemplate
+     */
+    omit?: BlockTemplateOmit<ExtArgs> | null
+    /**
+     * The data used to create many BlockTemplates.
+     */
+    data: BlockTemplateCreateManyInput | BlockTemplateCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlockTemplateIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * BlockTemplate update
+   */
+  export type BlockTemplateUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BlockTemplate
+     */
+    select?: BlockTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BlockTemplate
+     */
+    omit?: BlockTemplateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlockTemplateInclude<ExtArgs> | null
+    /**
+     * The data needed to update a BlockTemplate.
+     */
+    data: XOR<BlockTemplateUpdateInput, BlockTemplateUncheckedUpdateInput>
+    /**
+     * Choose, which BlockTemplate to update.
+     */
+    where: BlockTemplateWhereUniqueInput
+  }
+
+  /**
+   * BlockTemplate updateMany
+   */
+  export type BlockTemplateUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update BlockTemplates.
+     */
+    data: XOR<BlockTemplateUpdateManyMutationInput, BlockTemplateUncheckedUpdateManyInput>
+    /**
+     * Filter which BlockTemplates to update
+     */
+    where?: BlockTemplateWhereInput
+    /**
+     * Limit how many BlockTemplates to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * BlockTemplate updateManyAndReturn
+   */
+  export type BlockTemplateUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BlockTemplate
+     */
+    select?: BlockTemplateSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BlockTemplate
+     */
+    omit?: BlockTemplateOmit<ExtArgs> | null
+    /**
+     * The data used to update BlockTemplates.
+     */
+    data: XOR<BlockTemplateUpdateManyMutationInput, BlockTemplateUncheckedUpdateManyInput>
+    /**
+     * Filter which BlockTemplates to update
+     */
+    where?: BlockTemplateWhereInput
+    /**
+     * Limit how many BlockTemplates to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlockTemplateIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * BlockTemplate upsert
+   */
+  export type BlockTemplateUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BlockTemplate
+     */
+    select?: BlockTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BlockTemplate
+     */
+    omit?: BlockTemplateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlockTemplateInclude<ExtArgs> | null
+    /**
+     * The filter to search for the BlockTemplate to update in case it exists.
+     */
+    where: BlockTemplateWhereUniqueInput
+    /**
+     * In case the BlockTemplate found by the `where` argument doesn't exist, create a new BlockTemplate with this data.
+     */
+    create: XOR<BlockTemplateCreateInput, BlockTemplateUncheckedCreateInput>
+    /**
+     * In case the BlockTemplate was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<BlockTemplateUpdateInput, BlockTemplateUncheckedUpdateInput>
+  }
+
+  /**
+   * BlockTemplate delete
+   */
+  export type BlockTemplateDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BlockTemplate
+     */
+    select?: BlockTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BlockTemplate
+     */
+    omit?: BlockTemplateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlockTemplateInclude<ExtArgs> | null
+    /**
+     * Filter which BlockTemplate to delete.
+     */
+    where: BlockTemplateWhereUniqueInput
+  }
+
+  /**
+   * BlockTemplate deleteMany
+   */
+  export type BlockTemplateDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BlockTemplates to delete
+     */
+    where?: BlockTemplateWhereInput
+    /**
+     * Limit how many BlockTemplates to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * BlockTemplate.workspace
+   */
+  export type BlockTemplate$workspaceArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Workspace
+     */
+    select?: WorkspaceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Workspace
+     */
+    omit?: WorkspaceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceInclude<ExtArgs> | null
+    where?: WorkspaceWhereInput
+  }
+
+  /**
+   * BlockTemplate.organization
+   */
+  export type BlockTemplate$organizationArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Organization
+     */
+    select?: OrganizationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Organization
+     */
+    omit?: OrganizationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationInclude<ExtArgs> | null
+    where?: OrganizationWhereInput
+  }
+
+  /**
+   * BlockTemplate without action
+   */
+  export type BlockTemplateDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BlockTemplate
+     */
+    select?: BlockTemplateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BlockTemplate
+     */
+    omit?: BlockTemplateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlockTemplateInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model TemplatePart
+   */
+
+  export type AggregateTemplatePart = {
+    _count: TemplatePartCountAggregateOutputType | null
+    _avg: TemplatePartAvgAggregateOutputType | null
+    _sum: TemplatePartSumAggregateOutputType | null
+    _min: TemplatePartMinAggregateOutputType | null
+    _max: TemplatePartMaxAggregateOutputType | null
+  }
+
+  export type TemplatePartAvgAggregateOutputType = {
+    version: number | null
+  }
+
+  export type TemplatePartSumAggregateOutputType = {
+    version: number | null
+  }
+
+  export type TemplatePartMinAggregateOutputType = {
+    id: string | null
+    slug: string | null
+    title: string | null
+    area: string | null
+    workspaceId: string | null
+    organizationId: string | null
+    userId: string | null
+    version: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type TemplatePartMaxAggregateOutputType = {
+    id: string | null
+    slug: string | null
+    title: string | null
+    area: string | null
+    workspaceId: string | null
+    organizationId: string | null
+    userId: string | null
+    version: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type TemplatePartCountAggregateOutputType = {
+    id: number
+    slug: number
+    title: number
+    area: number
+    content: number
+    workspaceId: number
+    organizationId: number
+    userId: number
+    version: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type TemplatePartAvgAggregateInputType = {
+    version?: true
+  }
+
+  export type TemplatePartSumAggregateInputType = {
+    version?: true
+  }
+
+  export type TemplatePartMinAggregateInputType = {
+    id?: true
+    slug?: true
+    title?: true
+    area?: true
+    workspaceId?: true
+    organizationId?: true
+    userId?: true
+    version?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type TemplatePartMaxAggregateInputType = {
+    id?: true
+    slug?: true
+    title?: true
+    area?: true
+    workspaceId?: true
+    organizationId?: true
+    userId?: true
+    version?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type TemplatePartCountAggregateInputType = {
+    id?: true
+    slug?: true
+    title?: true
+    area?: true
+    content?: true
+    workspaceId?: true
+    organizationId?: true
+    userId?: true
+    version?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type TemplatePartAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TemplatePart to aggregate.
+     */
+    where?: TemplatePartWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TemplateParts to fetch.
+     */
+    orderBy?: TemplatePartOrderByWithRelationInput | TemplatePartOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TemplatePartWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TemplateParts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TemplateParts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TemplateParts
+    **/
+    _count?: true | TemplatePartCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: TemplatePartAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TemplatePartSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TemplatePartMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TemplatePartMaxAggregateInputType
+  }
+
+  export type GetTemplatePartAggregateType<T extends TemplatePartAggregateArgs> = {
+        [P in keyof T & keyof AggregateTemplatePart]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTemplatePart[P]>
+      : GetScalarType<T[P], AggregateTemplatePart[P]>
+  }
+
+
+
+
+  export type TemplatePartGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TemplatePartWhereInput
+    orderBy?: TemplatePartOrderByWithAggregationInput | TemplatePartOrderByWithAggregationInput[]
+    by: TemplatePartScalarFieldEnum[] | TemplatePartScalarFieldEnum
+    having?: TemplatePartScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TemplatePartCountAggregateInputType | true
+    _avg?: TemplatePartAvgAggregateInputType
+    _sum?: TemplatePartSumAggregateInputType
+    _min?: TemplatePartMinAggregateInputType
+    _max?: TemplatePartMaxAggregateInputType
+  }
+
+  export type TemplatePartGroupByOutputType = {
+    id: string
+    slug: string
+    title: string
+    area: string
+    content: JsonValue
+    workspaceId: string | null
+    organizationId: string | null
+    userId: string
+    version: number
+    createdAt: Date
+    updatedAt: Date
+    _count: TemplatePartCountAggregateOutputType | null
+    _avg: TemplatePartAvgAggregateOutputType | null
+    _sum: TemplatePartSumAggregateOutputType | null
+    _min: TemplatePartMinAggregateOutputType | null
+    _max: TemplatePartMaxAggregateOutputType | null
+  }
+
+  type GetTemplatePartGroupByPayload<T extends TemplatePartGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TemplatePartGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TemplatePartGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TemplatePartGroupByOutputType[P]>
+            : GetScalarType<T[P], TemplatePartGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TemplatePartSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    slug?: boolean
+    title?: boolean
+    area?: boolean
+    content?: boolean
+    workspaceId?: boolean
+    organizationId?: boolean
+    userId?: boolean
+    version?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    workspace?: boolean | TemplatePart$workspaceArgs<ExtArgs>
+    organization?: boolean | TemplatePart$organizationArgs<ExtArgs>
+  }, ExtArgs["result"]["templatePart"]>
+
+  export type TemplatePartSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    slug?: boolean
+    title?: boolean
+    area?: boolean
+    content?: boolean
+    workspaceId?: boolean
+    organizationId?: boolean
+    userId?: boolean
+    version?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    workspace?: boolean | TemplatePart$workspaceArgs<ExtArgs>
+    organization?: boolean | TemplatePart$organizationArgs<ExtArgs>
+  }, ExtArgs["result"]["templatePart"]>
+
+  export type TemplatePartSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    slug?: boolean
+    title?: boolean
+    area?: boolean
+    content?: boolean
+    workspaceId?: boolean
+    organizationId?: boolean
+    userId?: boolean
+    version?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    workspace?: boolean | TemplatePart$workspaceArgs<ExtArgs>
+    organization?: boolean | TemplatePart$organizationArgs<ExtArgs>
+  }, ExtArgs["result"]["templatePart"]>
+
+  export type TemplatePartSelectScalar = {
+    id?: boolean
+    slug?: boolean
+    title?: boolean
+    area?: boolean
+    content?: boolean
+    workspaceId?: boolean
+    organizationId?: boolean
+    userId?: boolean
+    version?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type TemplatePartOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "slug" | "title" | "area" | "content" | "workspaceId" | "organizationId" | "userId" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["templatePart"]>
+  export type TemplatePartInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    workspace?: boolean | TemplatePart$workspaceArgs<ExtArgs>
+    organization?: boolean | TemplatePart$organizationArgs<ExtArgs>
+  }
+  export type TemplatePartIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    workspace?: boolean | TemplatePart$workspaceArgs<ExtArgs>
+    organization?: boolean | TemplatePart$organizationArgs<ExtArgs>
+  }
+  export type TemplatePartIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    workspace?: boolean | TemplatePart$workspaceArgs<ExtArgs>
+    organization?: boolean | TemplatePart$organizationArgs<ExtArgs>
+  }
+
+  export type $TemplatePartPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TemplatePart"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+      workspace: Prisma.$WorkspacePayload<ExtArgs> | null
+      organization: Prisma.$OrganizationPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      slug: string
+      title: string
+      area: string
+      content: Prisma.JsonValue
+      workspaceId: string | null
+      organizationId: string | null
+      userId: string
+      version: number
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["templatePart"]>
+    composites: {}
+  }
+
+  type TemplatePartGetPayload<S extends boolean | null | undefined | TemplatePartDefaultArgs> = $Result.GetResult<Prisma.$TemplatePartPayload, S>
+
+  type TemplatePartCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<TemplatePartFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TemplatePartCountAggregateInputType | true
+    }
+
+  export interface TemplatePartDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TemplatePart'], meta: { name: 'TemplatePart' } }
+    /**
+     * Find zero or one TemplatePart that matches the filter.
+     * @param {TemplatePartFindUniqueArgs} args - Arguments to find a TemplatePart
+     * @example
+     * // Get one TemplatePart
+     * const templatePart = await prisma.templatePart.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TemplatePartFindUniqueArgs>(args: SelectSubset<T, TemplatePartFindUniqueArgs<ExtArgs>>): Prisma__TemplatePartClient<$Result.GetResult<Prisma.$TemplatePartPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one TemplatePart that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {TemplatePartFindUniqueOrThrowArgs} args - Arguments to find a TemplatePart
+     * @example
+     * // Get one TemplatePart
+     * const templatePart = await prisma.templatePart.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TemplatePartFindUniqueOrThrowArgs>(args: SelectSubset<T, TemplatePartFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TemplatePartClient<$Result.GetResult<Prisma.$TemplatePartPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TemplatePart that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TemplatePartFindFirstArgs} args - Arguments to find a TemplatePart
+     * @example
+     * // Get one TemplatePart
+     * const templatePart = await prisma.templatePart.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TemplatePartFindFirstArgs>(args?: SelectSubset<T, TemplatePartFindFirstArgs<ExtArgs>>): Prisma__TemplatePartClient<$Result.GetResult<Prisma.$TemplatePartPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TemplatePart that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TemplatePartFindFirstOrThrowArgs} args - Arguments to find a TemplatePart
+     * @example
+     * // Get one TemplatePart
+     * const templatePart = await prisma.templatePart.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TemplatePartFindFirstOrThrowArgs>(args?: SelectSubset<T, TemplatePartFindFirstOrThrowArgs<ExtArgs>>): Prisma__TemplatePartClient<$Result.GetResult<Prisma.$TemplatePartPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more TemplateParts that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TemplatePartFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TemplateParts
+     * const templateParts = await prisma.templatePart.findMany()
+     * 
+     * // Get first 10 TemplateParts
+     * const templateParts = await prisma.templatePart.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const templatePartWithIdOnly = await prisma.templatePart.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends TemplatePartFindManyArgs>(args?: SelectSubset<T, TemplatePartFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TemplatePartPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a TemplatePart.
+     * @param {TemplatePartCreateArgs} args - Arguments to create a TemplatePart.
+     * @example
+     * // Create one TemplatePart
+     * const TemplatePart = await prisma.templatePart.create({
+     *   data: {
+     *     // ... data to create a TemplatePart
+     *   }
+     * })
+     * 
+     */
+    create<T extends TemplatePartCreateArgs>(args: SelectSubset<T, TemplatePartCreateArgs<ExtArgs>>): Prisma__TemplatePartClient<$Result.GetResult<Prisma.$TemplatePartPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many TemplateParts.
+     * @param {TemplatePartCreateManyArgs} args - Arguments to create many TemplateParts.
+     * @example
+     * // Create many TemplateParts
+     * const templatePart = await prisma.templatePart.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TemplatePartCreateManyArgs>(args?: SelectSubset<T, TemplatePartCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many TemplateParts and returns the data saved in the database.
+     * @param {TemplatePartCreateManyAndReturnArgs} args - Arguments to create many TemplateParts.
+     * @example
+     * // Create many TemplateParts
+     * const templatePart = await prisma.templatePart.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many TemplateParts and only return the `id`
+     * const templatePartWithIdOnly = await prisma.templatePart.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends TemplatePartCreateManyAndReturnArgs>(args?: SelectSubset<T, TemplatePartCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TemplatePartPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a TemplatePart.
+     * @param {TemplatePartDeleteArgs} args - Arguments to delete one TemplatePart.
+     * @example
+     * // Delete one TemplatePart
+     * const TemplatePart = await prisma.templatePart.delete({
+     *   where: {
+     *     // ... filter to delete one TemplatePart
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TemplatePartDeleteArgs>(args: SelectSubset<T, TemplatePartDeleteArgs<ExtArgs>>): Prisma__TemplatePartClient<$Result.GetResult<Prisma.$TemplatePartPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one TemplatePart.
+     * @param {TemplatePartUpdateArgs} args - Arguments to update one TemplatePart.
+     * @example
+     * // Update one TemplatePart
+     * const templatePart = await prisma.templatePart.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TemplatePartUpdateArgs>(args: SelectSubset<T, TemplatePartUpdateArgs<ExtArgs>>): Prisma__TemplatePartClient<$Result.GetResult<Prisma.$TemplatePartPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more TemplateParts.
+     * @param {TemplatePartDeleteManyArgs} args - Arguments to filter TemplateParts to delete.
+     * @example
+     * // Delete a few TemplateParts
+     * const { count } = await prisma.templatePart.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TemplatePartDeleteManyArgs>(args?: SelectSubset<T, TemplatePartDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TemplateParts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TemplatePartUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TemplateParts
+     * const templatePart = await prisma.templatePart.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TemplatePartUpdateManyArgs>(args: SelectSubset<T, TemplatePartUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TemplateParts and returns the data updated in the database.
+     * @param {TemplatePartUpdateManyAndReturnArgs} args - Arguments to update many TemplateParts.
+     * @example
+     * // Update many TemplateParts
+     * const templatePart = await prisma.templatePart.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more TemplateParts and only return the `id`
+     * const templatePartWithIdOnly = await prisma.templatePart.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends TemplatePartUpdateManyAndReturnArgs>(args: SelectSubset<T, TemplatePartUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TemplatePartPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one TemplatePart.
+     * @param {TemplatePartUpsertArgs} args - Arguments to update or create a TemplatePart.
+     * @example
+     * // Update or create a TemplatePart
+     * const templatePart = await prisma.templatePart.upsert({
+     *   create: {
+     *     // ... data to create a TemplatePart
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TemplatePart we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TemplatePartUpsertArgs>(args: SelectSubset<T, TemplatePartUpsertArgs<ExtArgs>>): Prisma__TemplatePartClient<$Result.GetResult<Prisma.$TemplatePartPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of TemplateParts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TemplatePartCountArgs} args - Arguments to filter TemplateParts to count.
+     * @example
+     * // Count the number of TemplateParts
+     * const count = await prisma.templatePart.count({
+     *   where: {
+     *     // ... the filter for the TemplateParts we want to count
+     *   }
+     * })
+    **/
+    count<T extends TemplatePartCountArgs>(
+      args?: Subset<T, TemplatePartCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TemplatePartCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TemplatePart.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TemplatePartAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TemplatePartAggregateArgs>(args: Subset<T, TemplatePartAggregateArgs>): Prisma.PrismaPromise<GetTemplatePartAggregateType<T>>
+
+    /**
+     * Group by TemplatePart.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TemplatePartGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TemplatePartGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TemplatePartGroupByArgs['orderBy'] }
+        : { orderBy?: TemplatePartGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TemplatePartGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTemplatePartGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TemplatePart model
+   */
+  readonly fields: TemplatePartFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TemplatePart.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TemplatePartClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    workspace<T extends TemplatePart$workspaceArgs<ExtArgs> = {}>(args?: Subset<T, TemplatePart$workspaceArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    organization<T extends TemplatePart$organizationArgs<ExtArgs> = {}>(args?: Subset<T, TemplatePart$organizationArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TemplatePart model
+   */
+  interface TemplatePartFieldRefs {
+    readonly id: FieldRef<"TemplatePart", 'String'>
+    readonly slug: FieldRef<"TemplatePart", 'String'>
+    readonly title: FieldRef<"TemplatePart", 'String'>
+    readonly area: FieldRef<"TemplatePart", 'String'>
+    readonly content: FieldRef<"TemplatePart", 'Json'>
+    readonly workspaceId: FieldRef<"TemplatePart", 'String'>
+    readonly organizationId: FieldRef<"TemplatePart", 'String'>
+    readonly userId: FieldRef<"TemplatePart", 'String'>
+    readonly version: FieldRef<"TemplatePart", 'Int'>
+    readonly createdAt: FieldRef<"TemplatePart", 'DateTime'>
+    readonly updatedAt: FieldRef<"TemplatePart", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TemplatePart findUnique
+   */
+  export type TemplatePartFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TemplatePart
+     */
+    select?: TemplatePartSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TemplatePart
+     */
+    omit?: TemplatePartOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TemplatePartInclude<ExtArgs> | null
+    /**
+     * Filter, which TemplatePart to fetch.
+     */
+    where: TemplatePartWhereUniqueInput
+  }
+
+  /**
+   * TemplatePart findUniqueOrThrow
+   */
+  export type TemplatePartFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TemplatePart
+     */
+    select?: TemplatePartSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TemplatePart
+     */
+    omit?: TemplatePartOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TemplatePartInclude<ExtArgs> | null
+    /**
+     * Filter, which TemplatePart to fetch.
+     */
+    where: TemplatePartWhereUniqueInput
+  }
+
+  /**
+   * TemplatePart findFirst
+   */
+  export type TemplatePartFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TemplatePart
+     */
+    select?: TemplatePartSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TemplatePart
+     */
+    omit?: TemplatePartOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TemplatePartInclude<ExtArgs> | null
+    /**
+     * Filter, which TemplatePart to fetch.
+     */
+    where?: TemplatePartWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TemplateParts to fetch.
+     */
+    orderBy?: TemplatePartOrderByWithRelationInput | TemplatePartOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TemplateParts.
+     */
+    cursor?: TemplatePartWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TemplateParts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TemplateParts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TemplateParts.
+     */
+    distinct?: TemplatePartScalarFieldEnum | TemplatePartScalarFieldEnum[]
+  }
+
+  /**
+   * TemplatePart findFirstOrThrow
+   */
+  export type TemplatePartFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TemplatePart
+     */
+    select?: TemplatePartSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TemplatePart
+     */
+    omit?: TemplatePartOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TemplatePartInclude<ExtArgs> | null
+    /**
+     * Filter, which TemplatePart to fetch.
+     */
+    where?: TemplatePartWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TemplateParts to fetch.
+     */
+    orderBy?: TemplatePartOrderByWithRelationInput | TemplatePartOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TemplateParts.
+     */
+    cursor?: TemplatePartWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TemplateParts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TemplateParts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TemplateParts.
+     */
+    distinct?: TemplatePartScalarFieldEnum | TemplatePartScalarFieldEnum[]
+  }
+
+  /**
+   * TemplatePart findMany
+   */
+  export type TemplatePartFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TemplatePart
+     */
+    select?: TemplatePartSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TemplatePart
+     */
+    omit?: TemplatePartOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TemplatePartInclude<ExtArgs> | null
+    /**
+     * Filter, which TemplateParts to fetch.
+     */
+    where?: TemplatePartWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TemplateParts to fetch.
+     */
+    orderBy?: TemplatePartOrderByWithRelationInput | TemplatePartOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TemplateParts.
+     */
+    cursor?: TemplatePartWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TemplateParts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TemplateParts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TemplateParts.
+     */
+    distinct?: TemplatePartScalarFieldEnum | TemplatePartScalarFieldEnum[]
+  }
+
+  /**
+   * TemplatePart create
+   */
+  export type TemplatePartCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TemplatePart
+     */
+    select?: TemplatePartSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TemplatePart
+     */
+    omit?: TemplatePartOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TemplatePartInclude<ExtArgs> | null
+    /**
+     * The data needed to create a TemplatePart.
+     */
+    data: XOR<TemplatePartCreateInput, TemplatePartUncheckedCreateInput>
+  }
+
+  /**
+   * TemplatePart createMany
+   */
+  export type TemplatePartCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TemplateParts.
+     */
+    data: TemplatePartCreateManyInput | TemplatePartCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TemplatePart createManyAndReturn
+   */
+  export type TemplatePartCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TemplatePart
+     */
+    select?: TemplatePartSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TemplatePart
+     */
+    omit?: TemplatePartOmit<ExtArgs> | null
+    /**
+     * The data used to create many TemplateParts.
+     */
+    data: TemplatePartCreateManyInput | TemplatePartCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TemplatePartIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TemplatePart update
+   */
+  export type TemplatePartUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TemplatePart
+     */
+    select?: TemplatePartSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TemplatePart
+     */
+    omit?: TemplatePartOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TemplatePartInclude<ExtArgs> | null
+    /**
+     * The data needed to update a TemplatePart.
+     */
+    data: XOR<TemplatePartUpdateInput, TemplatePartUncheckedUpdateInput>
+    /**
+     * Choose, which TemplatePart to update.
+     */
+    where: TemplatePartWhereUniqueInput
+  }
+
+  /**
+   * TemplatePart updateMany
+   */
+  export type TemplatePartUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TemplateParts.
+     */
+    data: XOR<TemplatePartUpdateManyMutationInput, TemplatePartUncheckedUpdateManyInput>
+    /**
+     * Filter which TemplateParts to update
+     */
+    where?: TemplatePartWhereInput
+    /**
+     * Limit how many TemplateParts to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TemplatePart updateManyAndReturn
+   */
+  export type TemplatePartUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TemplatePart
+     */
+    select?: TemplatePartSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TemplatePart
+     */
+    omit?: TemplatePartOmit<ExtArgs> | null
+    /**
+     * The data used to update TemplateParts.
+     */
+    data: XOR<TemplatePartUpdateManyMutationInput, TemplatePartUncheckedUpdateManyInput>
+    /**
+     * Filter which TemplateParts to update
+     */
+    where?: TemplatePartWhereInput
+    /**
+     * Limit how many TemplateParts to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TemplatePartIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TemplatePart upsert
+   */
+  export type TemplatePartUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TemplatePart
+     */
+    select?: TemplatePartSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TemplatePart
+     */
+    omit?: TemplatePartOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TemplatePartInclude<ExtArgs> | null
+    /**
+     * The filter to search for the TemplatePart to update in case it exists.
+     */
+    where: TemplatePartWhereUniqueInput
+    /**
+     * In case the TemplatePart found by the `where` argument doesn't exist, create a new TemplatePart with this data.
+     */
+    create: XOR<TemplatePartCreateInput, TemplatePartUncheckedCreateInput>
+    /**
+     * In case the TemplatePart was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TemplatePartUpdateInput, TemplatePartUncheckedUpdateInput>
+  }
+
+  /**
+   * TemplatePart delete
+   */
+  export type TemplatePartDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TemplatePart
+     */
+    select?: TemplatePartSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TemplatePart
+     */
+    omit?: TemplatePartOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TemplatePartInclude<ExtArgs> | null
+    /**
+     * Filter which TemplatePart to delete.
+     */
+    where: TemplatePartWhereUniqueInput
+  }
+
+  /**
+   * TemplatePart deleteMany
+   */
+  export type TemplatePartDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TemplateParts to delete
+     */
+    where?: TemplatePartWhereInput
+    /**
+     * Limit how many TemplateParts to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * TemplatePart.workspace
+   */
+  export type TemplatePart$workspaceArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Workspace
+     */
+    select?: WorkspaceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Workspace
+     */
+    omit?: WorkspaceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceInclude<ExtArgs> | null
+    where?: WorkspaceWhereInput
+  }
+
+  /**
+   * TemplatePart.organization
+   */
+  export type TemplatePart$organizationArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Organization
+     */
+    select?: OrganizationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Organization
+     */
+    omit?: OrganizationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationInclude<ExtArgs> | null
+    where?: OrganizationWhereInput
+  }
+
+  /**
+   * TemplatePart without action
+   */
+  export type TemplatePartDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TemplatePart
+     */
+    select?: TemplatePartSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TemplatePart
+     */
+    omit?: TemplatePartOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TemplatePartInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model GlobalStyleConfig
+   */
+
+  export type AggregateGlobalStyleConfig = {
+    _count: GlobalStyleConfigCountAggregateOutputType | null
+    _avg: GlobalStyleConfigAvgAggregateOutputType | null
+    _sum: GlobalStyleConfigSumAggregateOutputType | null
+    _min: GlobalStyleConfigMinAggregateOutputType | null
+    _max: GlobalStyleConfigMaxAggregateOutputType | null
+  }
+
+  export type GlobalStyleConfigAvgAggregateOutputType = {
+    version: number | null
+  }
+
+  export type GlobalStyleConfigSumAggregateOutputType = {
+    version: number | null
+  }
+
+  export type GlobalStyleConfigMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+    workspaceId: string | null
+    organizationId: string | null
+    userId: string | null
+    version: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type GlobalStyleConfigMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+    workspaceId: string | null
+    organizationId: string | null
+    userId: string | null
+    version: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type GlobalStyleConfigCountAggregateOutputType = {
+    id: number
+    name: number
+    styles: number
+    workspaceId: number
+    organizationId: number
+    userId: number
+    version: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type GlobalStyleConfigAvgAggregateInputType = {
+    version?: true
+  }
+
+  export type GlobalStyleConfigSumAggregateInputType = {
+    version?: true
+  }
+
+  export type GlobalStyleConfigMinAggregateInputType = {
+    id?: true
+    name?: true
+    workspaceId?: true
+    organizationId?: true
+    userId?: true
+    version?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type GlobalStyleConfigMaxAggregateInputType = {
+    id?: true
+    name?: true
+    workspaceId?: true
+    organizationId?: true
+    userId?: true
+    version?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type GlobalStyleConfigCountAggregateInputType = {
+    id?: true
+    name?: true
+    styles?: true
+    workspaceId?: true
+    organizationId?: true
+    userId?: true
+    version?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type GlobalStyleConfigAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GlobalStyleConfig to aggregate.
+     */
+    where?: GlobalStyleConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GlobalStyleConfigs to fetch.
+     */
+    orderBy?: GlobalStyleConfigOrderByWithRelationInput | GlobalStyleConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: GlobalStyleConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GlobalStyleConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GlobalStyleConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned GlobalStyleConfigs
+    **/
+    _count?: true | GlobalStyleConfigCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: GlobalStyleConfigAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: GlobalStyleConfigSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: GlobalStyleConfigMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: GlobalStyleConfigMaxAggregateInputType
+  }
+
+  export type GetGlobalStyleConfigAggregateType<T extends GlobalStyleConfigAggregateArgs> = {
+        [P in keyof T & keyof AggregateGlobalStyleConfig]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateGlobalStyleConfig[P]>
+      : GetScalarType<T[P], AggregateGlobalStyleConfig[P]>
+  }
+
+
+
+
+  export type GlobalStyleConfigGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GlobalStyleConfigWhereInput
+    orderBy?: GlobalStyleConfigOrderByWithAggregationInput | GlobalStyleConfigOrderByWithAggregationInput[]
+    by: GlobalStyleConfigScalarFieldEnum[] | GlobalStyleConfigScalarFieldEnum
+    having?: GlobalStyleConfigScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: GlobalStyleConfigCountAggregateInputType | true
+    _avg?: GlobalStyleConfigAvgAggregateInputType
+    _sum?: GlobalStyleConfigSumAggregateInputType
+    _min?: GlobalStyleConfigMinAggregateInputType
+    _max?: GlobalStyleConfigMaxAggregateInputType
+  }
+
+  export type GlobalStyleConfigGroupByOutputType = {
+    id: string
+    name: string
+    styles: JsonValue
+    workspaceId: string | null
+    organizationId: string | null
+    userId: string
+    version: number
+    createdAt: Date
+    updatedAt: Date
+    _count: GlobalStyleConfigCountAggregateOutputType | null
+    _avg: GlobalStyleConfigAvgAggregateOutputType | null
+    _sum: GlobalStyleConfigSumAggregateOutputType | null
+    _min: GlobalStyleConfigMinAggregateOutputType | null
+    _max: GlobalStyleConfigMaxAggregateOutputType | null
+  }
+
+  type GetGlobalStyleConfigGroupByPayload<T extends GlobalStyleConfigGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<GlobalStyleConfigGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof GlobalStyleConfigGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], GlobalStyleConfigGroupByOutputType[P]>
+            : GetScalarType<T[P], GlobalStyleConfigGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type GlobalStyleConfigSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    styles?: boolean
+    workspaceId?: boolean
+    organizationId?: boolean
+    userId?: boolean
+    version?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    workspace?: boolean | GlobalStyleConfig$workspaceArgs<ExtArgs>
+    organization?: boolean | GlobalStyleConfig$organizationArgs<ExtArgs>
+  }, ExtArgs["result"]["globalStyleConfig"]>
+
+  export type GlobalStyleConfigSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    styles?: boolean
+    workspaceId?: boolean
+    organizationId?: boolean
+    userId?: boolean
+    version?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    workspace?: boolean | GlobalStyleConfig$workspaceArgs<ExtArgs>
+    organization?: boolean | GlobalStyleConfig$organizationArgs<ExtArgs>
+  }, ExtArgs["result"]["globalStyleConfig"]>
+
+  export type GlobalStyleConfigSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    styles?: boolean
+    workspaceId?: boolean
+    organizationId?: boolean
+    userId?: boolean
+    version?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    workspace?: boolean | GlobalStyleConfig$workspaceArgs<ExtArgs>
+    organization?: boolean | GlobalStyleConfig$organizationArgs<ExtArgs>
+  }, ExtArgs["result"]["globalStyleConfig"]>
+
+  export type GlobalStyleConfigSelectScalar = {
+    id?: boolean
+    name?: boolean
+    styles?: boolean
+    workspaceId?: boolean
+    organizationId?: boolean
+    userId?: boolean
+    version?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type GlobalStyleConfigOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "styles" | "workspaceId" | "organizationId" | "userId" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["globalStyleConfig"]>
+  export type GlobalStyleConfigInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    workspace?: boolean | GlobalStyleConfig$workspaceArgs<ExtArgs>
+    organization?: boolean | GlobalStyleConfig$organizationArgs<ExtArgs>
+  }
+  export type GlobalStyleConfigIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    workspace?: boolean | GlobalStyleConfig$workspaceArgs<ExtArgs>
+    organization?: boolean | GlobalStyleConfig$organizationArgs<ExtArgs>
+  }
+  export type GlobalStyleConfigIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    workspace?: boolean | GlobalStyleConfig$workspaceArgs<ExtArgs>
+    organization?: boolean | GlobalStyleConfig$organizationArgs<ExtArgs>
+  }
+
+  export type $GlobalStyleConfigPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GlobalStyleConfig"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+      workspace: Prisma.$WorkspacePayload<ExtArgs> | null
+      organization: Prisma.$OrganizationPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: string
+      styles: Prisma.JsonValue
+      workspaceId: string | null
+      organizationId: string | null
+      userId: string
+      version: number
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["globalStyleConfig"]>
+    composites: {}
+  }
+
+  type GlobalStyleConfigGetPayload<S extends boolean | null | undefined | GlobalStyleConfigDefaultArgs> = $Result.GetResult<Prisma.$GlobalStyleConfigPayload, S>
+
+  type GlobalStyleConfigCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<GlobalStyleConfigFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: GlobalStyleConfigCountAggregateInputType | true
+    }
+
+  export interface GlobalStyleConfigDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GlobalStyleConfig'], meta: { name: 'GlobalStyleConfig' } }
+    /**
+     * Find zero or one GlobalStyleConfig that matches the filter.
+     * @param {GlobalStyleConfigFindUniqueArgs} args - Arguments to find a GlobalStyleConfig
+     * @example
+     * // Get one GlobalStyleConfig
+     * const globalStyleConfig = await prisma.globalStyleConfig.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends GlobalStyleConfigFindUniqueArgs>(args: SelectSubset<T, GlobalStyleConfigFindUniqueArgs<ExtArgs>>): Prisma__GlobalStyleConfigClient<$Result.GetResult<Prisma.$GlobalStyleConfigPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one GlobalStyleConfig that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {GlobalStyleConfigFindUniqueOrThrowArgs} args - Arguments to find a GlobalStyleConfig
+     * @example
+     * // Get one GlobalStyleConfig
+     * const globalStyleConfig = await prisma.globalStyleConfig.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends GlobalStyleConfigFindUniqueOrThrowArgs>(args: SelectSubset<T, GlobalStyleConfigFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GlobalStyleConfigClient<$Result.GetResult<Prisma.$GlobalStyleConfigPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first GlobalStyleConfig that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GlobalStyleConfigFindFirstArgs} args - Arguments to find a GlobalStyleConfig
+     * @example
+     * // Get one GlobalStyleConfig
+     * const globalStyleConfig = await prisma.globalStyleConfig.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends GlobalStyleConfigFindFirstArgs>(args?: SelectSubset<T, GlobalStyleConfigFindFirstArgs<ExtArgs>>): Prisma__GlobalStyleConfigClient<$Result.GetResult<Prisma.$GlobalStyleConfigPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first GlobalStyleConfig that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GlobalStyleConfigFindFirstOrThrowArgs} args - Arguments to find a GlobalStyleConfig
+     * @example
+     * // Get one GlobalStyleConfig
+     * const globalStyleConfig = await prisma.globalStyleConfig.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends GlobalStyleConfigFindFirstOrThrowArgs>(args?: SelectSubset<T, GlobalStyleConfigFindFirstOrThrowArgs<ExtArgs>>): Prisma__GlobalStyleConfigClient<$Result.GetResult<Prisma.$GlobalStyleConfigPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more GlobalStyleConfigs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GlobalStyleConfigFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all GlobalStyleConfigs
+     * const globalStyleConfigs = await prisma.globalStyleConfig.findMany()
+     * 
+     * // Get first 10 GlobalStyleConfigs
+     * const globalStyleConfigs = await prisma.globalStyleConfig.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const globalStyleConfigWithIdOnly = await prisma.globalStyleConfig.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends GlobalStyleConfigFindManyArgs>(args?: SelectSubset<T, GlobalStyleConfigFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GlobalStyleConfigPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a GlobalStyleConfig.
+     * @param {GlobalStyleConfigCreateArgs} args - Arguments to create a GlobalStyleConfig.
+     * @example
+     * // Create one GlobalStyleConfig
+     * const GlobalStyleConfig = await prisma.globalStyleConfig.create({
+     *   data: {
+     *     // ... data to create a GlobalStyleConfig
+     *   }
+     * })
+     * 
+     */
+    create<T extends GlobalStyleConfigCreateArgs>(args: SelectSubset<T, GlobalStyleConfigCreateArgs<ExtArgs>>): Prisma__GlobalStyleConfigClient<$Result.GetResult<Prisma.$GlobalStyleConfigPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many GlobalStyleConfigs.
+     * @param {GlobalStyleConfigCreateManyArgs} args - Arguments to create many GlobalStyleConfigs.
+     * @example
+     * // Create many GlobalStyleConfigs
+     * const globalStyleConfig = await prisma.globalStyleConfig.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends GlobalStyleConfigCreateManyArgs>(args?: SelectSubset<T, GlobalStyleConfigCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many GlobalStyleConfigs and returns the data saved in the database.
+     * @param {GlobalStyleConfigCreateManyAndReturnArgs} args - Arguments to create many GlobalStyleConfigs.
+     * @example
+     * // Create many GlobalStyleConfigs
+     * const globalStyleConfig = await prisma.globalStyleConfig.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many GlobalStyleConfigs and only return the `id`
+     * const globalStyleConfigWithIdOnly = await prisma.globalStyleConfig.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends GlobalStyleConfigCreateManyAndReturnArgs>(args?: SelectSubset<T, GlobalStyleConfigCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GlobalStyleConfigPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a GlobalStyleConfig.
+     * @param {GlobalStyleConfigDeleteArgs} args - Arguments to delete one GlobalStyleConfig.
+     * @example
+     * // Delete one GlobalStyleConfig
+     * const GlobalStyleConfig = await prisma.globalStyleConfig.delete({
+     *   where: {
+     *     // ... filter to delete one GlobalStyleConfig
+     *   }
+     * })
+     * 
+     */
+    delete<T extends GlobalStyleConfigDeleteArgs>(args: SelectSubset<T, GlobalStyleConfigDeleteArgs<ExtArgs>>): Prisma__GlobalStyleConfigClient<$Result.GetResult<Prisma.$GlobalStyleConfigPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one GlobalStyleConfig.
+     * @param {GlobalStyleConfigUpdateArgs} args - Arguments to update one GlobalStyleConfig.
+     * @example
+     * // Update one GlobalStyleConfig
+     * const globalStyleConfig = await prisma.globalStyleConfig.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends GlobalStyleConfigUpdateArgs>(args: SelectSubset<T, GlobalStyleConfigUpdateArgs<ExtArgs>>): Prisma__GlobalStyleConfigClient<$Result.GetResult<Prisma.$GlobalStyleConfigPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more GlobalStyleConfigs.
+     * @param {GlobalStyleConfigDeleteManyArgs} args - Arguments to filter GlobalStyleConfigs to delete.
+     * @example
+     * // Delete a few GlobalStyleConfigs
+     * const { count } = await prisma.globalStyleConfig.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends GlobalStyleConfigDeleteManyArgs>(args?: SelectSubset<T, GlobalStyleConfigDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GlobalStyleConfigs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GlobalStyleConfigUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many GlobalStyleConfigs
+     * const globalStyleConfig = await prisma.globalStyleConfig.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends GlobalStyleConfigUpdateManyArgs>(args: SelectSubset<T, GlobalStyleConfigUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GlobalStyleConfigs and returns the data updated in the database.
+     * @param {GlobalStyleConfigUpdateManyAndReturnArgs} args - Arguments to update many GlobalStyleConfigs.
+     * @example
+     * // Update many GlobalStyleConfigs
+     * const globalStyleConfig = await prisma.globalStyleConfig.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more GlobalStyleConfigs and only return the `id`
+     * const globalStyleConfigWithIdOnly = await prisma.globalStyleConfig.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends GlobalStyleConfigUpdateManyAndReturnArgs>(args: SelectSubset<T, GlobalStyleConfigUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GlobalStyleConfigPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one GlobalStyleConfig.
+     * @param {GlobalStyleConfigUpsertArgs} args - Arguments to update or create a GlobalStyleConfig.
+     * @example
+     * // Update or create a GlobalStyleConfig
+     * const globalStyleConfig = await prisma.globalStyleConfig.upsert({
+     *   create: {
+     *     // ... data to create a GlobalStyleConfig
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the GlobalStyleConfig we want to update
+     *   }
+     * })
+     */
+    upsert<T extends GlobalStyleConfigUpsertArgs>(args: SelectSubset<T, GlobalStyleConfigUpsertArgs<ExtArgs>>): Prisma__GlobalStyleConfigClient<$Result.GetResult<Prisma.$GlobalStyleConfigPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of GlobalStyleConfigs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GlobalStyleConfigCountArgs} args - Arguments to filter GlobalStyleConfigs to count.
+     * @example
+     * // Count the number of GlobalStyleConfigs
+     * const count = await prisma.globalStyleConfig.count({
+     *   where: {
+     *     // ... the filter for the GlobalStyleConfigs we want to count
+     *   }
+     * })
+    **/
+    count<T extends GlobalStyleConfigCountArgs>(
+      args?: Subset<T, GlobalStyleConfigCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], GlobalStyleConfigCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a GlobalStyleConfig.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GlobalStyleConfigAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends GlobalStyleConfigAggregateArgs>(args: Subset<T, GlobalStyleConfigAggregateArgs>): Prisma.PrismaPromise<GetGlobalStyleConfigAggregateType<T>>
+
+    /**
+     * Group by GlobalStyleConfig.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GlobalStyleConfigGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends GlobalStyleConfigGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: GlobalStyleConfigGroupByArgs['orderBy'] }
+        : { orderBy?: GlobalStyleConfigGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, GlobalStyleConfigGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGlobalStyleConfigGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the GlobalStyleConfig model
+   */
+  readonly fields: GlobalStyleConfigFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for GlobalStyleConfig.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__GlobalStyleConfigClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    workspace<T extends GlobalStyleConfig$workspaceArgs<ExtArgs> = {}>(args?: Subset<T, GlobalStyleConfig$workspaceArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    organization<T extends GlobalStyleConfig$organizationArgs<ExtArgs> = {}>(args?: Subset<T, GlobalStyleConfig$organizationArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the GlobalStyleConfig model
+   */
+  interface GlobalStyleConfigFieldRefs {
+    readonly id: FieldRef<"GlobalStyleConfig", 'String'>
+    readonly name: FieldRef<"GlobalStyleConfig", 'String'>
+    readonly styles: FieldRef<"GlobalStyleConfig", 'Json'>
+    readonly workspaceId: FieldRef<"GlobalStyleConfig", 'String'>
+    readonly organizationId: FieldRef<"GlobalStyleConfig", 'String'>
+    readonly userId: FieldRef<"GlobalStyleConfig", 'String'>
+    readonly version: FieldRef<"GlobalStyleConfig", 'Int'>
+    readonly createdAt: FieldRef<"GlobalStyleConfig", 'DateTime'>
+    readonly updatedAt: FieldRef<"GlobalStyleConfig", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * GlobalStyleConfig findUnique
+   */
+  export type GlobalStyleConfigFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GlobalStyleConfig
+     */
+    select?: GlobalStyleConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GlobalStyleConfig
+     */
+    omit?: GlobalStyleConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GlobalStyleConfigInclude<ExtArgs> | null
+    /**
+     * Filter, which GlobalStyleConfig to fetch.
+     */
+    where: GlobalStyleConfigWhereUniqueInput
+  }
+
+  /**
+   * GlobalStyleConfig findUniqueOrThrow
+   */
+  export type GlobalStyleConfigFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GlobalStyleConfig
+     */
+    select?: GlobalStyleConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GlobalStyleConfig
+     */
+    omit?: GlobalStyleConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GlobalStyleConfigInclude<ExtArgs> | null
+    /**
+     * Filter, which GlobalStyleConfig to fetch.
+     */
+    where: GlobalStyleConfigWhereUniqueInput
+  }
+
+  /**
+   * GlobalStyleConfig findFirst
+   */
+  export type GlobalStyleConfigFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GlobalStyleConfig
+     */
+    select?: GlobalStyleConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GlobalStyleConfig
+     */
+    omit?: GlobalStyleConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GlobalStyleConfigInclude<ExtArgs> | null
+    /**
+     * Filter, which GlobalStyleConfig to fetch.
+     */
+    where?: GlobalStyleConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GlobalStyleConfigs to fetch.
+     */
+    orderBy?: GlobalStyleConfigOrderByWithRelationInput | GlobalStyleConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GlobalStyleConfigs.
+     */
+    cursor?: GlobalStyleConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GlobalStyleConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GlobalStyleConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GlobalStyleConfigs.
+     */
+    distinct?: GlobalStyleConfigScalarFieldEnum | GlobalStyleConfigScalarFieldEnum[]
+  }
+
+  /**
+   * GlobalStyleConfig findFirstOrThrow
+   */
+  export type GlobalStyleConfigFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GlobalStyleConfig
+     */
+    select?: GlobalStyleConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GlobalStyleConfig
+     */
+    omit?: GlobalStyleConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GlobalStyleConfigInclude<ExtArgs> | null
+    /**
+     * Filter, which GlobalStyleConfig to fetch.
+     */
+    where?: GlobalStyleConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GlobalStyleConfigs to fetch.
+     */
+    orderBy?: GlobalStyleConfigOrderByWithRelationInput | GlobalStyleConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GlobalStyleConfigs.
+     */
+    cursor?: GlobalStyleConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GlobalStyleConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GlobalStyleConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GlobalStyleConfigs.
+     */
+    distinct?: GlobalStyleConfigScalarFieldEnum | GlobalStyleConfigScalarFieldEnum[]
+  }
+
+  /**
+   * GlobalStyleConfig findMany
+   */
+  export type GlobalStyleConfigFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GlobalStyleConfig
+     */
+    select?: GlobalStyleConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GlobalStyleConfig
+     */
+    omit?: GlobalStyleConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GlobalStyleConfigInclude<ExtArgs> | null
+    /**
+     * Filter, which GlobalStyleConfigs to fetch.
+     */
+    where?: GlobalStyleConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GlobalStyleConfigs to fetch.
+     */
+    orderBy?: GlobalStyleConfigOrderByWithRelationInput | GlobalStyleConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing GlobalStyleConfigs.
+     */
+    cursor?: GlobalStyleConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GlobalStyleConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GlobalStyleConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GlobalStyleConfigs.
+     */
+    distinct?: GlobalStyleConfigScalarFieldEnum | GlobalStyleConfigScalarFieldEnum[]
+  }
+
+  /**
+   * GlobalStyleConfig create
+   */
+  export type GlobalStyleConfigCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GlobalStyleConfig
+     */
+    select?: GlobalStyleConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GlobalStyleConfig
+     */
+    omit?: GlobalStyleConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GlobalStyleConfigInclude<ExtArgs> | null
+    /**
+     * The data needed to create a GlobalStyleConfig.
+     */
+    data: XOR<GlobalStyleConfigCreateInput, GlobalStyleConfigUncheckedCreateInput>
+  }
+
+  /**
+   * GlobalStyleConfig createMany
+   */
+  export type GlobalStyleConfigCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many GlobalStyleConfigs.
+     */
+    data: GlobalStyleConfigCreateManyInput | GlobalStyleConfigCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GlobalStyleConfig createManyAndReturn
+   */
+  export type GlobalStyleConfigCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GlobalStyleConfig
+     */
+    select?: GlobalStyleConfigSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the GlobalStyleConfig
+     */
+    omit?: GlobalStyleConfigOmit<ExtArgs> | null
+    /**
+     * The data used to create many GlobalStyleConfigs.
+     */
+    data: GlobalStyleConfigCreateManyInput | GlobalStyleConfigCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GlobalStyleConfigIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * GlobalStyleConfig update
+   */
+  export type GlobalStyleConfigUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GlobalStyleConfig
+     */
+    select?: GlobalStyleConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GlobalStyleConfig
+     */
+    omit?: GlobalStyleConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GlobalStyleConfigInclude<ExtArgs> | null
+    /**
+     * The data needed to update a GlobalStyleConfig.
+     */
+    data: XOR<GlobalStyleConfigUpdateInput, GlobalStyleConfigUncheckedUpdateInput>
+    /**
+     * Choose, which GlobalStyleConfig to update.
+     */
+    where: GlobalStyleConfigWhereUniqueInput
+  }
+
+  /**
+   * GlobalStyleConfig updateMany
+   */
+  export type GlobalStyleConfigUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update GlobalStyleConfigs.
+     */
+    data: XOR<GlobalStyleConfigUpdateManyMutationInput, GlobalStyleConfigUncheckedUpdateManyInput>
+    /**
+     * Filter which GlobalStyleConfigs to update
+     */
+    where?: GlobalStyleConfigWhereInput
+    /**
+     * Limit how many GlobalStyleConfigs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * GlobalStyleConfig updateManyAndReturn
+   */
+  export type GlobalStyleConfigUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GlobalStyleConfig
+     */
+    select?: GlobalStyleConfigSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the GlobalStyleConfig
+     */
+    omit?: GlobalStyleConfigOmit<ExtArgs> | null
+    /**
+     * The data used to update GlobalStyleConfigs.
+     */
+    data: XOR<GlobalStyleConfigUpdateManyMutationInput, GlobalStyleConfigUncheckedUpdateManyInput>
+    /**
+     * Filter which GlobalStyleConfigs to update
+     */
+    where?: GlobalStyleConfigWhereInput
+    /**
+     * Limit how many GlobalStyleConfigs to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GlobalStyleConfigIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * GlobalStyleConfig upsert
+   */
+  export type GlobalStyleConfigUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GlobalStyleConfig
+     */
+    select?: GlobalStyleConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GlobalStyleConfig
+     */
+    omit?: GlobalStyleConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GlobalStyleConfigInclude<ExtArgs> | null
+    /**
+     * The filter to search for the GlobalStyleConfig to update in case it exists.
+     */
+    where: GlobalStyleConfigWhereUniqueInput
+    /**
+     * In case the GlobalStyleConfig found by the `where` argument doesn't exist, create a new GlobalStyleConfig with this data.
+     */
+    create: XOR<GlobalStyleConfigCreateInput, GlobalStyleConfigUncheckedCreateInput>
+    /**
+     * In case the GlobalStyleConfig was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<GlobalStyleConfigUpdateInput, GlobalStyleConfigUncheckedUpdateInput>
+  }
+
+  /**
+   * GlobalStyleConfig delete
+   */
+  export type GlobalStyleConfigDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GlobalStyleConfig
+     */
+    select?: GlobalStyleConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GlobalStyleConfig
+     */
+    omit?: GlobalStyleConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GlobalStyleConfigInclude<ExtArgs> | null
+    /**
+     * Filter which GlobalStyleConfig to delete.
+     */
+    where: GlobalStyleConfigWhereUniqueInput
+  }
+
+  /**
+   * GlobalStyleConfig deleteMany
+   */
+  export type GlobalStyleConfigDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GlobalStyleConfigs to delete
+     */
+    where?: GlobalStyleConfigWhereInput
+    /**
+     * Limit how many GlobalStyleConfigs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * GlobalStyleConfig.workspace
+   */
+  export type GlobalStyleConfig$workspaceArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Workspace
+     */
+    select?: WorkspaceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Workspace
+     */
+    omit?: WorkspaceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceInclude<ExtArgs> | null
+    where?: WorkspaceWhereInput
+  }
+
+  /**
+   * GlobalStyleConfig.organization
+   */
+  export type GlobalStyleConfig$organizationArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Organization
+     */
+    select?: OrganizationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Organization
+     */
+    omit?: OrganizationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationInclude<ExtArgs> | null
+    where?: OrganizationWhereInput
+  }
+
+  /**
+   * GlobalStyleConfig without action
+   */
+  export type GlobalStyleConfigDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GlobalStyleConfig
+     */
+    select?: GlobalStyleConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GlobalStyleConfig
+     */
+    omit?: GlobalStyleConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GlobalStyleConfigInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -65455,6 +72616,97 @@ export namespace Prisma {
   export type BillingInvoiceScalarFieldEnum = (typeof BillingInvoiceScalarFieldEnum)[keyof typeof BillingInvoiceScalarFieldEnum]
 
 
+  export const BlockPatternScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    title: 'title',
+    description: 'description',
+    category: 'category',
+    categories: 'categories',
+    content: 'content',
+    viewportWidth: 'viewportWidth',
+    blockTypes: 'blockTypes',
+    keywords: 'keywords',
+    isSynced: 'isSynced',
+    syncStatus: 'syncStatus',
+    workspaceId: 'workspaceId',
+    organizationId: 'organizationId',
+    userId: 'userId',
+    version: 'version',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type BlockPatternScalarFieldEnum = (typeof BlockPatternScalarFieldEnum)[keyof typeof BlockPatternScalarFieldEnum]
+
+
+  export const SyncedPatternRevisionScalarFieldEnum: {
+    id: 'id',
+    patternId: 'patternId',
+    version: 'version',
+    title: 'title',
+    content: 'content',
+    description: 'description',
+    createdBy: 'createdBy',
+    createdAt: 'createdAt'
+  };
+
+  export type SyncedPatternRevisionScalarFieldEnum = (typeof SyncedPatternRevisionScalarFieldEnum)[keyof typeof SyncedPatternRevisionScalarFieldEnum]
+
+
+  export const BlockTemplateScalarFieldEnum: {
+    id: 'id',
+    slug: 'slug',
+    title: 'title',
+    description: 'description',
+    type: 'type',
+    content: 'content',
+    templateLock: 'templateLock',
+    isDefault: 'isDefault',
+    assignedPageIds: 'assignedPageIds',
+    workspaceId: 'workspaceId',
+    organizationId: 'organizationId',
+    userId: 'userId',
+    version: 'version',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type BlockTemplateScalarFieldEnum = (typeof BlockTemplateScalarFieldEnum)[keyof typeof BlockTemplateScalarFieldEnum]
+
+
+  export const TemplatePartScalarFieldEnum: {
+    id: 'id',
+    slug: 'slug',
+    title: 'title',
+    area: 'area',
+    content: 'content',
+    workspaceId: 'workspaceId',
+    organizationId: 'organizationId',
+    userId: 'userId',
+    version: 'version',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type TemplatePartScalarFieldEnum = (typeof TemplatePartScalarFieldEnum)[keyof typeof TemplatePartScalarFieldEnum]
+
+
+  export const GlobalStyleConfigScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    styles: 'styles',
+    workspaceId: 'workspaceId',
+    organizationId: 'organizationId',
+    userId: 'userId',
+    version: 'version',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type GlobalStyleConfigScalarFieldEnum = (typeof GlobalStyleConfigScalarFieldEnum)[keyof typeof GlobalStyleConfigScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -65723,6 +72975,11 @@ export namespace Prisma {
     licenses?: LicenseListRelationFilter
     whiteLabelConfig?: XOR<WhiteLabelConfigNullableScalarRelationFilter, WhiteLabelConfigWhereInput> | null
     invoices?: BillingInvoiceListRelationFilter
+    blockPatterns?: BlockPatternListRelationFilter
+    syncedPatternRevisions?: SyncedPatternRevisionListRelationFilter
+    blockTemplates?: BlockTemplateListRelationFilter
+    templateParts?: TemplatePartListRelationFilter
+    globalStyleConfigs?: GlobalStyleConfigListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -65773,6 +73030,11 @@ export namespace Prisma {
     licenses?: LicenseOrderByRelationAggregateInput
     whiteLabelConfig?: WhiteLabelConfigOrderByWithRelationInput
     invoices?: BillingInvoiceOrderByRelationAggregateInput
+    blockPatterns?: BlockPatternOrderByRelationAggregateInput
+    syncedPatternRevisions?: SyncedPatternRevisionOrderByRelationAggregateInput
+    blockTemplates?: BlockTemplateOrderByRelationAggregateInput
+    templateParts?: TemplatePartOrderByRelationAggregateInput
+    globalStyleConfigs?: GlobalStyleConfigOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -65826,6 +73088,11 @@ export namespace Prisma {
     licenses?: LicenseListRelationFilter
     whiteLabelConfig?: XOR<WhiteLabelConfigNullableScalarRelationFilter, WhiteLabelConfigWhereInput> | null
     invoices?: BillingInvoiceListRelationFilter
+    blockPatterns?: BlockPatternListRelationFilter
+    syncedPatternRevisions?: SyncedPatternRevisionListRelationFilter
+    blockTemplates?: BlockTemplateListRelationFilter
+    templateParts?: TemplatePartListRelationFilter
+    globalStyleConfigs?: GlobalStyleConfigListRelationFilter
   }, "id" | "email" | "phone">
 
   export type UserOrderByWithAggregationInput = {
@@ -68509,6 +75776,10 @@ export namespace Prisma {
     owner?: XOR<UserScalarRelationFilter, UserWhereInput>
     members?: WorkspaceMemberListRelationFilter
     websites?: WebsiteListRelationFilter
+    blockPatterns?: BlockPatternListRelationFilter
+    blockTemplates?: BlockTemplateListRelationFilter
+    templateParts?: TemplatePartListRelationFilter
+    globalStyleConfigs?: GlobalStyleConfigListRelationFilter
   }
 
   export type WorkspaceOrderByWithRelationInput = {
@@ -68524,6 +75795,10 @@ export namespace Prisma {
     owner?: UserOrderByWithRelationInput
     members?: WorkspaceMemberOrderByRelationAggregateInput
     websites?: WebsiteOrderByRelationAggregateInput
+    blockPatterns?: BlockPatternOrderByRelationAggregateInput
+    blockTemplates?: BlockTemplateOrderByRelationAggregateInput
+    templateParts?: TemplatePartOrderByRelationAggregateInput
+    globalStyleConfigs?: GlobalStyleConfigOrderByRelationAggregateInput
   }
 
   export type WorkspaceWhereUniqueInput = Prisma.AtLeast<{
@@ -68542,6 +75817,10 @@ export namespace Prisma {
     owner?: XOR<UserScalarRelationFilter, UserWhereInput>
     members?: WorkspaceMemberListRelationFilter
     websites?: WebsiteListRelationFilter
+    blockPatterns?: BlockPatternListRelationFilter
+    blockTemplates?: BlockTemplateListRelationFilter
+    templateParts?: TemplatePartListRelationFilter
+    globalStyleConfigs?: GlobalStyleConfigListRelationFilter
   }, "id" | "slug">
 
   export type WorkspaceOrderByWithAggregationInput = {
@@ -68587,6 +75866,10 @@ export namespace Prisma {
     members?: OrganizationMemberListRelationFilter
     workspaces?: WorkspaceListRelationFilter
     websites?: WebsiteListRelationFilter
+    blockPatterns?: BlockPatternListRelationFilter
+    blockTemplates?: BlockTemplateListRelationFilter
+    templateParts?: TemplatePartListRelationFilter
+    globalStyleConfigs?: GlobalStyleConfigListRelationFilter
   }
 
   export type OrganizationOrderByWithRelationInput = {
@@ -68601,6 +75884,10 @@ export namespace Prisma {
     members?: OrganizationMemberOrderByRelationAggregateInput
     workspaces?: WorkspaceOrderByRelationAggregateInput
     websites?: WebsiteOrderByRelationAggregateInput
+    blockPatterns?: BlockPatternOrderByRelationAggregateInput
+    blockTemplates?: BlockTemplateOrderByRelationAggregateInput
+    templateParts?: TemplatePartOrderByRelationAggregateInput
+    globalStyleConfigs?: GlobalStyleConfigOrderByRelationAggregateInput
   }
 
   export type OrganizationWhereUniqueInput = Prisma.AtLeast<{
@@ -68618,6 +75905,10 @@ export namespace Prisma {
     members?: OrganizationMemberListRelationFilter
     workspaces?: WorkspaceListRelationFilter
     websites?: WebsiteListRelationFilter
+    blockPatterns?: BlockPatternListRelationFilter
+    blockTemplates?: BlockTemplateListRelationFilter
+    templateParts?: TemplatePartListRelationFilter
+    globalStyleConfigs?: GlobalStyleConfigListRelationFilter
   }, "id" | "slug">
 
   export type OrganizationOrderByWithAggregationInput = {
@@ -69757,6 +77048,505 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"BillingInvoice"> | Date | string
   }
 
+  export type BlockPatternWhereInput = {
+    AND?: BlockPatternWhereInput | BlockPatternWhereInput[]
+    OR?: BlockPatternWhereInput[]
+    NOT?: BlockPatternWhereInput | BlockPatternWhereInput[]
+    id?: UuidFilter<"BlockPattern"> | string
+    name?: StringFilter<"BlockPattern"> | string
+    title?: StringFilter<"BlockPattern"> | string
+    description?: StringNullableFilter<"BlockPattern"> | string | null
+    category?: StringFilter<"BlockPattern"> | string
+    categories?: JsonFilter<"BlockPattern">
+    content?: JsonFilter<"BlockPattern">
+    viewportWidth?: IntNullableFilter<"BlockPattern"> | number | null
+    blockTypes?: JsonFilter<"BlockPattern">
+    keywords?: JsonFilter<"BlockPattern">
+    isSynced?: BoolFilter<"BlockPattern"> | boolean
+    syncStatus?: StringFilter<"BlockPattern"> | string
+    workspaceId?: UuidNullableFilter<"BlockPattern"> | string | null
+    organizationId?: UuidNullableFilter<"BlockPattern"> | string | null
+    userId?: UuidFilter<"BlockPattern"> | string
+    version?: IntFilter<"BlockPattern"> | number
+    createdAt?: DateTimeFilter<"BlockPattern"> | Date | string
+    updatedAt?: DateTimeFilter<"BlockPattern"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    workspace?: XOR<WorkspaceNullableScalarRelationFilter, WorkspaceWhereInput> | null
+    organization?: XOR<OrganizationNullableScalarRelationFilter, OrganizationWhereInput> | null
+    revisions?: SyncedPatternRevisionListRelationFilter
+  }
+
+  export type BlockPatternOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    title?: SortOrder
+    description?: SortOrderInput | SortOrder
+    category?: SortOrder
+    categories?: SortOrder
+    content?: SortOrder
+    viewportWidth?: SortOrderInput | SortOrder
+    blockTypes?: SortOrder
+    keywords?: SortOrder
+    isSynced?: SortOrder
+    syncStatus?: SortOrder
+    workspaceId?: SortOrderInput | SortOrder
+    organizationId?: SortOrderInput | SortOrder
+    userId?: SortOrder
+    version?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+    workspace?: WorkspaceOrderByWithRelationInput
+    organization?: OrganizationOrderByWithRelationInput
+    revisions?: SyncedPatternRevisionOrderByRelationAggregateInput
+  }
+
+  export type BlockPatternWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    name_workspaceId?: BlockPatternNameWorkspaceIdCompoundUniqueInput
+    AND?: BlockPatternWhereInput | BlockPatternWhereInput[]
+    OR?: BlockPatternWhereInput[]
+    NOT?: BlockPatternWhereInput | BlockPatternWhereInput[]
+    name?: StringFilter<"BlockPattern"> | string
+    title?: StringFilter<"BlockPattern"> | string
+    description?: StringNullableFilter<"BlockPattern"> | string | null
+    category?: StringFilter<"BlockPattern"> | string
+    categories?: JsonFilter<"BlockPattern">
+    content?: JsonFilter<"BlockPattern">
+    viewportWidth?: IntNullableFilter<"BlockPattern"> | number | null
+    blockTypes?: JsonFilter<"BlockPattern">
+    keywords?: JsonFilter<"BlockPattern">
+    isSynced?: BoolFilter<"BlockPattern"> | boolean
+    syncStatus?: StringFilter<"BlockPattern"> | string
+    workspaceId?: UuidNullableFilter<"BlockPattern"> | string | null
+    organizationId?: UuidNullableFilter<"BlockPattern"> | string | null
+    userId?: UuidFilter<"BlockPattern"> | string
+    version?: IntFilter<"BlockPattern"> | number
+    createdAt?: DateTimeFilter<"BlockPattern"> | Date | string
+    updatedAt?: DateTimeFilter<"BlockPattern"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    workspace?: XOR<WorkspaceNullableScalarRelationFilter, WorkspaceWhereInput> | null
+    organization?: XOR<OrganizationNullableScalarRelationFilter, OrganizationWhereInput> | null
+    revisions?: SyncedPatternRevisionListRelationFilter
+  }, "id" | "name_workspaceId">
+
+  export type BlockPatternOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    title?: SortOrder
+    description?: SortOrderInput | SortOrder
+    category?: SortOrder
+    categories?: SortOrder
+    content?: SortOrder
+    viewportWidth?: SortOrderInput | SortOrder
+    blockTypes?: SortOrder
+    keywords?: SortOrder
+    isSynced?: SortOrder
+    syncStatus?: SortOrder
+    workspaceId?: SortOrderInput | SortOrder
+    organizationId?: SortOrderInput | SortOrder
+    userId?: SortOrder
+    version?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: BlockPatternCountOrderByAggregateInput
+    _avg?: BlockPatternAvgOrderByAggregateInput
+    _max?: BlockPatternMaxOrderByAggregateInput
+    _min?: BlockPatternMinOrderByAggregateInput
+    _sum?: BlockPatternSumOrderByAggregateInput
+  }
+
+  export type BlockPatternScalarWhereWithAggregatesInput = {
+    AND?: BlockPatternScalarWhereWithAggregatesInput | BlockPatternScalarWhereWithAggregatesInput[]
+    OR?: BlockPatternScalarWhereWithAggregatesInput[]
+    NOT?: BlockPatternScalarWhereWithAggregatesInput | BlockPatternScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"BlockPattern"> | string
+    name?: StringWithAggregatesFilter<"BlockPattern"> | string
+    title?: StringWithAggregatesFilter<"BlockPattern"> | string
+    description?: StringNullableWithAggregatesFilter<"BlockPattern"> | string | null
+    category?: StringWithAggregatesFilter<"BlockPattern"> | string
+    categories?: JsonWithAggregatesFilter<"BlockPattern">
+    content?: JsonWithAggregatesFilter<"BlockPattern">
+    viewportWidth?: IntNullableWithAggregatesFilter<"BlockPattern"> | number | null
+    blockTypes?: JsonWithAggregatesFilter<"BlockPattern">
+    keywords?: JsonWithAggregatesFilter<"BlockPattern">
+    isSynced?: BoolWithAggregatesFilter<"BlockPattern"> | boolean
+    syncStatus?: StringWithAggregatesFilter<"BlockPattern"> | string
+    workspaceId?: UuidNullableWithAggregatesFilter<"BlockPattern"> | string | null
+    organizationId?: UuidNullableWithAggregatesFilter<"BlockPattern"> | string | null
+    userId?: UuidWithAggregatesFilter<"BlockPattern"> | string
+    version?: IntWithAggregatesFilter<"BlockPattern"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"BlockPattern"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"BlockPattern"> | Date | string
+  }
+
+  export type SyncedPatternRevisionWhereInput = {
+    AND?: SyncedPatternRevisionWhereInput | SyncedPatternRevisionWhereInput[]
+    OR?: SyncedPatternRevisionWhereInput[]
+    NOT?: SyncedPatternRevisionWhereInput | SyncedPatternRevisionWhereInput[]
+    id?: UuidFilter<"SyncedPatternRevision"> | string
+    patternId?: UuidFilter<"SyncedPatternRevision"> | string
+    version?: IntFilter<"SyncedPatternRevision"> | number
+    title?: StringFilter<"SyncedPatternRevision"> | string
+    content?: JsonFilter<"SyncedPatternRevision">
+    description?: StringNullableFilter<"SyncedPatternRevision"> | string | null
+    createdBy?: UuidNullableFilter<"SyncedPatternRevision"> | string | null
+    createdAt?: DateTimeFilter<"SyncedPatternRevision"> | Date | string
+    pattern?: XOR<BlockPatternScalarRelationFilter, BlockPatternWhereInput>
+    creator?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }
+
+  export type SyncedPatternRevisionOrderByWithRelationInput = {
+    id?: SortOrder
+    patternId?: SortOrder
+    version?: SortOrder
+    title?: SortOrder
+    content?: SortOrder
+    description?: SortOrderInput | SortOrder
+    createdBy?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    pattern?: BlockPatternOrderByWithRelationInput
+    creator?: UserOrderByWithRelationInput
+  }
+
+  export type SyncedPatternRevisionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    patternId_version?: SyncedPatternRevisionPatternIdVersionCompoundUniqueInput
+    AND?: SyncedPatternRevisionWhereInput | SyncedPatternRevisionWhereInput[]
+    OR?: SyncedPatternRevisionWhereInput[]
+    NOT?: SyncedPatternRevisionWhereInput | SyncedPatternRevisionWhereInput[]
+    patternId?: UuidFilter<"SyncedPatternRevision"> | string
+    version?: IntFilter<"SyncedPatternRevision"> | number
+    title?: StringFilter<"SyncedPatternRevision"> | string
+    content?: JsonFilter<"SyncedPatternRevision">
+    description?: StringNullableFilter<"SyncedPatternRevision"> | string | null
+    createdBy?: UuidNullableFilter<"SyncedPatternRevision"> | string | null
+    createdAt?: DateTimeFilter<"SyncedPatternRevision"> | Date | string
+    pattern?: XOR<BlockPatternScalarRelationFilter, BlockPatternWhereInput>
+    creator?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }, "id" | "patternId_version">
+
+  export type SyncedPatternRevisionOrderByWithAggregationInput = {
+    id?: SortOrder
+    patternId?: SortOrder
+    version?: SortOrder
+    title?: SortOrder
+    content?: SortOrder
+    description?: SortOrderInput | SortOrder
+    createdBy?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: SyncedPatternRevisionCountOrderByAggregateInput
+    _avg?: SyncedPatternRevisionAvgOrderByAggregateInput
+    _max?: SyncedPatternRevisionMaxOrderByAggregateInput
+    _min?: SyncedPatternRevisionMinOrderByAggregateInput
+    _sum?: SyncedPatternRevisionSumOrderByAggregateInput
+  }
+
+  export type SyncedPatternRevisionScalarWhereWithAggregatesInput = {
+    AND?: SyncedPatternRevisionScalarWhereWithAggregatesInput | SyncedPatternRevisionScalarWhereWithAggregatesInput[]
+    OR?: SyncedPatternRevisionScalarWhereWithAggregatesInput[]
+    NOT?: SyncedPatternRevisionScalarWhereWithAggregatesInput | SyncedPatternRevisionScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"SyncedPatternRevision"> | string
+    patternId?: UuidWithAggregatesFilter<"SyncedPatternRevision"> | string
+    version?: IntWithAggregatesFilter<"SyncedPatternRevision"> | number
+    title?: StringWithAggregatesFilter<"SyncedPatternRevision"> | string
+    content?: JsonWithAggregatesFilter<"SyncedPatternRevision">
+    description?: StringNullableWithAggregatesFilter<"SyncedPatternRevision"> | string | null
+    createdBy?: UuidNullableWithAggregatesFilter<"SyncedPatternRevision"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"SyncedPatternRevision"> | Date | string
+  }
+
+  export type BlockTemplateWhereInput = {
+    AND?: BlockTemplateWhereInput | BlockTemplateWhereInput[]
+    OR?: BlockTemplateWhereInput[]
+    NOT?: BlockTemplateWhereInput | BlockTemplateWhereInput[]
+    id?: UuidFilter<"BlockTemplate"> | string
+    slug?: StringFilter<"BlockTemplate"> | string
+    title?: StringFilter<"BlockTemplate"> | string
+    description?: StringNullableFilter<"BlockTemplate"> | string | null
+    type?: StringFilter<"BlockTemplate"> | string
+    content?: JsonFilter<"BlockTemplate">
+    templateLock?: StringNullableFilter<"BlockTemplate"> | string | null
+    isDefault?: BoolFilter<"BlockTemplate"> | boolean
+    assignedPageIds?: StringNullableListFilter<"BlockTemplate">
+    workspaceId?: UuidNullableFilter<"BlockTemplate"> | string | null
+    organizationId?: UuidNullableFilter<"BlockTemplate"> | string | null
+    userId?: UuidFilter<"BlockTemplate"> | string
+    version?: IntFilter<"BlockTemplate"> | number
+    createdAt?: DateTimeFilter<"BlockTemplate"> | Date | string
+    updatedAt?: DateTimeFilter<"BlockTemplate"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    workspace?: XOR<WorkspaceNullableScalarRelationFilter, WorkspaceWhereInput> | null
+    organization?: XOR<OrganizationNullableScalarRelationFilter, OrganizationWhereInput> | null
+  }
+
+  export type BlockTemplateOrderByWithRelationInput = {
+    id?: SortOrder
+    slug?: SortOrder
+    title?: SortOrder
+    description?: SortOrderInput | SortOrder
+    type?: SortOrder
+    content?: SortOrder
+    templateLock?: SortOrderInput | SortOrder
+    isDefault?: SortOrder
+    assignedPageIds?: SortOrder
+    workspaceId?: SortOrderInput | SortOrder
+    organizationId?: SortOrderInput | SortOrder
+    userId?: SortOrder
+    version?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+    workspace?: WorkspaceOrderByWithRelationInput
+    organization?: OrganizationOrderByWithRelationInput
+  }
+
+  export type BlockTemplateWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    slug_workspaceId?: BlockTemplateSlugWorkspaceIdCompoundUniqueInput
+    AND?: BlockTemplateWhereInput | BlockTemplateWhereInput[]
+    OR?: BlockTemplateWhereInput[]
+    NOT?: BlockTemplateWhereInput | BlockTemplateWhereInput[]
+    slug?: StringFilter<"BlockTemplate"> | string
+    title?: StringFilter<"BlockTemplate"> | string
+    description?: StringNullableFilter<"BlockTemplate"> | string | null
+    type?: StringFilter<"BlockTemplate"> | string
+    content?: JsonFilter<"BlockTemplate">
+    templateLock?: StringNullableFilter<"BlockTemplate"> | string | null
+    isDefault?: BoolFilter<"BlockTemplate"> | boolean
+    assignedPageIds?: StringNullableListFilter<"BlockTemplate">
+    workspaceId?: UuidNullableFilter<"BlockTemplate"> | string | null
+    organizationId?: UuidNullableFilter<"BlockTemplate"> | string | null
+    userId?: UuidFilter<"BlockTemplate"> | string
+    version?: IntFilter<"BlockTemplate"> | number
+    createdAt?: DateTimeFilter<"BlockTemplate"> | Date | string
+    updatedAt?: DateTimeFilter<"BlockTemplate"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    workspace?: XOR<WorkspaceNullableScalarRelationFilter, WorkspaceWhereInput> | null
+    organization?: XOR<OrganizationNullableScalarRelationFilter, OrganizationWhereInput> | null
+  }, "id" | "slug_workspaceId">
+
+  export type BlockTemplateOrderByWithAggregationInput = {
+    id?: SortOrder
+    slug?: SortOrder
+    title?: SortOrder
+    description?: SortOrderInput | SortOrder
+    type?: SortOrder
+    content?: SortOrder
+    templateLock?: SortOrderInput | SortOrder
+    isDefault?: SortOrder
+    assignedPageIds?: SortOrder
+    workspaceId?: SortOrderInput | SortOrder
+    organizationId?: SortOrderInput | SortOrder
+    userId?: SortOrder
+    version?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: BlockTemplateCountOrderByAggregateInput
+    _avg?: BlockTemplateAvgOrderByAggregateInput
+    _max?: BlockTemplateMaxOrderByAggregateInput
+    _min?: BlockTemplateMinOrderByAggregateInput
+    _sum?: BlockTemplateSumOrderByAggregateInput
+  }
+
+  export type BlockTemplateScalarWhereWithAggregatesInput = {
+    AND?: BlockTemplateScalarWhereWithAggregatesInput | BlockTemplateScalarWhereWithAggregatesInput[]
+    OR?: BlockTemplateScalarWhereWithAggregatesInput[]
+    NOT?: BlockTemplateScalarWhereWithAggregatesInput | BlockTemplateScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"BlockTemplate"> | string
+    slug?: StringWithAggregatesFilter<"BlockTemplate"> | string
+    title?: StringWithAggregatesFilter<"BlockTemplate"> | string
+    description?: StringNullableWithAggregatesFilter<"BlockTemplate"> | string | null
+    type?: StringWithAggregatesFilter<"BlockTemplate"> | string
+    content?: JsonWithAggregatesFilter<"BlockTemplate">
+    templateLock?: StringNullableWithAggregatesFilter<"BlockTemplate"> | string | null
+    isDefault?: BoolWithAggregatesFilter<"BlockTemplate"> | boolean
+    assignedPageIds?: StringNullableListFilter<"BlockTemplate">
+    workspaceId?: UuidNullableWithAggregatesFilter<"BlockTemplate"> | string | null
+    organizationId?: UuidNullableWithAggregatesFilter<"BlockTemplate"> | string | null
+    userId?: UuidWithAggregatesFilter<"BlockTemplate"> | string
+    version?: IntWithAggregatesFilter<"BlockTemplate"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"BlockTemplate"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"BlockTemplate"> | Date | string
+  }
+
+  export type TemplatePartWhereInput = {
+    AND?: TemplatePartWhereInput | TemplatePartWhereInput[]
+    OR?: TemplatePartWhereInput[]
+    NOT?: TemplatePartWhereInput | TemplatePartWhereInput[]
+    id?: UuidFilter<"TemplatePart"> | string
+    slug?: StringFilter<"TemplatePart"> | string
+    title?: StringFilter<"TemplatePart"> | string
+    area?: StringFilter<"TemplatePart"> | string
+    content?: JsonFilter<"TemplatePart">
+    workspaceId?: UuidNullableFilter<"TemplatePart"> | string | null
+    organizationId?: UuidNullableFilter<"TemplatePart"> | string | null
+    userId?: UuidFilter<"TemplatePart"> | string
+    version?: IntFilter<"TemplatePart"> | number
+    createdAt?: DateTimeFilter<"TemplatePart"> | Date | string
+    updatedAt?: DateTimeFilter<"TemplatePart"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    workspace?: XOR<WorkspaceNullableScalarRelationFilter, WorkspaceWhereInput> | null
+    organization?: XOR<OrganizationNullableScalarRelationFilter, OrganizationWhereInput> | null
+  }
+
+  export type TemplatePartOrderByWithRelationInput = {
+    id?: SortOrder
+    slug?: SortOrder
+    title?: SortOrder
+    area?: SortOrder
+    content?: SortOrder
+    workspaceId?: SortOrderInput | SortOrder
+    organizationId?: SortOrderInput | SortOrder
+    userId?: SortOrder
+    version?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+    workspace?: WorkspaceOrderByWithRelationInput
+    organization?: OrganizationOrderByWithRelationInput
+  }
+
+  export type TemplatePartWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    slug_workspaceId?: TemplatePartSlugWorkspaceIdCompoundUniqueInput
+    AND?: TemplatePartWhereInput | TemplatePartWhereInput[]
+    OR?: TemplatePartWhereInput[]
+    NOT?: TemplatePartWhereInput | TemplatePartWhereInput[]
+    slug?: StringFilter<"TemplatePart"> | string
+    title?: StringFilter<"TemplatePart"> | string
+    area?: StringFilter<"TemplatePart"> | string
+    content?: JsonFilter<"TemplatePart">
+    workspaceId?: UuidNullableFilter<"TemplatePart"> | string | null
+    organizationId?: UuidNullableFilter<"TemplatePart"> | string | null
+    userId?: UuidFilter<"TemplatePart"> | string
+    version?: IntFilter<"TemplatePart"> | number
+    createdAt?: DateTimeFilter<"TemplatePart"> | Date | string
+    updatedAt?: DateTimeFilter<"TemplatePart"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    workspace?: XOR<WorkspaceNullableScalarRelationFilter, WorkspaceWhereInput> | null
+    organization?: XOR<OrganizationNullableScalarRelationFilter, OrganizationWhereInput> | null
+  }, "id" | "slug_workspaceId">
+
+  export type TemplatePartOrderByWithAggregationInput = {
+    id?: SortOrder
+    slug?: SortOrder
+    title?: SortOrder
+    area?: SortOrder
+    content?: SortOrder
+    workspaceId?: SortOrderInput | SortOrder
+    organizationId?: SortOrderInput | SortOrder
+    userId?: SortOrder
+    version?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: TemplatePartCountOrderByAggregateInput
+    _avg?: TemplatePartAvgOrderByAggregateInput
+    _max?: TemplatePartMaxOrderByAggregateInput
+    _min?: TemplatePartMinOrderByAggregateInput
+    _sum?: TemplatePartSumOrderByAggregateInput
+  }
+
+  export type TemplatePartScalarWhereWithAggregatesInput = {
+    AND?: TemplatePartScalarWhereWithAggregatesInput | TemplatePartScalarWhereWithAggregatesInput[]
+    OR?: TemplatePartScalarWhereWithAggregatesInput[]
+    NOT?: TemplatePartScalarWhereWithAggregatesInput | TemplatePartScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"TemplatePart"> | string
+    slug?: StringWithAggregatesFilter<"TemplatePart"> | string
+    title?: StringWithAggregatesFilter<"TemplatePart"> | string
+    area?: StringWithAggregatesFilter<"TemplatePart"> | string
+    content?: JsonWithAggregatesFilter<"TemplatePart">
+    workspaceId?: UuidNullableWithAggregatesFilter<"TemplatePart"> | string | null
+    organizationId?: UuidNullableWithAggregatesFilter<"TemplatePart"> | string | null
+    userId?: UuidWithAggregatesFilter<"TemplatePart"> | string
+    version?: IntWithAggregatesFilter<"TemplatePart"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"TemplatePart"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"TemplatePart"> | Date | string
+  }
+
+  export type GlobalStyleConfigWhereInput = {
+    AND?: GlobalStyleConfigWhereInput | GlobalStyleConfigWhereInput[]
+    OR?: GlobalStyleConfigWhereInput[]
+    NOT?: GlobalStyleConfigWhereInput | GlobalStyleConfigWhereInput[]
+    id?: UuidFilter<"GlobalStyleConfig"> | string
+    name?: StringFilter<"GlobalStyleConfig"> | string
+    styles?: JsonFilter<"GlobalStyleConfig">
+    workspaceId?: UuidNullableFilter<"GlobalStyleConfig"> | string | null
+    organizationId?: UuidNullableFilter<"GlobalStyleConfig"> | string | null
+    userId?: UuidFilter<"GlobalStyleConfig"> | string
+    version?: IntFilter<"GlobalStyleConfig"> | number
+    createdAt?: DateTimeFilter<"GlobalStyleConfig"> | Date | string
+    updatedAt?: DateTimeFilter<"GlobalStyleConfig"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    workspace?: XOR<WorkspaceNullableScalarRelationFilter, WorkspaceWhereInput> | null
+    organization?: XOR<OrganizationNullableScalarRelationFilter, OrganizationWhereInput> | null
+  }
+
+  export type GlobalStyleConfigOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    styles?: SortOrder
+    workspaceId?: SortOrderInput | SortOrder
+    organizationId?: SortOrderInput | SortOrder
+    userId?: SortOrder
+    version?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+    workspace?: WorkspaceOrderByWithRelationInput
+    organization?: OrganizationOrderByWithRelationInput
+  }
+
+  export type GlobalStyleConfigWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: GlobalStyleConfigWhereInput | GlobalStyleConfigWhereInput[]
+    OR?: GlobalStyleConfigWhereInput[]
+    NOT?: GlobalStyleConfigWhereInput | GlobalStyleConfigWhereInput[]
+    name?: StringFilter<"GlobalStyleConfig"> | string
+    styles?: JsonFilter<"GlobalStyleConfig">
+    workspaceId?: UuidNullableFilter<"GlobalStyleConfig"> | string | null
+    organizationId?: UuidNullableFilter<"GlobalStyleConfig"> | string | null
+    userId?: UuidFilter<"GlobalStyleConfig"> | string
+    version?: IntFilter<"GlobalStyleConfig"> | number
+    createdAt?: DateTimeFilter<"GlobalStyleConfig"> | Date | string
+    updatedAt?: DateTimeFilter<"GlobalStyleConfig"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    workspace?: XOR<WorkspaceNullableScalarRelationFilter, WorkspaceWhereInput> | null
+    organization?: XOR<OrganizationNullableScalarRelationFilter, OrganizationWhereInput> | null
+  }, "id">
+
+  export type GlobalStyleConfigOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    styles?: SortOrder
+    workspaceId?: SortOrderInput | SortOrder
+    organizationId?: SortOrderInput | SortOrder
+    userId?: SortOrder
+    version?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: GlobalStyleConfigCountOrderByAggregateInput
+    _avg?: GlobalStyleConfigAvgOrderByAggregateInput
+    _max?: GlobalStyleConfigMaxOrderByAggregateInput
+    _min?: GlobalStyleConfigMinOrderByAggregateInput
+    _sum?: GlobalStyleConfigSumOrderByAggregateInput
+  }
+
+  export type GlobalStyleConfigScalarWhereWithAggregatesInput = {
+    AND?: GlobalStyleConfigScalarWhereWithAggregatesInput | GlobalStyleConfigScalarWhereWithAggregatesInput[]
+    OR?: GlobalStyleConfigScalarWhereWithAggregatesInput[]
+    NOT?: GlobalStyleConfigScalarWhereWithAggregatesInput | GlobalStyleConfigScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"GlobalStyleConfig"> | string
+    name?: StringWithAggregatesFilter<"GlobalStyleConfig"> | string
+    styles?: JsonWithAggregatesFilter<"GlobalStyleConfig">
+    workspaceId?: UuidNullableWithAggregatesFilter<"GlobalStyleConfig"> | string | null
+    organizationId?: UuidNullableWithAggregatesFilter<"GlobalStyleConfig"> | string | null
+    userId?: UuidWithAggregatesFilter<"GlobalStyleConfig"> | string
+    version?: IntWithAggregatesFilter<"GlobalStyleConfig"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"GlobalStyleConfig"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"GlobalStyleConfig"> | Date | string
+  }
+
   export type UserCreateInput = {
     id?: string
     fullName?: string | null
@@ -69805,6 +77595,11 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -69855,6 +77650,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -69905,6 +77705,11 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -69955,6 +77760,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -72857,6 +80667,10 @@ export namespace Prisma {
     owner: UserCreateNestedOneWithoutOwnedWorkspacesInput
     members?: WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
     websites?: WebsiteCreateNestedManyWithoutWorkspaceInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutWorkspaceInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutWorkspaceInput
+    templateParts?: TemplatePartCreateNestedManyWithoutWorkspaceInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceUncheckedCreateInput = {
@@ -72870,6 +80684,10 @@ export namespace Prisma {
     updatedAt?: Date | string
     members?: WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
     websites?: WebsiteUncheckedCreateNestedManyWithoutWorkspaceInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutWorkspaceInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutWorkspaceInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutWorkspaceInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceUpdateInput = {
@@ -72883,6 +80701,10 @@ export namespace Prisma {
     owner?: UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
     members?: WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
     websites?: WebsiteUpdateManyWithoutWorkspaceNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutWorkspaceNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutWorkspaceNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutWorkspaceNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type WorkspaceUncheckedUpdateInput = {
@@ -72896,6 +80718,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
     websites?: WebsiteUncheckedUpdateManyWithoutWorkspaceNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutWorkspaceNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutWorkspaceNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutWorkspaceNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type WorkspaceCreateManyInput = {
@@ -72940,6 +80766,10 @@ export namespace Prisma {
     members?: OrganizationMemberCreateNestedManyWithoutOrganizationInput
     workspaces?: WorkspaceCreateNestedManyWithoutOrganizationInput
     websites?: WebsiteCreateNestedManyWithoutOrganizationInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutOrganizationInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutOrganizationInput
+    templateParts?: TemplatePartCreateNestedManyWithoutOrganizationInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationUncheckedCreateInput = {
@@ -72953,6 +80783,10 @@ export namespace Prisma {
     members?: OrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput
     workspaces?: WorkspaceUncheckedCreateNestedManyWithoutOrganizationInput
     websites?: WebsiteUncheckedCreateNestedManyWithoutOrganizationInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutOrganizationInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutOrganizationInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutOrganizationInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationUpdateInput = {
@@ -72966,6 +80800,10 @@ export namespace Prisma {
     members?: OrganizationMemberUpdateManyWithoutOrganizationNestedInput
     workspaces?: WorkspaceUpdateManyWithoutOrganizationNestedInput
     websites?: WebsiteUpdateManyWithoutOrganizationNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutOrganizationNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutOrganizationNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutOrganizationNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OrganizationUncheckedUpdateInput = {
@@ -72979,6 +80817,10 @@ export namespace Prisma {
     members?: OrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput
     workspaces?: WorkspaceUncheckedUpdateManyWithoutOrganizationNestedInput
     websites?: WebsiteUncheckedUpdateManyWithoutOrganizationNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutOrganizationNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutOrganizationNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutOrganizationNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OrganizationCreateManyInput = {
@@ -74207,6 +82049,528 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type BlockPatternCreateInput = {
+    id?: string
+    name: string
+    title: string
+    description?: string | null
+    category?: string
+    categories?: JsonNullValueInput | InputJsonValue
+    content?: JsonNullValueInput | InputJsonValue
+    viewportWidth?: number | null
+    blockTypes?: JsonNullValueInput | InputJsonValue
+    keywords?: JsonNullValueInput | InputJsonValue
+    isSynced?: boolean
+    syncStatus?: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutBlockPatternsInput
+    workspace?: WorkspaceCreateNestedOneWithoutBlockPatternsInput
+    organization?: OrganizationCreateNestedOneWithoutBlockPatternsInput
+    revisions?: SyncedPatternRevisionCreateNestedManyWithoutPatternInput
+  }
+
+  export type BlockPatternUncheckedCreateInput = {
+    id?: string
+    name: string
+    title: string
+    description?: string | null
+    category?: string
+    categories?: JsonNullValueInput | InputJsonValue
+    content?: JsonNullValueInput | InputJsonValue
+    viewportWidth?: number | null
+    blockTypes?: JsonNullValueInput | InputJsonValue
+    keywords?: JsonNullValueInput | InputJsonValue
+    isSynced?: boolean
+    syncStatus?: string
+    workspaceId?: string | null
+    organizationId?: string | null
+    userId: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    revisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutPatternInput
+  }
+
+  export type BlockPatternUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: StringFieldUpdateOperationsInput | string
+    categories?: JsonNullValueInput | InputJsonValue
+    content?: JsonNullValueInput | InputJsonValue
+    viewportWidth?: NullableIntFieldUpdateOperationsInput | number | null
+    blockTypes?: JsonNullValueInput | InputJsonValue
+    keywords?: JsonNullValueInput | InputJsonValue
+    isSynced?: BoolFieldUpdateOperationsInput | boolean
+    syncStatus?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutBlockPatternsNestedInput
+    workspace?: WorkspaceUpdateOneWithoutBlockPatternsNestedInput
+    organization?: OrganizationUpdateOneWithoutBlockPatternsNestedInput
+    revisions?: SyncedPatternRevisionUpdateManyWithoutPatternNestedInput
+  }
+
+  export type BlockPatternUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: StringFieldUpdateOperationsInput | string
+    categories?: JsonNullValueInput | InputJsonValue
+    content?: JsonNullValueInput | InputJsonValue
+    viewportWidth?: NullableIntFieldUpdateOperationsInput | number | null
+    blockTypes?: JsonNullValueInput | InputJsonValue
+    keywords?: JsonNullValueInput | InputJsonValue
+    isSynced?: BoolFieldUpdateOperationsInput | boolean
+    syncStatus?: StringFieldUpdateOperationsInput | string
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    revisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutPatternNestedInput
+  }
+
+  export type BlockPatternCreateManyInput = {
+    id?: string
+    name: string
+    title: string
+    description?: string | null
+    category?: string
+    categories?: JsonNullValueInput | InputJsonValue
+    content?: JsonNullValueInput | InputJsonValue
+    viewportWidth?: number | null
+    blockTypes?: JsonNullValueInput | InputJsonValue
+    keywords?: JsonNullValueInput | InputJsonValue
+    isSynced?: boolean
+    syncStatus?: string
+    workspaceId?: string | null
+    organizationId?: string | null
+    userId: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BlockPatternUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: StringFieldUpdateOperationsInput | string
+    categories?: JsonNullValueInput | InputJsonValue
+    content?: JsonNullValueInput | InputJsonValue
+    viewportWidth?: NullableIntFieldUpdateOperationsInput | number | null
+    blockTypes?: JsonNullValueInput | InputJsonValue
+    keywords?: JsonNullValueInput | InputJsonValue
+    isSynced?: BoolFieldUpdateOperationsInput | boolean
+    syncStatus?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BlockPatternUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: StringFieldUpdateOperationsInput | string
+    categories?: JsonNullValueInput | InputJsonValue
+    content?: JsonNullValueInput | InputJsonValue
+    viewportWidth?: NullableIntFieldUpdateOperationsInput | number | null
+    blockTypes?: JsonNullValueInput | InputJsonValue
+    keywords?: JsonNullValueInput | InputJsonValue
+    isSynced?: BoolFieldUpdateOperationsInput | boolean
+    syncStatus?: StringFieldUpdateOperationsInput | string
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SyncedPatternRevisionCreateInput = {
+    id?: string
+    version: number
+    title: string
+    content: JsonNullValueInput | InputJsonValue
+    description?: string | null
+    createdAt?: Date | string
+    pattern: BlockPatternCreateNestedOneWithoutRevisionsInput
+    creator?: UserCreateNestedOneWithoutSyncedPatternRevisionsInput
+  }
+
+  export type SyncedPatternRevisionUncheckedCreateInput = {
+    id?: string
+    patternId: string
+    version: number
+    title: string
+    content: JsonNullValueInput | InputJsonValue
+    description?: string | null
+    createdBy?: string | null
+    createdAt?: Date | string
+  }
+
+  export type SyncedPatternRevisionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    title?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    pattern?: BlockPatternUpdateOneRequiredWithoutRevisionsNestedInput
+    creator?: UserUpdateOneWithoutSyncedPatternRevisionsNestedInput
+  }
+
+  export type SyncedPatternRevisionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    patternId?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    title?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SyncedPatternRevisionCreateManyInput = {
+    id?: string
+    patternId: string
+    version: number
+    title: string
+    content: JsonNullValueInput | InputJsonValue
+    description?: string | null
+    createdBy?: string | null
+    createdAt?: Date | string
+  }
+
+  export type SyncedPatternRevisionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    title?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SyncedPatternRevisionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    patternId?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    title?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BlockTemplateCreateInput = {
+    id?: string
+    slug: string
+    title: string
+    description?: string | null
+    type?: string
+    content: JsonNullValueInput | InputJsonValue
+    templateLock?: string | null
+    isDefault?: boolean
+    assignedPageIds?: BlockTemplateCreateassignedPageIdsInput | string[]
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutBlockTemplatesInput
+    workspace?: WorkspaceCreateNestedOneWithoutBlockTemplatesInput
+    organization?: OrganizationCreateNestedOneWithoutBlockTemplatesInput
+  }
+
+  export type BlockTemplateUncheckedCreateInput = {
+    id?: string
+    slug: string
+    title: string
+    description?: string | null
+    type?: string
+    content: JsonNullValueInput | InputJsonValue
+    templateLock?: string | null
+    isDefault?: boolean
+    assignedPageIds?: BlockTemplateCreateassignedPageIdsInput | string[]
+    workspaceId?: string | null
+    organizationId?: string | null
+    userId: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BlockTemplateUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    templateLock?: NullableStringFieldUpdateOperationsInput | string | null
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    assignedPageIds?: BlockTemplateUpdateassignedPageIdsInput | string[]
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutBlockTemplatesNestedInput
+    workspace?: WorkspaceUpdateOneWithoutBlockTemplatesNestedInput
+    organization?: OrganizationUpdateOneWithoutBlockTemplatesNestedInput
+  }
+
+  export type BlockTemplateUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    templateLock?: NullableStringFieldUpdateOperationsInput | string | null
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    assignedPageIds?: BlockTemplateUpdateassignedPageIdsInput | string[]
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BlockTemplateCreateManyInput = {
+    id?: string
+    slug: string
+    title: string
+    description?: string | null
+    type?: string
+    content: JsonNullValueInput | InputJsonValue
+    templateLock?: string | null
+    isDefault?: boolean
+    assignedPageIds?: BlockTemplateCreateassignedPageIdsInput | string[]
+    workspaceId?: string | null
+    organizationId?: string | null
+    userId: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BlockTemplateUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    templateLock?: NullableStringFieldUpdateOperationsInput | string | null
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    assignedPageIds?: BlockTemplateUpdateassignedPageIdsInput | string[]
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BlockTemplateUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    templateLock?: NullableStringFieldUpdateOperationsInput | string | null
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    assignedPageIds?: BlockTemplateUpdateassignedPageIdsInput | string[]
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TemplatePartCreateInput = {
+    id?: string
+    slug: string
+    title: string
+    area?: string
+    content: JsonNullValueInput | InputJsonValue
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutTemplatePartsInput
+    workspace?: WorkspaceCreateNestedOneWithoutTemplatePartsInput
+    organization?: OrganizationCreateNestedOneWithoutTemplatePartsInput
+  }
+
+  export type TemplatePartUncheckedCreateInput = {
+    id?: string
+    slug: string
+    title: string
+    area?: string
+    content: JsonNullValueInput | InputJsonValue
+    workspaceId?: string | null
+    organizationId?: string | null
+    userId: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TemplatePartUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    area?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutTemplatePartsNestedInput
+    workspace?: WorkspaceUpdateOneWithoutTemplatePartsNestedInput
+    organization?: OrganizationUpdateOneWithoutTemplatePartsNestedInput
+  }
+
+  export type TemplatePartUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    area?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TemplatePartCreateManyInput = {
+    id?: string
+    slug: string
+    title: string
+    area?: string
+    content: JsonNullValueInput | InputJsonValue
+    workspaceId?: string | null
+    organizationId?: string | null
+    userId: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TemplatePartUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    area?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TemplatePartUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    area?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GlobalStyleConfigCreateInput = {
+    id?: string
+    name?: string
+    styles: JsonNullValueInput | InputJsonValue
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutGlobalStyleConfigsInput
+    workspace?: WorkspaceCreateNestedOneWithoutGlobalStyleConfigsInput
+    organization?: OrganizationCreateNestedOneWithoutGlobalStyleConfigsInput
+  }
+
+  export type GlobalStyleConfigUncheckedCreateInput = {
+    id?: string
+    name?: string
+    styles: JsonNullValueInput | InputJsonValue
+    workspaceId?: string | null
+    organizationId?: string | null
+    userId: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GlobalStyleConfigUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    styles?: JsonNullValueInput | InputJsonValue
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutGlobalStyleConfigsNestedInput
+    workspace?: WorkspaceUpdateOneWithoutGlobalStyleConfigsNestedInput
+    organization?: OrganizationUpdateOneWithoutGlobalStyleConfigsNestedInput
+  }
+
+  export type GlobalStyleConfigUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    styles?: JsonNullValueInput | InputJsonValue
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GlobalStyleConfigCreateManyInput = {
+    id?: string
+    name?: string
+    styles: JsonNullValueInput | InputJsonValue
+    workspaceId?: string | null
+    organizationId?: string | null
+    userId: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GlobalStyleConfigUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    styles?: JsonNullValueInput | InputJsonValue
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GlobalStyleConfigUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    styles?: JsonNullValueInput | InputJsonValue
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type UuidFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -74483,6 +82847,36 @@ export namespace Prisma {
     none?: BillingInvoiceWhereInput
   }
 
+  export type BlockPatternListRelationFilter = {
+    every?: BlockPatternWhereInput
+    some?: BlockPatternWhereInput
+    none?: BlockPatternWhereInput
+  }
+
+  export type SyncedPatternRevisionListRelationFilter = {
+    every?: SyncedPatternRevisionWhereInput
+    some?: SyncedPatternRevisionWhereInput
+    none?: SyncedPatternRevisionWhereInput
+  }
+
+  export type BlockTemplateListRelationFilter = {
+    every?: BlockTemplateWhereInput
+    some?: BlockTemplateWhereInput
+    none?: BlockTemplateWhereInput
+  }
+
+  export type TemplatePartListRelationFilter = {
+    every?: TemplatePartWhereInput
+    some?: TemplatePartWhereInput
+    none?: TemplatePartWhereInput
+  }
+
+  export type GlobalStyleConfigListRelationFilter = {
+    every?: GlobalStyleConfigWhereInput
+    some?: GlobalStyleConfigWhereInput
+    none?: GlobalStyleConfigWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -74605,6 +82999,26 @@ export namespace Prisma {
   }
 
   export type BillingInvoiceOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type BlockPatternOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type SyncedPatternRevisionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type BlockTemplateOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type TemplatePartOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type GlobalStyleConfigOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -77199,6 +85613,291 @@ export namespace Prisma {
     _max?: NestedFloatFilter<$PrismaModel>
   }
 
+  export type BlockPatternNameWorkspaceIdCompoundUniqueInput = {
+    name: string
+    workspaceId: string
+  }
+
+  export type BlockPatternCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    category?: SortOrder
+    categories?: SortOrder
+    content?: SortOrder
+    viewportWidth?: SortOrder
+    blockTypes?: SortOrder
+    keywords?: SortOrder
+    isSynced?: SortOrder
+    syncStatus?: SortOrder
+    workspaceId?: SortOrder
+    organizationId?: SortOrder
+    userId?: SortOrder
+    version?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BlockPatternAvgOrderByAggregateInput = {
+    viewportWidth?: SortOrder
+    version?: SortOrder
+  }
+
+  export type BlockPatternMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    category?: SortOrder
+    viewportWidth?: SortOrder
+    isSynced?: SortOrder
+    syncStatus?: SortOrder
+    workspaceId?: SortOrder
+    organizationId?: SortOrder
+    userId?: SortOrder
+    version?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BlockPatternMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    category?: SortOrder
+    viewportWidth?: SortOrder
+    isSynced?: SortOrder
+    syncStatus?: SortOrder
+    workspaceId?: SortOrder
+    organizationId?: SortOrder
+    userId?: SortOrder
+    version?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BlockPatternSumOrderByAggregateInput = {
+    viewportWidth?: SortOrder
+    version?: SortOrder
+  }
+
+  export type BlockPatternScalarRelationFilter = {
+    is?: BlockPatternWhereInput
+    isNot?: BlockPatternWhereInput
+  }
+
+  export type SyncedPatternRevisionPatternIdVersionCompoundUniqueInput = {
+    patternId: string
+    version: number
+  }
+
+  export type SyncedPatternRevisionCountOrderByAggregateInput = {
+    id?: SortOrder
+    patternId?: SortOrder
+    version?: SortOrder
+    title?: SortOrder
+    content?: SortOrder
+    description?: SortOrder
+    createdBy?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type SyncedPatternRevisionAvgOrderByAggregateInput = {
+    version?: SortOrder
+  }
+
+  export type SyncedPatternRevisionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    patternId?: SortOrder
+    version?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    createdBy?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type SyncedPatternRevisionMinOrderByAggregateInput = {
+    id?: SortOrder
+    patternId?: SortOrder
+    version?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    createdBy?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type SyncedPatternRevisionSumOrderByAggregateInput = {
+    version?: SortOrder
+  }
+
+  export type StringNullableListFilter<$PrismaModel = never> = {
+    equals?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    has?: string | StringFieldRefInput<$PrismaModel> | null
+    hasEvery?: string[] | ListStringFieldRefInput<$PrismaModel>
+    hasSome?: string[] | ListStringFieldRefInput<$PrismaModel>
+    isEmpty?: boolean
+  }
+
+  export type BlockTemplateSlugWorkspaceIdCompoundUniqueInput = {
+    slug: string
+    workspaceId: string
+  }
+
+  export type BlockTemplateCountOrderByAggregateInput = {
+    id?: SortOrder
+    slug?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    type?: SortOrder
+    content?: SortOrder
+    templateLock?: SortOrder
+    isDefault?: SortOrder
+    assignedPageIds?: SortOrder
+    workspaceId?: SortOrder
+    organizationId?: SortOrder
+    userId?: SortOrder
+    version?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BlockTemplateAvgOrderByAggregateInput = {
+    version?: SortOrder
+  }
+
+  export type BlockTemplateMaxOrderByAggregateInput = {
+    id?: SortOrder
+    slug?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    type?: SortOrder
+    templateLock?: SortOrder
+    isDefault?: SortOrder
+    workspaceId?: SortOrder
+    organizationId?: SortOrder
+    userId?: SortOrder
+    version?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BlockTemplateMinOrderByAggregateInput = {
+    id?: SortOrder
+    slug?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    type?: SortOrder
+    templateLock?: SortOrder
+    isDefault?: SortOrder
+    workspaceId?: SortOrder
+    organizationId?: SortOrder
+    userId?: SortOrder
+    version?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BlockTemplateSumOrderByAggregateInput = {
+    version?: SortOrder
+  }
+
+  export type TemplatePartSlugWorkspaceIdCompoundUniqueInput = {
+    slug: string
+    workspaceId: string
+  }
+
+  export type TemplatePartCountOrderByAggregateInput = {
+    id?: SortOrder
+    slug?: SortOrder
+    title?: SortOrder
+    area?: SortOrder
+    content?: SortOrder
+    workspaceId?: SortOrder
+    organizationId?: SortOrder
+    userId?: SortOrder
+    version?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TemplatePartAvgOrderByAggregateInput = {
+    version?: SortOrder
+  }
+
+  export type TemplatePartMaxOrderByAggregateInput = {
+    id?: SortOrder
+    slug?: SortOrder
+    title?: SortOrder
+    area?: SortOrder
+    workspaceId?: SortOrder
+    organizationId?: SortOrder
+    userId?: SortOrder
+    version?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TemplatePartMinOrderByAggregateInput = {
+    id?: SortOrder
+    slug?: SortOrder
+    title?: SortOrder
+    area?: SortOrder
+    workspaceId?: SortOrder
+    organizationId?: SortOrder
+    userId?: SortOrder
+    version?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TemplatePartSumOrderByAggregateInput = {
+    version?: SortOrder
+  }
+
+  export type GlobalStyleConfigCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    styles?: SortOrder
+    workspaceId?: SortOrder
+    organizationId?: SortOrder
+    userId?: SortOrder
+    version?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type GlobalStyleConfigAvgOrderByAggregateInput = {
+    version?: SortOrder
+  }
+
+  export type GlobalStyleConfigMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    workspaceId?: SortOrder
+    organizationId?: SortOrder
+    userId?: SortOrder
+    version?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type GlobalStyleConfigMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    workspaceId?: SortOrder
+    organizationId?: SortOrder
+    userId?: SortOrder
+    version?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type GlobalStyleConfigSumOrderByAggregateInput = {
+    version?: SortOrder
+  }
+
   export type IdentityCreateNestedManyWithoutUserInput = {
     create?: XOR<IdentityCreateWithoutUserInput, IdentityUncheckedCreateWithoutUserInput> | IdentityCreateWithoutUserInput[] | IdentityUncheckedCreateWithoutUserInput[]
     connectOrCreate?: IdentityCreateOrConnectWithoutUserInput | IdentityCreateOrConnectWithoutUserInput[]
@@ -77428,6 +86127,41 @@ export namespace Prisma {
     connect?: BillingInvoiceWhereUniqueInput | BillingInvoiceWhereUniqueInput[]
   }
 
+  export type BlockPatternCreateNestedManyWithoutUserInput = {
+    create?: XOR<BlockPatternCreateWithoutUserInput, BlockPatternUncheckedCreateWithoutUserInput> | BlockPatternCreateWithoutUserInput[] | BlockPatternUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: BlockPatternCreateOrConnectWithoutUserInput | BlockPatternCreateOrConnectWithoutUserInput[]
+    createMany?: BlockPatternCreateManyUserInputEnvelope
+    connect?: BlockPatternWhereUniqueInput | BlockPatternWhereUniqueInput[]
+  }
+
+  export type SyncedPatternRevisionCreateNestedManyWithoutCreatorInput = {
+    create?: XOR<SyncedPatternRevisionCreateWithoutCreatorInput, SyncedPatternRevisionUncheckedCreateWithoutCreatorInput> | SyncedPatternRevisionCreateWithoutCreatorInput[] | SyncedPatternRevisionUncheckedCreateWithoutCreatorInput[]
+    connectOrCreate?: SyncedPatternRevisionCreateOrConnectWithoutCreatorInput | SyncedPatternRevisionCreateOrConnectWithoutCreatorInput[]
+    createMany?: SyncedPatternRevisionCreateManyCreatorInputEnvelope
+    connect?: SyncedPatternRevisionWhereUniqueInput | SyncedPatternRevisionWhereUniqueInput[]
+  }
+
+  export type BlockTemplateCreateNestedManyWithoutUserInput = {
+    create?: XOR<BlockTemplateCreateWithoutUserInput, BlockTemplateUncheckedCreateWithoutUserInput> | BlockTemplateCreateWithoutUserInput[] | BlockTemplateUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: BlockTemplateCreateOrConnectWithoutUserInput | BlockTemplateCreateOrConnectWithoutUserInput[]
+    createMany?: BlockTemplateCreateManyUserInputEnvelope
+    connect?: BlockTemplateWhereUniqueInput | BlockTemplateWhereUniqueInput[]
+  }
+
+  export type TemplatePartCreateNestedManyWithoutUserInput = {
+    create?: XOR<TemplatePartCreateWithoutUserInput, TemplatePartUncheckedCreateWithoutUserInput> | TemplatePartCreateWithoutUserInput[] | TemplatePartUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: TemplatePartCreateOrConnectWithoutUserInput | TemplatePartCreateOrConnectWithoutUserInput[]
+    createMany?: TemplatePartCreateManyUserInputEnvelope
+    connect?: TemplatePartWhereUniqueInput | TemplatePartWhereUniqueInput[]
+  }
+
+  export type GlobalStyleConfigCreateNestedManyWithoutUserInput = {
+    create?: XOR<GlobalStyleConfigCreateWithoutUserInput, GlobalStyleConfigUncheckedCreateWithoutUserInput> | GlobalStyleConfigCreateWithoutUserInput[] | GlobalStyleConfigUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: GlobalStyleConfigCreateOrConnectWithoutUserInput | GlobalStyleConfigCreateOrConnectWithoutUserInput[]
+    createMany?: GlobalStyleConfigCreateManyUserInputEnvelope
+    connect?: GlobalStyleConfigWhereUniqueInput | GlobalStyleConfigWhereUniqueInput[]
+  }
+
   export type IdentityUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<IdentityCreateWithoutUserInput, IdentityUncheckedCreateWithoutUserInput> | IdentityCreateWithoutUserInput[] | IdentityUncheckedCreateWithoutUserInput[]
     connectOrCreate?: IdentityCreateOrConnectWithoutUserInput | IdentityCreateOrConnectWithoutUserInput[]
@@ -77655,6 +86389,41 @@ export namespace Prisma {
     connectOrCreate?: BillingInvoiceCreateOrConnectWithoutUserInput | BillingInvoiceCreateOrConnectWithoutUserInput[]
     createMany?: BillingInvoiceCreateManyUserInputEnvelope
     connect?: BillingInvoiceWhereUniqueInput | BillingInvoiceWhereUniqueInput[]
+  }
+
+  export type BlockPatternUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<BlockPatternCreateWithoutUserInput, BlockPatternUncheckedCreateWithoutUserInput> | BlockPatternCreateWithoutUserInput[] | BlockPatternUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: BlockPatternCreateOrConnectWithoutUserInput | BlockPatternCreateOrConnectWithoutUserInput[]
+    createMany?: BlockPatternCreateManyUserInputEnvelope
+    connect?: BlockPatternWhereUniqueInput | BlockPatternWhereUniqueInput[]
+  }
+
+  export type SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput = {
+    create?: XOR<SyncedPatternRevisionCreateWithoutCreatorInput, SyncedPatternRevisionUncheckedCreateWithoutCreatorInput> | SyncedPatternRevisionCreateWithoutCreatorInput[] | SyncedPatternRevisionUncheckedCreateWithoutCreatorInput[]
+    connectOrCreate?: SyncedPatternRevisionCreateOrConnectWithoutCreatorInput | SyncedPatternRevisionCreateOrConnectWithoutCreatorInput[]
+    createMany?: SyncedPatternRevisionCreateManyCreatorInputEnvelope
+    connect?: SyncedPatternRevisionWhereUniqueInput | SyncedPatternRevisionWhereUniqueInput[]
+  }
+
+  export type BlockTemplateUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<BlockTemplateCreateWithoutUserInput, BlockTemplateUncheckedCreateWithoutUserInput> | BlockTemplateCreateWithoutUserInput[] | BlockTemplateUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: BlockTemplateCreateOrConnectWithoutUserInput | BlockTemplateCreateOrConnectWithoutUserInput[]
+    createMany?: BlockTemplateCreateManyUserInputEnvelope
+    connect?: BlockTemplateWhereUniqueInput | BlockTemplateWhereUniqueInput[]
+  }
+
+  export type TemplatePartUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<TemplatePartCreateWithoutUserInput, TemplatePartUncheckedCreateWithoutUserInput> | TemplatePartCreateWithoutUserInput[] | TemplatePartUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: TemplatePartCreateOrConnectWithoutUserInput | TemplatePartCreateOrConnectWithoutUserInput[]
+    createMany?: TemplatePartCreateManyUserInputEnvelope
+    connect?: TemplatePartWhereUniqueInput | TemplatePartWhereUniqueInput[]
+  }
+
+  export type GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<GlobalStyleConfigCreateWithoutUserInput, GlobalStyleConfigUncheckedCreateWithoutUserInput> | GlobalStyleConfigCreateWithoutUserInput[] | GlobalStyleConfigUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: GlobalStyleConfigCreateOrConnectWithoutUserInput | GlobalStyleConfigCreateOrConnectWithoutUserInput[]
+    createMany?: GlobalStyleConfigCreateManyUserInputEnvelope
+    connect?: GlobalStyleConfigWhereUniqueInput | GlobalStyleConfigWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -78151,6 +86920,76 @@ export namespace Prisma {
     deleteMany?: BillingInvoiceScalarWhereInput | BillingInvoiceScalarWhereInput[]
   }
 
+  export type BlockPatternUpdateManyWithoutUserNestedInput = {
+    create?: XOR<BlockPatternCreateWithoutUserInput, BlockPatternUncheckedCreateWithoutUserInput> | BlockPatternCreateWithoutUserInput[] | BlockPatternUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: BlockPatternCreateOrConnectWithoutUserInput | BlockPatternCreateOrConnectWithoutUserInput[]
+    upsert?: BlockPatternUpsertWithWhereUniqueWithoutUserInput | BlockPatternUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: BlockPatternCreateManyUserInputEnvelope
+    set?: BlockPatternWhereUniqueInput | BlockPatternWhereUniqueInput[]
+    disconnect?: BlockPatternWhereUniqueInput | BlockPatternWhereUniqueInput[]
+    delete?: BlockPatternWhereUniqueInput | BlockPatternWhereUniqueInput[]
+    connect?: BlockPatternWhereUniqueInput | BlockPatternWhereUniqueInput[]
+    update?: BlockPatternUpdateWithWhereUniqueWithoutUserInput | BlockPatternUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: BlockPatternUpdateManyWithWhereWithoutUserInput | BlockPatternUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: BlockPatternScalarWhereInput | BlockPatternScalarWhereInput[]
+  }
+
+  export type SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput = {
+    create?: XOR<SyncedPatternRevisionCreateWithoutCreatorInput, SyncedPatternRevisionUncheckedCreateWithoutCreatorInput> | SyncedPatternRevisionCreateWithoutCreatorInput[] | SyncedPatternRevisionUncheckedCreateWithoutCreatorInput[]
+    connectOrCreate?: SyncedPatternRevisionCreateOrConnectWithoutCreatorInput | SyncedPatternRevisionCreateOrConnectWithoutCreatorInput[]
+    upsert?: SyncedPatternRevisionUpsertWithWhereUniqueWithoutCreatorInput | SyncedPatternRevisionUpsertWithWhereUniqueWithoutCreatorInput[]
+    createMany?: SyncedPatternRevisionCreateManyCreatorInputEnvelope
+    set?: SyncedPatternRevisionWhereUniqueInput | SyncedPatternRevisionWhereUniqueInput[]
+    disconnect?: SyncedPatternRevisionWhereUniqueInput | SyncedPatternRevisionWhereUniqueInput[]
+    delete?: SyncedPatternRevisionWhereUniqueInput | SyncedPatternRevisionWhereUniqueInput[]
+    connect?: SyncedPatternRevisionWhereUniqueInput | SyncedPatternRevisionWhereUniqueInput[]
+    update?: SyncedPatternRevisionUpdateWithWhereUniqueWithoutCreatorInput | SyncedPatternRevisionUpdateWithWhereUniqueWithoutCreatorInput[]
+    updateMany?: SyncedPatternRevisionUpdateManyWithWhereWithoutCreatorInput | SyncedPatternRevisionUpdateManyWithWhereWithoutCreatorInput[]
+    deleteMany?: SyncedPatternRevisionScalarWhereInput | SyncedPatternRevisionScalarWhereInput[]
+  }
+
+  export type BlockTemplateUpdateManyWithoutUserNestedInput = {
+    create?: XOR<BlockTemplateCreateWithoutUserInput, BlockTemplateUncheckedCreateWithoutUserInput> | BlockTemplateCreateWithoutUserInput[] | BlockTemplateUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: BlockTemplateCreateOrConnectWithoutUserInput | BlockTemplateCreateOrConnectWithoutUserInput[]
+    upsert?: BlockTemplateUpsertWithWhereUniqueWithoutUserInput | BlockTemplateUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: BlockTemplateCreateManyUserInputEnvelope
+    set?: BlockTemplateWhereUniqueInput | BlockTemplateWhereUniqueInput[]
+    disconnect?: BlockTemplateWhereUniqueInput | BlockTemplateWhereUniqueInput[]
+    delete?: BlockTemplateWhereUniqueInput | BlockTemplateWhereUniqueInput[]
+    connect?: BlockTemplateWhereUniqueInput | BlockTemplateWhereUniqueInput[]
+    update?: BlockTemplateUpdateWithWhereUniqueWithoutUserInput | BlockTemplateUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: BlockTemplateUpdateManyWithWhereWithoutUserInput | BlockTemplateUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: BlockTemplateScalarWhereInput | BlockTemplateScalarWhereInput[]
+  }
+
+  export type TemplatePartUpdateManyWithoutUserNestedInput = {
+    create?: XOR<TemplatePartCreateWithoutUserInput, TemplatePartUncheckedCreateWithoutUserInput> | TemplatePartCreateWithoutUserInput[] | TemplatePartUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: TemplatePartCreateOrConnectWithoutUserInput | TemplatePartCreateOrConnectWithoutUserInput[]
+    upsert?: TemplatePartUpsertWithWhereUniqueWithoutUserInput | TemplatePartUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: TemplatePartCreateManyUserInputEnvelope
+    set?: TemplatePartWhereUniqueInput | TemplatePartWhereUniqueInput[]
+    disconnect?: TemplatePartWhereUniqueInput | TemplatePartWhereUniqueInput[]
+    delete?: TemplatePartWhereUniqueInput | TemplatePartWhereUniqueInput[]
+    connect?: TemplatePartWhereUniqueInput | TemplatePartWhereUniqueInput[]
+    update?: TemplatePartUpdateWithWhereUniqueWithoutUserInput | TemplatePartUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: TemplatePartUpdateManyWithWhereWithoutUserInput | TemplatePartUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: TemplatePartScalarWhereInput | TemplatePartScalarWhereInput[]
+  }
+
+  export type GlobalStyleConfigUpdateManyWithoutUserNestedInput = {
+    create?: XOR<GlobalStyleConfigCreateWithoutUserInput, GlobalStyleConfigUncheckedCreateWithoutUserInput> | GlobalStyleConfigCreateWithoutUserInput[] | GlobalStyleConfigUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: GlobalStyleConfigCreateOrConnectWithoutUserInput | GlobalStyleConfigCreateOrConnectWithoutUserInput[]
+    upsert?: GlobalStyleConfigUpsertWithWhereUniqueWithoutUserInput | GlobalStyleConfigUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: GlobalStyleConfigCreateManyUserInputEnvelope
+    set?: GlobalStyleConfigWhereUniqueInput | GlobalStyleConfigWhereUniqueInput[]
+    disconnect?: GlobalStyleConfigWhereUniqueInput | GlobalStyleConfigWhereUniqueInput[]
+    delete?: GlobalStyleConfigWhereUniqueInput | GlobalStyleConfigWhereUniqueInput[]
+    connect?: GlobalStyleConfigWhereUniqueInput | GlobalStyleConfigWhereUniqueInput[]
+    update?: GlobalStyleConfigUpdateWithWhereUniqueWithoutUserInput | GlobalStyleConfigUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: GlobalStyleConfigUpdateManyWithWhereWithoutUserInput | GlobalStyleConfigUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: GlobalStyleConfigScalarWhereInput | GlobalStyleConfigScalarWhereInput[]
+  }
+
   export type IdentityUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<IdentityCreateWithoutUserInput, IdentityUncheckedCreateWithoutUserInput> | IdentityCreateWithoutUserInput[] | IdentityUncheckedCreateWithoutUserInput[]
     connectOrCreate?: IdentityCreateOrConnectWithoutUserInput | IdentityCreateOrConnectWithoutUserInput[]
@@ -78603,6 +87442,76 @@ export namespace Prisma {
     update?: BillingInvoiceUpdateWithWhereUniqueWithoutUserInput | BillingInvoiceUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: BillingInvoiceUpdateManyWithWhereWithoutUserInput | BillingInvoiceUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: BillingInvoiceScalarWhereInput | BillingInvoiceScalarWhereInput[]
+  }
+
+  export type BlockPatternUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<BlockPatternCreateWithoutUserInput, BlockPatternUncheckedCreateWithoutUserInput> | BlockPatternCreateWithoutUserInput[] | BlockPatternUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: BlockPatternCreateOrConnectWithoutUserInput | BlockPatternCreateOrConnectWithoutUserInput[]
+    upsert?: BlockPatternUpsertWithWhereUniqueWithoutUserInput | BlockPatternUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: BlockPatternCreateManyUserInputEnvelope
+    set?: BlockPatternWhereUniqueInput | BlockPatternWhereUniqueInput[]
+    disconnect?: BlockPatternWhereUniqueInput | BlockPatternWhereUniqueInput[]
+    delete?: BlockPatternWhereUniqueInput | BlockPatternWhereUniqueInput[]
+    connect?: BlockPatternWhereUniqueInput | BlockPatternWhereUniqueInput[]
+    update?: BlockPatternUpdateWithWhereUniqueWithoutUserInput | BlockPatternUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: BlockPatternUpdateManyWithWhereWithoutUserInput | BlockPatternUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: BlockPatternScalarWhereInput | BlockPatternScalarWhereInput[]
+  }
+
+  export type SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput = {
+    create?: XOR<SyncedPatternRevisionCreateWithoutCreatorInput, SyncedPatternRevisionUncheckedCreateWithoutCreatorInput> | SyncedPatternRevisionCreateWithoutCreatorInput[] | SyncedPatternRevisionUncheckedCreateWithoutCreatorInput[]
+    connectOrCreate?: SyncedPatternRevisionCreateOrConnectWithoutCreatorInput | SyncedPatternRevisionCreateOrConnectWithoutCreatorInput[]
+    upsert?: SyncedPatternRevisionUpsertWithWhereUniqueWithoutCreatorInput | SyncedPatternRevisionUpsertWithWhereUniqueWithoutCreatorInput[]
+    createMany?: SyncedPatternRevisionCreateManyCreatorInputEnvelope
+    set?: SyncedPatternRevisionWhereUniqueInput | SyncedPatternRevisionWhereUniqueInput[]
+    disconnect?: SyncedPatternRevisionWhereUniqueInput | SyncedPatternRevisionWhereUniqueInput[]
+    delete?: SyncedPatternRevisionWhereUniqueInput | SyncedPatternRevisionWhereUniqueInput[]
+    connect?: SyncedPatternRevisionWhereUniqueInput | SyncedPatternRevisionWhereUniqueInput[]
+    update?: SyncedPatternRevisionUpdateWithWhereUniqueWithoutCreatorInput | SyncedPatternRevisionUpdateWithWhereUniqueWithoutCreatorInput[]
+    updateMany?: SyncedPatternRevisionUpdateManyWithWhereWithoutCreatorInput | SyncedPatternRevisionUpdateManyWithWhereWithoutCreatorInput[]
+    deleteMany?: SyncedPatternRevisionScalarWhereInput | SyncedPatternRevisionScalarWhereInput[]
+  }
+
+  export type BlockTemplateUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<BlockTemplateCreateWithoutUserInput, BlockTemplateUncheckedCreateWithoutUserInput> | BlockTemplateCreateWithoutUserInput[] | BlockTemplateUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: BlockTemplateCreateOrConnectWithoutUserInput | BlockTemplateCreateOrConnectWithoutUserInput[]
+    upsert?: BlockTemplateUpsertWithWhereUniqueWithoutUserInput | BlockTemplateUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: BlockTemplateCreateManyUserInputEnvelope
+    set?: BlockTemplateWhereUniqueInput | BlockTemplateWhereUniqueInput[]
+    disconnect?: BlockTemplateWhereUniqueInput | BlockTemplateWhereUniqueInput[]
+    delete?: BlockTemplateWhereUniqueInput | BlockTemplateWhereUniqueInput[]
+    connect?: BlockTemplateWhereUniqueInput | BlockTemplateWhereUniqueInput[]
+    update?: BlockTemplateUpdateWithWhereUniqueWithoutUserInput | BlockTemplateUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: BlockTemplateUpdateManyWithWhereWithoutUserInput | BlockTemplateUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: BlockTemplateScalarWhereInput | BlockTemplateScalarWhereInput[]
+  }
+
+  export type TemplatePartUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<TemplatePartCreateWithoutUserInput, TemplatePartUncheckedCreateWithoutUserInput> | TemplatePartCreateWithoutUserInput[] | TemplatePartUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: TemplatePartCreateOrConnectWithoutUserInput | TemplatePartCreateOrConnectWithoutUserInput[]
+    upsert?: TemplatePartUpsertWithWhereUniqueWithoutUserInput | TemplatePartUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: TemplatePartCreateManyUserInputEnvelope
+    set?: TemplatePartWhereUniqueInput | TemplatePartWhereUniqueInput[]
+    disconnect?: TemplatePartWhereUniqueInput | TemplatePartWhereUniqueInput[]
+    delete?: TemplatePartWhereUniqueInput | TemplatePartWhereUniqueInput[]
+    connect?: TemplatePartWhereUniqueInput | TemplatePartWhereUniqueInput[]
+    update?: TemplatePartUpdateWithWhereUniqueWithoutUserInput | TemplatePartUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: TemplatePartUpdateManyWithWhereWithoutUserInput | TemplatePartUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: TemplatePartScalarWhereInput | TemplatePartScalarWhereInput[]
+  }
+
+  export type GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<GlobalStyleConfigCreateWithoutUserInput, GlobalStyleConfigUncheckedCreateWithoutUserInput> | GlobalStyleConfigCreateWithoutUserInput[] | GlobalStyleConfigUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: GlobalStyleConfigCreateOrConnectWithoutUserInput | GlobalStyleConfigCreateOrConnectWithoutUserInput[]
+    upsert?: GlobalStyleConfigUpsertWithWhereUniqueWithoutUserInput | GlobalStyleConfigUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: GlobalStyleConfigCreateManyUserInputEnvelope
+    set?: GlobalStyleConfigWhereUniqueInput | GlobalStyleConfigWhereUniqueInput[]
+    disconnect?: GlobalStyleConfigWhereUniqueInput | GlobalStyleConfigWhereUniqueInput[]
+    delete?: GlobalStyleConfigWhereUniqueInput | GlobalStyleConfigWhereUniqueInput[]
+    connect?: GlobalStyleConfigWhereUniqueInput | GlobalStyleConfigWhereUniqueInput[]
+    update?: GlobalStyleConfigUpdateWithWhereUniqueWithoutUserInput | GlobalStyleConfigUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: GlobalStyleConfigUpdateManyWithWhereWithoutUserInput | GlobalStyleConfigUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: GlobalStyleConfigScalarWhereInput | GlobalStyleConfigScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutWebsitesInput = {
@@ -80463,6 +89372,34 @@ export namespace Prisma {
     connect?: WebsiteWhereUniqueInput | WebsiteWhereUniqueInput[]
   }
 
+  export type BlockPatternCreateNestedManyWithoutWorkspaceInput = {
+    create?: XOR<BlockPatternCreateWithoutWorkspaceInput, BlockPatternUncheckedCreateWithoutWorkspaceInput> | BlockPatternCreateWithoutWorkspaceInput[] | BlockPatternUncheckedCreateWithoutWorkspaceInput[]
+    connectOrCreate?: BlockPatternCreateOrConnectWithoutWorkspaceInput | BlockPatternCreateOrConnectWithoutWorkspaceInput[]
+    createMany?: BlockPatternCreateManyWorkspaceInputEnvelope
+    connect?: BlockPatternWhereUniqueInput | BlockPatternWhereUniqueInput[]
+  }
+
+  export type BlockTemplateCreateNestedManyWithoutWorkspaceInput = {
+    create?: XOR<BlockTemplateCreateWithoutWorkspaceInput, BlockTemplateUncheckedCreateWithoutWorkspaceInput> | BlockTemplateCreateWithoutWorkspaceInput[] | BlockTemplateUncheckedCreateWithoutWorkspaceInput[]
+    connectOrCreate?: BlockTemplateCreateOrConnectWithoutWorkspaceInput | BlockTemplateCreateOrConnectWithoutWorkspaceInput[]
+    createMany?: BlockTemplateCreateManyWorkspaceInputEnvelope
+    connect?: BlockTemplateWhereUniqueInput | BlockTemplateWhereUniqueInput[]
+  }
+
+  export type TemplatePartCreateNestedManyWithoutWorkspaceInput = {
+    create?: XOR<TemplatePartCreateWithoutWorkspaceInput, TemplatePartUncheckedCreateWithoutWorkspaceInput> | TemplatePartCreateWithoutWorkspaceInput[] | TemplatePartUncheckedCreateWithoutWorkspaceInput[]
+    connectOrCreate?: TemplatePartCreateOrConnectWithoutWorkspaceInput | TemplatePartCreateOrConnectWithoutWorkspaceInput[]
+    createMany?: TemplatePartCreateManyWorkspaceInputEnvelope
+    connect?: TemplatePartWhereUniqueInput | TemplatePartWhereUniqueInput[]
+  }
+
+  export type GlobalStyleConfigCreateNestedManyWithoutWorkspaceInput = {
+    create?: XOR<GlobalStyleConfigCreateWithoutWorkspaceInput, GlobalStyleConfigUncheckedCreateWithoutWorkspaceInput> | GlobalStyleConfigCreateWithoutWorkspaceInput[] | GlobalStyleConfigUncheckedCreateWithoutWorkspaceInput[]
+    connectOrCreate?: GlobalStyleConfigCreateOrConnectWithoutWorkspaceInput | GlobalStyleConfigCreateOrConnectWithoutWorkspaceInput[]
+    createMany?: GlobalStyleConfigCreateManyWorkspaceInputEnvelope
+    connect?: GlobalStyleConfigWhereUniqueInput | GlobalStyleConfigWhereUniqueInput[]
+  }
+
   export type WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput = {
     create?: XOR<WorkspaceMemberCreateWithoutWorkspaceInput, WorkspaceMemberUncheckedCreateWithoutWorkspaceInput> | WorkspaceMemberCreateWithoutWorkspaceInput[] | WorkspaceMemberUncheckedCreateWithoutWorkspaceInput[]
     connectOrCreate?: WorkspaceMemberCreateOrConnectWithoutWorkspaceInput | WorkspaceMemberCreateOrConnectWithoutWorkspaceInput[]
@@ -80475,6 +89412,34 @@ export namespace Prisma {
     connectOrCreate?: WebsiteCreateOrConnectWithoutWorkspaceInput | WebsiteCreateOrConnectWithoutWorkspaceInput[]
     createMany?: WebsiteCreateManyWorkspaceInputEnvelope
     connect?: WebsiteWhereUniqueInput | WebsiteWhereUniqueInput[]
+  }
+
+  export type BlockPatternUncheckedCreateNestedManyWithoutWorkspaceInput = {
+    create?: XOR<BlockPatternCreateWithoutWorkspaceInput, BlockPatternUncheckedCreateWithoutWorkspaceInput> | BlockPatternCreateWithoutWorkspaceInput[] | BlockPatternUncheckedCreateWithoutWorkspaceInput[]
+    connectOrCreate?: BlockPatternCreateOrConnectWithoutWorkspaceInput | BlockPatternCreateOrConnectWithoutWorkspaceInput[]
+    createMany?: BlockPatternCreateManyWorkspaceInputEnvelope
+    connect?: BlockPatternWhereUniqueInput | BlockPatternWhereUniqueInput[]
+  }
+
+  export type BlockTemplateUncheckedCreateNestedManyWithoutWorkspaceInput = {
+    create?: XOR<BlockTemplateCreateWithoutWorkspaceInput, BlockTemplateUncheckedCreateWithoutWorkspaceInput> | BlockTemplateCreateWithoutWorkspaceInput[] | BlockTemplateUncheckedCreateWithoutWorkspaceInput[]
+    connectOrCreate?: BlockTemplateCreateOrConnectWithoutWorkspaceInput | BlockTemplateCreateOrConnectWithoutWorkspaceInput[]
+    createMany?: BlockTemplateCreateManyWorkspaceInputEnvelope
+    connect?: BlockTemplateWhereUniqueInput | BlockTemplateWhereUniqueInput[]
+  }
+
+  export type TemplatePartUncheckedCreateNestedManyWithoutWorkspaceInput = {
+    create?: XOR<TemplatePartCreateWithoutWorkspaceInput, TemplatePartUncheckedCreateWithoutWorkspaceInput> | TemplatePartCreateWithoutWorkspaceInput[] | TemplatePartUncheckedCreateWithoutWorkspaceInput[]
+    connectOrCreate?: TemplatePartCreateOrConnectWithoutWorkspaceInput | TemplatePartCreateOrConnectWithoutWorkspaceInput[]
+    createMany?: TemplatePartCreateManyWorkspaceInputEnvelope
+    connect?: TemplatePartWhereUniqueInput | TemplatePartWhereUniqueInput[]
+  }
+
+  export type GlobalStyleConfigUncheckedCreateNestedManyWithoutWorkspaceInput = {
+    create?: XOR<GlobalStyleConfigCreateWithoutWorkspaceInput, GlobalStyleConfigUncheckedCreateWithoutWorkspaceInput> | GlobalStyleConfigCreateWithoutWorkspaceInput[] | GlobalStyleConfigUncheckedCreateWithoutWorkspaceInput[]
+    connectOrCreate?: GlobalStyleConfigCreateOrConnectWithoutWorkspaceInput | GlobalStyleConfigCreateOrConnectWithoutWorkspaceInput[]
+    createMany?: GlobalStyleConfigCreateManyWorkspaceInputEnvelope
+    connect?: GlobalStyleConfigWhereUniqueInput | GlobalStyleConfigWhereUniqueInput[]
   }
 
   export type OrganizationUpdateOneWithoutWorkspacesNestedInput = {
@@ -80523,6 +89488,62 @@ export namespace Prisma {
     deleteMany?: WebsiteScalarWhereInput | WebsiteScalarWhereInput[]
   }
 
+  export type BlockPatternUpdateManyWithoutWorkspaceNestedInput = {
+    create?: XOR<BlockPatternCreateWithoutWorkspaceInput, BlockPatternUncheckedCreateWithoutWorkspaceInput> | BlockPatternCreateWithoutWorkspaceInput[] | BlockPatternUncheckedCreateWithoutWorkspaceInput[]
+    connectOrCreate?: BlockPatternCreateOrConnectWithoutWorkspaceInput | BlockPatternCreateOrConnectWithoutWorkspaceInput[]
+    upsert?: BlockPatternUpsertWithWhereUniqueWithoutWorkspaceInput | BlockPatternUpsertWithWhereUniqueWithoutWorkspaceInput[]
+    createMany?: BlockPatternCreateManyWorkspaceInputEnvelope
+    set?: BlockPatternWhereUniqueInput | BlockPatternWhereUniqueInput[]
+    disconnect?: BlockPatternWhereUniqueInput | BlockPatternWhereUniqueInput[]
+    delete?: BlockPatternWhereUniqueInput | BlockPatternWhereUniqueInput[]
+    connect?: BlockPatternWhereUniqueInput | BlockPatternWhereUniqueInput[]
+    update?: BlockPatternUpdateWithWhereUniqueWithoutWorkspaceInput | BlockPatternUpdateWithWhereUniqueWithoutWorkspaceInput[]
+    updateMany?: BlockPatternUpdateManyWithWhereWithoutWorkspaceInput | BlockPatternUpdateManyWithWhereWithoutWorkspaceInput[]
+    deleteMany?: BlockPatternScalarWhereInput | BlockPatternScalarWhereInput[]
+  }
+
+  export type BlockTemplateUpdateManyWithoutWorkspaceNestedInput = {
+    create?: XOR<BlockTemplateCreateWithoutWorkspaceInput, BlockTemplateUncheckedCreateWithoutWorkspaceInput> | BlockTemplateCreateWithoutWorkspaceInput[] | BlockTemplateUncheckedCreateWithoutWorkspaceInput[]
+    connectOrCreate?: BlockTemplateCreateOrConnectWithoutWorkspaceInput | BlockTemplateCreateOrConnectWithoutWorkspaceInput[]
+    upsert?: BlockTemplateUpsertWithWhereUniqueWithoutWorkspaceInput | BlockTemplateUpsertWithWhereUniqueWithoutWorkspaceInput[]
+    createMany?: BlockTemplateCreateManyWorkspaceInputEnvelope
+    set?: BlockTemplateWhereUniqueInput | BlockTemplateWhereUniqueInput[]
+    disconnect?: BlockTemplateWhereUniqueInput | BlockTemplateWhereUniqueInput[]
+    delete?: BlockTemplateWhereUniqueInput | BlockTemplateWhereUniqueInput[]
+    connect?: BlockTemplateWhereUniqueInput | BlockTemplateWhereUniqueInput[]
+    update?: BlockTemplateUpdateWithWhereUniqueWithoutWorkspaceInput | BlockTemplateUpdateWithWhereUniqueWithoutWorkspaceInput[]
+    updateMany?: BlockTemplateUpdateManyWithWhereWithoutWorkspaceInput | BlockTemplateUpdateManyWithWhereWithoutWorkspaceInput[]
+    deleteMany?: BlockTemplateScalarWhereInput | BlockTemplateScalarWhereInput[]
+  }
+
+  export type TemplatePartUpdateManyWithoutWorkspaceNestedInput = {
+    create?: XOR<TemplatePartCreateWithoutWorkspaceInput, TemplatePartUncheckedCreateWithoutWorkspaceInput> | TemplatePartCreateWithoutWorkspaceInput[] | TemplatePartUncheckedCreateWithoutWorkspaceInput[]
+    connectOrCreate?: TemplatePartCreateOrConnectWithoutWorkspaceInput | TemplatePartCreateOrConnectWithoutWorkspaceInput[]
+    upsert?: TemplatePartUpsertWithWhereUniqueWithoutWorkspaceInput | TemplatePartUpsertWithWhereUniqueWithoutWorkspaceInput[]
+    createMany?: TemplatePartCreateManyWorkspaceInputEnvelope
+    set?: TemplatePartWhereUniqueInput | TemplatePartWhereUniqueInput[]
+    disconnect?: TemplatePartWhereUniqueInput | TemplatePartWhereUniqueInput[]
+    delete?: TemplatePartWhereUniqueInput | TemplatePartWhereUniqueInput[]
+    connect?: TemplatePartWhereUniqueInput | TemplatePartWhereUniqueInput[]
+    update?: TemplatePartUpdateWithWhereUniqueWithoutWorkspaceInput | TemplatePartUpdateWithWhereUniqueWithoutWorkspaceInput[]
+    updateMany?: TemplatePartUpdateManyWithWhereWithoutWorkspaceInput | TemplatePartUpdateManyWithWhereWithoutWorkspaceInput[]
+    deleteMany?: TemplatePartScalarWhereInput | TemplatePartScalarWhereInput[]
+  }
+
+  export type GlobalStyleConfigUpdateManyWithoutWorkspaceNestedInput = {
+    create?: XOR<GlobalStyleConfigCreateWithoutWorkspaceInput, GlobalStyleConfigUncheckedCreateWithoutWorkspaceInput> | GlobalStyleConfigCreateWithoutWorkspaceInput[] | GlobalStyleConfigUncheckedCreateWithoutWorkspaceInput[]
+    connectOrCreate?: GlobalStyleConfigCreateOrConnectWithoutWorkspaceInput | GlobalStyleConfigCreateOrConnectWithoutWorkspaceInput[]
+    upsert?: GlobalStyleConfigUpsertWithWhereUniqueWithoutWorkspaceInput | GlobalStyleConfigUpsertWithWhereUniqueWithoutWorkspaceInput[]
+    createMany?: GlobalStyleConfigCreateManyWorkspaceInputEnvelope
+    set?: GlobalStyleConfigWhereUniqueInput | GlobalStyleConfigWhereUniqueInput[]
+    disconnect?: GlobalStyleConfigWhereUniqueInput | GlobalStyleConfigWhereUniqueInput[]
+    delete?: GlobalStyleConfigWhereUniqueInput | GlobalStyleConfigWhereUniqueInput[]
+    connect?: GlobalStyleConfigWhereUniqueInput | GlobalStyleConfigWhereUniqueInput[]
+    update?: GlobalStyleConfigUpdateWithWhereUniqueWithoutWorkspaceInput | GlobalStyleConfigUpdateWithWhereUniqueWithoutWorkspaceInput[]
+    updateMany?: GlobalStyleConfigUpdateManyWithWhereWithoutWorkspaceInput | GlobalStyleConfigUpdateManyWithWhereWithoutWorkspaceInput[]
+    deleteMany?: GlobalStyleConfigScalarWhereInput | GlobalStyleConfigScalarWhereInput[]
+  }
+
   export type WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput = {
     create?: XOR<WorkspaceMemberCreateWithoutWorkspaceInput, WorkspaceMemberUncheckedCreateWithoutWorkspaceInput> | WorkspaceMemberCreateWithoutWorkspaceInput[] | WorkspaceMemberUncheckedCreateWithoutWorkspaceInput[]
     connectOrCreate?: WorkspaceMemberCreateOrConnectWithoutWorkspaceInput | WorkspaceMemberCreateOrConnectWithoutWorkspaceInput[]
@@ -80549,6 +89570,62 @@ export namespace Prisma {
     update?: WebsiteUpdateWithWhereUniqueWithoutWorkspaceInput | WebsiteUpdateWithWhereUniqueWithoutWorkspaceInput[]
     updateMany?: WebsiteUpdateManyWithWhereWithoutWorkspaceInput | WebsiteUpdateManyWithWhereWithoutWorkspaceInput[]
     deleteMany?: WebsiteScalarWhereInput | WebsiteScalarWhereInput[]
+  }
+
+  export type BlockPatternUncheckedUpdateManyWithoutWorkspaceNestedInput = {
+    create?: XOR<BlockPatternCreateWithoutWorkspaceInput, BlockPatternUncheckedCreateWithoutWorkspaceInput> | BlockPatternCreateWithoutWorkspaceInput[] | BlockPatternUncheckedCreateWithoutWorkspaceInput[]
+    connectOrCreate?: BlockPatternCreateOrConnectWithoutWorkspaceInput | BlockPatternCreateOrConnectWithoutWorkspaceInput[]
+    upsert?: BlockPatternUpsertWithWhereUniqueWithoutWorkspaceInput | BlockPatternUpsertWithWhereUniqueWithoutWorkspaceInput[]
+    createMany?: BlockPatternCreateManyWorkspaceInputEnvelope
+    set?: BlockPatternWhereUniqueInput | BlockPatternWhereUniqueInput[]
+    disconnect?: BlockPatternWhereUniqueInput | BlockPatternWhereUniqueInput[]
+    delete?: BlockPatternWhereUniqueInput | BlockPatternWhereUniqueInput[]
+    connect?: BlockPatternWhereUniqueInput | BlockPatternWhereUniqueInput[]
+    update?: BlockPatternUpdateWithWhereUniqueWithoutWorkspaceInput | BlockPatternUpdateWithWhereUniqueWithoutWorkspaceInput[]
+    updateMany?: BlockPatternUpdateManyWithWhereWithoutWorkspaceInput | BlockPatternUpdateManyWithWhereWithoutWorkspaceInput[]
+    deleteMany?: BlockPatternScalarWhereInput | BlockPatternScalarWhereInput[]
+  }
+
+  export type BlockTemplateUncheckedUpdateManyWithoutWorkspaceNestedInput = {
+    create?: XOR<BlockTemplateCreateWithoutWorkspaceInput, BlockTemplateUncheckedCreateWithoutWorkspaceInput> | BlockTemplateCreateWithoutWorkspaceInput[] | BlockTemplateUncheckedCreateWithoutWorkspaceInput[]
+    connectOrCreate?: BlockTemplateCreateOrConnectWithoutWorkspaceInput | BlockTemplateCreateOrConnectWithoutWorkspaceInput[]
+    upsert?: BlockTemplateUpsertWithWhereUniqueWithoutWorkspaceInput | BlockTemplateUpsertWithWhereUniqueWithoutWorkspaceInput[]
+    createMany?: BlockTemplateCreateManyWorkspaceInputEnvelope
+    set?: BlockTemplateWhereUniqueInput | BlockTemplateWhereUniqueInput[]
+    disconnect?: BlockTemplateWhereUniqueInput | BlockTemplateWhereUniqueInput[]
+    delete?: BlockTemplateWhereUniqueInput | BlockTemplateWhereUniqueInput[]
+    connect?: BlockTemplateWhereUniqueInput | BlockTemplateWhereUniqueInput[]
+    update?: BlockTemplateUpdateWithWhereUniqueWithoutWorkspaceInput | BlockTemplateUpdateWithWhereUniqueWithoutWorkspaceInput[]
+    updateMany?: BlockTemplateUpdateManyWithWhereWithoutWorkspaceInput | BlockTemplateUpdateManyWithWhereWithoutWorkspaceInput[]
+    deleteMany?: BlockTemplateScalarWhereInput | BlockTemplateScalarWhereInput[]
+  }
+
+  export type TemplatePartUncheckedUpdateManyWithoutWorkspaceNestedInput = {
+    create?: XOR<TemplatePartCreateWithoutWorkspaceInput, TemplatePartUncheckedCreateWithoutWorkspaceInput> | TemplatePartCreateWithoutWorkspaceInput[] | TemplatePartUncheckedCreateWithoutWorkspaceInput[]
+    connectOrCreate?: TemplatePartCreateOrConnectWithoutWorkspaceInput | TemplatePartCreateOrConnectWithoutWorkspaceInput[]
+    upsert?: TemplatePartUpsertWithWhereUniqueWithoutWorkspaceInput | TemplatePartUpsertWithWhereUniqueWithoutWorkspaceInput[]
+    createMany?: TemplatePartCreateManyWorkspaceInputEnvelope
+    set?: TemplatePartWhereUniqueInput | TemplatePartWhereUniqueInput[]
+    disconnect?: TemplatePartWhereUniqueInput | TemplatePartWhereUniqueInput[]
+    delete?: TemplatePartWhereUniqueInput | TemplatePartWhereUniqueInput[]
+    connect?: TemplatePartWhereUniqueInput | TemplatePartWhereUniqueInput[]
+    update?: TemplatePartUpdateWithWhereUniqueWithoutWorkspaceInput | TemplatePartUpdateWithWhereUniqueWithoutWorkspaceInput[]
+    updateMany?: TemplatePartUpdateManyWithWhereWithoutWorkspaceInput | TemplatePartUpdateManyWithWhereWithoutWorkspaceInput[]
+    deleteMany?: TemplatePartScalarWhereInput | TemplatePartScalarWhereInput[]
+  }
+
+  export type GlobalStyleConfigUncheckedUpdateManyWithoutWorkspaceNestedInput = {
+    create?: XOR<GlobalStyleConfigCreateWithoutWorkspaceInput, GlobalStyleConfigUncheckedCreateWithoutWorkspaceInput> | GlobalStyleConfigCreateWithoutWorkspaceInput[] | GlobalStyleConfigUncheckedCreateWithoutWorkspaceInput[]
+    connectOrCreate?: GlobalStyleConfigCreateOrConnectWithoutWorkspaceInput | GlobalStyleConfigCreateOrConnectWithoutWorkspaceInput[]
+    upsert?: GlobalStyleConfigUpsertWithWhereUniqueWithoutWorkspaceInput | GlobalStyleConfigUpsertWithWhereUniqueWithoutWorkspaceInput[]
+    createMany?: GlobalStyleConfigCreateManyWorkspaceInputEnvelope
+    set?: GlobalStyleConfigWhereUniqueInput | GlobalStyleConfigWhereUniqueInput[]
+    disconnect?: GlobalStyleConfigWhereUniqueInput | GlobalStyleConfigWhereUniqueInput[]
+    delete?: GlobalStyleConfigWhereUniqueInput | GlobalStyleConfigWhereUniqueInput[]
+    connect?: GlobalStyleConfigWhereUniqueInput | GlobalStyleConfigWhereUniqueInput[]
+    update?: GlobalStyleConfigUpdateWithWhereUniqueWithoutWorkspaceInput | GlobalStyleConfigUpdateWithWhereUniqueWithoutWorkspaceInput[]
+    updateMany?: GlobalStyleConfigUpdateManyWithWhereWithoutWorkspaceInput | GlobalStyleConfigUpdateManyWithWhereWithoutWorkspaceInput[]
+    deleteMany?: GlobalStyleConfigScalarWhereInput | GlobalStyleConfigScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutOwnedOrganizationsInput = {
@@ -80578,6 +89655,34 @@ export namespace Prisma {
     connect?: WebsiteWhereUniqueInput | WebsiteWhereUniqueInput[]
   }
 
+  export type BlockPatternCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<BlockPatternCreateWithoutOrganizationInput, BlockPatternUncheckedCreateWithoutOrganizationInput> | BlockPatternCreateWithoutOrganizationInput[] | BlockPatternUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: BlockPatternCreateOrConnectWithoutOrganizationInput | BlockPatternCreateOrConnectWithoutOrganizationInput[]
+    createMany?: BlockPatternCreateManyOrganizationInputEnvelope
+    connect?: BlockPatternWhereUniqueInput | BlockPatternWhereUniqueInput[]
+  }
+
+  export type BlockTemplateCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<BlockTemplateCreateWithoutOrganizationInput, BlockTemplateUncheckedCreateWithoutOrganizationInput> | BlockTemplateCreateWithoutOrganizationInput[] | BlockTemplateUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: BlockTemplateCreateOrConnectWithoutOrganizationInput | BlockTemplateCreateOrConnectWithoutOrganizationInput[]
+    createMany?: BlockTemplateCreateManyOrganizationInputEnvelope
+    connect?: BlockTemplateWhereUniqueInput | BlockTemplateWhereUniqueInput[]
+  }
+
+  export type TemplatePartCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<TemplatePartCreateWithoutOrganizationInput, TemplatePartUncheckedCreateWithoutOrganizationInput> | TemplatePartCreateWithoutOrganizationInput[] | TemplatePartUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: TemplatePartCreateOrConnectWithoutOrganizationInput | TemplatePartCreateOrConnectWithoutOrganizationInput[]
+    createMany?: TemplatePartCreateManyOrganizationInputEnvelope
+    connect?: TemplatePartWhereUniqueInput | TemplatePartWhereUniqueInput[]
+  }
+
+  export type GlobalStyleConfigCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<GlobalStyleConfigCreateWithoutOrganizationInput, GlobalStyleConfigUncheckedCreateWithoutOrganizationInput> | GlobalStyleConfigCreateWithoutOrganizationInput[] | GlobalStyleConfigUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: GlobalStyleConfigCreateOrConnectWithoutOrganizationInput | GlobalStyleConfigCreateOrConnectWithoutOrganizationInput[]
+    createMany?: GlobalStyleConfigCreateManyOrganizationInputEnvelope
+    connect?: GlobalStyleConfigWhereUniqueInput | GlobalStyleConfigWhereUniqueInput[]
+  }
+
   export type OrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput = {
     create?: XOR<OrganizationMemberCreateWithoutOrganizationInput, OrganizationMemberUncheckedCreateWithoutOrganizationInput> | OrganizationMemberCreateWithoutOrganizationInput[] | OrganizationMemberUncheckedCreateWithoutOrganizationInput[]
     connectOrCreate?: OrganizationMemberCreateOrConnectWithoutOrganizationInput | OrganizationMemberCreateOrConnectWithoutOrganizationInput[]
@@ -80597,6 +89702,34 @@ export namespace Prisma {
     connectOrCreate?: WebsiteCreateOrConnectWithoutOrganizationInput | WebsiteCreateOrConnectWithoutOrganizationInput[]
     createMany?: WebsiteCreateManyOrganizationInputEnvelope
     connect?: WebsiteWhereUniqueInput | WebsiteWhereUniqueInput[]
+  }
+
+  export type BlockPatternUncheckedCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<BlockPatternCreateWithoutOrganizationInput, BlockPatternUncheckedCreateWithoutOrganizationInput> | BlockPatternCreateWithoutOrganizationInput[] | BlockPatternUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: BlockPatternCreateOrConnectWithoutOrganizationInput | BlockPatternCreateOrConnectWithoutOrganizationInput[]
+    createMany?: BlockPatternCreateManyOrganizationInputEnvelope
+    connect?: BlockPatternWhereUniqueInput | BlockPatternWhereUniqueInput[]
+  }
+
+  export type BlockTemplateUncheckedCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<BlockTemplateCreateWithoutOrganizationInput, BlockTemplateUncheckedCreateWithoutOrganizationInput> | BlockTemplateCreateWithoutOrganizationInput[] | BlockTemplateUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: BlockTemplateCreateOrConnectWithoutOrganizationInput | BlockTemplateCreateOrConnectWithoutOrganizationInput[]
+    createMany?: BlockTemplateCreateManyOrganizationInputEnvelope
+    connect?: BlockTemplateWhereUniqueInput | BlockTemplateWhereUniqueInput[]
+  }
+
+  export type TemplatePartUncheckedCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<TemplatePartCreateWithoutOrganizationInput, TemplatePartUncheckedCreateWithoutOrganizationInput> | TemplatePartCreateWithoutOrganizationInput[] | TemplatePartUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: TemplatePartCreateOrConnectWithoutOrganizationInput | TemplatePartCreateOrConnectWithoutOrganizationInput[]
+    createMany?: TemplatePartCreateManyOrganizationInputEnvelope
+    connect?: TemplatePartWhereUniqueInput | TemplatePartWhereUniqueInput[]
+  }
+
+  export type GlobalStyleConfigUncheckedCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<GlobalStyleConfigCreateWithoutOrganizationInput, GlobalStyleConfigUncheckedCreateWithoutOrganizationInput> | GlobalStyleConfigCreateWithoutOrganizationInput[] | GlobalStyleConfigUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: GlobalStyleConfigCreateOrConnectWithoutOrganizationInput | GlobalStyleConfigCreateOrConnectWithoutOrganizationInput[]
+    createMany?: GlobalStyleConfigCreateManyOrganizationInputEnvelope
+    connect?: GlobalStyleConfigWhereUniqueInput | GlobalStyleConfigWhereUniqueInput[]
   }
 
   export type UserUpdateOneRequiredWithoutOwnedOrganizationsNestedInput = {
@@ -80649,6 +89782,62 @@ export namespace Prisma {
     deleteMany?: WebsiteScalarWhereInput | WebsiteScalarWhereInput[]
   }
 
+  export type BlockPatternUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<BlockPatternCreateWithoutOrganizationInput, BlockPatternUncheckedCreateWithoutOrganizationInput> | BlockPatternCreateWithoutOrganizationInput[] | BlockPatternUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: BlockPatternCreateOrConnectWithoutOrganizationInput | BlockPatternCreateOrConnectWithoutOrganizationInput[]
+    upsert?: BlockPatternUpsertWithWhereUniqueWithoutOrganizationInput | BlockPatternUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: BlockPatternCreateManyOrganizationInputEnvelope
+    set?: BlockPatternWhereUniqueInput | BlockPatternWhereUniqueInput[]
+    disconnect?: BlockPatternWhereUniqueInput | BlockPatternWhereUniqueInput[]
+    delete?: BlockPatternWhereUniqueInput | BlockPatternWhereUniqueInput[]
+    connect?: BlockPatternWhereUniqueInput | BlockPatternWhereUniqueInput[]
+    update?: BlockPatternUpdateWithWhereUniqueWithoutOrganizationInput | BlockPatternUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: BlockPatternUpdateManyWithWhereWithoutOrganizationInput | BlockPatternUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: BlockPatternScalarWhereInput | BlockPatternScalarWhereInput[]
+  }
+
+  export type BlockTemplateUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<BlockTemplateCreateWithoutOrganizationInput, BlockTemplateUncheckedCreateWithoutOrganizationInput> | BlockTemplateCreateWithoutOrganizationInput[] | BlockTemplateUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: BlockTemplateCreateOrConnectWithoutOrganizationInput | BlockTemplateCreateOrConnectWithoutOrganizationInput[]
+    upsert?: BlockTemplateUpsertWithWhereUniqueWithoutOrganizationInput | BlockTemplateUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: BlockTemplateCreateManyOrganizationInputEnvelope
+    set?: BlockTemplateWhereUniqueInput | BlockTemplateWhereUniqueInput[]
+    disconnect?: BlockTemplateWhereUniqueInput | BlockTemplateWhereUniqueInput[]
+    delete?: BlockTemplateWhereUniqueInput | BlockTemplateWhereUniqueInput[]
+    connect?: BlockTemplateWhereUniqueInput | BlockTemplateWhereUniqueInput[]
+    update?: BlockTemplateUpdateWithWhereUniqueWithoutOrganizationInput | BlockTemplateUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: BlockTemplateUpdateManyWithWhereWithoutOrganizationInput | BlockTemplateUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: BlockTemplateScalarWhereInput | BlockTemplateScalarWhereInput[]
+  }
+
+  export type TemplatePartUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<TemplatePartCreateWithoutOrganizationInput, TemplatePartUncheckedCreateWithoutOrganizationInput> | TemplatePartCreateWithoutOrganizationInput[] | TemplatePartUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: TemplatePartCreateOrConnectWithoutOrganizationInput | TemplatePartCreateOrConnectWithoutOrganizationInput[]
+    upsert?: TemplatePartUpsertWithWhereUniqueWithoutOrganizationInput | TemplatePartUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: TemplatePartCreateManyOrganizationInputEnvelope
+    set?: TemplatePartWhereUniqueInput | TemplatePartWhereUniqueInput[]
+    disconnect?: TemplatePartWhereUniqueInput | TemplatePartWhereUniqueInput[]
+    delete?: TemplatePartWhereUniqueInput | TemplatePartWhereUniqueInput[]
+    connect?: TemplatePartWhereUniqueInput | TemplatePartWhereUniqueInput[]
+    update?: TemplatePartUpdateWithWhereUniqueWithoutOrganizationInput | TemplatePartUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: TemplatePartUpdateManyWithWhereWithoutOrganizationInput | TemplatePartUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: TemplatePartScalarWhereInput | TemplatePartScalarWhereInput[]
+  }
+
+  export type GlobalStyleConfigUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<GlobalStyleConfigCreateWithoutOrganizationInput, GlobalStyleConfigUncheckedCreateWithoutOrganizationInput> | GlobalStyleConfigCreateWithoutOrganizationInput[] | GlobalStyleConfigUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: GlobalStyleConfigCreateOrConnectWithoutOrganizationInput | GlobalStyleConfigCreateOrConnectWithoutOrganizationInput[]
+    upsert?: GlobalStyleConfigUpsertWithWhereUniqueWithoutOrganizationInput | GlobalStyleConfigUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: GlobalStyleConfigCreateManyOrganizationInputEnvelope
+    set?: GlobalStyleConfigWhereUniqueInput | GlobalStyleConfigWhereUniqueInput[]
+    disconnect?: GlobalStyleConfigWhereUniqueInput | GlobalStyleConfigWhereUniqueInput[]
+    delete?: GlobalStyleConfigWhereUniqueInput | GlobalStyleConfigWhereUniqueInput[]
+    connect?: GlobalStyleConfigWhereUniqueInput | GlobalStyleConfigWhereUniqueInput[]
+    update?: GlobalStyleConfigUpdateWithWhereUniqueWithoutOrganizationInput | GlobalStyleConfigUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: GlobalStyleConfigUpdateManyWithWhereWithoutOrganizationInput | GlobalStyleConfigUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: GlobalStyleConfigScalarWhereInput | GlobalStyleConfigScalarWhereInput[]
+  }
+
   export type OrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput = {
     create?: XOR<OrganizationMemberCreateWithoutOrganizationInput, OrganizationMemberUncheckedCreateWithoutOrganizationInput> | OrganizationMemberCreateWithoutOrganizationInput[] | OrganizationMemberUncheckedCreateWithoutOrganizationInput[]
     connectOrCreate?: OrganizationMemberCreateOrConnectWithoutOrganizationInput | OrganizationMemberCreateOrConnectWithoutOrganizationInput[]
@@ -80689,6 +89878,62 @@ export namespace Prisma {
     update?: WebsiteUpdateWithWhereUniqueWithoutOrganizationInput | WebsiteUpdateWithWhereUniqueWithoutOrganizationInput[]
     updateMany?: WebsiteUpdateManyWithWhereWithoutOrganizationInput | WebsiteUpdateManyWithWhereWithoutOrganizationInput[]
     deleteMany?: WebsiteScalarWhereInput | WebsiteScalarWhereInput[]
+  }
+
+  export type BlockPatternUncheckedUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<BlockPatternCreateWithoutOrganizationInput, BlockPatternUncheckedCreateWithoutOrganizationInput> | BlockPatternCreateWithoutOrganizationInput[] | BlockPatternUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: BlockPatternCreateOrConnectWithoutOrganizationInput | BlockPatternCreateOrConnectWithoutOrganizationInput[]
+    upsert?: BlockPatternUpsertWithWhereUniqueWithoutOrganizationInput | BlockPatternUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: BlockPatternCreateManyOrganizationInputEnvelope
+    set?: BlockPatternWhereUniqueInput | BlockPatternWhereUniqueInput[]
+    disconnect?: BlockPatternWhereUniqueInput | BlockPatternWhereUniqueInput[]
+    delete?: BlockPatternWhereUniqueInput | BlockPatternWhereUniqueInput[]
+    connect?: BlockPatternWhereUniqueInput | BlockPatternWhereUniqueInput[]
+    update?: BlockPatternUpdateWithWhereUniqueWithoutOrganizationInput | BlockPatternUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: BlockPatternUpdateManyWithWhereWithoutOrganizationInput | BlockPatternUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: BlockPatternScalarWhereInput | BlockPatternScalarWhereInput[]
+  }
+
+  export type BlockTemplateUncheckedUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<BlockTemplateCreateWithoutOrganizationInput, BlockTemplateUncheckedCreateWithoutOrganizationInput> | BlockTemplateCreateWithoutOrganizationInput[] | BlockTemplateUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: BlockTemplateCreateOrConnectWithoutOrganizationInput | BlockTemplateCreateOrConnectWithoutOrganizationInput[]
+    upsert?: BlockTemplateUpsertWithWhereUniqueWithoutOrganizationInput | BlockTemplateUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: BlockTemplateCreateManyOrganizationInputEnvelope
+    set?: BlockTemplateWhereUniqueInput | BlockTemplateWhereUniqueInput[]
+    disconnect?: BlockTemplateWhereUniqueInput | BlockTemplateWhereUniqueInput[]
+    delete?: BlockTemplateWhereUniqueInput | BlockTemplateWhereUniqueInput[]
+    connect?: BlockTemplateWhereUniqueInput | BlockTemplateWhereUniqueInput[]
+    update?: BlockTemplateUpdateWithWhereUniqueWithoutOrganizationInput | BlockTemplateUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: BlockTemplateUpdateManyWithWhereWithoutOrganizationInput | BlockTemplateUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: BlockTemplateScalarWhereInput | BlockTemplateScalarWhereInput[]
+  }
+
+  export type TemplatePartUncheckedUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<TemplatePartCreateWithoutOrganizationInput, TemplatePartUncheckedCreateWithoutOrganizationInput> | TemplatePartCreateWithoutOrganizationInput[] | TemplatePartUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: TemplatePartCreateOrConnectWithoutOrganizationInput | TemplatePartCreateOrConnectWithoutOrganizationInput[]
+    upsert?: TemplatePartUpsertWithWhereUniqueWithoutOrganizationInput | TemplatePartUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: TemplatePartCreateManyOrganizationInputEnvelope
+    set?: TemplatePartWhereUniqueInput | TemplatePartWhereUniqueInput[]
+    disconnect?: TemplatePartWhereUniqueInput | TemplatePartWhereUniqueInput[]
+    delete?: TemplatePartWhereUniqueInput | TemplatePartWhereUniqueInput[]
+    connect?: TemplatePartWhereUniqueInput | TemplatePartWhereUniqueInput[]
+    update?: TemplatePartUpdateWithWhereUniqueWithoutOrganizationInput | TemplatePartUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: TemplatePartUpdateManyWithWhereWithoutOrganizationInput | TemplatePartUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: TemplatePartScalarWhereInput | TemplatePartScalarWhereInput[]
+  }
+
+  export type GlobalStyleConfigUncheckedUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<GlobalStyleConfigCreateWithoutOrganizationInput, GlobalStyleConfigUncheckedCreateWithoutOrganizationInput> | GlobalStyleConfigCreateWithoutOrganizationInput[] | GlobalStyleConfigUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: GlobalStyleConfigCreateOrConnectWithoutOrganizationInput | GlobalStyleConfigCreateOrConnectWithoutOrganizationInput[]
+    upsert?: GlobalStyleConfigUpsertWithWhereUniqueWithoutOrganizationInput | GlobalStyleConfigUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: GlobalStyleConfigCreateManyOrganizationInputEnvelope
+    set?: GlobalStyleConfigWhereUniqueInput | GlobalStyleConfigWhereUniqueInput[]
+    disconnect?: GlobalStyleConfigWhereUniqueInput | GlobalStyleConfigWhereUniqueInput[]
+    delete?: GlobalStyleConfigWhereUniqueInput | GlobalStyleConfigWhereUniqueInput[]
+    connect?: GlobalStyleConfigWhereUniqueInput | GlobalStyleConfigWhereUniqueInput[]
+    update?: GlobalStyleConfigUpdateWithWhereUniqueWithoutOrganizationInput | GlobalStyleConfigUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: GlobalStyleConfigUpdateManyWithWhereWithoutOrganizationInput | GlobalStyleConfigUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: GlobalStyleConfigScalarWhereInput | GlobalStyleConfigScalarWhereInput[]
   }
 
   export type OrganizationCreateNestedOneWithoutMembersInput = {
@@ -81003,6 +90248,271 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutInvoicesInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutInvoicesInput, UserUpdateWithoutInvoicesInput>, UserUncheckedUpdateWithoutInvoicesInput>
+  }
+
+  export type UserCreateNestedOneWithoutBlockPatternsInput = {
+    create?: XOR<UserCreateWithoutBlockPatternsInput, UserUncheckedCreateWithoutBlockPatternsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutBlockPatternsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type WorkspaceCreateNestedOneWithoutBlockPatternsInput = {
+    create?: XOR<WorkspaceCreateWithoutBlockPatternsInput, WorkspaceUncheckedCreateWithoutBlockPatternsInput>
+    connectOrCreate?: WorkspaceCreateOrConnectWithoutBlockPatternsInput
+    connect?: WorkspaceWhereUniqueInput
+  }
+
+  export type OrganizationCreateNestedOneWithoutBlockPatternsInput = {
+    create?: XOR<OrganizationCreateWithoutBlockPatternsInput, OrganizationUncheckedCreateWithoutBlockPatternsInput>
+    connectOrCreate?: OrganizationCreateOrConnectWithoutBlockPatternsInput
+    connect?: OrganizationWhereUniqueInput
+  }
+
+  export type SyncedPatternRevisionCreateNestedManyWithoutPatternInput = {
+    create?: XOR<SyncedPatternRevisionCreateWithoutPatternInput, SyncedPatternRevisionUncheckedCreateWithoutPatternInput> | SyncedPatternRevisionCreateWithoutPatternInput[] | SyncedPatternRevisionUncheckedCreateWithoutPatternInput[]
+    connectOrCreate?: SyncedPatternRevisionCreateOrConnectWithoutPatternInput | SyncedPatternRevisionCreateOrConnectWithoutPatternInput[]
+    createMany?: SyncedPatternRevisionCreateManyPatternInputEnvelope
+    connect?: SyncedPatternRevisionWhereUniqueInput | SyncedPatternRevisionWhereUniqueInput[]
+  }
+
+  export type SyncedPatternRevisionUncheckedCreateNestedManyWithoutPatternInput = {
+    create?: XOR<SyncedPatternRevisionCreateWithoutPatternInput, SyncedPatternRevisionUncheckedCreateWithoutPatternInput> | SyncedPatternRevisionCreateWithoutPatternInput[] | SyncedPatternRevisionUncheckedCreateWithoutPatternInput[]
+    connectOrCreate?: SyncedPatternRevisionCreateOrConnectWithoutPatternInput | SyncedPatternRevisionCreateOrConnectWithoutPatternInput[]
+    createMany?: SyncedPatternRevisionCreateManyPatternInputEnvelope
+    connect?: SyncedPatternRevisionWhereUniqueInput | SyncedPatternRevisionWhereUniqueInput[]
+  }
+
+  export type UserUpdateOneRequiredWithoutBlockPatternsNestedInput = {
+    create?: XOR<UserCreateWithoutBlockPatternsInput, UserUncheckedCreateWithoutBlockPatternsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutBlockPatternsInput
+    upsert?: UserUpsertWithoutBlockPatternsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutBlockPatternsInput, UserUpdateWithoutBlockPatternsInput>, UserUncheckedUpdateWithoutBlockPatternsInput>
+  }
+
+  export type WorkspaceUpdateOneWithoutBlockPatternsNestedInput = {
+    create?: XOR<WorkspaceCreateWithoutBlockPatternsInput, WorkspaceUncheckedCreateWithoutBlockPatternsInput>
+    connectOrCreate?: WorkspaceCreateOrConnectWithoutBlockPatternsInput
+    upsert?: WorkspaceUpsertWithoutBlockPatternsInput
+    disconnect?: WorkspaceWhereInput | boolean
+    delete?: WorkspaceWhereInput | boolean
+    connect?: WorkspaceWhereUniqueInput
+    update?: XOR<XOR<WorkspaceUpdateToOneWithWhereWithoutBlockPatternsInput, WorkspaceUpdateWithoutBlockPatternsInput>, WorkspaceUncheckedUpdateWithoutBlockPatternsInput>
+  }
+
+  export type OrganizationUpdateOneWithoutBlockPatternsNestedInput = {
+    create?: XOR<OrganizationCreateWithoutBlockPatternsInput, OrganizationUncheckedCreateWithoutBlockPatternsInput>
+    connectOrCreate?: OrganizationCreateOrConnectWithoutBlockPatternsInput
+    upsert?: OrganizationUpsertWithoutBlockPatternsInput
+    disconnect?: OrganizationWhereInput | boolean
+    delete?: OrganizationWhereInput | boolean
+    connect?: OrganizationWhereUniqueInput
+    update?: XOR<XOR<OrganizationUpdateToOneWithWhereWithoutBlockPatternsInput, OrganizationUpdateWithoutBlockPatternsInput>, OrganizationUncheckedUpdateWithoutBlockPatternsInput>
+  }
+
+  export type SyncedPatternRevisionUpdateManyWithoutPatternNestedInput = {
+    create?: XOR<SyncedPatternRevisionCreateWithoutPatternInput, SyncedPatternRevisionUncheckedCreateWithoutPatternInput> | SyncedPatternRevisionCreateWithoutPatternInput[] | SyncedPatternRevisionUncheckedCreateWithoutPatternInput[]
+    connectOrCreate?: SyncedPatternRevisionCreateOrConnectWithoutPatternInput | SyncedPatternRevisionCreateOrConnectWithoutPatternInput[]
+    upsert?: SyncedPatternRevisionUpsertWithWhereUniqueWithoutPatternInput | SyncedPatternRevisionUpsertWithWhereUniqueWithoutPatternInput[]
+    createMany?: SyncedPatternRevisionCreateManyPatternInputEnvelope
+    set?: SyncedPatternRevisionWhereUniqueInput | SyncedPatternRevisionWhereUniqueInput[]
+    disconnect?: SyncedPatternRevisionWhereUniqueInput | SyncedPatternRevisionWhereUniqueInput[]
+    delete?: SyncedPatternRevisionWhereUniqueInput | SyncedPatternRevisionWhereUniqueInput[]
+    connect?: SyncedPatternRevisionWhereUniqueInput | SyncedPatternRevisionWhereUniqueInput[]
+    update?: SyncedPatternRevisionUpdateWithWhereUniqueWithoutPatternInput | SyncedPatternRevisionUpdateWithWhereUniqueWithoutPatternInput[]
+    updateMany?: SyncedPatternRevisionUpdateManyWithWhereWithoutPatternInput | SyncedPatternRevisionUpdateManyWithWhereWithoutPatternInput[]
+    deleteMany?: SyncedPatternRevisionScalarWhereInput | SyncedPatternRevisionScalarWhereInput[]
+  }
+
+  export type SyncedPatternRevisionUncheckedUpdateManyWithoutPatternNestedInput = {
+    create?: XOR<SyncedPatternRevisionCreateWithoutPatternInput, SyncedPatternRevisionUncheckedCreateWithoutPatternInput> | SyncedPatternRevisionCreateWithoutPatternInput[] | SyncedPatternRevisionUncheckedCreateWithoutPatternInput[]
+    connectOrCreate?: SyncedPatternRevisionCreateOrConnectWithoutPatternInput | SyncedPatternRevisionCreateOrConnectWithoutPatternInput[]
+    upsert?: SyncedPatternRevisionUpsertWithWhereUniqueWithoutPatternInput | SyncedPatternRevisionUpsertWithWhereUniqueWithoutPatternInput[]
+    createMany?: SyncedPatternRevisionCreateManyPatternInputEnvelope
+    set?: SyncedPatternRevisionWhereUniqueInput | SyncedPatternRevisionWhereUniqueInput[]
+    disconnect?: SyncedPatternRevisionWhereUniqueInput | SyncedPatternRevisionWhereUniqueInput[]
+    delete?: SyncedPatternRevisionWhereUniqueInput | SyncedPatternRevisionWhereUniqueInput[]
+    connect?: SyncedPatternRevisionWhereUniqueInput | SyncedPatternRevisionWhereUniqueInput[]
+    update?: SyncedPatternRevisionUpdateWithWhereUniqueWithoutPatternInput | SyncedPatternRevisionUpdateWithWhereUniqueWithoutPatternInput[]
+    updateMany?: SyncedPatternRevisionUpdateManyWithWhereWithoutPatternInput | SyncedPatternRevisionUpdateManyWithWhereWithoutPatternInput[]
+    deleteMany?: SyncedPatternRevisionScalarWhereInput | SyncedPatternRevisionScalarWhereInput[]
+  }
+
+  export type BlockPatternCreateNestedOneWithoutRevisionsInput = {
+    create?: XOR<BlockPatternCreateWithoutRevisionsInput, BlockPatternUncheckedCreateWithoutRevisionsInput>
+    connectOrCreate?: BlockPatternCreateOrConnectWithoutRevisionsInput
+    connect?: BlockPatternWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutSyncedPatternRevisionsInput = {
+    create?: XOR<UserCreateWithoutSyncedPatternRevisionsInput, UserUncheckedCreateWithoutSyncedPatternRevisionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutSyncedPatternRevisionsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type BlockPatternUpdateOneRequiredWithoutRevisionsNestedInput = {
+    create?: XOR<BlockPatternCreateWithoutRevisionsInput, BlockPatternUncheckedCreateWithoutRevisionsInput>
+    connectOrCreate?: BlockPatternCreateOrConnectWithoutRevisionsInput
+    upsert?: BlockPatternUpsertWithoutRevisionsInput
+    connect?: BlockPatternWhereUniqueInput
+    update?: XOR<XOR<BlockPatternUpdateToOneWithWhereWithoutRevisionsInput, BlockPatternUpdateWithoutRevisionsInput>, BlockPatternUncheckedUpdateWithoutRevisionsInput>
+  }
+
+  export type UserUpdateOneWithoutSyncedPatternRevisionsNestedInput = {
+    create?: XOR<UserCreateWithoutSyncedPatternRevisionsInput, UserUncheckedCreateWithoutSyncedPatternRevisionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutSyncedPatternRevisionsInput
+    upsert?: UserUpsertWithoutSyncedPatternRevisionsInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutSyncedPatternRevisionsInput, UserUpdateWithoutSyncedPatternRevisionsInput>, UserUncheckedUpdateWithoutSyncedPatternRevisionsInput>
+  }
+
+  export type BlockTemplateCreateassignedPageIdsInput = {
+    set: string[]
+  }
+
+  export type UserCreateNestedOneWithoutBlockTemplatesInput = {
+    create?: XOR<UserCreateWithoutBlockTemplatesInput, UserUncheckedCreateWithoutBlockTemplatesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutBlockTemplatesInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type WorkspaceCreateNestedOneWithoutBlockTemplatesInput = {
+    create?: XOR<WorkspaceCreateWithoutBlockTemplatesInput, WorkspaceUncheckedCreateWithoutBlockTemplatesInput>
+    connectOrCreate?: WorkspaceCreateOrConnectWithoutBlockTemplatesInput
+    connect?: WorkspaceWhereUniqueInput
+  }
+
+  export type OrganizationCreateNestedOneWithoutBlockTemplatesInput = {
+    create?: XOR<OrganizationCreateWithoutBlockTemplatesInput, OrganizationUncheckedCreateWithoutBlockTemplatesInput>
+    connectOrCreate?: OrganizationCreateOrConnectWithoutBlockTemplatesInput
+    connect?: OrganizationWhereUniqueInput
+  }
+
+  export type BlockTemplateUpdateassignedPageIdsInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
+  export type UserUpdateOneRequiredWithoutBlockTemplatesNestedInput = {
+    create?: XOR<UserCreateWithoutBlockTemplatesInput, UserUncheckedCreateWithoutBlockTemplatesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutBlockTemplatesInput
+    upsert?: UserUpsertWithoutBlockTemplatesInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutBlockTemplatesInput, UserUpdateWithoutBlockTemplatesInput>, UserUncheckedUpdateWithoutBlockTemplatesInput>
+  }
+
+  export type WorkspaceUpdateOneWithoutBlockTemplatesNestedInput = {
+    create?: XOR<WorkspaceCreateWithoutBlockTemplatesInput, WorkspaceUncheckedCreateWithoutBlockTemplatesInput>
+    connectOrCreate?: WorkspaceCreateOrConnectWithoutBlockTemplatesInput
+    upsert?: WorkspaceUpsertWithoutBlockTemplatesInput
+    disconnect?: WorkspaceWhereInput | boolean
+    delete?: WorkspaceWhereInput | boolean
+    connect?: WorkspaceWhereUniqueInput
+    update?: XOR<XOR<WorkspaceUpdateToOneWithWhereWithoutBlockTemplatesInput, WorkspaceUpdateWithoutBlockTemplatesInput>, WorkspaceUncheckedUpdateWithoutBlockTemplatesInput>
+  }
+
+  export type OrganizationUpdateOneWithoutBlockTemplatesNestedInput = {
+    create?: XOR<OrganizationCreateWithoutBlockTemplatesInput, OrganizationUncheckedCreateWithoutBlockTemplatesInput>
+    connectOrCreate?: OrganizationCreateOrConnectWithoutBlockTemplatesInput
+    upsert?: OrganizationUpsertWithoutBlockTemplatesInput
+    disconnect?: OrganizationWhereInput | boolean
+    delete?: OrganizationWhereInput | boolean
+    connect?: OrganizationWhereUniqueInput
+    update?: XOR<XOR<OrganizationUpdateToOneWithWhereWithoutBlockTemplatesInput, OrganizationUpdateWithoutBlockTemplatesInput>, OrganizationUncheckedUpdateWithoutBlockTemplatesInput>
+  }
+
+  export type UserCreateNestedOneWithoutTemplatePartsInput = {
+    create?: XOR<UserCreateWithoutTemplatePartsInput, UserUncheckedCreateWithoutTemplatePartsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutTemplatePartsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type WorkspaceCreateNestedOneWithoutTemplatePartsInput = {
+    create?: XOR<WorkspaceCreateWithoutTemplatePartsInput, WorkspaceUncheckedCreateWithoutTemplatePartsInput>
+    connectOrCreate?: WorkspaceCreateOrConnectWithoutTemplatePartsInput
+    connect?: WorkspaceWhereUniqueInput
+  }
+
+  export type OrganizationCreateNestedOneWithoutTemplatePartsInput = {
+    create?: XOR<OrganizationCreateWithoutTemplatePartsInput, OrganizationUncheckedCreateWithoutTemplatePartsInput>
+    connectOrCreate?: OrganizationCreateOrConnectWithoutTemplatePartsInput
+    connect?: OrganizationWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutTemplatePartsNestedInput = {
+    create?: XOR<UserCreateWithoutTemplatePartsInput, UserUncheckedCreateWithoutTemplatePartsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutTemplatePartsInput
+    upsert?: UserUpsertWithoutTemplatePartsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutTemplatePartsInput, UserUpdateWithoutTemplatePartsInput>, UserUncheckedUpdateWithoutTemplatePartsInput>
+  }
+
+  export type WorkspaceUpdateOneWithoutTemplatePartsNestedInput = {
+    create?: XOR<WorkspaceCreateWithoutTemplatePartsInput, WorkspaceUncheckedCreateWithoutTemplatePartsInput>
+    connectOrCreate?: WorkspaceCreateOrConnectWithoutTemplatePartsInput
+    upsert?: WorkspaceUpsertWithoutTemplatePartsInput
+    disconnect?: WorkspaceWhereInput | boolean
+    delete?: WorkspaceWhereInput | boolean
+    connect?: WorkspaceWhereUniqueInput
+    update?: XOR<XOR<WorkspaceUpdateToOneWithWhereWithoutTemplatePartsInput, WorkspaceUpdateWithoutTemplatePartsInput>, WorkspaceUncheckedUpdateWithoutTemplatePartsInput>
+  }
+
+  export type OrganizationUpdateOneWithoutTemplatePartsNestedInput = {
+    create?: XOR<OrganizationCreateWithoutTemplatePartsInput, OrganizationUncheckedCreateWithoutTemplatePartsInput>
+    connectOrCreate?: OrganizationCreateOrConnectWithoutTemplatePartsInput
+    upsert?: OrganizationUpsertWithoutTemplatePartsInput
+    disconnect?: OrganizationWhereInput | boolean
+    delete?: OrganizationWhereInput | boolean
+    connect?: OrganizationWhereUniqueInput
+    update?: XOR<XOR<OrganizationUpdateToOneWithWhereWithoutTemplatePartsInput, OrganizationUpdateWithoutTemplatePartsInput>, OrganizationUncheckedUpdateWithoutTemplatePartsInput>
+  }
+
+  export type UserCreateNestedOneWithoutGlobalStyleConfigsInput = {
+    create?: XOR<UserCreateWithoutGlobalStyleConfigsInput, UserUncheckedCreateWithoutGlobalStyleConfigsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutGlobalStyleConfigsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type WorkspaceCreateNestedOneWithoutGlobalStyleConfigsInput = {
+    create?: XOR<WorkspaceCreateWithoutGlobalStyleConfigsInput, WorkspaceUncheckedCreateWithoutGlobalStyleConfigsInput>
+    connectOrCreate?: WorkspaceCreateOrConnectWithoutGlobalStyleConfigsInput
+    connect?: WorkspaceWhereUniqueInput
+  }
+
+  export type OrganizationCreateNestedOneWithoutGlobalStyleConfigsInput = {
+    create?: XOR<OrganizationCreateWithoutGlobalStyleConfigsInput, OrganizationUncheckedCreateWithoutGlobalStyleConfigsInput>
+    connectOrCreate?: OrganizationCreateOrConnectWithoutGlobalStyleConfigsInput
+    connect?: OrganizationWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutGlobalStyleConfigsNestedInput = {
+    create?: XOR<UserCreateWithoutGlobalStyleConfigsInput, UserUncheckedCreateWithoutGlobalStyleConfigsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutGlobalStyleConfigsInput
+    upsert?: UserUpsertWithoutGlobalStyleConfigsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutGlobalStyleConfigsInput, UserUpdateWithoutGlobalStyleConfigsInput>, UserUncheckedUpdateWithoutGlobalStyleConfigsInput>
+  }
+
+  export type WorkspaceUpdateOneWithoutGlobalStyleConfigsNestedInput = {
+    create?: XOR<WorkspaceCreateWithoutGlobalStyleConfigsInput, WorkspaceUncheckedCreateWithoutGlobalStyleConfigsInput>
+    connectOrCreate?: WorkspaceCreateOrConnectWithoutGlobalStyleConfigsInput
+    upsert?: WorkspaceUpsertWithoutGlobalStyleConfigsInput
+    disconnect?: WorkspaceWhereInput | boolean
+    delete?: WorkspaceWhereInput | boolean
+    connect?: WorkspaceWhereUniqueInput
+    update?: XOR<XOR<WorkspaceUpdateToOneWithWhereWithoutGlobalStyleConfigsInput, WorkspaceUpdateWithoutGlobalStyleConfigsInput>, WorkspaceUncheckedUpdateWithoutGlobalStyleConfigsInput>
+  }
+
+  export type OrganizationUpdateOneWithoutGlobalStyleConfigsNestedInput = {
+    create?: XOR<OrganizationCreateWithoutGlobalStyleConfigsInput, OrganizationUncheckedCreateWithoutGlobalStyleConfigsInput>
+    connectOrCreate?: OrganizationCreateOrConnectWithoutGlobalStyleConfigsInput
+    upsert?: OrganizationUpsertWithoutGlobalStyleConfigsInput
+    disconnect?: OrganizationWhereInput | boolean
+    delete?: OrganizationWhereInput | boolean
+    connect?: OrganizationWhereUniqueInput
+    update?: XOR<XOR<OrganizationUpdateToOneWithWhereWithoutGlobalStyleConfigsInput, OrganizationUpdateWithoutGlobalStyleConfigsInput>, OrganizationUncheckedUpdateWithoutGlobalStyleConfigsInput>
   }
 
   export type NestedUuidFilter<$PrismaModel = never> = {
@@ -82167,6 +91677,10 @@ export namespace Prisma {
     organization?: OrganizationCreateNestedOneWithoutWorkspacesInput
     members?: WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
     websites?: WebsiteCreateNestedManyWithoutWorkspaceInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutWorkspaceInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutWorkspaceInput
+    templateParts?: TemplatePartCreateNestedManyWithoutWorkspaceInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceUncheckedCreateWithoutOwnerInput = {
@@ -82179,6 +91693,10 @@ export namespace Prisma {
     updatedAt?: Date | string
     members?: WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
     websites?: WebsiteUncheckedCreateNestedManyWithoutWorkspaceInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutWorkspaceInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutWorkspaceInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutWorkspaceInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceCreateOrConnectWithoutOwnerInput = {
@@ -82201,6 +91719,10 @@ export namespace Prisma {
     members?: OrganizationMemberCreateNestedManyWithoutOrganizationInput
     workspaces?: WorkspaceCreateNestedManyWithoutOrganizationInput
     websites?: WebsiteCreateNestedManyWithoutOrganizationInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutOrganizationInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutOrganizationInput
+    templateParts?: TemplatePartCreateNestedManyWithoutOrganizationInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationUncheckedCreateWithoutOwnerInput = {
@@ -82213,6 +91735,10 @@ export namespace Prisma {
     members?: OrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput
     workspaces?: WorkspaceUncheckedCreateNestedManyWithoutOrganizationInput
     websites?: WebsiteUncheckedCreateNestedManyWithoutOrganizationInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutOrganizationInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutOrganizationInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutOrganizationInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationCreateOrConnectWithoutOwnerInput = {
@@ -82511,6 +92037,200 @@ export namespace Prisma {
 
   export type BillingInvoiceCreateManyUserInputEnvelope = {
     data: BillingInvoiceCreateManyUserInput | BillingInvoiceCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type BlockPatternCreateWithoutUserInput = {
+    id?: string
+    name: string
+    title: string
+    description?: string | null
+    category?: string
+    categories?: JsonNullValueInput | InputJsonValue
+    content?: JsonNullValueInput | InputJsonValue
+    viewportWidth?: number | null
+    blockTypes?: JsonNullValueInput | InputJsonValue
+    keywords?: JsonNullValueInput | InputJsonValue
+    isSynced?: boolean
+    syncStatus?: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    workspace?: WorkspaceCreateNestedOneWithoutBlockPatternsInput
+    organization?: OrganizationCreateNestedOneWithoutBlockPatternsInput
+    revisions?: SyncedPatternRevisionCreateNestedManyWithoutPatternInput
+  }
+
+  export type BlockPatternUncheckedCreateWithoutUserInput = {
+    id?: string
+    name: string
+    title: string
+    description?: string | null
+    category?: string
+    categories?: JsonNullValueInput | InputJsonValue
+    content?: JsonNullValueInput | InputJsonValue
+    viewportWidth?: number | null
+    blockTypes?: JsonNullValueInput | InputJsonValue
+    keywords?: JsonNullValueInput | InputJsonValue
+    isSynced?: boolean
+    syncStatus?: string
+    workspaceId?: string | null
+    organizationId?: string | null
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    revisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutPatternInput
+  }
+
+  export type BlockPatternCreateOrConnectWithoutUserInput = {
+    where: BlockPatternWhereUniqueInput
+    create: XOR<BlockPatternCreateWithoutUserInput, BlockPatternUncheckedCreateWithoutUserInput>
+  }
+
+  export type BlockPatternCreateManyUserInputEnvelope = {
+    data: BlockPatternCreateManyUserInput | BlockPatternCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type SyncedPatternRevisionCreateWithoutCreatorInput = {
+    id?: string
+    version: number
+    title: string
+    content: JsonNullValueInput | InputJsonValue
+    description?: string | null
+    createdAt?: Date | string
+    pattern: BlockPatternCreateNestedOneWithoutRevisionsInput
+  }
+
+  export type SyncedPatternRevisionUncheckedCreateWithoutCreatorInput = {
+    id?: string
+    patternId: string
+    version: number
+    title: string
+    content: JsonNullValueInput | InputJsonValue
+    description?: string | null
+    createdAt?: Date | string
+  }
+
+  export type SyncedPatternRevisionCreateOrConnectWithoutCreatorInput = {
+    where: SyncedPatternRevisionWhereUniqueInput
+    create: XOR<SyncedPatternRevisionCreateWithoutCreatorInput, SyncedPatternRevisionUncheckedCreateWithoutCreatorInput>
+  }
+
+  export type SyncedPatternRevisionCreateManyCreatorInputEnvelope = {
+    data: SyncedPatternRevisionCreateManyCreatorInput | SyncedPatternRevisionCreateManyCreatorInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type BlockTemplateCreateWithoutUserInput = {
+    id?: string
+    slug: string
+    title: string
+    description?: string | null
+    type?: string
+    content: JsonNullValueInput | InputJsonValue
+    templateLock?: string | null
+    isDefault?: boolean
+    assignedPageIds?: BlockTemplateCreateassignedPageIdsInput | string[]
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    workspace?: WorkspaceCreateNestedOneWithoutBlockTemplatesInput
+    organization?: OrganizationCreateNestedOneWithoutBlockTemplatesInput
+  }
+
+  export type BlockTemplateUncheckedCreateWithoutUserInput = {
+    id?: string
+    slug: string
+    title: string
+    description?: string | null
+    type?: string
+    content: JsonNullValueInput | InputJsonValue
+    templateLock?: string | null
+    isDefault?: boolean
+    assignedPageIds?: BlockTemplateCreateassignedPageIdsInput | string[]
+    workspaceId?: string | null
+    organizationId?: string | null
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BlockTemplateCreateOrConnectWithoutUserInput = {
+    where: BlockTemplateWhereUniqueInput
+    create: XOR<BlockTemplateCreateWithoutUserInput, BlockTemplateUncheckedCreateWithoutUserInput>
+  }
+
+  export type BlockTemplateCreateManyUserInputEnvelope = {
+    data: BlockTemplateCreateManyUserInput | BlockTemplateCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type TemplatePartCreateWithoutUserInput = {
+    id?: string
+    slug: string
+    title: string
+    area?: string
+    content: JsonNullValueInput | InputJsonValue
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    workspace?: WorkspaceCreateNestedOneWithoutTemplatePartsInput
+    organization?: OrganizationCreateNestedOneWithoutTemplatePartsInput
+  }
+
+  export type TemplatePartUncheckedCreateWithoutUserInput = {
+    id?: string
+    slug: string
+    title: string
+    area?: string
+    content: JsonNullValueInput | InputJsonValue
+    workspaceId?: string | null
+    organizationId?: string | null
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TemplatePartCreateOrConnectWithoutUserInput = {
+    where: TemplatePartWhereUniqueInput
+    create: XOR<TemplatePartCreateWithoutUserInput, TemplatePartUncheckedCreateWithoutUserInput>
+  }
+
+  export type TemplatePartCreateManyUserInputEnvelope = {
+    data: TemplatePartCreateManyUserInput | TemplatePartCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type GlobalStyleConfigCreateWithoutUserInput = {
+    id?: string
+    name?: string
+    styles: JsonNullValueInput | InputJsonValue
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    workspace?: WorkspaceCreateNestedOneWithoutGlobalStyleConfigsInput
+    organization?: OrganizationCreateNestedOneWithoutGlobalStyleConfigsInput
+  }
+
+  export type GlobalStyleConfigUncheckedCreateWithoutUserInput = {
+    id?: string
+    name?: string
+    styles: JsonNullValueInput | InputJsonValue
+    workspaceId?: string | null
+    organizationId?: string | null
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GlobalStyleConfigCreateOrConnectWithoutUserInput = {
+    where: GlobalStyleConfigWhereUniqueInput
+    create: XOR<GlobalStyleConfigCreateWithoutUserInput, GlobalStyleConfigUncheckedCreateWithoutUserInput>
+  }
+
+  export type GlobalStyleConfigCreateManyUserInputEnvelope = {
+    data: GlobalStyleConfigCreateManyUserInput | GlobalStyleConfigCreateManyUserInput[]
     skipDuplicates?: boolean
   }
 
@@ -83517,6 +93237,177 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"BillingInvoice"> | Date | string
   }
 
+  export type BlockPatternUpsertWithWhereUniqueWithoutUserInput = {
+    where: BlockPatternWhereUniqueInput
+    update: XOR<BlockPatternUpdateWithoutUserInput, BlockPatternUncheckedUpdateWithoutUserInput>
+    create: XOR<BlockPatternCreateWithoutUserInput, BlockPatternUncheckedCreateWithoutUserInput>
+  }
+
+  export type BlockPatternUpdateWithWhereUniqueWithoutUserInput = {
+    where: BlockPatternWhereUniqueInput
+    data: XOR<BlockPatternUpdateWithoutUserInput, BlockPatternUncheckedUpdateWithoutUserInput>
+  }
+
+  export type BlockPatternUpdateManyWithWhereWithoutUserInput = {
+    where: BlockPatternScalarWhereInput
+    data: XOR<BlockPatternUpdateManyMutationInput, BlockPatternUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type BlockPatternScalarWhereInput = {
+    AND?: BlockPatternScalarWhereInput | BlockPatternScalarWhereInput[]
+    OR?: BlockPatternScalarWhereInput[]
+    NOT?: BlockPatternScalarWhereInput | BlockPatternScalarWhereInput[]
+    id?: UuidFilter<"BlockPattern"> | string
+    name?: StringFilter<"BlockPattern"> | string
+    title?: StringFilter<"BlockPattern"> | string
+    description?: StringNullableFilter<"BlockPattern"> | string | null
+    category?: StringFilter<"BlockPattern"> | string
+    categories?: JsonFilter<"BlockPattern">
+    content?: JsonFilter<"BlockPattern">
+    viewportWidth?: IntNullableFilter<"BlockPattern"> | number | null
+    blockTypes?: JsonFilter<"BlockPattern">
+    keywords?: JsonFilter<"BlockPattern">
+    isSynced?: BoolFilter<"BlockPattern"> | boolean
+    syncStatus?: StringFilter<"BlockPattern"> | string
+    workspaceId?: UuidNullableFilter<"BlockPattern"> | string | null
+    organizationId?: UuidNullableFilter<"BlockPattern"> | string | null
+    userId?: UuidFilter<"BlockPattern"> | string
+    version?: IntFilter<"BlockPattern"> | number
+    createdAt?: DateTimeFilter<"BlockPattern"> | Date | string
+    updatedAt?: DateTimeFilter<"BlockPattern"> | Date | string
+  }
+
+  export type SyncedPatternRevisionUpsertWithWhereUniqueWithoutCreatorInput = {
+    where: SyncedPatternRevisionWhereUniqueInput
+    update: XOR<SyncedPatternRevisionUpdateWithoutCreatorInput, SyncedPatternRevisionUncheckedUpdateWithoutCreatorInput>
+    create: XOR<SyncedPatternRevisionCreateWithoutCreatorInput, SyncedPatternRevisionUncheckedCreateWithoutCreatorInput>
+  }
+
+  export type SyncedPatternRevisionUpdateWithWhereUniqueWithoutCreatorInput = {
+    where: SyncedPatternRevisionWhereUniqueInput
+    data: XOR<SyncedPatternRevisionUpdateWithoutCreatorInput, SyncedPatternRevisionUncheckedUpdateWithoutCreatorInput>
+  }
+
+  export type SyncedPatternRevisionUpdateManyWithWhereWithoutCreatorInput = {
+    where: SyncedPatternRevisionScalarWhereInput
+    data: XOR<SyncedPatternRevisionUpdateManyMutationInput, SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorInput>
+  }
+
+  export type SyncedPatternRevisionScalarWhereInput = {
+    AND?: SyncedPatternRevisionScalarWhereInput | SyncedPatternRevisionScalarWhereInput[]
+    OR?: SyncedPatternRevisionScalarWhereInput[]
+    NOT?: SyncedPatternRevisionScalarWhereInput | SyncedPatternRevisionScalarWhereInput[]
+    id?: UuidFilter<"SyncedPatternRevision"> | string
+    patternId?: UuidFilter<"SyncedPatternRevision"> | string
+    version?: IntFilter<"SyncedPatternRevision"> | number
+    title?: StringFilter<"SyncedPatternRevision"> | string
+    content?: JsonFilter<"SyncedPatternRevision">
+    description?: StringNullableFilter<"SyncedPatternRevision"> | string | null
+    createdBy?: UuidNullableFilter<"SyncedPatternRevision"> | string | null
+    createdAt?: DateTimeFilter<"SyncedPatternRevision"> | Date | string
+  }
+
+  export type BlockTemplateUpsertWithWhereUniqueWithoutUserInput = {
+    where: BlockTemplateWhereUniqueInput
+    update: XOR<BlockTemplateUpdateWithoutUserInput, BlockTemplateUncheckedUpdateWithoutUserInput>
+    create: XOR<BlockTemplateCreateWithoutUserInput, BlockTemplateUncheckedCreateWithoutUserInput>
+  }
+
+  export type BlockTemplateUpdateWithWhereUniqueWithoutUserInput = {
+    where: BlockTemplateWhereUniqueInput
+    data: XOR<BlockTemplateUpdateWithoutUserInput, BlockTemplateUncheckedUpdateWithoutUserInput>
+  }
+
+  export type BlockTemplateUpdateManyWithWhereWithoutUserInput = {
+    where: BlockTemplateScalarWhereInput
+    data: XOR<BlockTemplateUpdateManyMutationInput, BlockTemplateUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type BlockTemplateScalarWhereInput = {
+    AND?: BlockTemplateScalarWhereInput | BlockTemplateScalarWhereInput[]
+    OR?: BlockTemplateScalarWhereInput[]
+    NOT?: BlockTemplateScalarWhereInput | BlockTemplateScalarWhereInput[]
+    id?: UuidFilter<"BlockTemplate"> | string
+    slug?: StringFilter<"BlockTemplate"> | string
+    title?: StringFilter<"BlockTemplate"> | string
+    description?: StringNullableFilter<"BlockTemplate"> | string | null
+    type?: StringFilter<"BlockTemplate"> | string
+    content?: JsonFilter<"BlockTemplate">
+    templateLock?: StringNullableFilter<"BlockTemplate"> | string | null
+    isDefault?: BoolFilter<"BlockTemplate"> | boolean
+    assignedPageIds?: StringNullableListFilter<"BlockTemplate">
+    workspaceId?: UuidNullableFilter<"BlockTemplate"> | string | null
+    organizationId?: UuidNullableFilter<"BlockTemplate"> | string | null
+    userId?: UuidFilter<"BlockTemplate"> | string
+    version?: IntFilter<"BlockTemplate"> | number
+    createdAt?: DateTimeFilter<"BlockTemplate"> | Date | string
+    updatedAt?: DateTimeFilter<"BlockTemplate"> | Date | string
+  }
+
+  export type TemplatePartUpsertWithWhereUniqueWithoutUserInput = {
+    where: TemplatePartWhereUniqueInput
+    update: XOR<TemplatePartUpdateWithoutUserInput, TemplatePartUncheckedUpdateWithoutUserInput>
+    create: XOR<TemplatePartCreateWithoutUserInput, TemplatePartUncheckedCreateWithoutUserInput>
+  }
+
+  export type TemplatePartUpdateWithWhereUniqueWithoutUserInput = {
+    where: TemplatePartWhereUniqueInput
+    data: XOR<TemplatePartUpdateWithoutUserInput, TemplatePartUncheckedUpdateWithoutUserInput>
+  }
+
+  export type TemplatePartUpdateManyWithWhereWithoutUserInput = {
+    where: TemplatePartScalarWhereInput
+    data: XOR<TemplatePartUpdateManyMutationInput, TemplatePartUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type TemplatePartScalarWhereInput = {
+    AND?: TemplatePartScalarWhereInput | TemplatePartScalarWhereInput[]
+    OR?: TemplatePartScalarWhereInput[]
+    NOT?: TemplatePartScalarWhereInput | TemplatePartScalarWhereInput[]
+    id?: UuidFilter<"TemplatePart"> | string
+    slug?: StringFilter<"TemplatePart"> | string
+    title?: StringFilter<"TemplatePart"> | string
+    area?: StringFilter<"TemplatePart"> | string
+    content?: JsonFilter<"TemplatePart">
+    workspaceId?: UuidNullableFilter<"TemplatePart"> | string | null
+    organizationId?: UuidNullableFilter<"TemplatePart"> | string | null
+    userId?: UuidFilter<"TemplatePart"> | string
+    version?: IntFilter<"TemplatePart"> | number
+    createdAt?: DateTimeFilter<"TemplatePart"> | Date | string
+    updatedAt?: DateTimeFilter<"TemplatePart"> | Date | string
+  }
+
+  export type GlobalStyleConfigUpsertWithWhereUniqueWithoutUserInput = {
+    where: GlobalStyleConfigWhereUniqueInput
+    update: XOR<GlobalStyleConfigUpdateWithoutUserInput, GlobalStyleConfigUncheckedUpdateWithoutUserInput>
+    create: XOR<GlobalStyleConfigCreateWithoutUserInput, GlobalStyleConfigUncheckedCreateWithoutUserInput>
+  }
+
+  export type GlobalStyleConfigUpdateWithWhereUniqueWithoutUserInput = {
+    where: GlobalStyleConfigWhereUniqueInput
+    data: XOR<GlobalStyleConfigUpdateWithoutUserInput, GlobalStyleConfigUncheckedUpdateWithoutUserInput>
+  }
+
+  export type GlobalStyleConfigUpdateManyWithWhereWithoutUserInput = {
+    where: GlobalStyleConfigScalarWhereInput
+    data: XOR<GlobalStyleConfigUpdateManyMutationInput, GlobalStyleConfigUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type GlobalStyleConfigScalarWhereInput = {
+    AND?: GlobalStyleConfigScalarWhereInput | GlobalStyleConfigScalarWhereInput[]
+    OR?: GlobalStyleConfigScalarWhereInput[]
+    NOT?: GlobalStyleConfigScalarWhereInput | GlobalStyleConfigScalarWhereInput[]
+    id?: UuidFilter<"GlobalStyleConfig"> | string
+    name?: StringFilter<"GlobalStyleConfig"> | string
+    styles?: JsonFilter<"GlobalStyleConfig">
+    workspaceId?: UuidNullableFilter<"GlobalStyleConfig"> | string | null
+    organizationId?: UuidNullableFilter<"GlobalStyleConfig"> | string | null
+    userId?: UuidFilter<"GlobalStyleConfig"> | string
+    version?: IntFilter<"GlobalStyleConfig"> | number
+    createdAt?: DateTimeFilter<"GlobalStyleConfig"> | Date | string
+    updatedAt?: DateTimeFilter<"GlobalStyleConfig"> | Date | string
+  }
+
   export type UserCreateWithoutWebsitesInput = {
     id?: string
     fullName?: string | null
@@ -83564,6 +93455,11 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutWebsitesInput = {
@@ -83613,6 +93509,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutWebsitesInput = {
@@ -84164,6 +94065,10 @@ export namespace Prisma {
     organization?: OrganizationCreateNestedOneWithoutWorkspacesInput
     owner: UserCreateNestedOneWithoutOwnedWorkspacesInput
     members?: WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutWorkspaceInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutWorkspaceInput
+    templateParts?: TemplatePartCreateNestedManyWithoutWorkspaceInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceUncheckedCreateWithoutWebsitesInput = {
@@ -84176,6 +94081,10 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     members?: WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutWorkspaceInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutWorkspaceInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutWorkspaceInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceCreateOrConnectWithoutWebsitesInput = {
@@ -84193,6 +94102,10 @@ export namespace Prisma {
     owner: UserCreateNestedOneWithoutOwnedOrganizationsInput
     members?: OrganizationMemberCreateNestedManyWithoutOrganizationInput
     workspaces?: WorkspaceCreateNestedManyWithoutOrganizationInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutOrganizationInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutOrganizationInput
+    templateParts?: TemplatePartCreateNestedManyWithoutOrganizationInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationUncheckedCreateWithoutWebsitesInput = {
@@ -84205,6 +94118,10 @@ export namespace Prisma {
     updatedAt?: Date | string
     members?: OrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput
     workspaces?: WorkspaceUncheckedCreateNestedManyWithoutOrganizationInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutOrganizationInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutOrganizationInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutOrganizationInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationCreateOrConnectWithoutWebsitesInput = {
@@ -84477,6 +94394,11 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWebsitesInput = {
@@ -84526,6 +94448,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type CustomCodeSnippetUpsertWithWhereUniqueWithoutWebsiteInput = {
@@ -84965,6 +94892,10 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneWithoutWorkspacesNestedInput
     owner?: UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
     members?: WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutWorkspaceNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutWorkspaceNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutWorkspaceNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type WorkspaceUncheckedUpdateWithoutWebsitesInput = {
@@ -84977,6 +94908,10 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutWorkspaceNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutWorkspaceNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutWorkspaceNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type OrganizationUpsertWithoutWebsitesInput = {
@@ -85000,6 +94935,10 @@ export namespace Prisma {
     owner?: UserUpdateOneRequiredWithoutOwnedOrganizationsNestedInput
     members?: OrganizationMemberUpdateManyWithoutOrganizationNestedInput
     workspaces?: WorkspaceUpdateManyWithoutOrganizationNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutOrganizationNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutOrganizationNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutOrganizationNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OrganizationUncheckedUpdateWithoutWebsitesInput = {
@@ -85012,6 +94951,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: OrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput
     workspaces?: WorkspaceUncheckedUpdateManyWithoutOrganizationNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutOrganizationNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutOrganizationNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutOrganizationNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type PublishApprovalRequestUpsertWithWhereUniqueWithoutWebsiteInput = {
@@ -85224,6 +95167,11 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOtpVerificationsInput = {
@@ -85273,6 +95221,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOtpVerificationsInput = {
@@ -85338,6 +95291,11 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOtpVerificationsInput = {
@@ -85387,6 +95345,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutIdentitiesInput = {
@@ -85436,6 +95399,11 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutIdentitiesInput = {
@@ -85485,6 +95453,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutIdentitiesInput = {
@@ -85550,6 +95523,11 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutIdentitiesInput = {
@@ -85599,6 +95577,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutSessionsInput = {
@@ -85648,6 +95631,11 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSessionsInput = {
@@ -85697,6 +95685,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSessionsInput = {
@@ -85762,6 +95755,11 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -85811,6 +95809,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutPasswordResetTokensInput = {
@@ -85860,6 +95863,11 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
@@ -85909,6 +95917,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPasswordResetTokensInput = {
@@ -85974,6 +95987,11 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
@@ -86023,6 +96041,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserSubscriptionCreateWithoutPlanInput = {
@@ -86169,6 +96192,11 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSubscriptionInput = {
@@ -86218,6 +96246,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSubscriptionInput = {
@@ -86326,6 +96359,11 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSubscriptionInput = {
@@ -86375,6 +96413,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutTemplatesInput = {
@@ -86424,6 +96467,11 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutTemplatesInput = {
@@ -86473,6 +96521,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutTemplatesInput = {
@@ -86538,6 +96591,11 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTemplatesInput = {
@@ -86587,6 +96645,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutCustomCodeSnippetsInput = {
@@ -86883,6 +96946,11 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCodeRevisionsInput = {
@@ -86932,6 +97000,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCodeRevisionsInput = {
@@ -87054,6 +97127,11 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCodeRevisionsInput = {
@@ -87103,6 +97181,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutFormSubmissionsInput = {
@@ -87731,6 +97814,11 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAuditLogsInput = {
@@ -87780,6 +97868,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAuditLogsInput = {
@@ -87845,6 +97938,11 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAuditLogsInput = {
@@ -87894,6 +97992,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutSftpConnectionsInput = {
@@ -88348,6 +98451,11 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCustomEntriesInput = {
@@ -88397,6 +98505,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCustomEntriesInput = {
@@ -88497,6 +98610,11 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCustomEntriesInput = {
@@ -88546,6 +98664,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutDesignNotesInput = {
@@ -88670,6 +98793,11 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutDesignNotesInput = {
@@ -88719,6 +98847,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutDesignNotesInput = {
@@ -88865,6 +98998,11 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDesignNotesInput = {
@@ -88914,6 +99052,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutDeveloperApiKeysInput = {
@@ -88963,6 +99106,11 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutDeveloperApiKeysInput = {
@@ -89012,6 +99160,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutDeveloperApiKeysInput = {
@@ -89077,6 +99230,11 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDeveloperApiKeysInput = {
@@ -89126,6 +99284,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutComponentAccessesInput = {
@@ -89250,6 +99413,11 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutComponentAccessesInput = {
@@ -89299,6 +99467,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutComponentAccessesInput = {
@@ -89445,6 +99618,11 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutComponentAccessesInput = {
@@ -89494,6 +99672,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutCollaboratorsInput = {
@@ -89618,6 +99801,11 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCollaborationsInput = {
@@ -89667,6 +99855,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCollaborationsInput = {
@@ -89813,6 +100006,11 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCollaborationsInput = {
@@ -89862,6 +100060,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutRevisionsInput = {
@@ -89986,6 +100189,11 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutWebsiteRevisionsInput = {
@@ -90035,6 +100243,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutWebsiteRevisionsInput = {
@@ -90181,6 +100394,11 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWebsiteRevisionsInput = {
@@ -90230,6 +100448,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutDeploymentsInput = {
@@ -90354,6 +100577,11 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutDeploymentsInput = {
@@ -90403,6 +100631,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutDeploymentsInput = {
@@ -90549,6 +100782,11 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDeploymentsInput = {
@@ -90598,6 +100836,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutWpConnectionInput = {
@@ -90722,6 +100965,11 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutWpConnectionsInput = {
@@ -90771,6 +101019,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutWpConnectionsInput = {
@@ -90917,6 +101170,11 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWpConnectionsInput = {
@@ -90966,6 +101224,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutWpPageMappingsInput = {
@@ -91246,6 +101509,11 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutGranularPermissionsInput = {
@@ -91295,6 +101563,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutGranularPermissionsInput = {
@@ -91441,6 +101714,11 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutGranularPermissionsInput = {
@@ -91490,6 +101768,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutOwnedTeamsInput = {
@@ -91539,6 +101822,11 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOwnedTeamsInput = {
@@ -91588,6 +101876,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOwnedTeamsInput = {
@@ -91793,6 +102086,11 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOwnedTeamsInput = {
@@ -91842,6 +102140,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TeamMemberUpsertWithWhereUniqueWithoutTeamInput = {
@@ -91966,6 +102269,11 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutTeamMembershipsInput = {
@@ -92015,6 +102323,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutTeamMembershipsInput = {
@@ -92113,6 +102426,11 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTeamMembershipsInput = {
@@ -92162,6 +102480,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TeamCreateWithoutInvitationsInput = {
@@ -92238,6 +102561,11 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSentTeamInvitationsInput = {
@@ -92287,6 +102615,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSentTeamInvitationsInput = {
@@ -92385,6 +102718,11 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSentTeamInvitationsInput = {
@@ -92434,6 +102772,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutInvitationsInput = {
@@ -92558,6 +102901,11 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSentWebsiteInvitationsInput = {
@@ -92607,6 +102955,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSentWebsiteInvitationsInput = {
@@ -92753,6 +103106,11 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSentWebsiteInvitationsInput = {
@@ -92802,6 +103160,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type OrganizationCreateWithoutWorkspacesInput = {
@@ -92814,6 +103177,10 @@ export namespace Prisma {
     owner: UserCreateNestedOneWithoutOwnedOrganizationsInput
     members?: OrganizationMemberCreateNestedManyWithoutOrganizationInput
     websites?: WebsiteCreateNestedManyWithoutOrganizationInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutOrganizationInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutOrganizationInput
+    templateParts?: TemplatePartCreateNestedManyWithoutOrganizationInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationUncheckedCreateWithoutWorkspacesInput = {
@@ -92826,6 +103193,10 @@ export namespace Prisma {
     updatedAt?: Date | string
     members?: OrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput
     websites?: WebsiteUncheckedCreateNestedManyWithoutOrganizationInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutOrganizationInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutOrganizationInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutOrganizationInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationCreateOrConnectWithoutWorkspacesInput = {
@@ -92880,6 +103251,11 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOwnedWorkspacesInput = {
@@ -92929,6 +103305,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOwnedWorkspacesInput = {
@@ -93042,6 +103423,170 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type BlockPatternCreateWithoutWorkspaceInput = {
+    id?: string
+    name: string
+    title: string
+    description?: string | null
+    category?: string
+    categories?: JsonNullValueInput | InputJsonValue
+    content?: JsonNullValueInput | InputJsonValue
+    viewportWidth?: number | null
+    blockTypes?: JsonNullValueInput | InputJsonValue
+    keywords?: JsonNullValueInput | InputJsonValue
+    isSynced?: boolean
+    syncStatus?: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutBlockPatternsInput
+    organization?: OrganizationCreateNestedOneWithoutBlockPatternsInput
+    revisions?: SyncedPatternRevisionCreateNestedManyWithoutPatternInput
+  }
+
+  export type BlockPatternUncheckedCreateWithoutWorkspaceInput = {
+    id?: string
+    name: string
+    title: string
+    description?: string | null
+    category?: string
+    categories?: JsonNullValueInput | InputJsonValue
+    content?: JsonNullValueInput | InputJsonValue
+    viewportWidth?: number | null
+    blockTypes?: JsonNullValueInput | InputJsonValue
+    keywords?: JsonNullValueInput | InputJsonValue
+    isSynced?: boolean
+    syncStatus?: string
+    organizationId?: string | null
+    userId: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    revisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutPatternInput
+  }
+
+  export type BlockPatternCreateOrConnectWithoutWorkspaceInput = {
+    where: BlockPatternWhereUniqueInput
+    create: XOR<BlockPatternCreateWithoutWorkspaceInput, BlockPatternUncheckedCreateWithoutWorkspaceInput>
+  }
+
+  export type BlockPatternCreateManyWorkspaceInputEnvelope = {
+    data: BlockPatternCreateManyWorkspaceInput | BlockPatternCreateManyWorkspaceInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type BlockTemplateCreateWithoutWorkspaceInput = {
+    id?: string
+    slug: string
+    title: string
+    description?: string | null
+    type?: string
+    content: JsonNullValueInput | InputJsonValue
+    templateLock?: string | null
+    isDefault?: boolean
+    assignedPageIds?: BlockTemplateCreateassignedPageIdsInput | string[]
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutBlockTemplatesInput
+    organization?: OrganizationCreateNestedOneWithoutBlockTemplatesInput
+  }
+
+  export type BlockTemplateUncheckedCreateWithoutWorkspaceInput = {
+    id?: string
+    slug: string
+    title: string
+    description?: string | null
+    type?: string
+    content: JsonNullValueInput | InputJsonValue
+    templateLock?: string | null
+    isDefault?: boolean
+    assignedPageIds?: BlockTemplateCreateassignedPageIdsInput | string[]
+    organizationId?: string | null
+    userId: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BlockTemplateCreateOrConnectWithoutWorkspaceInput = {
+    where: BlockTemplateWhereUniqueInput
+    create: XOR<BlockTemplateCreateWithoutWorkspaceInput, BlockTemplateUncheckedCreateWithoutWorkspaceInput>
+  }
+
+  export type BlockTemplateCreateManyWorkspaceInputEnvelope = {
+    data: BlockTemplateCreateManyWorkspaceInput | BlockTemplateCreateManyWorkspaceInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type TemplatePartCreateWithoutWorkspaceInput = {
+    id?: string
+    slug: string
+    title: string
+    area?: string
+    content: JsonNullValueInput | InputJsonValue
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutTemplatePartsInput
+    organization?: OrganizationCreateNestedOneWithoutTemplatePartsInput
+  }
+
+  export type TemplatePartUncheckedCreateWithoutWorkspaceInput = {
+    id?: string
+    slug: string
+    title: string
+    area?: string
+    content: JsonNullValueInput | InputJsonValue
+    organizationId?: string | null
+    userId: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TemplatePartCreateOrConnectWithoutWorkspaceInput = {
+    where: TemplatePartWhereUniqueInput
+    create: XOR<TemplatePartCreateWithoutWorkspaceInput, TemplatePartUncheckedCreateWithoutWorkspaceInput>
+  }
+
+  export type TemplatePartCreateManyWorkspaceInputEnvelope = {
+    data: TemplatePartCreateManyWorkspaceInput | TemplatePartCreateManyWorkspaceInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type GlobalStyleConfigCreateWithoutWorkspaceInput = {
+    id?: string
+    name?: string
+    styles: JsonNullValueInput | InputJsonValue
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutGlobalStyleConfigsInput
+    organization?: OrganizationCreateNestedOneWithoutGlobalStyleConfigsInput
+  }
+
+  export type GlobalStyleConfigUncheckedCreateWithoutWorkspaceInput = {
+    id?: string
+    name?: string
+    styles: JsonNullValueInput | InputJsonValue
+    organizationId?: string | null
+    userId: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GlobalStyleConfigCreateOrConnectWithoutWorkspaceInput = {
+    where: GlobalStyleConfigWhereUniqueInput
+    create: XOR<GlobalStyleConfigCreateWithoutWorkspaceInput, GlobalStyleConfigUncheckedCreateWithoutWorkspaceInput>
+  }
+
+  export type GlobalStyleConfigCreateManyWorkspaceInputEnvelope = {
+    data: GlobalStyleConfigCreateManyWorkspaceInput | GlobalStyleConfigCreateManyWorkspaceInput[]
+    skipDuplicates?: boolean
+  }
+
   export type OrganizationUpsertWithoutWorkspacesInput = {
     update: XOR<OrganizationUpdateWithoutWorkspacesInput, OrganizationUncheckedUpdateWithoutWorkspacesInput>
     create: XOR<OrganizationCreateWithoutWorkspacesInput, OrganizationUncheckedCreateWithoutWorkspacesInput>
@@ -93063,6 +103608,10 @@ export namespace Prisma {
     owner?: UserUpdateOneRequiredWithoutOwnedOrganizationsNestedInput
     members?: OrganizationMemberUpdateManyWithoutOrganizationNestedInput
     websites?: WebsiteUpdateManyWithoutOrganizationNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutOrganizationNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutOrganizationNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutOrganizationNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OrganizationUncheckedUpdateWithoutWorkspacesInput = {
@@ -93075,6 +103624,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: OrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput
     websites?: WebsiteUncheckedUpdateManyWithoutOrganizationNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutOrganizationNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutOrganizationNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutOrganizationNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type UserUpsertWithoutOwnedWorkspacesInput = {
@@ -93135,6 +103688,11 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOwnedWorkspacesInput = {
@@ -93184,6 +103742,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WorkspaceMemberUpsertWithWhereUniqueWithoutWorkspaceInput = {
@@ -93216,6 +103779,70 @@ export namespace Prisma {
   export type WebsiteUpdateManyWithWhereWithoutWorkspaceInput = {
     where: WebsiteScalarWhereInput
     data: XOR<WebsiteUpdateManyMutationInput, WebsiteUncheckedUpdateManyWithoutWorkspaceInput>
+  }
+
+  export type BlockPatternUpsertWithWhereUniqueWithoutWorkspaceInput = {
+    where: BlockPatternWhereUniqueInput
+    update: XOR<BlockPatternUpdateWithoutWorkspaceInput, BlockPatternUncheckedUpdateWithoutWorkspaceInput>
+    create: XOR<BlockPatternCreateWithoutWorkspaceInput, BlockPatternUncheckedCreateWithoutWorkspaceInput>
+  }
+
+  export type BlockPatternUpdateWithWhereUniqueWithoutWorkspaceInput = {
+    where: BlockPatternWhereUniqueInput
+    data: XOR<BlockPatternUpdateWithoutWorkspaceInput, BlockPatternUncheckedUpdateWithoutWorkspaceInput>
+  }
+
+  export type BlockPatternUpdateManyWithWhereWithoutWorkspaceInput = {
+    where: BlockPatternScalarWhereInput
+    data: XOR<BlockPatternUpdateManyMutationInput, BlockPatternUncheckedUpdateManyWithoutWorkspaceInput>
+  }
+
+  export type BlockTemplateUpsertWithWhereUniqueWithoutWorkspaceInput = {
+    where: BlockTemplateWhereUniqueInput
+    update: XOR<BlockTemplateUpdateWithoutWorkspaceInput, BlockTemplateUncheckedUpdateWithoutWorkspaceInput>
+    create: XOR<BlockTemplateCreateWithoutWorkspaceInput, BlockTemplateUncheckedCreateWithoutWorkspaceInput>
+  }
+
+  export type BlockTemplateUpdateWithWhereUniqueWithoutWorkspaceInput = {
+    where: BlockTemplateWhereUniqueInput
+    data: XOR<BlockTemplateUpdateWithoutWorkspaceInput, BlockTemplateUncheckedUpdateWithoutWorkspaceInput>
+  }
+
+  export type BlockTemplateUpdateManyWithWhereWithoutWorkspaceInput = {
+    where: BlockTemplateScalarWhereInput
+    data: XOR<BlockTemplateUpdateManyMutationInput, BlockTemplateUncheckedUpdateManyWithoutWorkspaceInput>
+  }
+
+  export type TemplatePartUpsertWithWhereUniqueWithoutWorkspaceInput = {
+    where: TemplatePartWhereUniqueInput
+    update: XOR<TemplatePartUpdateWithoutWorkspaceInput, TemplatePartUncheckedUpdateWithoutWorkspaceInput>
+    create: XOR<TemplatePartCreateWithoutWorkspaceInput, TemplatePartUncheckedCreateWithoutWorkspaceInput>
+  }
+
+  export type TemplatePartUpdateWithWhereUniqueWithoutWorkspaceInput = {
+    where: TemplatePartWhereUniqueInput
+    data: XOR<TemplatePartUpdateWithoutWorkspaceInput, TemplatePartUncheckedUpdateWithoutWorkspaceInput>
+  }
+
+  export type TemplatePartUpdateManyWithWhereWithoutWorkspaceInput = {
+    where: TemplatePartScalarWhereInput
+    data: XOR<TemplatePartUpdateManyMutationInput, TemplatePartUncheckedUpdateManyWithoutWorkspaceInput>
+  }
+
+  export type GlobalStyleConfigUpsertWithWhereUniqueWithoutWorkspaceInput = {
+    where: GlobalStyleConfigWhereUniqueInput
+    update: XOR<GlobalStyleConfigUpdateWithoutWorkspaceInput, GlobalStyleConfigUncheckedUpdateWithoutWorkspaceInput>
+    create: XOR<GlobalStyleConfigCreateWithoutWorkspaceInput, GlobalStyleConfigUncheckedCreateWithoutWorkspaceInput>
+  }
+
+  export type GlobalStyleConfigUpdateWithWhereUniqueWithoutWorkspaceInput = {
+    where: GlobalStyleConfigWhereUniqueInput
+    data: XOR<GlobalStyleConfigUpdateWithoutWorkspaceInput, GlobalStyleConfigUncheckedUpdateWithoutWorkspaceInput>
+  }
+
+  export type GlobalStyleConfigUpdateManyWithWhereWithoutWorkspaceInput = {
+    where: GlobalStyleConfigScalarWhereInput
+    data: XOR<GlobalStyleConfigUpdateManyMutationInput, GlobalStyleConfigUncheckedUpdateManyWithoutWorkspaceInput>
   }
 
   export type UserCreateWithoutOwnedOrganizationsInput = {
@@ -93265,6 +103892,11 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOwnedOrganizationsInput = {
@@ -93314,6 +103946,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOwnedOrganizationsInput = {
@@ -93357,6 +103994,10 @@ export namespace Prisma {
     owner: UserCreateNestedOneWithoutOwnedWorkspacesInput
     members?: WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
     websites?: WebsiteCreateNestedManyWithoutWorkspaceInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutWorkspaceInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutWorkspaceInput
+    templateParts?: TemplatePartCreateNestedManyWithoutWorkspaceInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceUncheckedCreateWithoutOrganizationInput = {
@@ -93369,6 +104010,10 @@ export namespace Prisma {
     updatedAt?: Date | string
     members?: WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
     websites?: WebsiteUncheckedCreateNestedManyWithoutWorkspaceInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutWorkspaceInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutWorkspaceInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutWorkspaceInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceCreateOrConnectWithoutOrganizationInput = {
@@ -93461,6 +104106,170 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type BlockPatternCreateWithoutOrganizationInput = {
+    id?: string
+    name: string
+    title: string
+    description?: string | null
+    category?: string
+    categories?: JsonNullValueInput | InputJsonValue
+    content?: JsonNullValueInput | InputJsonValue
+    viewportWidth?: number | null
+    blockTypes?: JsonNullValueInput | InputJsonValue
+    keywords?: JsonNullValueInput | InputJsonValue
+    isSynced?: boolean
+    syncStatus?: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutBlockPatternsInput
+    workspace?: WorkspaceCreateNestedOneWithoutBlockPatternsInput
+    revisions?: SyncedPatternRevisionCreateNestedManyWithoutPatternInput
+  }
+
+  export type BlockPatternUncheckedCreateWithoutOrganizationInput = {
+    id?: string
+    name: string
+    title: string
+    description?: string | null
+    category?: string
+    categories?: JsonNullValueInput | InputJsonValue
+    content?: JsonNullValueInput | InputJsonValue
+    viewportWidth?: number | null
+    blockTypes?: JsonNullValueInput | InputJsonValue
+    keywords?: JsonNullValueInput | InputJsonValue
+    isSynced?: boolean
+    syncStatus?: string
+    workspaceId?: string | null
+    userId: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    revisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutPatternInput
+  }
+
+  export type BlockPatternCreateOrConnectWithoutOrganizationInput = {
+    where: BlockPatternWhereUniqueInput
+    create: XOR<BlockPatternCreateWithoutOrganizationInput, BlockPatternUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type BlockPatternCreateManyOrganizationInputEnvelope = {
+    data: BlockPatternCreateManyOrganizationInput | BlockPatternCreateManyOrganizationInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type BlockTemplateCreateWithoutOrganizationInput = {
+    id?: string
+    slug: string
+    title: string
+    description?: string | null
+    type?: string
+    content: JsonNullValueInput | InputJsonValue
+    templateLock?: string | null
+    isDefault?: boolean
+    assignedPageIds?: BlockTemplateCreateassignedPageIdsInput | string[]
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutBlockTemplatesInput
+    workspace?: WorkspaceCreateNestedOneWithoutBlockTemplatesInput
+  }
+
+  export type BlockTemplateUncheckedCreateWithoutOrganizationInput = {
+    id?: string
+    slug: string
+    title: string
+    description?: string | null
+    type?: string
+    content: JsonNullValueInput | InputJsonValue
+    templateLock?: string | null
+    isDefault?: boolean
+    assignedPageIds?: BlockTemplateCreateassignedPageIdsInput | string[]
+    workspaceId?: string | null
+    userId: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BlockTemplateCreateOrConnectWithoutOrganizationInput = {
+    where: BlockTemplateWhereUniqueInput
+    create: XOR<BlockTemplateCreateWithoutOrganizationInput, BlockTemplateUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type BlockTemplateCreateManyOrganizationInputEnvelope = {
+    data: BlockTemplateCreateManyOrganizationInput | BlockTemplateCreateManyOrganizationInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type TemplatePartCreateWithoutOrganizationInput = {
+    id?: string
+    slug: string
+    title: string
+    area?: string
+    content: JsonNullValueInput | InputJsonValue
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutTemplatePartsInput
+    workspace?: WorkspaceCreateNestedOneWithoutTemplatePartsInput
+  }
+
+  export type TemplatePartUncheckedCreateWithoutOrganizationInput = {
+    id?: string
+    slug: string
+    title: string
+    area?: string
+    content: JsonNullValueInput | InputJsonValue
+    workspaceId?: string | null
+    userId: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TemplatePartCreateOrConnectWithoutOrganizationInput = {
+    where: TemplatePartWhereUniqueInput
+    create: XOR<TemplatePartCreateWithoutOrganizationInput, TemplatePartUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type TemplatePartCreateManyOrganizationInputEnvelope = {
+    data: TemplatePartCreateManyOrganizationInput | TemplatePartCreateManyOrganizationInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type GlobalStyleConfigCreateWithoutOrganizationInput = {
+    id?: string
+    name?: string
+    styles: JsonNullValueInput | InputJsonValue
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutGlobalStyleConfigsInput
+    workspace?: WorkspaceCreateNestedOneWithoutGlobalStyleConfigsInput
+  }
+
+  export type GlobalStyleConfigUncheckedCreateWithoutOrganizationInput = {
+    id?: string
+    name?: string
+    styles: JsonNullValueInput | InputJsonValue
+    workspaceId?: string | null
+    userId: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GlobalStyleConfigCreateOrConnectWithoutOrganizationInput = {
+    where: GlobalStyleConfigWhereUniqueInput
+    create: XOR<GlobalStyleConfigCreateWithoutOrganizationInput, GlobalStyleConfigUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type GlobalStyleConfigCreateManyOrganizationInputEnvelope = {
+    data: GlobalStyleConfigCreateManyOrganizationInput | GlobalStyleConfigCreateManyOrganizationInput[]
+    skipDuplicates?: boolean
+  }
+
   export type UserUpsertWithoutOwnedOrganizationsInput = {
     update: XOR<UserUpdateWithoutOwnedOrganizationsInput, UserUncheckedUpdateWithoutOwnedOrganizationsInput>
     create: XOR<UserCreateWithoutOwnedOrganizationsInput, UserUncheckedCreateWithoutOwnedOrganizationsInput>
@@ -93519,6 +104328,11 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOwnedOrganizationsInput = {
@@ -93568,6 +104382,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type OrganizationMemberUpsertWithWhereUniqueWithoutOrganizationInput = {
@@ -93618,6 +104437,70 @@ export namespace Prisma {
     data: XOR<WebsiteUpdateManyMutationInput, WebsiteUncheckedUpdateManyWithoutOrganizationInput>
   }
 
+  export type BlockPatternUpsertWithWhereUniqueWithoutOrganizationInput = {
+    where: BlockPatternWhereUniqueInput
+    update: XOR<BlockPatternUpdateWithoutOrganizationInput, BlockPatternUncheckedUpdateWithoutOrganizationInput>
+    create: XOR<BlockPatternCreateWithoutOrganizationInput, BlockPatternUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type BlockPatternUpdateWithWhereUniqueWithoutOrganizationInput = {
+    where: BlockPatternWhereUniqueInput
+    data: XOR<BlockPatternUpdateWithoutOrganizationInput, BlockPatternUncheckedUpdateWithoutOrganizationInput>
+  }
+
+  export type BlockPatternUpdateManyWithWhereWithoutOrganizationInput = {
+    where: BlockPatternScalarWhereInput
+    data: XOR<BlockPatternUpdateManyMutationInput, BlockPatternUncheckedUpdateManyWithoutOrganizationInput>
+  }
+
+  export type BlockTemplateUpsertWithWhereUniqueWithoutOrganizationInput = {
+    where: BlockTemplateWhereUniqueInput
+    update: XOR<BlockTemplateUpdateWithoutOrganizationInput, BlockTemplateUncheckedUpdateWithoutOrganizationInput>
+    create: XOR<BlockTemplateCreateWithoutOrganizationInput, BlockTemplateUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type BlockTemplateUpdateWithWhereUniqueWithoutOrganizationInput = {
+    where: BlockTemplateWhereUniqueInput
+    data: XOR<BlockTemplateUpdateWithoutOrganizationInput, BlockTemplateUncheckedUpdateWithoutOrganizationInput>
+  }
+
+  export type BlockTemplateUpdateManyWithWhereWithoutOrganizationInput = {
+    where: BlockTemplateScalarWhereInput
+    data: XOR<BlockTemplateUpdateManyMutationInput, BlockTemplateUncheckedUpdateManyWithoutOrganizationInput>
+  }
+
+  export type TemplatePartUpsertWithWhereUniqueWithoutOrganizationInput = {
+    where: TemplatePartWhereUniqueInput
+    update: XOR<TemplatePartUpdateWithoutOrganizationInput, TemplatePartUncheckedUpdateWithoutOrganizationInput>
+    create: XOR<TemplatePartCreateWithoutOrganizationInput, TemplatePartUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type TemplatePartUpdateWithWhereUniqueWithoutOrganizationInput = {
+    where: TemplatePartWhereUniqueInput
+    data: XOR<TemplatePartUpdateWithoutOrganizationInput, TemplatePartUncheckedUpdateWithoutOrganizationInput>
+  }
+
+  export type TemplatePartUpdateManyWithWhereWithoutOrganizationInput = {
+    where: TemplatePartScalarWhereInput
+    data: XOR<TemplatePartUpdateManyMutationInput, TemplatePartUncheckedUpdateManyWithoutOrganizationInput>
+  }
+
+  export type GlobalStyleConfigUpsertWithWhereUniqueWithoutOrganizationInput = {
+    where: GlobalStyleConfigWhereUniqueInput
+    update: XOR<GlobalStyleConfigUpdateWithoutOrganizationInput, GlobalStyleConfigUncheckedUpdateWithoutOrganizationInput>
+    create: XOR<GlobalStyleConfigCreateWithoutOrganizationInput, GlobalStyleConfigUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type GlobalStyleConfigUpdateWithWhereUniqueWithoutOrganizationInput = {
+    where: GlobalStyleConfigWhereUniqueInput
+    data: XOR<GlobalStyleConfigUpdateWithoutOrganizationInput, GlobalStyleConfigUncheckedUpdateWithoutOrganizationInput>
+  }
+
+  export type GlobalStyleConfigUpdateManyWithWhereWithoutOrganizationInput = {
+    where: GlobalStyleConfigScalarWhereInput
+    data: XOR<GlobalStyleConfigUpdateManyMutationInput, GlobalStyleConfigUncheckedUpdateManyWithoutOrganizationInput>
+  }
+
   export type OrganizationCreateWithoutMembersInput = {
     id?: string
     name: string
@@ -93628,6 +104511,10 @@ export namespace Prisma {
     owner: UserCreateNestedOneWithoutOwnedOrganizationsInput
     workspaces?: WorkspaceCreateNestedManyWithoutOrganizationInput
     websites?: WebsiteCreateNestedManyWithoutOrganizationInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutOrganizationInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutOrganizationInput
+    templateParts?: TemplatePartCreateNestedManyWithoutOrganizationInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationUncheckedCreateWithoutMembersInput = {
@@ -93640,6 +104527,10 @@ export namespace Prisma {
     updatedAt?: Date | string
     workspaces?: WorkspaceUncheckedCreateNestedManyWithoutOrganizationInput
     websites?: WebsiteUncheckedCreateNestedManyWithoutOrganizationInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutOrganizationInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutOrganizationInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutOrganizationInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationCreateOrConnectWithoutMembersInput = {
@@ -93694,6 +104585,11 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOrganizationMembershipsInput = {
@@ -93743,6 +104639,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOrganizationMembershipsInput = {
@@ -93771,6 +104672,10 @@ export namespace Prisma {
     owner?: UserUpdateOneRequiredWithoutOwnedOrganizationsNestedInput
     workspaces?: WorkspaceUpdateManyWithoutOrganizationNestedInput
     websites?: WebsiteUpdateManyWithoutOrganizationNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutOrganizationNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutOrganizationNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutOrganizationNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OrganizationUncheckedUpdateWithoutMembersInput = {
@@ -93783,6 +104688,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     workspaces?: WorkspaceUncheckedUpdateManyWithoutOrganizationNestedInput
     websites?: WebsiteUncheckedUpdateManyWithoutOrganizationNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutOrganizationNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutOrganizationNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutOrganizationNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type UserUpsertWithoutOrganizationMembershipsInput = {
@@ -93843,6 +104752,11 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOrganizationMembershipsInput = {
@@ -93892,6 +104806,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WorkspaceCreateWithoutMembersInput = {
@@ -93904,6 +104823,10 @@ export namespace Prisma {
     organization?: OrganizationCreateNestedOneWithoutWorkspacesInput
     owner: UserCreateNestedOneWithoutOwnedWorkspacesInput
     websites?: WebsiteCreateNestedManyWithoutWorkspaceInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutWorkspaceInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutWorkspaceInput
+    templateParts?: TemplatePartCreateNestedManyWithoutWorkspaceInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceUncheckedCreateWithoutMembersInput = {
@@ -93916,6 +104839,10 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     websites?: WebsiteUncheckedCreateNestedManyWithoutWorkspaceInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutWorkspaceInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutWorkspaceInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutWorkspaceInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceCreateOrConnectWithoutMembersInput = {
@@ -93970,6 +104897,11 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutWorkspaceMembershipsInput = {
@@ -94019,6 +104951,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutWorkspaceMembershipsInput = {
@@ -94047,6 +104984,10 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneWithoutWorkspacesNestedInput
     owner?: UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
     websites?: WebsiteUpdateManyWithoutWorkspaceNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutWorkspaceNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutWorkspaceNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutWorkspaceNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type WorkspaceUncheckedUpdateWithoutMembersInput = {
@@ -94059,6 +105000,10 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     websites?: WebsiteUncheckedUpdateManyWithoutWorkspaceNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutWorkspaceNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutWorkspaceNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutWorkspaceNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type UserUpsertWithoutWorkspaceMembershipsInput = {
@@ -94119,6 +105064,11 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWorkspaceMembershipsInput = {
@@ -94168,6 +105118,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteCreateWithoutApprovalRequestsInput = {
@@ -94292,6 +105247,11 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutApprovalRequestsInput = {
@@ -94341,6 +105301,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutApprovalRequestsInput = {
@@ -94395,6 +105360,11 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutReviewedApprovalsInput = {
@@ -94444,6 +105414,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutReviewedApprovalsInput = {
@@ -94590,6 +105565,11 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutApprovalRequestsInput = {
@@ -94639,6 +105619,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUpsertWithoutReviewedApprovalsInput = {
@@ -94699,6 +105684,11 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutReviewedApprovalsInput = {
@@ -94748,6 +105738,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutMediaAssetsInput = {
@@ -94797,6 +105792,11 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutMediaAssetsInput = {
@@ -94846,6 +105846,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutMediaAssetsInput = {
@@ -94986,6 +105991,11 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMediaAssetsInput = {
@@ -95035,6 +106045,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WebsiteUpsertWithoutMediaAssetsInput = {
@@ -95789,6 +106804,11 @@ export namespace Prisma {
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCreditLedgersInput = {
@@ -95838,6 +106858,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCreditLedgersInput = {
@@ -95903,6 +106928,11 @@ export namespace Prisma {
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCreditLedgersInput = {
@@ -95952,6 +106982,11 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutLicensesInput = {
@@ -96001,6 +107036,11 @@ export namespace Prisma {
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutLicensesInput = {
@@ -96050,6 +107090,11 @@ export namespace Prisma {
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutLicensesInput = {
@@ -96145,6 +107190,11 @@ export namespace Prisma {
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutLicensesInput = {
@@ -96194,6 +107244,11 @@ export namespace Prisma {
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type LicenseActivationUpsertWithWhereUniqueWithoutLicenseInput = {
@@ -96337,6 +107392,11 @@ export namespace Prisma {
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutWhiteLabelConfigInput = {
@@ -96386,6 +107446,11 @@ export namespace Prisma {
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutWhiteLabelConfigInput = {
@@ -96451,6 +107516,11 @@ export namespace Prisma {
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWhiteLabelConfigInput = {
@@ -96500,6 +107570,11 @@ export namespace Prisma {
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutInvoicesInput = {
@@ -96549,6 +107624,11 @@ export namespace Prisma {
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutInvoicesInput = {
@@ -96598,6 +107678,11 @@ export namespace Prisma {
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutInvoicesInput = {
@@ -96663,6 +107748,11 @@ export namespace Prisma {
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutInvoicesInput = {
@@ -96712,6 +107802,1957 @@ export namespace Prisma {
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutBlockPatternsInput = {
+    id?: string
+    fullName?: string | null
+    email?: string | null
+    phone?: string | null
+    passwordHash?: string | null
+    verificationMethod?: $Enums.VerificationMethod | null
+    emailVerified?: boolean
+    phoneVerified?: boolean
+    status?: $Enums.UserStatus
+    role?: $Enums.UserRole
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    optimizationCredits?: number
+    identities?: IdentityCreateNestedManyWithoutUserInput
+    otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
+    passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    templates?: templatesCreateNestedManyWithoutUsersInput
+    subscription?: UserSubscriptionCreateNestedOneWithoutUserInput
+    websites?: WebsiteCreateNestedManyWithoutUserInput
+    codeRevisions?: CustomCodeRevisionCreateNestedManyWithoutAuthorInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    developerApiKeys?: DeveloperApiKeyCreateNestedManyWithoutUserInput
+    designNotes?: DesignNoteCreateNestedManyWithoutAuthorInput
+    collaborations?: WebsiteCollaboratorCreateNestedManyWithoutUserInput
+    componentAccesses?: ComponentAccessCreateNestedManyWithoutUserInput
+    customEntries?: CustomEntryCreateNestedManyWithoutAuthorInput
+    websiteRevisions?: WebsiteRevisionCreateNestedManyWithoutCreatorInput
+    deployments?: DeploymentCreateNestedManyWithoutCreatorInput
+    wpConnections?: WordPressConnectionCreateNestedManyWithoutUserInput
+    ownedTeams?: TeamCreateNestedManyWithoutOwnerInput
+    teamMemberships?: TeamMemberCreateNestedManyWithoutUserInput
+    sentTeamInvitations?: TeamInvitationCreateNestedManyWithoutInviterInput
+    sentWebsiteInvitations?: WebsiteInvitationCreateNestedManyWithoutInviterInput
+    granularPermissions?: GranularPermissionCreateNestedManyWithoutUserInput
+    ownedWorkspaces?: WorkspaceCreateNestedManyWithoutOwnerInput
+    ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
+    organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
+    workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
+    reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutBlockPatternsInput = {
+    id?: string
+    fullName?: string | null
+    email?: string | null
+    phone?: string | null
+    passwordHash?: string | null
+    verificationMethod?: $Enums.VerificationMethod | null
+    emailVerified?: boolean
+    phoneVerified?: boolean
+    status?: $Enums.UserStatus
+    role?: $Enums.UserRole
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    optimizationCredits?: number
+    identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
+    otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
+    passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    templates?: templatesUncheckedCreateNestedManyWithoutUsersInput
+    subscription?: UserSubscriptionUncheckedCreateNestedOneWithoutUserInput
+    websites?: WebsiteUncheckedCreateNestedManyWithoutUserInput
+    codeRevisions?: CustomCodeRevisionUncheckedCreateNestedManyWithoutAuthorInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    developerApiKeys?: DeveloperApiKeyUncheckedCreateNestedManyWithoutUserInput
+    designNotes?: DesignNoteUncheckedCreateNestedManyWithoutAuthorInput
+    collaborations?: WebsiteCollaboratorUncheckedCreateNestedManyWithoutUserInput
+    componentAccesses?: ComponentAccessUncheckedCreateNestedManyWithoutUserInput
+    customEntries?: CustomEntryUncheckedCreateNestedManyWithoutAuthorInput
+    websiteRevisions?: WebsiteRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    deployments?: DeploymentUncheckedCreateNestedManyWithoutCreatorInput
+    wpConnections?: WordPressConnectionUncheckedCreateNestedManyWithoutUserInput
+    ownedTeams?: TeamUncheckedCreateNestedManyWithoutOwnerInput
+    teamMemberships?: TeamMemberUncheckedCreateNestedManyWithoutUserInput
+    sentTeamInvitations?: TeamInvitationUncheckedCreateNestedManyWithoutInviterInput
+    sentWebsiteInvitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutInviterInput
+    granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutUserInput
+    ownedWorkspaces?: WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
+    ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
+    organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
+    workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
+    reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutBlockPatternsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutBlockPatternsInput, UserUncheckedCreateWithoutBlockPatternsInput>
+  }
+
+  export type WorkspaceCreateWithoutBlockPatternsInput = {
+    id?: string
+    name: string
+    slug: string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    organization?: OrganizationCreateNestedOneWithoutWorkspacesInput
+    owner: UserCreateNestedOneWithoutOwnedWorkspacesInput
+    members?: WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
+    websites?: WebsiteCreateNestedManyWithoutWorkspaceInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutWorkspaceInput
+    templateParts?: TemplatePartCreateNestedManyWithoutWorkspaceInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutWorkspaceInput
+  }
+
+  export type WorkspaceUncheckedCreateWithoutBlockPatternsInput = {
+    id?: string
+    organizationId?: string | null
+    name: string
+    slug: string
+    ownerId: string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
+    websites?: WebsiteUncheckedCreateNestedManyWithoutWorkspaceInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutWorkspaceInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutWorkspaceInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutWorkspaceInput
+  }
+
+  export type WorkspaceCreateOrConnectWithoutBlockPatternsInput = {
+    where: WorkspaceWhereUniqueInput
+    create: XOR<WorkspaceCreateWithoutBlockPatternsInput, WorkspaceUncheckedCreateWithoutBlockPatternsInput>
+  }
+
+  export type OrganizationCreateWithoutBlockPatternsInput = {
+    id?: string
+    name: string
+    slug: string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    owner: UserCreateNestedOneWithoutOwnedOrganizationsInput
+    members?: OrganizationMemberCreateNestedManyWithoutOrganizationInput
+    workspaces?: WorkspaceCreateNestedManyWithoutOrganizationInput
+    websites?: WebsiteCreateNestedManyWithoutOrganizationInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutOrganizationInput
+    templateParts?: TemplatePartCreateNestedManyWithoutOrganizationInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationUncheckedCreateWithoutBlockPatternsInput = {
+    id?: string
+    name: string
+    slug: string
+    ownerId: string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput
+    workspaces?: WorkspaceUncheckedCreateNestedManyWithoutOrganizationInput
+    websites?: WebsiteUncheckedCreateNestedManyWithoutOrganizationInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutOrganizationInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutOrganizationInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationCreateOrConnectWithoutBlockPatternsInput = {
+    where: OrganizationWhereUniqueInput
+    create: XOR<OrganizationCreateWithoutBlockPatternsInput, OrganizationUncheckedCreateWithoutBlockPatternsInput>
+  }
+
+  export type SyncedPatternRevisionCreateWithoutPatternInput = {
+    id?: string
+    version: number
+    title: string
+    content: JsonNullValueInput | InputJsonValue
+    description?: string | null
+    createdAt?: Date | string
+    creator?: UserCreateNestedOneWithoutSyncedPatternRevisionsInput
+  }
+
+  export type SyncedPatternRevisionUncheckedCreateWithoutPatternInput = {
+    id?: string
+    version: number
+    title: string
+    content: JsonNullValueInput | InputJsonValue
+    description?: string | null
+    createdBy?: string | null
+    createdAt?: Date | string
+  }
+
+  export type SyncedPatternRevisionCreateOrConnectWithoutPatternInput = {
+    where: SyncedPatternRevisionWhereUniqueInput
+    create: XOR<SyncedPatternRevisionCreateWithoutPatternInput, SyncedPatternRevisionUncheckedCreateWithoutPatternInput>
+  }
+
+  export type SyncedPatternRevisionCreateManyPatternInputEnvelope = {
+    data: SyncedPatternRevisionCreateManyPatternInput | SyncedPatternRevisionCreateManyPatternInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type UserUpsertWithoutBlockPatternsInput = {
+    update: XOR<UserUpdateWithoutBlockPatternsInput, UserUncheckedUpdateWithoutBlockPatternsInput>
+    create: XOR<UserCreateWithoutBlockPatternsInput, UserUncheckedCreateWithoutBlockPatternsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutBlockPatternsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutBlockPatternsInput, UserUncheckedUpdateWithoutBlockPatternsInput>
+  }
+
+  export type UserUpdateWithoutBlockPatternsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
+    identities?: IdentityUpdateManyWithoutUserNestedInput
+    otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
+    passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    templates?: templatesUpdateManyWithoutUsersNestedInput
+    subscription?: UserSubscriptionUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUpdateManyWithoutUserNestedInput
+    codeRevisions?: CustomCodeRevisionUpdateManyWithoutAuthorNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    developerApiKeys?: DeveloperApiKeyUpdateManyWithoutUserNestedInput
+    designNotes?: DesignNoteUpdateManyWithoutAuthorNestedInput
+    collaborations?: WebsiteCollaboratorUpdateManyWithoutUserNestedInput
+    componentAccesses?: ComponentAccessUpdateManyWithoutUserNestedInput
+    customEntries?: CustomEntryUpdateManyWithoutAuthorNestedInput
+    websiteRevisions?: WebsiteRevisionUpdateManyWithoutCreatorNestedInput
+    deployments?: DeploymentUpdateManyWithoutCreatorNestedInput
+    wpConnections?: WordPressConnectionUpdateManyWithoutUserNestedInput
+    ownedTeams?: TeamUpdateManyWithoutOwnerNestedInput
+    teamMemberships?: TeamMemberUpdateManyWithoutUserNestedInput
+    sentTeamInvitations?: TeamInvitationUpdateManyWithoutInviterNestedInput
+    sentWebsiteInvitations?: WebsiteInvitationUpdateManyWithoutInviterNestedInput
+    granularPermissions?: GranularPermissionUpdateManyWithoutUserNestedInput
+    ownedWorkspaces?: WorkspaceUpdateManyWithoutOwnerNestedInput
+    ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
+    organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
+    workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
+    reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutBlockPatternsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
+    identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
+    otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
+    passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    templates?: templatesUncheckedUpdateManyWithoutUsersNestedInput
+    subscription?: UserSubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUncheckedUpdateManyWithoutUserNestedInput
+    codeRevisions?: CustomCodeRevisionUncheckedUpdateManyWithoutAuthorNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    developerApiKeys?: DeveloperApiKeyUncheckedUpdateManyWithoutUserNestedInput
+    designNotes?: DesignNoteUncheckedUpdateManyWithoutAuthorNestedInput
+    collaborations?: WebsiteCollaboratorUncheckedUpdateManyWithoutUserNestedInput
+    componentAccesses?: ComponentAccessUncheckedUpdateManyWithoutUserNestedInput
+    customEntries?: CustomEntryUncheckedUpdateManyWithoutAuthorNestedInput
+    websiteRevisions?: WebsiteRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    deployments?: DeploymentUncheckedUpdateManyWithoutCreatorNestedInput
+    wpConnections?: WordPressConnectionUncheckedUpdateManyWithoutUserNestedInput
+    ownedTeams?: TeamUncheckedUpdateManyWithoutOwnerNestedInput
+    teamMemberships?: TeamMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentTeamInvitations?: TeamInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    sentWebsiteInvitations?: WebsiteInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutUserNestedInput
+    ownedWorkspaces?: WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
+    ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
+    organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
+    workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
+    reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type WorkspaceUpsertWithoutBlockPatternsInput = {
+    update: XOR<WorkspaceUpdateWithoutBlockPatternsInput, WorkspaceUncheckedUpdateWithoutBlockPatternsInput>
+    create: XOR<WorkspaceCreateWithoutBlockPatternsInput, WorkspaceUncheckedCreateWithoutBlockPatternsInput>
+    where?: WorkspaceWhereInput
+  }
+
+  export type WorkspaceUpdateToOneWithWhereWithoutBlockPatternsInput = {
+    where?: WorkspaceWhereInput
+    data: XOR<WorkspaceUpdateWithoutBlockPatternsInput, WorkspaceUncheckedUpdateWithoutBlockPatternsInput>
+  }
+
+  export type WorkspaceUpdateWithoutBlockPatternsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OrganizationUpdateOneWithoutWorkspacesNestedInput
+    owner?: UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
+    members?: WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
+    websites?: WebsiteUpdateManyWithoutWorkspaceNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutWorkspaceNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutWorkspaceNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutWorkspaceNestedInput
+  }
+
+  export type WorkspaceUncheckedUpdateWithoutBlockPatternsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    ownerId?: StringFieldUpdateOperationsInput | string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
+    websites?: WebsiteUncheckedUpdateManyWithoutWorkspaceNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutWorkspaceNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutWorkspaceNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutWorkspaceNestedInput
+  }
+
+  export type OrganizationUpsertWithoutBlockPatternsInput = {
+    update: XOR<OrganizationUpdateWithoutBlockPatternsInput, OrganizationUncheckedUpdateWithoutBlockPatternsInput>
+    create: XOR<OrganizationCreateWithoutBlockPatternsInput, OrganizationUncheckedCreateWithoutBlockPatternsInput>
+    where?: OrganizationWhereInput
+  }
+
+  export type OrganizationUpdateToOneWithWhereWithoutBlockPatternsInput = {
+    where?: OrganizationWhereInput
+    data: XOR<OrganizationUpdateWithoutBlockPatternsInput, OrganizationUncheckedUpdateWithoutBlockPatternsInput>
+  }
+
+  export type OrganizationUpdateWithoutBlockPatternsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    owner?: UserUpdateOneRequiredWithoutOwnedOrganizationsNestedInput
+    members?: OrganizationMemberUpdateManyWithoutOrganizationNestedInput
+    workspaces?: WorkspaceUpdateManyWithoutOrganizationNestedInput
+    websites?: WebsiteUpdateManyWithoutOrganizationNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutOrganizationNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutOrganizationNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OrganizationUncheckedUpdateWithoutBlockPatternsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    ownerId?: StringFieldUpdateOperationsInput | string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput
+    workspaces?: WorkspaceUncheckedUpdateManyWithoutOrganizationNestedInput
+    websites?: WebsiteUncheckedUpdateManyWithoutOrganizationNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutOrganizationNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutOrganizationNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type SyncedPatternRevisionUpsertWithWhereUniqueWithoutPatternInput = {
+    where: SyncedPatternRevisionWhereUniqueInput
+    update: XOR<SyncedPatternRevisionUpdateWithoutPatternInput, SyncedPatternRevisionUncheckedUpdateWithoutPatternInput>
+    create: XOR<SyncedPatternRevisionCreateWithoutPatternInput, SyncedPatternRevisionUncheckedCreateWithoutPatternInput>
+  }
+
+  export type SyncedPatternRevisionUpdateWithWhereUniqueWithoutPatternInput = {
+    where: SyncedPatternRevisionWhereUniqueInput
+    data: XOR<SyncedPatternRevisionUpdateWithoutPatternInput, SyncedPatternRevisionUncheckedUpdateWithoutPatternInput>
+  }
+
+  export type SyncedPatternRevisionUpdateManyWithWhereWithoutPatternInput = {
+    where: SyncedPatternRevisionScalarWhereInput
+    data: XOR<SyncedPatternRevisionUpdateManyMutationInput, SyncedPatternRevisionUncheckedUpdateManyWithoutPatternInput>
+  }
+
+  export type BlockPatternCreateWithoutRevisionsInput = {
+    id?: string
+    name: string
+    title: string
+    description?: string | null
+    category?: string
+    categories?: JsonNullValueInput | InputJsonValue
+    content?: JsonNullValueInput | InputJsonValue
+    viewportWidth?: number | null
+    blockTypes?: JsonNullValueInput | InputJsonValue
+    keywords?: JsonNullValueInput | InputJsonValue
+    isSynced?: boolean
+    syncStatus?: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutBlockPatternsInput
+    workspace?: WorkspaceCreateNestedOneWithoutBlockPatternsInput
+    organization?: OrganizationCreateNestedOneWithoutBlockPatternsInput
+  }
+
+  export type BlockPatternUncheckedCreateWithoutRevisionsInput = {
+    id?: string
+    name: string
+    title: string
+    description?: string | null
+    category?: string
+    categories?: JsonNullValueInput | InputJsonValue
+    content?: JsonNullValueInput | InputJsonValue
+    viewportWidth?: number | null
+    blockTypes?: JsonNullValueInput | InputJsonValue
+    keywords?: JsonNullValueInput | InputJsonValue
+    isSynced?: boolean
+    syncStatus?: string
+    workspaceId?: string | null
+    organizationId?: string | null
+    userId: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BlockPatternCreateOrConnectWithoutRevisionsInput = {
+    where: BlockPatternWhereUniqueInput
+    create: XOR<BlockPatternCreateWithoutRevisionsInput, BlockPatternUncheckedCreateWithoutRevisionsInput>
+  }
+
+  export type UserCreateWithoutSyncedPatternRevisionsInput = {
+    id?: string
+    fullName?: string | null
+    email?: string | null
+    phone?: string | null
+    passwordHash?: string | null
+    verificationMethod?: $Enums.VerificationMethod | null
+    emailVerified?: boolean
+    phoneVerified?: boolean
+    status?: $Enums.UserStatus
+    role?: $Enums.UserRole
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    optimizationCredits?: number
+    identities?: IdentityCreateNestedManyWithoutUserInput
+    otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
+    passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    templates?: templatesCreateNestedManyWithoutUsersInput
+    subscription?: UserSubscriptionCreateNestedOneWithoutUserInput
+    websites?: WebsiteCreateNestedManyWithoutUserInput
+    codeRevisions?: CustomCodeRevisionCreateNestedManyWithoutAuthorInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    developerApiKeys?: DeveloperApiKeyCreateNestedManyWithoutUserInput
+    designNotes?: DesignNoteCreateNestedManyWithoutAuthorInput
+    collaborations?: WebsiteCollaboratorCreateNestedManyWithoutUserInput
+    componentAccesses?: ComponentAccessCreateNestedManyWithoutUserInput
+    customEntries?: CustomEntryCreateNestedManyWithoutAuthorInput
+    websiteRevisions?: WebsiteRevisionCreateNestedManyWithoutCreatorInput
+    deployments?: DeploymentCreateNestedManyWithoutCreatorInput
+    wpConnections?: WordPressConnectionCreateNestedManyWithoutUserInput
+    ownedTeams?: TeamCreateNestedManyWithoutOwnerInput
+    teamMemberships?: TeamMemberCreateNestedManyWithoutUserInput
+    sentTeamInvitations?: TeamInvitationCreateNestedManyWithoutInviterInput
+    sentWebsiteInvitations?: WebsiteInvitationCreateNestedManyWithoutInviterInput
+    granularPermissions?: GranularPermissionCreateNestedManyWithoutUserInput
+    ownedWorkspaces?: WorkspaceCreateNestedManyWithoutOwnerInput
+    ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
+    organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
+    workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
+    reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutSyncedPatternRevisionsInput = {
+    id?: string
+    fullName?: string | null
+    email?: string | null
+    phone?: string | null
+    passwordHash?: string | null
+    verificationMethod?: $Enums.VerificationMethod | null
+    emailVerified?: boolean
+    phoneVerified?: boolean
+    status?: $Enums.UserStatus
+    role?: $Enums.UserRole
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    optimizationCredits?: number
+    identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
+    otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
+    passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    templates?: templatesUncheckedCreateNestedManyWithoutUsersInput
+    subscription?: UserSubscriptionUncheckedCreateNestedOneWithoutUserInput
+    websites?: WebsiteUncheckedCreateNestedManyWithoutUserInput
+    codeRevisions?: CustomCodeRevisionUncheckedCreateNestedManyWithoutAuthorInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    developerApiKeys?: DeveloperApiKeyUncheckedCreateNestedManyWithoutUserInput
+    designNotes?: DesignNoteUncheckedCreateNestedManyWithoutAuthorInput
+    collaborations?: WebsiteCollaboratorUncheckedCreateNestedManyWithoutUserInput
+    componentAccesses?: ComponentAccessUncheckedCreateNestedManyWithoutUserInput
+    customEntries?: CustomEntryUncheckedCreateNestedManyWithoutAuthorInput
+    websiteRevisions?: WebsiteRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    deployments?: DeploymentUncheckedCreateNestedManyWithoutCreatorInput
+    wpConnections?: WordPressConnectionUncheckedCreateNestedManyWithoutUserInput
+    ownedTeams?: TeamUncheckedCreateNestedManyWithoutOwnerInput
+    teamMemberships?: TeamMemberUncheckedCreateNestedManyWithoutUserInput
+    sentTeamInvitations?: TeamInvitationUncheckedCreateNestedManyWithoutInviterInput
+    sentWebsiteInvitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutInviterInput
+    granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutUserInput
+    ownedWorkspaces?: WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
+    ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
+    organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
+    workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
+    reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutSyncedPatternRevisionsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutSyncedPatternRevisionsInput, UserUncheckedCreateWithoutSyncedPatternRevisionsInput>
+  }
+
+  export type BlockPatternUpsertWithoutRevisionsInput = {
+    update: XOR<BlockPatternUpdateWithoutRevisionsInput, BlockPatternUncheckedUpdateWithoutRevisionsInput>
+    create: XOR<BlockPatternCreateWithoutRevisionsInput, BlockPatternUncheckedCreateWithoutRevisionsInput>
+    where?: BlockPatternWhereInput
+  }
+
+  export type BlockPatternUpdateToOneWithWhereWithoutRevisionsInput = {
+    where?: BlockPatternWhereInput
+    data: XOR<BlockPatternUpdateWithoutRevisionsInput, BlockPatternUncheckedUpdateWithoutRevisionsInput>
+  }
+
+  export type BlockPatternUpdateWithoutRevisionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: StringFieldUpdateOperationsInput | string
+    categories?: JsonNullValueInput | InputJsonValue
+    content?: JsonNullValueInput | InputJsonValue
+    viewportWidth?: NullableIntFieldUpdateOperationsInput | number | null
+    blockTypes?: JsonNullValueInput | InputJsonValue
+    keywords?: JsonNullValueInput | InputJsonValue
+    isSynced?: BoolFieldUpdateOperationsInput | boolean
+    syncStatus?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutBlockPatternsNestedInput
+    workspace?: WorkspaceUpdateOneWithoutBlockPatternsNestedInput
+    organization?: OrganizationUpdateOneWithoutBlockPatternsNestedInput
+  }
+
+  export type BlockPatternUncheckedUpdateWithoutRevisionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: StringFieldUpdateOperationsInput | string
+    categories?: JsonNullValueInput | InputJsonValue
+    content?: JsonNullValueInput | InputJsonValue
+    viewportWidth?: NullableIntFieldUpdateOperationsInput | number | null
+    blockTypes?: JsonNullValueInput | InputJsonValue
+    keywords?: JsonNullValueInput | InputJsonValue
+    isSynced?: BoolFieldUpdateOperationsInput | boolean
+    syncStatus?: StringFieldUpdateOperationsInput | string
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserUpsertWithoutSyncedPatternRevisionsInput = {
+    update: XOR<UserUpdateWithoutSyncedPatternRevisionsInput, UserUncheckedUpdateWithoutSyncedPatternRevisionsInput>
+    create: XOR<UserCreateWithoutSyncedPatternRevisionsInput, UserUncheckedCreateWithoutSyncedPatternRevisionsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutSyncedPatternRevisionsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutSyncedPatternRevisionsInput, UserUncheckedUpdateWithoutSyncedPatternRevisionsInput>
+  }
+
+  export type UserUpdateWithoutSyncedPatternRevisionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
+    identities?: IdentityUpdateManyWithoutUserNestedInput
+    otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
+    passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    templates?: templatesUpdateManyWithoutUsersNestedInput
+    subscription?: UserSubscriptionUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUpdateManyWithoutUserNestedInput
+    codeRevisions?: CustomCodeRevisionUpdateManyWithoutAuthorNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    developerApiKeys?: DeveloperApiKeyUpdateManyWithoutUserNestedInput
+    designNotes?: DesignNoteUpdateManyWithoutAuthorNestedInput
+    collaborations?: WebsiteCollaboratorUpdateManyWithoutUserNestedInput
+    componentAccesses?: ComponentAccessUpdateManyWithoutUserNestedInput
+    customEntries?: CustomEntryUpdateManyWithoutAuthorNestedInput
+    websiteRevisions?: WebsiteRevisionUpdateManyWithoutCreatorNestedInput
+    deployments?: DeploymentUpdateManyWithoutCreatorNestedInput
+    wpConnections?: WordPressConnectionUpdateManyWithoutUserNestedInput
+    ownedTeams?: TeamUpdateManyWithoutOwnerNestedInput
+    teamMemberships?: TeamMemberUpdateManyWithoutUserNestedInput
+    sentTeamInvitations?: TeamInvitationUpdateManyWithoutInviterNestedInput
+    sentWebsiteInvitations?: WebsiteInvitationUpdateManyWithoutInviterNestedInput
+    granularPermissions?: GranularPermissionUpdateManyWithoutUserNestedInput
+    ownedWorkspaces?: WorkspaceUpdateManyWithoutOwnerNestedInput
+    ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
+    organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
+    workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
+    reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutSyncedPatternRevisionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
+    identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
+    otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
+    passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    templates?: templatesUncheckedUpdateManyWithoutUsersNestedInput
+    subscription?: UserSubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUncheckedUpdateManyWithoutUserNestedInput
+    codeRevisions?: CustomCodeRevisionUncheckedUpdateManyWithoutAuthorNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    developerApiKeys?: DeveloperApiKeyUncheckedUpdateManyWithoutUserNestedInput
+    designNotes?: DesignNoteUncheckedUpdateManyWithoutAuthorNestedInput
+    collaborations?: WebsiteCollaboratorUncheckedUpdateManyWithoutUserNestedInput
+    componentAccesses?: ComponentAccessUncheckedUpdateManyWithoutUserNestedInput
+    customEntries?: CustomEntryUncheckedUpdateManyWithoutAuthorNestedInput
+    websiteRevisions?: WebsiteRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    deployments?: DeploymentUncheckedUpdateManyWithoutCreatorNestedInput
+    wpConnections?: WordPressConnectionUncheckedUpdateManyWithoutUserNestedInput
+    ownedTeams?: TeamUncheckedUpdateManyWithoutOwnerNestedInput
+    teamMemberships?: TeamMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentTeamInvitations?: TeamInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    sentWebsiteInvitations?: WebsiteInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutUserNestedInput
+    ownedWorkspaces?: WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
+    ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
+    organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
+    workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
+    reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutBlockTemplatesInput = {
+    id?: string
+    fullName?: string | null
+    email?: string | null
+    phone?: string | null
+    passwordHash?: string | null
+    verificationMethod?: $Enums.VerificationMethod | null
+    emailVerified?: boolean
+    phoneVerified?: boolean
+    status?: $Enums.UserStatus
+    role?: $Enums.UserRole
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    optimizationCredits?: number
+    identities?: IdentityCreateNestedManyWithoutUserInput
+    otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
+    passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    templates?: templatesCreateNestedManyWithoutUsersInput
+    subscription?: UserSubscriptionCreateNestedOneWithoutUserInput
+    websites?: WebsiteCreateNestedManyWithoutUserInput
+    codeRevisions?: CustomCodeRevisionCreateNestedManyWithoutAuthorInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    developerApiKeys?: DeveloperApiKeyCreateNestedManyWithoutUserInput
+    designNotes?: DesignNoteCreateNestedManyWithoutAuthorInput
+    collaborations?: WebsiteCollaboratorCreateNestedManyWithoutUserInput
+    componentAccesses?: ComponentAccessCreateNestedManyWithoutUserInput
+    customEntries?: CustomEntryCreateNestedManyWithoutAuthorInput
+    websiteRevisions?: WebsiteRevisionCreateNestedManyWithoutCreatorInput
+    deployments?: DeploymentCreateNestedManyWithoutCreatorInput
+    wpConnections?: WordPressConnectionCreateNestedManyWithoutUserInput
+    ownedTeams?: TeamCreateNestedManyWithoutOwnerInput
+    teamMemberships?: TeamMemberCreateNestedManyWithoutUserInput
+    sentTeamInvitations?: TeamInvitationCreateNestedManyWithoutInviterInput
+    sentWebsiteInvitations?: WebsiteInvitationCreateNestedManyWithoutInviterInput
+    granularPermissions?: GranularPermissionCreateNestedManyWithoutUserInput
+    ownedWorkspaces?: WorkspaceCreateNestedManyWithoutOwnerInput
+    ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
+    organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
+    workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
+    reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutBlockTemplatesInput = {
+    id?: string
+    fullName?: string | null
+    email?: string | null
+    phone?: string | null
+    passwordHash?: string | null
+    verificationMethod?: $Enums.VerificationMethod | null
+    emailVerified?: boolean
+    phoneVerified?: boolean
+    status?: $Enums.UserStatus
+    role?: $Enums.UserRole
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    optimizationCredits?: number
+    identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
+    otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
+    passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    templates?: templatesUncheckedCreateNestedManyWithoutUsersInput
+    subscription?: UserSubscriptionUncheckedCreateNestedOneWithoutUserInput
+    websites?: WebsiteUncheckedCreateNestedManyWithoutUserInput
+    codeRevisions?: CustomCodeRevisionUncheckedCreateNestedManyWithoutAuthorInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    developerApiKeys?: DeveloperApiKeyUncheckedCreateNestedManyWithoutUserInput
+    designNotes?: DesignNoteUncheckedCreateNestedManyWithoutAuthorInput
+    collaborations?: WebsiteCollaboratorUncheckedCreateNestedManyWithoutUserInput
+    componentAccesses?: ComponentAccessUncheckedCreateNestedManyWithoutUserInput
+    customEntries?: CustomEntryUncheckedCreateNestedManyWithoutAuthorInput
+    websiteRevisions?: WebsiteRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    deployments?: DeploymentUncheckedCreateNestedManyWithoutCreatorInput
+    wpConnections?: WordPressConnectionUncheckedCreateNestedManyWithoutUserInput
+    ownedTeams?: TeamUncheckedCreateNestedManyWithoutOwnerInput
+    teamMemberships?: TeamMemberUncheckedCreateNestedManyWithoutUserInput
+    sentTeamInvitations?: TeamInvitationUncheckedCreateNestedManyWithoutInviterInput
+    sentWebsiteInvitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutInviterInput
+    granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutUserInput
+    ownedWorkspaces?: WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
+    ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
+    organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
+    workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
+    reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutBlockTemplatesInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutBlockTemplatesInput, UserUncheckedCreateWithoutBlockTemplatesInput>
+  }
+
+  export type WorkspaceCreateWithoutBlockTemplatesInput = {
+    id?: string
+    name: string
+    slug: string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    organization?: OrganizationCreateNestedOneWithoutWorkspacesInput
+    owner: UserCreateNestedOneWithoutOwnedWorkspacesInput
+    members?: WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
+    websites?: WebsiteCreateNestedManyWithoutWorkspaceInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutWorkspaceInput
+    templateParts?: TemplatePartCreateNestedManyWithoutWorkspaceInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutWorkspaceInput
+  }
+
+  export type WorkspaceUncheckedCreateWithoutBlockTemplatesInput = {
+    id?: string
+    organizationId?: string | null
+    name: string
+    slug: string
+    ownerId: string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
+    websites?: WebsiteUncheckedCreateNestedManyWithoutWorkspaceInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutWorkspaceInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutWorkspaceInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutWorkspaceInput
+  }
+
+  export type WorkspaceCreateOrConnectWithoutBlockTemplatesInput = {
+    where: WorkspaceWhereUniqueInput
+    create: XOR<WorkspaceCreateWithoutBlockTemplatesInput, WorkspaceUncheckedCreateWithoutBlockTemplatesInput>
+  }
+
+  export type OrganizationCreateWithoutBlockTemplatesInput = {
+    id?: string
+    name: string
+    slug: string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    owner: UserCreateNestedOneWithoutOwnedOrganizationsInput
+    members?: OrganizationMemberCreateNestedManyWithoutOrganizationInput
+    workspaces?: WorkspaceCreateNestedManyWithoutOrganizationInput
+    websites?: WebsiteCreateNestedManyWithoutOrganizationInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutOrganizationInput
+    templateParts?: TemplatePartCreateNestedManyWithoutOrganizationInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationUncheckedCreateWithoutBlockTemplatesInput = {
+    id?: string
+    name: string
+    slug: string
+    ownerId: string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput
+    workspaces?: WorkspaceUncheckedCreateNestedManyWithoutOrganizationInput
+    websites?: WebsiteUncheckedCreateNestedManyWithoutOrganizationInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutOrganizationInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutOrganizationInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationCreateOrConnectWithoutBlockTemplatesInput = {
+    where: OrganizationWhereUniqueInput
+    create: XOR<OrganizationCreateWithoutBlockTemplatesInput, OrganizationUncheckedCreateWithoutBlockTemplatesInput>
+  }
+
+  export type UserUpsertWithoutBlockTemplatesInput = {
+    update: XOR<UserUpdateWithoutBlockTemplatesInput, UserUncheckedUpdateWithoutBlockTemplatesInput>
+    create: XOR<UserCreateWithoutBlockTemplatesInput, UserUncheckedCreateWithoutBlockTemplatesInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutBlockTemplatesInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutBlockTemplatesInput, UserUncheckedUpdateWithoutBlockTemplatesInput>
+  }
+
+  export type UserUpdateWithoutBlockTemplatesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
+    identities?: IdentityUpdateManyWithoutUserNestedInput
+    otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
+    passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    templates?: templatesUpdateManyWithoutUsersNestedInput
+    subscription?: UserSubscriptionUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUpdateManyWithoutUserNestedInput
+    codeRevisions?: CustomCodeRevisionUpdateManyWithoutAuthorNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    developerApiKeys?: DeveloperApiKeyUpdateManyWithoutUserNestedInput
+    designNotes?: DesignNoteUpdateManyWithoutAuthorNestedInput
+    collaborations?: WebsiteCollaboratorUpdateManyWithoutUserNestedInput
+    componentAccesses?: ComponentAccessUpdateManyWithoutUserNestedInput
+    customEntries?: CustomEntryUpdateManyWithoutAuthorNestedInput
+    websiteRevisions?: WebsiteRevisionUpdateManyWithoutCreatorNestedInput
+    deployments?: DeploymentUpdateManyWithoutCreatorNestedInput
+    wpConnections?: WordPressConnectionUpdateManyWithoutUserNestedInput
+    ownedTeams?: TeamUpdateManyWithoutOwnerNestedInput
+    teamMemberships?: TeamMemberUpdateManyWithoutUserNestedInput
+    sentTeamInvitations?: TeamInvitationUpdateManyWithoutInviterNestedInput
+    sentWebsiteInvitations?: WebsiteInvitationUpdateManyWithoutInviterNestedInput
+    granularPermissions?: GranularPermissionUpdateManyWithoutUserNestedInput
+    ownedWorkspaces?: WorkspaceUpdateManyWithoutOwnerNestedInput
+    ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
+    organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
+    workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
+    reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutBlockTemplatesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
+    identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
+    otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
+    passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    templates?: templatesUncheckedUpdateManyWithoutUsersNestedInput
+    subscription?: UserSubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUncheckedUpdateManyWithoutUserNestedInput
+    codeRevisions?: CustomCodeRevisionUncheckedUpdateManyWithoutAuthorNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    developerApiKeys?: DeveloperApiKeyUncheckedUpdateManyWithoutUserNestedInput
+    designNotes?: DesignNoteUncheckedUpdateManyWithoutAuthorNestedInput
+    collaborations?: WebsiteCollaboratorUncheckedUpdateManyWithoutUserNestedInput
+    componentAccesses?: ComponentAccessUncheckedUpdateManyWithoutUserNestedInput
+    customEntries?: CustomEntryUncheckedUpdateManyWithoutAuthorNestedInput
+    websiteRevisions?: WebsiteRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    deployments?: DeploymentUncheckedUpdateManyWithoutCreatorNestedInput
+    wpConnections?: WordPressConnectionUncheckedUpdateManyWithoutUserNestedInput
+    ownedTeams?: TeamUncheckedUpdateManyWithoutOwnerNestedInput
+    teamMemberships?: TeamMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentTeamInvitations?: TeamInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    sentWebsiteInvitations?: WebsiteInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutUserNestedInput
+    ownedWorkspaces?: WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
+    ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
+    organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
+    workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
+    reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type WorkspaceUpsertWithoutBlockTemplatesInput = {
+    update: XOR<WorkspaceUpdateWithoutBlockTemplatesInput, WorkspaceUncheckedUpdateWithoutBlockTemplatesInput>
+    create: XOR<WorkspaceCreateWithoutBlockTemplatesInput, WorkspaceUncheckedCreateWithoutBlockTemplatesInput>
+    where?: WorkspaceWhereInput
+  }
+
+  export type WorkspaceUpdateToOneWithWhereWithoutBlockTemplatesInput = {
+    where?: WorkspaceWhereInput
+    data: XOR<WorkspaceUpdateWithoutBlockTemplatesInput, WorkspaceUncheckedUpdateWithoutBlockTemplatesInput>
+  }
+
+  export type WorkspaceUpdateWithoutBlockTemplatesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OrganizationUpdateOneWithoutWorkspacesNestedInput
+    owner?: UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
+    members?: WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
+    websites?: WebsiteUpdateManyWithoutWorkspaceNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutWorkspaceNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutWorkspaceNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutWorkspaceNestedInput
+  }
+
+  export type WorkspaceUncheckedUpdateWithoutBlockTemplatesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    ownerId?: StringFieldUpdateOperationsInput | string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
+    websites?: WebsiteUncheckedUpdateManyWithoutWorkspaceNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutWorkspaceNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutWorkspaceNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutWorkspaceNestedInput
+  }
+
+  export type OrganizationUpsertWithoutBlockTemplatesInput = {
+    update: XOR<OrganizationUpdateWithoutBlockTemplatesInput, OrganizationUncheckedUpdateWithoutBlockTemplatesInput>
+    create: XOR<OrganizationCreateWithoutBlockTemplatesInput, OrganizationUncheckedCreateWithoutBlockTemplatesInput>
+    where?: OrganizationWhereInput
+  }
+
+  export type OrganizationUpdateToOneWithWhereWithoutBlockTemplatesInput = {
+    where?: OrganizationWhereInput
+    data: XOR<OrganizationUpdateWithoutBlockTemplatesInput, OrganizationUncheckedUpdateWithoutBlockTemplatesInput>
+  }
+
+  export type OrganizationUpdateWithoutBlockTemplatesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    owner?: UserUpdateOneRequiredWithoutOwnedOrganizationsNestedInput
+    members?: OrganizationMemberUpdateManyWithoutOrganizationNestedInput
+    workspaces?: WorkspaceUpdateManyWithoutOrganizationNestedInput
+    websites?: WebsiteUpdateManyWithoutOrganizationNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutOrganizationNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutOrganizationNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OrganizationUncheckedUpdateWithoutBlockTemplatesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    ownerId?: StringFieldUpdateOperationsInput | string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput
+    workspaces?: WorkspaceUncheckedUpdateManyWithoutOrganizationNestedInput
+    websites?: WebsiteUncheckedUpdateManyWithoutOrganizationNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutOrganizationNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutOrganizationNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type UserCreateWithoutTemplatePartsInput = {
+    id?: string
+    fullName?: string | null
+    email?: string | null
+    phone?: string | null
+    passwordHash?: string | null
+    verificationMethod?: $Enums.VerificationMethod | null
+    emailVerified?: boolean
+    phoneVerified?: boolean
+    status?: $Enums.UserStatus
+    role?: $Enums.UserRole
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    optimizationCredits?: number
+    identities?: IdentityCreateNestedManyWithoutUserInput
+    otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
+    passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    templates?: templatesCreateNestedManyWithoutUsersInput
+    subscription?: UserSubscriptionCreateNestedOneWithoutUserInput
+    websites?: WebsiteCreateNestedManyWithoutUserInput
+    codeRevisions?: CustomCodeRevisionCreateNestedManyWithoutAuthorInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    developerApiKeys?: DeveloperApiKeyCreateNestedManyWithoutUserInput
+    designNotes?: DesignNoteCreateNestedManyWithoutAuthorInput
+    collaborations?: WebsiteCollaboratorCreateNestedManyWithoutUserInput
+    componentAccesses?: ComponentAccessCreateNestedManyWithoutUserInput
+    customEntries?: CustomEntryCreateNestedManyWithoutAuthorInput
+    websiteRevisions?: WebsiteRevisionCreateNestedManyWithoutCreatorInput
+    deployments?: DeploymentCreateNestedManyWithoutCreatorInput
+    wpConnections?: WordPressConnectionCreateNestedManyWithoutUserInput
+    ownedTeams?: TeamCreateNestedManyWithoutOwnerInput
+    teamMemberships?: TeamMemberCreateNestedManyWithoutUserInput
+    sentTeamInvitations?: TeamInvitationCreateNestedManyWithoutInviterInput
+    sentWebsiteInvitations?: WebsiteInvitationCreateNestedManyWithoutInviterInput
+    granularPermissions?: GranularPermissionCreateNestedManyWithoutUserInput
+    ownedWorkspaces?: WorkspaceCreateNestedManyWithoutOwnerInput
+    ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
+    organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
+    workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
+    reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutTemplatePartsInput = {
+    id?: string
+    fullName?: string | null
+    email?: string | null
+    phone?: string | null
+    passwordHash?: string | null
+    verificationMethod?: $Enums.VerificationMethod | null
+    emailVerified?: boolean
+    phoneVerified?: boolean
+    status?: $Enums.UserStatus
+    role?: $Enums.UserRole
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    optimizationCredits?: number
+    identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
+    otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
+    passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    templates?: templatesUncheckedCreateNestedManyWithoutUsersInput
+    subscription?: UserSubscriptionUncheckedCreateNestedOneWithoutUserInput
+    websites?: WebsiteUncheckedCreateNestedManyWithoutUserInput
+    codeRevisions?: CustomCodeRevisionUncheckedCreateNestedManyWithoutAuthorInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    developerApiKeys?: DeveloperApiKeyUncheckedCreateNestedManyWithoutUserInput
+    designNotes?: DesignNoteUncheckedCreateNestedManyWithoutAuthorInput
+    collaborations?: WebsiteCollaboratorUncheckedCreateNestedManyWithoutUserInput
+    componentAccesses?: ComponentAccessUncheckedCreateNestedManyWithoutUserInput
+    customEntries?: CustomEntryUncheckedCreateNestedManyWithoutAuthorInput
+    websiteRevisions?: WebsiteRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    deployments?: DeploymentUncheckedCreateNestedManyWithoutCreatorInput
+    wpConnections?: WordPressConnectionUncheckedCreateNestedManyWithoutUserInput
+    ownedTeams?: TeamUncheckedCreateNestedManyWithoutOwnerInput
+    teamMemberships?: TeamMemberUncheckedCreateNestedManyWithoutUserInput
+    sentTeamInvitations?: TeamInvitationUncheckedCreateNestedManyWithoutInviterInput
+    sentWebsiteInvitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutInviterInput
+    granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutUserInput
+    ownedWorkspaces?: WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
+    ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
+    organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
+    workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
+    reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutTemplatePartsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutTemplatePartsInput, UserUncheckedCreateWithoutTemplatePartsInput>
+  }
+
+  export type WorkspaceCreateWithoutTemplatePartsInput = {
+    id?: string
+    name: string
+    slug: string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    organization?: OrganizationCreateNestedOneWithoutWorkspacesInput
+    owner: UserCreateNestedOneWithoutOwnedWorkspacesInput
+    members?: WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
+    websites?: WebsiteCreateNestedManyWithoutWorkspaceInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutWorkspaceInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutWorkspaceInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutWorkspaceInput
+  }
+
+  export type WorkspaceUncheckedCreateWithoutTemplatePartsInput = {
+    id?: string
+    organizationId?: string | null
+    name: string
+    slug: string
+    ownerId: string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
+    websites?: WebsiteUncheckedCreateNestedManyWithoutWorkspaceInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutWorkspaceInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutWorkspaceInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutWorkspaceInput
+  }
+
+  export type WorkspaceCreateOrConnectWithoutTemplatePartsInput = {
+    where: WorkspaceWhereUniqueInput
+    create: XOR<WorkspaceCreateWithoutTemplatePartsInput, WorkspaceUncheckedCreateWithoutTemplatePartsInput>
+  }
+
+  export type OrganizationCreateWithoutTemplatePartsInput = {
+    id?: string
+    name: string
+    slug: string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    owner: UserCreateNestedOneWithoutOwnedOrganizationsInput
+    members?: OrganizationMemberCreateNestedManyWithoutOrganizationInput
+    workspaces?: WorkspaceCreateNestedManyWithoutOrganizationInput
+    websites?: WebsiteCreateNestedManyWithoutOrganizationInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutOrganizationInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutOrganizationInput
+    globalStyleConfigs?: GlobalStyleConfigCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationUncheckedCreateWithoutTemplatePartsInput = {
+    id?: string
+    name: string
+    slug: string
+    ownerId: string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput
+    workspaces?: WorkspaceUncheckedCreateNestedManyWithoutOrganizationInput
+    websites?: WebsiteUncheckedCreateNestedManyWithoutOrganizationInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutOrganizationInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutOrganizationInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationCreateOrConnectWithoutTemplatePartsInput = {
+    where: OrganizationWhereUniqueInput
+    create: XOR<OrganizationCreateWithoutTemplatePartsInput, OrganizationUncheckedCreateWithoutTemplatePartsInput>
+  }
+
+  export type UserUpsertWithoutTemplatePartsInput = {
+    update: XOR<UserUpdateWithoutTemplatePartsInput, UserUncheckedUpdateWithoutTemplatePartsInput>
+    create: XOR<UserCreateWithoutTemplatePartsInput, UserUncheckedCreateWithoutTemplatePartsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutTemplatePartsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutTemplatePartsInput, UserUncheckedUpdateWithoutTemplatePartsInput>
+  }
+
+  export type UserUpdateWithoutTemplatePartsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
+    identities?: IdentityUpdateManyWithoutUserNestedInput
+    otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
+    passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    templates?: templatesUpdateManyWithoutUsersNestedInput
+    subscription?: UserSubscriptionUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUpdateManyWithoutUserNestedInput
+    codeRevisions?: CustomCodeRevisionUpdateManyWithoutAuthorNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    developerApiKeys?: DeveloperApiKeyUpdateManyWithoutUserNestedInput
+    designNotes?: DesignNoteUpdateManyWithoutAuthorNestedInput
+    collaborations?: WebsiteCollaboratorUpdateManyWithoutUserNestedInput
+    componentAccesses?: ComponentAccessUpdateManyWithoutUserNestedInput
+    customEntries?: CustomEntryUpdateManyWithoutAuthorNestedInput
+    websiteRevisions?: WebsiteRevisionUpdateManyWithoutCreatorNestedInput
+    deployments?: DeploymentUpdateManyWithoutCreatorNestedInput
+    wpConnections?: WordPressConnectionUpdateManyWithoutUserNestedInput
+    ownedTeams?: TeamUpdateManyWithoutOwnerNestedInput
+    teamMemberships?: TeamMemberUpdateManyWithoutUserNestedInput
+    sentTeamInvitations?: TeamInvitationUpdateManyWithoutInviterNestedInput
+    sentWebsiteInvitations?: WebsiteInvitationUpdateManyWithoutInviterNestedInput
+    granularPermissions?: GranularPermissionUpdateManyWithoutUserNestedInput
+    ownedWorkspaces?: WorkspaceUpdateManyWithoutOwnerNestedInput
+    ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
+    organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
+    workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
+    reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutTemplatePartsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
+    identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
+    otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
+    passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    templates?: templatesUncheckedUpdateManyWithoutUsersNestedInput
+    subscription?: UserSubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUncheckedUpdateManyWithoutUserNestedInput
+    codeRevisions?: CustomCodeRevisionUncheckedUpdateManyWithoutAuthorNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    developerApiKeys?: DeveloperApiKeyUncheckedUpdateManyWithoutUserNestedInput
+    designNotes?: DesignNoteUncheckedUpdateManyWithoutAuthorNestedInput
+    collaborations?: WebsiteCollaboratorUncheckedUpdateManyWithoutUserNestedInput
+    componentAccesses?: ComponentAccessUncheckedUpdateManyWithoutUserNestedInput
+    customEntries?: CustomEntryUncheckedUpdateManyWithoutAuthorNestedInput
+    websiteRevisions?: WebsiteRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    deployments?: DeploymentUncheckedUpdateManyWithoutCreatorNestedInput
+    wpConnections?: WordPressConnectionUncheckedUpdateManyWithoutUserNestedInput
+    ownedTeams?: TeamUncheckedUpdateManyWithoutOwnerNestedInput
+    teamMemberships?: TeamMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentTeamInvitations?: TeamInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    sentWebsiteInvitations?: WebsiteInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutUserNestedInput
+    ownedWorkspaces?: WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
+    ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
+    organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
+    workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
+    reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type WorkspaceUpsertWithoutTemplatePartsInput = {
+    update: XOR<WorkspaceUpdateWithoutTemplatePartsInput, WorkspaceUncheckedUpdateWithoutTemplatePartsInput>
+    create: XOR<WorkspaceCreateWithoutTemplatePartsInput, WorkspaceUncheckedCreateWithoutTemplatePartsInput>
+    where?: WorkspaceWhereInput
+  }
+
+  export type WorkspaceUpdateToOneWithWhereWithoutTemplatePartsInput = {
+    where?: WorkspaceWhereInput
+    data: XOR<WorkspaceUpdateWithoutTemplatePartsInput, WorkspaceUncheckedUpdateWithoutTemplatePartsInput>
+  }
+
+  export type WorkspaceUpdateWithoutTemplatePartsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OrganizationUpdateOneWithoutWorkspacesNestedInput
+    owner?: UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
+    members?: WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
+    websites?: WebsiteUpdateManyWithoutWorkspaceNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutWorkspaceNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutWorkspaceNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutWorkspaceNestedInput
+  }
+
+  export type WorkspaceUncheckedUpdateWithoutTemplatePartsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    ownerId?: StringFieldUpdateOperationsInput | string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
+    websites?: WebsiteUncheckedUpdateManyWithoutWorkspaceNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutWorkspaceNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutWorkspaceNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutWorkspaceNestedInput
+  }
+
+  export type OrganizationUpsertWithoutTemplatePartsInput = {
+    update: XOR<OrganizationUpdateWithoutTemplatePartsInput, OrganizationUncheckedUpdateWithoutTemplatePartsInput>
+    create: XOR<OrganizationCreateWithoutTemplatePartsInput, OrganizationUncheckedCreateWithoutTemplatePartsInput>
+    where?: OrganizationWhereInput
+  }
+
+  export type OrganizationUpdateToOneWithWhereWithoutTemplatePartsInput = {
+    where?: OrganizationWhereInput
+    data: XOR<OrganizationUpdateWithoutTemplatePartsInput, OrganizationUncheckedUpdateWithoutTemplatePartsInput>
+  }
+
+  export type OrganizationUpdateWithoutTemplatePartsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    owner?: UserUpdateOneRequiredWithoutOwnedOrganizationsNestedInput
+    members?: OrganizationMemberUpdateManyWithoutOrganizationNestedInput
+    workspaces?: WorkspaceUpdateManyWithoutOrganizationNestedInput
+    websites?: WebsiteUpdateManyWithoutOrganizationNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutOrganizationNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutOrganizationNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OrganizationUncheckedUpdateWithoutTemplatePartsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    ownerId?: StringFieldUpdateOperationsInput | string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput
+    workspaces?: WorkspaceUncheckedUpdateManyWithoutOrganizationNestedInput
+    websites?: WebsiteUncheckedUpdateManyWithoutOrganizationNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutOrganizationNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutOrganizationNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type UserCreateWithoutGlobalStyleConfigsInput = {
+    id?: string
+    fullName?: string | null
+    email?: string | null
+    phone?: string | null
+    passwordHash?: string | null
+    verificationMethod?: $Enums.VerificationMethod | null
+    emailVerified?: boolean
+    phoneVerified?: boolean
+    status?: $Enums.UserStatus
+    role?: $Enums.UserRole
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    optimizationCredits?: number
+    identities?: IdentityCreateNestedManyWithoutUserInput
+    otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
+    passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    templates?: templatesCreateNestedManyWithoutUsersInput
+    subscription?: UserSubscriptionCreateNestedOneWithoutUserInput
+    websites?: WebsiteCreateNestedManyWithoutUserInput
+    codeRevisions?: CustomCodeRevisionCreateNestedManyWithoutAuthorInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    developerApiKeys?: DeveloperApiKeyCreateNestedManyWithoutUserInput
+    designNotes?: DesignNoteCreateNestedManyWithoutAuthorInput
+    collaborations?: WebsiteCollaboratorCreateNestedManyWithoutUserInput
+    componentAccesses?: ComponentAccessCreateNestedManyWithoutUserInput
+    customEntries?: CustomEntryCreateNestedManyWithoutAuthorInput
+    websiteRevisions?: WebsiteRevisionCreateNestedManyWithoutCreatorInput
+    deployments?: DeploymentCreateNestedManyWithoutCreatorInput
+    wpConnections?: WordPressConnectionCreateNestedManyWithoutUserInput
+    ownedTeams?: TeamCreateNestedManyWithoutOwnerInput
+    teamMemberships?: TeamMemberCreateNestedManyWithoutUserInput
+    sentTeamInvitations?: TeamInvitationCreateNestedManyWithoutInviterInput
+    sentWebsiteInvitations?: WebsiteInvitationCreateNestedManyWithoutInviterInput
+    granularPermissions?: GranularPermissionCreateNestedManyWithoutUserInput
+    ownedWorkspaces?: WorkspaceCreateNestedManyWithoutOwnerInput
+    ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
+    organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
+    workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
+    reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutGlobalStyleConfigsInput = {
+    id?: string
+    fullName?: string | null
+    email?: string | null
+    phone?: string | null
+    passwordHash?: string | null
+    verificationMethod?: $Enums.VerificationMethod | null
+    emailVerified?: boolean
+    phoneVerified?: boolean
+    status?: $Enums.UserStatus
+    role?: $Enums.UserRole
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    optimizationCredits?: number
+    identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
+    otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
+    passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    templates?: templatesUncheckedCreateNestedManyWithoutUsersInput
+    subscription?: UserSubscriptionUncheckedCreateNestedOneWithoutUserInput
+    websites?: WebsiteUncheckedCreateNestedManyWithoutUserInput
+    codeRevisions?: CustomCodeRevisionUncheckedCreateNestedManyWithoutAuthorInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    developerApiKeys?: DeveloperApiKeyUncheckedCreateNestedManyWithoutUserInput
+    designNotes?: DesignNoteUncheckedCreateNestedManyWithoutAuthorInput
+    collaborations?: WebsiteCollaboratorUncheckedCreateNestedManyWithoutUserInput
+    componentAccesses?: ComponentAccessUncheckedCreateNestedManyWithoutUserInput
+    customEntries?: CustomEntryUncheckedCreateNestedManyWithoutAuthorInput
+    websiteRevisions?: WebsiteRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    deployments?: DeploymentUncheckedCreateNestedManyWithoutCreatorInput
+    wpConnections?: WordPressConnectionUncheckedCreateNestedManyWithoutUserInput
+    ownedTeams?: TeamUncheckedCreateNestedManyWithoutOwnerInput
+    teamMemberships?: TeamMemberUncheckedCreateNestedManyWithoutUserInput
+    sentTeamInvitations?: TeamInvitationUncheckedCreateNestedManyWithoutInviterInput
+    sentWebsiteInvitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutInviterInput
+    granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutUserInput
+    ownedWorkspaces?: WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
+    ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
+    organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
+    workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
+    reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutUserInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutUserInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutGlobalStyleConfigsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutGlobalStyleConfigsInput, UserUncheckedCreateWithoutGlobalStyleConfigsInput>
+  }
+
+  export type WorkspaceCreateWithoutGlobalStyleConfigsInput = {
+    id?: string
+    name: string
+    slug: string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    organization?: OrganizationCreateNestedOneWithoutWorkspacesInput
+    owner: UserCreateNestedOneWithoutOwnedWorkspacesInput
+    members?: WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
+    websites?: WebsiteCreateNestedManyWithoutWorkspaceInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutWorkspaceInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutWorkspaceInput
+    templateParts?: TemplatePartCreateNestedManyWithoutWorkspaceInput
+  }
+
+  export type WorkspaceUncheckedCreateWithoutGlobalStyleConfigsInput = {
+    id?: string
+    organizationId?: string | null
+    name: string
+    slug: string
+    ownerId: string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
+    websites?: WebsiteUncheckedCreateNestedManyWithoutWorkspaceInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutWorkspaceInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutWorkspaceInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutWorkspaceInput
+  }
+
+  export type WorkspaceCreateOrConnectWithoutGlobalStyleConfigsInput = {
+    where: WorkspaceWhereUniqueInput
+    create: XOR<WorkspaceCreateWithoutGlobalStyleConfigsInput, WorkspaceUncheckedCreateWithoutGlobalStyleConfigsInput>
+  }
+
+  export type OrganizationCreateWithoutGlobalStyleConfigsInput = {
+    id?: string
+    name: string
+    slug: string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    owner: UserCreateNestedOneWithoutOwnedOrganizationsInput
+    members?: OrganizationMemberCreateNestedManyWithoutOrganizationInput
+    workspaces?: WorkspaceCreateNestedManyWithoutOrganizationInput
+    websites?: WebsiteCreateNestedManyWithoutOrganizationInput
+    blockPatterns?: BlockPatternCreateNestedManyWithoutOrganizationInput
+    blockTemplates?: BlockTemplateCreateNestedManyWithoutOrganizationInput
+    templateParts?: TemplatePartCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationUncheckedCreateWithoutGlobalStyleConfigsInput = {
+    id?: string
+    name: string
+    slug: string
+    ownerId: string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput
+    workspaces?: WorkspaceUncheckedCreateNestedManyWithoutOrganizationInput
+    websites?: WebsiteUncheckedCreateNestedManyWithoutOrganizationInput
+    blockPatterns?: BlockPatternUncheckedCreateNestedManyWithoutOrganizationInput
+    blockTemplates?: BlockTemplateUncheckedCreateNestedManyWithoutOrganizationInput
+    templateParts?: TemplatePartUncheckedCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationCreateOrConnectWithoutGlobalStyleConfigsInput = {
+    where: OrganizationWhereUniqueInput
+    create: XOR<OrganizationCreateWithoutGlobalStyleConfigsInput, OrganizationUncheckedCreateWithoutGlobalStyleConfigsInput>
+  }
+
+  export type UserUpsertWithoutGlobalStyleConfigsInput = {
+    update: XOR<UserUpdateWithoutGlobalStyleConfigsInput, UserUncheckedUpdateWithoutGlobalStyleConfigsInput>
+    create: XOR<UserCreateWithoutGlobalStyleConfigsInput, UserUncheckedCreateWithoutGlobalStyleConfigsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutGlobalStyleConfigsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutGlobalStyleConfigsInput, UserUncheckedUpdateWithoutGlobalStyleConfigsInput>
+  }
+
+  export type UserUpdateWithoutGlobalStyleConfigsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
+    identities?: IdentityUpdateManyWithoutUserNestedInput
+    otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
+    passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    templates?: templatesUpdateManyWithoutUsersNestedInput
+    subscription?: UserSubscriptionUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUpdateManyWithoutUserNestedInput
+    codeRevisions?: CustomCodeRevisionUpdateManyWithoutAuthorNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    developerApiKeys?: DeveloperApiKeyUpdateManyWithoutUserNestedInput
+    designNotes?: DesignNoteUpdateManyWithoutAuthorNestedInput
+    collaborations?: WebsiteCollaboratorUpdateManyWithoutUserNestedInput
+    componentAccesses?: ComponentAccessUpdateManyWithoutUserNestedInput
+    customEntries?: CustomEntryUpdateManyWithoutAuthorNestedInput
+    websiteRevisions?: WebsiteRevisionUpdateManyWithoutCreatorNestedInput
+    deployments?: DeploymentUpdateManyWithoutCreatorNestedInput
+    wpConnections?: WordPressConnectionUpdateManyWithoutUserNestedInput
+    ownedTeams?: TeamUpdateManyWithoutOwnerNestedInput
+    teamMemberships?: TeamMemberUpdateManyWithoutUserNestedInput
+    sentTeamInvitations?: TeamInvitationUpdateManyWithoutInviterNestedInput
+    sentWebsiteInvitations?: WebsiteInvitationUpdateManyWithoutInviterNestedInput
+    granularPermissions?: GranularPermissionUpdateManyWithoutUserNestedInput
+    ownedWorkspaces?: WorkspaceUpdateManyWithoutOwnerNestedInput
+    ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
+    organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
+    workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
+    reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutGlobalStyleConfigsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
+    identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
+    otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
+    passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    templates?: templatesUncheckedUpdateManyWithoutUsersNestedInput
+    subscription?: UserSubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUncheckedUpdateManyWithoutUserNestedInput
+    codeRevisions?: CustomCodeRevisionUncheckedUpdateManyWithoutAuthorNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    developerApiKeys?: DeveloperApiKeyUncheckedUpdateManyWithoutUserNestedInput
+    designNotes?: DesignNoteUncheckedUpdateManyWithoutAuthorNestedInput
+    collaborations?: WebsiteCollaboratorUncheckedUpdateManyWithoutUserNestedInput
+    componentAccesses?: ComponentAccessUncheckedUpdateManyWithoutUserNestedInput
+    customEntries?: CustomEntryUncheckedUpdateManyWithoutAuthorNestedInput
+    websiteRevisions?: WebsiteRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    deployments?: DeploymentUncheckedUpdateManyWithoutCreatorNestedInput
+    wpConnections?: WordPressConnectionUncheckedUpdateManyWithoutUserNestedInput
+    ownedTeams?: TeamUncheckedUpdateManyWithoutOwnerNestedInput
+    teamMemberships?: TeamMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentTeamInvitations?: TeamInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    sentWebsiteInvitations?: WebsiteInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutUserNestedInput
+    ownedWorkspaces?: WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
+    ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
+    organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
+    workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
+    reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutUserNestedInput
+    syncedPatternRevisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutUserNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type WorkspaceUpsertWithoutGlobalStyleConfigsInput = {
+    update: XOR<WorkspaceUpdateWithoutGlobalStyleConfigsInput, WorkspaceUncheckedUpdateWithoutGlobalStyleConfigsInput>
+    create: XOR<WorkspaceCreateWithoutGlobalStyleConfigsInput, WorkspaceUncheckedCreateWithoutGlobalStyleConfigsInput>
+    where?: WorkspaceWhereInput
+  }
+
+  export type WorkspaceUpdateToOneWithWhereWithoutGlobalStyleConfigsInput = {
+    where?: WorkspaceWhereInput
+    data: XOR<WorkspaceUpdateWithoutGlobalStyleConfigsInput, WorkspaceUncheckedUpdateWithoutGlobalStyleConfigsInput>
+  }
+
+  export type WorkspaceUpdateWithoutGlobalStyleConfigsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OrganizationUpdateOneWithoutWorkspacesNestedInput
+    owner?: UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
+    members?: WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
+    websites?: WebsiteUpdateManyWithoutWorkspaceNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutWorkspaceNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutWorkspaceNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutWorkspaceNestedInput
+  }
+
+  export type WorkspaceUncheckedUpdateWithoutGlobalStyleConfigsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    ownerId?: StringFieldUpdateOperationsInput | string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
+    websites?: WebsiteUncheckedUpdateManyWithoutWorkspaceNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutWorkspaceNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutWorkspaceNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutWorkspaceNestedInput
+  }
+
+  export type OrganizationUpsertWithoutGlobalStyleConfigsInput = {
+    update: XOR<OrganizationUpdateWithoutGlobalStyleConfigsInput, OrganizationUncheckedUpdateWithoutGlobalStyleConfigsInput>
+    create: XOR<OrganizationCreateWithoutGlobalStyleConfigsInput, OrganizationUncheckedCreateWithoutGlobalStyleConfigsInput>
+    where?: OrganizationWhereInput
+  }
+
+  export type OrganizationUpdateToOneWithWhereWithoutGlobalStyleConfigsInput = {
+    where?: OrganizationWhereInput
+    data: XOR<OrganizationUpdateWithoutGlobalStyleConfigsInput, OrganizationUncheckedUpdateWithoutGlobalStyleConfigsInput>
+  }
+
+  export type OrganizationUpdateWithoutGlobalStyleConfigsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    owner?: UserUpdateOneRequiredWithoutOwnedOrganizationsNestedInput
+    members?: OrganizationMemberUpdateManyWithoutOrganizationNestedInput
+    workspaces?: WorkspaceUpdateManyWithoutOrganizationNestedInput
+    websites?: WebsiteUpdateManyWithoutOrganizationNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutOrganizationNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutOrganizationNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OrganizationUncheckedUpdateWithoutGlobalStyleConfigsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    ownerId?: StringFieldUpdateOperationsInput | string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput
+    workspaces?: WorkspaceUncheckedUpdateManyWithoutOrganizationNestedInput
+    websites?: WebsiteUncheckedUpdateManyWithoutOrganizationNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutOrganizationNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutOrganizationNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type IdentityCreateManyUserInput = {
@@ -97048,6 +110089,77 @@ export namespace Prisma {
     billingPeriodStart: Date | string
     billingPeriodEnd: Date | string
     createdAt?: Date | string
+  }
+
+  export type BlockPatternCreateManyUserInput = {
+    id?: string
+    name: string
+    title: string
+    description?: string | null
+    category?: string
+    categories?: JsonNullValueInput | InputJsonValue
+    content?: JsonNullValueInput | InputJsonValue
+    viewportWidth?: number | null
+    blockTypes?: JsonNullValueInput | InputJsonValue
+    keywords?: JsonNullValueInput | InputJsonValue
+    isSynced?: boolean
+    syncStatus?: string
+    workspaceId?: string | null
+    organizationId?: string | null
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SyncedPatternRevisionCreateManyCreatorInput = {
+    id?: string
+    patternId: string
+    version: number
+    title: string
+    content: JsonNullValueInput | InputJsonValue
+    description?: string | null
+    createdAt?: Date | string
+  }
+
+  export type BlockTemplateCreateManyUserInput = {
+    id?: string
+    slug: string
+    title: string
+    description?: string | null
+    type?: string
+    content: JsonNullValueInput | InputJsonValue
+    templateLock?: string | null
+    isDefault?: boolean
+    assignedPageIds?: BlockTemplateCreateassignedPageIdsInput | string[]
+    workspaceId?: string | null
+    organizationId?: string | null
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TemplatePartCreateManyUserInput = {
+    id?: string
+    slug: string
+    title: string
+    area?: string
+    content: JsonNullValueInput | InputJsonValue
+    workspaceId?: string | null
+    organizationId?: string | null
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GlobalStyleConfigCreateManyUserInput = {
+    id?: string
+    name?: string
+    styles: JsonNullValueInput | InputJsonValue
+    workspaceId?: string | null
+    organizationId?: string | null
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type IdentityUpdateWithoutUserInput = {
@@ -97789,6 +110901,10 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneWithoutWorkspacesNestedInput
     members?: WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
     websites?: WebsiteUpdateManyWithoutWorkspaceNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutWorkspaceNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutWorkspaceNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutWorkspaceNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type WorkspaceUncheckedUpdateWithoutOwnerInput = {
@@ -97801,6 +110917,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
     websites?: WebsiteUncheckedUpdateManyWithoutWorkspaceNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutWorkspaceNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutWorkspaceNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutWorkspaceNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type WorkspaceUncheckedUpdateManyWithoutOwnerInput = {
@@ -97823,6 +110943,10 @@ export namespace Prisma {
     members?: OrganizationMemberUpdateManyWithoutOrganizationNestedInput
     workspaces?: WorkspaceUpdateManyWithoutOrganizationNestedInput
     websites?: WebsiteUpdateManyWithoutOrganizationNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutOrganizationNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutOrganizationNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutOrganizationNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OrganizationUncheckedUpdateWithoutOwnerInput = {
@@ -97835,6 +110959,10 @@ export namespace Prisma {
     members?: OrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput
     workspaces?: WorkspaceUncheckedUpdateManyWithoutOrganizationNestedInput
     websites?: WebsiteUncheckedUpdateManyWithoutOrganizationNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutOrganizationNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutOrganizationNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutOrganizationNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OrganizationUncheckedUpdateManyWithoutOwnerInput = {
@@ -98116,6 +111244,221 @@ export namespace Prisma {
     billingPeriodStart?: DateTimeFieldUpdateOperationsInput | Date | string
     billingPeriodEnd?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BlockPatternUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: StringFieldUpdateOperationsInput | string
+    categories?: JsonNullValueInput | InputJsonValue
+    content?: JsonNullValueInput | InputJsonValue
+    viewportWidth?: NullableIntFieldUpdateOperationsInput | number | null
+    blockTypes?: JsonNullValueInput | InputJsonValue
+    keywords?: JsonNullValueInput | InputJsonValue
+    isSynced?: BoolFieldUpdateOperationsInput | boolean
+    syncStatus?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    workspace?: WorkspaceUpdateOneWithoutBlockPatternsNestedInput
+    organization?: OrganizationUpdateOneWithoutBlockPatternsNestedInput
+    revisions?: SyncedPatternRevisionUpdateManyWithoutPatternNestedInput
+  }
+
+  export type BlockPatternUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: StringFieldUpdateOperationsInput | string
+    categories?: JsonNullValueInput | InputJsonValue
+    content?: JsonNullValueInput | InputJsonValue
+    viewportWidth?: NullableIntFieldUpdateOperationsInput | number | null
+    blockTypes?: JsonNullValueInput | InputJsonValue
+    keywords?: JsonNullValueInput | InputJsonValue
+    isSynced?: BoolFieldUpdateOperationsInput | boolean
+    syncStatus?: StringFieldUpdateOperationsInput | string
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    revisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutPatternNestedInput
+  }
+
+  export type BlockPatternUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: StringFieldUpdateOperationsInput | string
+    categories?: JsonNullValueInput | InputJsonValue
+    content?: JsonNullValueInput | InputJsonValue
+    viewportWidth?: NullableIntFieldUpdateOperationsInput | number | null
+    blockTypes?: JsonNullValueInput | InputJsonValue
+    keywords?: JsonNullValueInput | InputJsonValue
+    isSynced?: BoolFieldUpdateOperationsInput | boolean
+    syncStatus?: StringFieldUpdateOperationsInput | string
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SyncedPatternRevisionUpdateWithoutCreatorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    title?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    pattern?: BlockPatternUpdateOneRequiredWithoutRevisionsNestedInput
+  }
+
+  export type SyncedPatternRevisionUncheckedUpdateWithoutCreatorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    patternId?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    title?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SyncedPatternRevisionUncheckedUpdateManyWithoutCreatorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    patternId?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    title?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BlockTemplateUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    templateLock?: NullableStringFieldUpdateOperationsInput | string | null
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    assignedPageIds?: BlockTemplateUpdateassignedPageIdsInput | string[]
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    workspace?: WorkspaceUpdateOneWithoutBlockTemplatesNestedInput
+    organization?: OrganizationUpdateOneWithoutBlockTemplatesNestedInput
+  }
+
+  export type BlockTemplateUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    templateLock?: NullableStringFieldUpdateOperationsInput | string | null
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    assignedPageIds?: BlockTemplateUpdateassignedPageIdsInput | string[]
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BlockTemplateUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    templateLock?: NullableStringFieldUpdateOperationsInput | string | null
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    assignedPageIds?: BlockTemplateUpdateassignedPageIdsInput | string[]
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TemplatePartUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    area?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    workspace?: WorkspaceUpdateOneWithoutTemplatePartsNestedInput
+    organization?: OrganizationUpdateOneWithoutTemplatePartsNestedInput
+  }
+
+  export type TemplatePartUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    area?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TemplatePartUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    area?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GlobalStyleConfigUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    styles?: JsonNullValueInput | InputJsonValue
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    workspace?: WorkspaceUpdateOneWithoutGlobalStyleConfigsNestedInput
+    organization?: OrganizationUpdateOneWithoutGlobalStyleConfigsNestedInput
+  }
+
+  export type GlobalStyleConfigUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    styles?: JsonNullValueInput | InputJsonValue
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GlobalStyleConfigUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    styles?: JsonNullValueInput | InputJsonValue
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CustomCodeSnippetCreateManyWebsiteInput = {
@@ -99368,6 +112711,67 @@ export namespace Prisma {
     approvalWorkflowEnabled?: boolean
   }
 
+  export type BlockPatternCreateManyWorkspaceInput = {
+    id?: string
+    name: string
+    title: string
+    description?: string | null
+    category?: string
+    categories?: JsonNullValueInput | InputJsonValue
+    content?: JsonNullValueInput | InputJsonValue
+    viewportWidth?: number | null
+    blockTypes?: JsonNullValueInput | InputJsonValue
+    keywords?: JsonNullValueInput | InputJsonValue
+    isSynced?: boolean
+    syncStatus?: string
+    organizationId?: string | null
+    userId: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BlockTemplateCreateManyWorkspaceInput = {
+    id?: string
+    slug: string
+    title: string
+    description?: string | null
+    type?: string
+    content: JsonNullValueInput | InputJsonValue
+    templateLock?: string | null
+    isDefault?: boolean
+    assignedPageIds?: BlockTemplateCreateassignedPageIdsInput | string[]
+    organizationId?: string | null
+    userId: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TemplatePartCreateManyWorkspaceInput = {
+    id?: string
+    slug: string
+    title: string
+    area?: string
+    content: JsonNullValueInput | InputJsonValue
+    organizationId?: string | null
+    userId: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GlobalStyleConfigCreateManyWorkspaceInput = {
+    id?: string
+    name?: string
+    styles: JsonNullValueInput | InputJsonValue
+    organizationId?: string | null
+    userId: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type WorkspaceMemberUpdateWithoutWorkspaceInput = {
     id?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
@@ -99476,6 +112880,191 @@ export namespace Prisma {
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
   }
 
+  export type BlockPatternUpdateWithoutWorkspaceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: StringFieldUpdateOperationsInput | string
+    categories?: JsonNullValueInput | InputJsonValue
+    content?: JsonNullValueInput | InputJsonValue
+    viewportWidth?: NullableIntFieldUpdateOperationsInput | number | null
+    blockTypes?: JsonNullValueInput | InputJsonValue
+    keywords?: JsonNullValueInput | InputJsonValue
+    isSynced?: BoolFieldUpdateOperationsInput | boolean
+    syncStatus?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutBlockPatternsNestedInput
+    organization?: OrganizationUpdateOneWithoutBlockPatternsNestedInput
+    revisions?: SyncedPatternRevisionUpdateManyWithoutPatternNestedInput
+  }
+
+  export type BlockPatternUncheckedUpdateWithoutWorkspaceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: StringFieldUpdateOperationsInput | string
+    categories?: JsonNullValueInput | InputJsonValue
+    content?: JsonNullValueInput | InputJsonValue
+    viewportWidth?: NullableIntFieldUpdateOperationsInput | number | null
+    blockTypes?: JsonNullValueInput | InputJsonValue
+    keywords?: JsonNullValueInput | InputJsonValue
+    isSynced?: BoolFieldUpdateOperationsInput | boolean
+    syncStatus?: StringFieldUpdateOperationsInput | string
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    revisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutPatternNestedInput
+  }
+
+  export type BlockPatternUncheckedUpdateManyWithoutWorkspaceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: StringFieldUpdateOperationsInput | string
+    categories?: JsonNullValueInput | InputJsonValue
+    content?: JsonNullValueInput | InputJsonValue
+    viewportWidth?: NullableIntFieldUpdateOperationsInput | number | null
+    blockTypes?: JsonNullValueInput | InputJsonValue
+    keywords?: JsonNullValueInput | InputJsonValue
+    isSynced?: BoolFieldUpdateOperationsInput | boolean
+    syncStatus?: StringFieldUpdateOperationsInput | string
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BlockTemplateUpdateWithoutWorkspaceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    templateLock?: NullableStringFieldUpdateOperationsInput | string | null
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    assignedPageIds?: BlockTemplateUpdateassignedPageIdsInput | string[]
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutBlockTemplatesNestedInput
+    organization?: OrganizationUpdateOneWithoutBlockTemplatesNestedInput
+  }
+
+  export type BlockTemplateUncheckedUpdateWithoutWorkspaceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    templateLock?: NullableStringFieldUpdateOperationsInput | string | null
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    assignedPageIds?: BlockTemplateUpdateassignedPageIdsInput | string[]
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BlockTemplateUncheckedUpdateManyWithoutWorkspaceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    templateLock?: NullableStringFieldUpdateOperationsInput | string | null
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    assignedPageIds?: BlockTemplateUpdateassignedPageIdsInput | string[]
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TemplatePartUpdateWithoutWorkspaceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    area?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutTemplatePartsNestedInput
+    organization?: OrganizationUpdateOneWithoutTemplatePartsNestedInput
+  }
+
+  export type TemplatePartUncheckedUpdateWithoutWorkspaceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    area?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TemplatePartUncheckedUpdateManyWithoutWorkspaceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    area?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GlobalStyleConfigUpdateWithoutWorkspaceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    styles?: JsonNullValueInput | InputJsonValue
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutGlobalStyleConfigsNestedInput
+    organization?: OrganizationUpdateOneWithoutGlobalStyleConfigsNestedInput
+  }
+
+  export type GlobalStyleConfigUncheckedUpdateWithoutWorkspaceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    styles?: JsonNullValueInput | InputJsonValue
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GlobalStyleConfigUncheckedUpdateManyWithoutWorkspaceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    styles?: JsonNullValueInput | InputJsonValue
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type OrganizationMemberCreateManyOrganizationInput = {
     id?: string
     userId: string
@@ -99506,6 +113095,67 @@ export namespace Prisma {
     teamId?: string | null
     workspaceId?: string | null
     approvalWorkflowEnabled?: boolean
+  }
+
+  export type BlockPatternCreateManyOrganizationInput = {
+    id?: string
+    name: string
+    title: string
+    description?: string | null
+    category?: string
+    categories?: JsonNullValueInput | InputJsonValue
+    content?: JsonNullValueInput | InputJsonValue
+    viewportWidth?: number | null
+    blockTypes?: JsonNullValueInput | InputJsonValue
+    keywords?: JsonNullValueInput | InputJsonValue
+    isSynced?: boolean
+    syncStatus?: string
+    workspaceId?: string | null
+    userId: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BlockTemplateCreateManyOrganizationInput = {
+    id?: string
+    slug: string
+    title: string
+    description?: string | null
+    type?: string
+    content: JsonNullValueInput | InputJsonValue
+    templateLock?: string | null
+    isDefault?: boolean
+    assignedPageIds?: BlockTemplateCreateassignedPageIdsInput | string[]
+    workspaceId?: string | null
+    userId: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TemplatePartCreateManyOrganizationInput = {
+    id?: string
+    slug: string
+    title: string
+    area?: string
+    content: JsonNullValueInput | InputJsonValue
+    workspaceId?: string | null
+    userId: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GlobalStyleConfigCreateManyOrganizationInput = {
+    id?: string
+    name?: string
+    styles: JsonNullValueInput | InputJsonValue
+    workspaceId?: string | null
+    userId: string
+    version?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type OrganizationMemberUpdateWithoutOrganizationInput = {
@@ -99542,6 +113192,10 @@ export namespace Prisma {
     owner?: UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
     members?: WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
     websites?: WebsiteUpdateManyWithoutWorkspaceNestedInput
+    blockPatterns?: BlockPatternUpdateManyWithoutWorkspaceNestedInput
+    blockTemplates?: BlockTemplateUpdateManyWithoutWorkspaceNestedInput
+    templateParts?: TemplatePartUpdateManyWithoutWorkspaceNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type WorkspaceUncheckedUpdateWithoutOrganizationInput = {
@@ -99554,6 +113208,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
     websites?: WebsiteUncheckedUpdateManyWithoutWorkspaceNestedInput
+    blockPatterns?: BlockPatternUncheckedUpdateManyWithoutWorkspaceNestedInput
+    blockTemplates?: BlockTemplateUncheckedUpdateManyWithoutWorkspaceNestedInput
+    templateParts?: TemplatePartUncheckedUpdateManyWithoutWorkspaceNestedInput
+    globalStyleConfigs?: GlobalStyleConfigUncheckedUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type WorkspaceUncheckedUpdateManyWithoutOrganizationInput = {
@@ -99650,6 +113308,191 @@ export namespace Prisma {
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
   }
 
+  export type BlockPatternUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: StringFieldUpdateOperationsInput | string
+    categories?: JsonNullValueInput | InputJsonValue
+    content?: JsonNullValueInput | InputJsonValue
+    viewportWidth?: NullableIntFieldUpdateOperationsInput | number | null
+    blockTypes?: JsonNullValueInput | InputJsonValue
+    keywords?: JsonNullValueInput | InputJsonValue
+    isSynced?: BoolFieldUpdateOperationsInput | boolean
+    syncStatus?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutBlockPatternsNestedInput
+    workspace?: WorkspaceUpdateOneWithoutBlockPatternsNestedInput
+    revisions?: SyncedPatternRevisionUpdateManyWithoutPatternNestedInput
+  }
+
+  export type BlockPatternUncheckedUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: StringFieldUpdateOperationsInput | string
+    categories?: JsonNullValueInput | InputJsonValue
+    content?: JsonNullValueInput | InputJsonValue
+    viewportWidth?: NullableIntFieldUpdateOperationsInput | number | null
+    blockTypes?: JsonNullValueInput | InputJsonValue
+    keywords?: JsonNullValueInput | InputJsonValue
+    isSynced?: BoolFieldUpdateOperationsInput | boolean
+    syncStatus?: StringFieldUpdateOperationsInput | string
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    revisions?: SyncedPatternRevisionUncheckedUpdateManyWithoutPatternNestedInput
+  }
+
+  export type BlockPatternUncheckedUpdateManyWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: StringFieldUpdateOperationsInput | string
+    categories?: JsonNullValueInput | InputJsonValue
+    content?: JsonNullValueInput | InputJsonValue
+    viewportWidth?: NullableIntFieldUpdateOperationsInput | number | null
+    blockTypes?: JsonNullValueInput | InputJsonValue
+    keywords?: JsonNullValueInput | InputJsonValue
+    isSynced?: BoolFieldUpdateOperationsInput | boolean
+    syncStatus?: StringFieldUpdateOperationsInput | string
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BlockTemplateUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    templateLock?: NullableStringFieldUpdateOperationsInput | string | null
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    assignedPageIds?: BlockTemplateUpdateassignedPageIdsInput | string[]
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutBlockTemplatesNestedInput
+    workspace?: WorkspaceUpdateOneWithoutBlockTemplatesNestedInput
+  }
+
+  export type BlockTemplateUncheckedUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    templateLock?: NullableStringFieldUpdateOperationsInput | string | null
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    assignedPageIds?: BlockTemplateUpdateassignedPageIdsInput | string[]
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BlockTemplateUncheckedUpdateManyWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    templateLock?: NullableStringFieldUpdateOperationsInput | string | null
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    assignedPageIds?: BlockTemplateUpdateassignedPageIdsInput | string[]
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TemplatePartUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    area?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutTemplatePartsNestedInput
+    workspace?: WorkspaceUpdateOneWithoutTemplatePartsNestedInput
+  }
+
+  export type TemplatePartUncheckedUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    area?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TemplatePartUncheckedUpdateManyWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    area?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GlobalStyleConfigUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    styles?: JsonNullValueInput | InputJsonValue
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutGlobalStyleConfigsNestedInput
+    workspace?: WorkspaceUpdateOneWithoutGlobalStyleConfigsNestedInput
+  }
+
+  export type GlobalStyleConfigUncheckedUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    styles?: JsonNullValueInput | InputJsonValue
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GlobalStyleConfigUncheckedUpdateManyWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    styles?: JsonNullValueInput | InputJsonValue
+    workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type LicenseActivationCreateManyLicenseInput = {
     id?: string
     siteUrl: string
@@ -99688,6 +113531,46 @@ export namespace Prisma {
     isLocalhost?: BoolFieldUpdateOperationsInput | boolean
     activatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lastPingAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SyncedPatternRevisionCreateManyPatternInput = {
+    id?: string
+    version: number
+    title: string
+    content: JsonNullValueInput | InputJsonValue
+    description?: string | null
+    createdBy?: string | null
+    createdAt?: Date | string
+  }
+
+  export type SyncedPatternRevisionUpdateWithoutPatternInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    title?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    creator?: UserUpdateOneWithoutSyncedPatternRevisionsNestedInput
+  }
+
+  export type SyncedPatternRevisionUncheckedUpdateWithoutPatternInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    title?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SyncedPatternRevisionUncheckedUpdateManyWithoutPatternInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    title?: StringFieldUpdateOperationsInput | string
+    content?: JsonNullValueInput | InputJsonValue
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

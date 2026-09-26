@@ -31,12 +31,26 @@ export interface AuthUser {
   lastLoginAt: string | null;
 }
 
+export interface SupportToken {
+  id: string;
+  label: string;
+  token: string;
+  scope: string;
+  createdAt: string;
+  expiresAt: string;
+  status: "active" | "expired" | "revoked";
+}
+
 interface AuthContextType {
   user: AuthUser | null;
   loading: boolean;
   isAuthenticated: boolean;
   checkAuth: () => Promise<void>;
   logout: () => Promise<void>;
+  supportTokens: SupportToken[];
+  getSupportTokens: () => SupportToken[];
+  createSupportToken: (label: string, durationHours: number, scope: string) => SupportToken;
+  revokeSupportToken: (tokenId: string) => void;
 }
 
 const AuthContext = createContext<
@@ -52,6 +66,64 @@ export function AuthProvider({
 }: AuthProviderProps) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [supportTokens, setSupportTokens] = useState<SupportToken[]>(() => {
+    try {
+      const stored = localStorage.getItem("forgestudio_support_tokens");
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const saveSupportTokens = (tokens: SupportToken[]) => {
+    setSupportTokens(tokens);
+    try {
+      localStorage.setItem("forgestudio_support_tokens", JSON.stringify(tokens));
+    } catch (e) {
+      console.error("Failed to persist support tokens", e);
+    }
+  };
+
+  const getSupportTokens = (): SupportToken[] => {
+    const now = new Date().getTime();
+    const updated = supportTokens.map((t) => {
+      if (t.status === "active" && new Date(t.expiresAt).getTime() <= now) {
+        return { ...t, status: "expired" as const };
+      }
+      return t;
+    });
+    return updated;
+  };
+
+  const createSupportToken = (
+    label: string,
+    durationHours: number,
+    scope: string
+  ): SupportToken => {
+    const now = new Date();
+    const expires = new Date(now.getTime() + durationHours * 3600 * 1000);
+    const randPart = Math.random().toString(36).substring(2, 10);
+    const newToken: SupportToken = {
+      id: "supp_" + Date.now().toString(36) + "_" + randPart,
+      label: label || "Temporary Support Ticket #" + Math.floor(Math.random() * 9000 + 1000),
+      token: `fs_supp_${Date.now().toString(36)}_${randPart}_sec`,
+      scope: scope || "editor_read_write",
+      createdAt: now.toISOString(),
+      expiresAt: expires.toISOString(),
+      status: "active",
+    };
+
+    const nextTokens = [newToken, ...supportTokens];
+    saveSupportTokens(nextTokens);
+    return newToken;
+  };
+
+  const revokeSupportToken = (tokenId: string) => {
+    const nextTokens = supportTokens.map((t) =>
+      t.id === tokenId ? { ...t, status: "revoked" as const } : t
+    );
+    saveSupportTokens(nextTokens);
+  };
 
   const checkAuth = async () => {
     try {
@@ -141,6 +213,10 @@ export function AuthProvider({
         isAuthenticated: !!user,
         checkAuth,
         logout,
+        supportTokens,
+        getSupportTokens,
+        createSupportToken,
+        revokeSupportToken,
       }}
     >
       {children}

@@ -55,6 +55,11 @@ model User {
   licenses                License[]
   whiteLabelConfig        WhiteLabelConfig?
   invoices                BillingInvoice[]
+  blockPatterns           BlockPattern[]
+  syncedPatternRevisions  SyncedPatternRevision[]
+  blockTemplates          BlockTemplate[]
+  templateParts           TemplatePart[]
+  globalStyleConfigs      GlobalStyleConfig[]
 
   @@index([status])
   @@index([role])
@@ -715,10 +720,14 @@ model Workspace {
   createdAt      DateTime @default(now()) @db.Timestamptz(6)
   updatedAt      DateTime @default(now()) @updatedAt @db.Timestamptz(6)
 
-  organization Organization?     @relation(fields: [organizationId], references: [id], onDelete: SetNull)
-  owner        User              @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  members      WorkspaceMember[]
-  websites     Website[]
+  organization       Organization?       @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  owner              User                @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  members            WorkspaceMember[]
+  websites           Website[]
+  blockPatterns      BlockPattern[]
+  blockTemplates     BlockTemplate[]
+  templateParts      TemplatePart[]
+  globalStyleConfigs GlobalStyleConfig[]
 
   @@index([ownerId])
   @@index([organizationId])
@@ -734,10 +743,14 @@ model Organization {
   createdAt DateTime @default(now()) @db.Timestamptz(6)
   updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz(6)
 
-  owner      User                 @relation("OrgOwner", fields: [ownerId], references: [id], onDelete: Cascade)
-  members    OrganizationMember[]
-  workspaces Workspace[]
-  websites   Website[]
+  owner              User                 @relation("OrgOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members            OrganizationMember[]
+  workspaces         Workspace[]
+  websites           Website[]
+  blockPatterns      BlockPattern[]
+  blockTemplates     BlockTemplate[]
+  templateParts      TemplatePart[]
+  globalStyleConfigs GlobalStyleConfig[]
 
   @@index([ownerId])
   @@map("organizations")
@@ -996,4 +1009,131 @@ model BillingInvoice {
   @@index([userId])
   @@index([invoiceNumber])
   @@map("billing_invoices")
+}
+
+model BlockPattern {
+  id             String   @id @default(uuid()) @db.Uuid
+  name           String   @db.VarChar(255)
+  title          String   @db.VarChar(255)
+  description    String?  @db.Text
+  category       String   @default("general") @db.VarChar(100)
+  categories     Json     @default("[\"general\"]")
+  content        Json     @default("[]")
+  viewportWidth  Int?     @default(1200)
+  blockTypes     Json     @default("[]")
+  keywords       Json     @default("[]")
+  isSynced       Boolean  @default(false)
+  syncStatus     String   @default("ACTIVE") @db.VarChar(50)
+  workspaceId    String?  @db.Uuid
+  organizationId String?  @db.Uuid
+  userId         String   @db.Uuid
+  version        Int      @default(1)
+  createdAt      DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt      DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  user         User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace    Workspace?              @relation(fields: [workspaceId], references: [id], onDelete: SetNull)
+  organization Organization?           @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  revisions    SyncedPatternRevision[]
+
+  @@unique([name, workspaceId])
+  @@index([workspaceId])
+  @@index([organizationId])
+  @@index([userId])
+  @@index([category])
+  @@index([isSynced])
+  @@map("block_patterns")
+}
+
+model SyncedPatternRevision {
+  id          String   @id @default(uuid()) @db.Uuid
+  patternId   String   @db.Uuid
+  version     Int
+  title       String   @db.VarChar(255)
+  content     Json
+  description String?  @db.VarChar(500)
+  createdBy   String?  @db.Uuid
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+
+  pattern BlockPattern @relation(fields: [patternId], references: [id], onDelete: Cascade)
+  creator User?        @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+
+  @@unique([patternId, version])
+  @@index([patternId])
+  @@map("synced_pattern_revisions")
+}
+
+model BlockTemplate {
+  id              String   @id @default(uuid()) @db.Uuid
+  slug            String   @db.VarChar(255)
+  title           String   @db.VarChar(255)
+  description     String?  @db.VarChar(500)
+  type            String   @default("custom") @db.VarChar(50) // single, page, archive, 404, front-page, custom
+  content         Json // Array of BlockNode
+  templateLock    String?  @db.VarChar(50) // all, insert, contentOnly, false
+  isDefault       Boolean  @default(false)
+  assignedPageIds String[] @default([])
+  workspaceId     String?  @db.Uuid
+  organizationId  String?  @db.Uuid
+  userId          String   @db.Uuid
+  version         Int      @default(1)
+  createdAt       DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace    Workspace?    @relation(fields: [workspaceId], references: [id], onDelete: SetNull)
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+
+  @@unique([slug, workspaceId])
+  @@index([workspaceId])
+  @@index([organizationId])
+  @@index([userId])
+  @@index([type])
+  @@map("block_templates")
+}
+
+model TemplatePart {
+  id             String   @id @default(uuid()) @db.Uuid
+  slug           String   @db.VarChar(255)
+  title          String   @db.VarChar(255)
+  area           String   @default("uncategorized") @db.VarChar(50) // header, footer, sidebar, content, navigation, custom
+  content        Json // Array of BlockNode
+  workspaceId    String?  @db.Uuid
+  organizationId String?  @db.Uuid
+  userId         String   @db.Uuid
+  version        Int      @default(1)
+  createdAt      DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt      DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace    Workspace?    @relation(fields: [workspaceId], references: [id], onDelete: SetNull)
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+
+  @@unique([slug, workspaceId])
+  @@index([workspaceId])
+  @@index([organizationId])
+  @@index([userId])
+  @@index([area])
+  @@map("template_parts")
+}
+
+model GlobalStyleConfig {
+  id             String   @id @default(uuid()) @db.Uuid
+  name           String   @default("Default Global Styles") @db.VarChar(255)
+  styles         Json // Stores colors, typography, spacing, layout, dimensions, block defaults
+  workspaceId    String?  @db.Uuid
+  organizationId String?  @db.Uuid
+  userId         String   @db.Uuid
+  version        Int      @default(1)
+  createdAt      DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt      DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace    Workspace?    @relation(fields: [workspaceId], references: [id], onDelete: SetNull)
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+
+  @@index([workspaceId])
+  @@index([organizationId])
+  @@index([userId])
+  @@map("global_style_configs")
 }

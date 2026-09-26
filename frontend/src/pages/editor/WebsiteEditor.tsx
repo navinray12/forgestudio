@@ -5,6 +5,7 @@ import PopupRuntimePreview from "./components/PopupRuntimePreview";
 import DeveloperModal, { type DeveloperModalMode } from "./components/DeveloperModal";
 import { PageManagerModal } from "./components/PageManagerModal";
 import { PublishModal } from "./components/PublishModal";
+import { SupportCredentialsModal } from "./components/SupportCredentialsModal";
 import { SeoAnalyzerModal } from "../../features/seo/components/SeoAnalyzerModal";
 import { DesignNotesOverlay } from "./components/notes/DesignNotesOverlay";
 import { VariablesManagerModal } from "./components/VariablesManagerModal";
@@ -402,6 +403,7 @@ export default function WebsiteEditor() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [toggleDistractionFree, editorPreferences]);
   const [isComponentAccessOpen, setIsComponentAccessOpen] = useState(false);
+  const [isSupportCredentialsOpen, setIsSupportCredentialsOpen] = useState(false);
   const [activeCanvasMode, setActiveCanvasMode] = useState<"page" | "popup">("page");
   const [activePopupId, setActivePopupId] = useState<string | null>(null);
   const [devModalMode, setDevModalMode] = useState<DeveloperModalMode | null>(null);
@@ -17618,7 +17620,27 @@ export default function WebsiteEditor() {
                       Active — Site displays Maintenance Notice
                     </span>
                   )}
+                </div>
 
+                {/* Temporary Support Credentials (F-020) */}
+                <div className="rounded-xl border border-indigo-200 bg-indigo-50/50 p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                      <span>🔑</span>
+                      <span>Support Access Credentials</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setIsSupportCredentialsOpen(true)}
+                      className="rounded bg-indigo-600 px-2.5 py-1 text-[11px] font-bold text-white shadow hover:bg-indigo-500"
+                      id="btn-support-credentials"
+                    >
+                      Manage Tokens
+                    </button>
+                  </div>
+                  <p className="text-[11px] text-slate-500 leading-normal">
+                    Generate temporary scoped tokens for customer support & audit access with revocation control.
+                  </p>
                 </div>
 
                 {/* Page Title */}
@@ -19171,6 +19193,12 @@ export default function WebsiteEditor() {
           </button>
         </div>
       )}
+
+      {/* F-020 Temporary Support Credentials Modal */}
+      <SupportCredentialsModal
+        isOpen={isSupportCredentialsOpen}
+        onClose={() => setIsSupportCredentialsOpen(false)}
+      />
     </div>
   );
 }

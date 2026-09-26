@@ -1356,6 +1356,21 @@ export interface EditorElement {
   queryOrder?: string;
   displayConditions?: any[];
   semanticTag?: string;
+  // WP Legacy Widget fields (X-787)
+  wpWidgetType?: string;
+  wpWidgetTitle?: string;
+  wpWidgetShowCount?: boolean;
+  wpWidgetDropdown?: boolean;
+  wpWidgetContent?: string;
+  // Masonry layout fields (F-051)
+  masonryMode?: boolean;
+  masonryColumns?: number;
+  masonryGap?: number;
+  masonryEngine?: string;
+  // Scroll snap fields (F-050)
+  scrollSnapType?: string;
+  scrollSnapAlign?: string;
+  scrollSnapStop?: string;
   /**
    * Motion & Interaction configuration (F-102 to F-120).
    * Stored as a top-level field (not inside styles) so CSS composition

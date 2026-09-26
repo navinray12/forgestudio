@@ -727,6 +727,82 @@ exports.Prisma.BillingInvoiceScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.BlockPatternScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  title: 'title',
+  description: 'description',
+  category: 'category',
+  categories: 'categories',
+  content: 'content',
+  viewportWidth: 'viewportWidth',
+  blockTypes: 'blockTypes',
+  keywords: 'keywords',
+  isSynced: 'isSynced',
+  syncStatus: 'syncStatus',
+  workspaceId: 'workspaceId',
+  organizationId: 'organizationId',
+  userId: 'userId',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SyncedPatternRevisionScalarFieldEnum = {
+  id: 'id',
+  patternId: 'patternId',
+  version: 'version',
+  title: 'title',
+  content: 'content',
+  description: 'description',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.BlockTemplateScalarFieldEnum = {
+  id: 'id',
+  slug: 'slug',
+  title: 'title',
+  description: 'description',
+  type: 'type',
+  content: 'content',
+  templateLock: 'templateLock',
+  isDefault: 'isDefault',
+  assignedPageIds: 'assignedPageIds',
+  workspaceId: 'workspaceId',
+  organizationId: 'organizationId',
+  userId: 'userId',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.TemplatePartScalarFieldEnum = {
+  id: 'id',
+  slug: 'slug',
+  title: 'title',
+  area: 'area',
+  content: 'content',
+  workspaceId: 'workspaceId',
+  organizationId: 'organizationId',
+  userId: 'userId',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.GlobalStyleConfigScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  styles: 'styles',
+  workspaceId: 'workspaceId',
+  organizationId: 'organizationId',
+  userId: 'userId',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -849,7 +925,12 @@ exports.Prisma.ModelName = {
   License: 'License',
   LicenseActivation: 'LicenseActivation',
   WhiteLabelConfig: 'WhiteLabelConfig',
-  BillingInvoice: 'BillingInvoice'
+  BillingInvoice: 'BillingInvoice',
+  BlockPattern: 'BlockPattern',
+  SyncedPatternRevision: 'SyncedPatternRevision',
+  BlockTemplate: 'BlockTemplate',
+  TemplatePart: 'TemplatePart',
+  GlobalStyleConfig: 'GlobalStyleConfig'
 };
 
 /**

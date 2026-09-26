@@ -8727,3 +8727,285 @@ export function NestedAccordionWidgetInspector({
   );
 }
 
+// F-050 Scroll Snap Inspector
+export function ScrollSnapInspector({
+  el,
+  updateProp,
+  updateStyle,
+  updateLayout
+}: {
+  el: EditorElement;
+  updateProp: (key: string, val: any) => void;
+  updateStyle: (key: string, val: any) => void;
+  updateLayout: (key: string, val: any) => void;
+}) {
+  const currentSnapType = el.layout?.scrollSnapType || el.scrollSnapType || el.styles?.scrollSnapType || "none";
+  const currentSnapAlign = el.layout?.scrollSnapAlign || el.scrollSnapAlign || el.styles?.scrollSnapAlign || "none";
+  const currentSnapStop = el.layout?.scrollSnapStop || el.scrollSnapStop || el.styles?.scrollSnapStop || "normal";
+
+  const handleTypeChange = (val: string) => {
+    updateLayout("scrollSnapType", val);
+    updateProp("scrollSnapType", val);
+    updateStyle("scrollSnapType", val === "none" ? "" : val);
+  };
+
+  const handleAlignChange = (val: string) => {
+    updateLayout("scrollSnapAlign", val);
+    updateProp("scrollSnapAlign", val);
+    updateStyle("scrollSnapAlign", val === "none" ? "" : val);
+  };
+
+  const handleStopChange = (val: string) => {
+    updateLayout("scrollSnapStop", val);
+    updateProp("scrollSnapStop", val);
+    updateStyle("scrollSnapStop", val);
+  };
+
+  return (
+    <div className="space-y-3 pt-3 border-t border-slate-200" id="scroll-snap-inspector">
+      <div className="flex items-center justify-between">
+        <h4 className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+          <span>🎯</span> Scroll Snap (F-050)
+        </h4>
+        <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded">
+          {currentSnapType !== "none" ? "ACTIVE" : "OFF"}
+        </span>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Snap Type (Container)</label>
+          <select
+            value={currentSnapType}
+            onChange={(e) => handleTypeChange(e.target.value)}
+            className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-indigo-500"
+          >
+            <option value="none">Disabled (None)</option>
+            <option value="y mandatory">Vertical Mandatory (y mandatory)</option>
+            <option value="y proximity">Vertical Proximity (y proximity)</option>
+            <option value="x mandatory">Horizontal Mandatory (x mandatory)</option>
+            <option value="x proximity">Horizontal Proximity (x proximity)</option>
+            <option value="both mandatory">Both Axes Mandatory</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Snap Alignment (Item)</label>
+          <select
+            value={currentSnapAlign}
+            onChange={(e) => handleAlignChange(e.target.value)}
+            className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-indigo-500"
+          >
+            <option value="none">Default (None)</option>
+            <option value="start">Start (Top / Left)</option>
+            <option value="center">Center</option>
+            <option value="end">End (Bottom / Right)</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Snap Stop Behavior</label>
+          <select
+            value={currentSnapStop}
+            onChange={(e) => handleStopChange(e.target.value)}
+            className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-indigo-500"
+          >
+            <option value="normal">Normal (Pass-through)</option>
+            <option value="always">Always Stop (Trap Snap)</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Scroll Padding (Offset)</label>
+          <input
+            type="text"
+            placeholder="e.g. 20px"
+            value={el.styles?.scrollPadding || ""}
+            onChange={(e) => updateStyle("scrollPadding", e.target.value)}
+            className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-indigo-500"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// F-051 Masonry Layout Inspector
+export function MasonryLayoutInspector({
+  el,
+  updateProp,
+  updateLayout
+}: {
+  el: EditorElement;
+  updateProp: (key: string, val: any) => void;
+  updateLayout: (key: string, val: any) => void;
+}) {
+  const isMasonry = el.layout?.layoutType === "masonry" || el.masonryMode || false;
+  const cols = el.layout?.masonryColumns || el.masonryColumns || 3;
+  const gap = el.layout?.masonryGap ?? el.masonryGap ?? 16;
+  const engine = el.layout?.masonryEngine || el.masonryEngine || "css-columns";
+
+  const toggleMasonry = (enabled: boolean) => {
+    updateLayout("layoutType", enabled ? "masonry" : "flex");
+    updateProp("masonryMode", enabled);
+  };
+
+  return (
+    <div className="space-y-3 pt-3 border-t border-slate-200" id="masonry-layout-inspector">
+      <div className="flex items-center justify-between">
+        <h4 className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+          <span>🧱</span> Masonry Layout (F-051)
+        </h4>
+        <input
+          type="checkbox"
+          checked={isMasonry}
+          onChange={(e) => toggleMasonry(e.target.checked)}
+          className="h-4 w-4 rounded border-slate-300 text-purple-600 focus:ring-purple-500 cursor-pointer"
+        />
+      </div>
+
+      {isMasonry && (
+        <div className="rounded-xl border border-purple-200 bg-purple-50/50 p-3 space-y-2.5">
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="block text-[10px] font-semibold text-slate-600 mb-0.5">Columns Count</label>
+              <select
+                value={cols}
+                onChange={(e) => {
+                  const val = Number(e.target.value);
+                  updateLayout("masonryColumns", val);
+                  updateProp("masonryColumns", val);
+                }}
+                className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-medium text-slate-800"
+              >
+                <option value={1}>1 Column</option>
+                <option value={2}>2 Columns</option>
+                <option value={3}>3 Columns</option>
+                <option value={4}>4 Columns</option>
+                <option value={5}>5 Columns</option>
+                <option value={6}>6 Columns</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-semibold text-slate-600 mb-0.5">Gap Spacing (px)</label>
+              <input
+                type="number"
+                min={0}
+                max={60}
+                value={gap}
+                onChange={(e) => {
+                  const val = Number(e.target.value);
+                  updateLayout("masonryGap", val);
+                  updateProp("masonryGap", val);
+                }}
+                className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-medium text-slate-800"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-semibold text-slate-600 mb-0.5">Masonry Flow Engine</label>
+            <select
+              value={engine}
+              onChange={(e) => {
+                updateLayout("masonryEngine", e.target.value);
+                updateProp("masonryEngine", e.target.value);
+              }}
+              className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-medium text-slate-800"
+            >
+              <option value="css-columns">CSS Multi-Column Auto-Wrap</option>
+              <option value="js-auto-flow">Dynamic JS Height Auto-Pack Engine</option>
+            </select>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// X-787 Legacy WordPress Widget Inspector
+export function WpLegacyWidgetInspector({
+  el,
+  updateProp
+}: {
+  el: EditorElement;
+  updateProp: (key: string, val: any) => void;
+}) {
+  const widgetType = el.wpWidgetType || "calendar";
+  const widgetTitle = el.wpWidgetTitle || "WordPress Widget";
+
+  return (
+    <div className="space-y-3 pt-2 border-t border-slate-100" id="wp-legacy-widget-inspector">
+      <h3 className="text-xs font-bold uppercase tracking-wider text-blue-700 flex items-center gap-1.5">
+        <span>🔌</span> Legacy WordPress Widget (X-787)
+      </h3>
+
+      <div>
+        <label className="block text-xs font-semibold text-slate-700 mb-1">Widget Title</label>
+        <input
+          type="text"
+          value={widgetTitle}
+          onChange={(e) => updateProp("wpWidgetTitle", e.target.value)}
+          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+        />
+      </div>
+
+      <div>
+        <label className="block text-xs font-semibold text-slate-700 mb-1">Select Legacy WP Widget</label>
+        <select
+          value={widgetType}
+          onChange={(e) => updateProp("wpWidgetType", e.target.value)}
+          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500"
+        >
+          <option value="calendar">Calendar (WP_Widget_Calendar)</option>
+          <option value="search">Search Form (WP_Widget_Search)</option>
+          <option value="categories">Categories List (WP_Widget_Categories)</option>
+          <option value="recent_posts">Recent Posts (WP_Widget_Recent_Posts)</option>
+          <option value="tag_cloud">Tag Cloud (WP_Widget_Tag_Cloud)</option>
+          <option value="custom_html">Custom HTML Block (WP_Widget_Custom_HTML)</option>
+          <option value="nav_menu">Navigation Menu (WP_Widget_Nav_Menu)</option>
+          <option value="archives">Archives List (WP_Widget_Archives)</option>
+          <option value="meta">Site Meta Links (WP_Widget_Meta)</option>
+          <option value="rss">RSS Feed Reader (WP_Widget_RSS)</option>
+        </select>
+      </div>
+
+      {widgetType === "custom_html" && (
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Widget Custom HTML / Shortcode</label>
+          <textarea
+            value={el.wpWidgetContent || ""}
+            onChange={(e) => updateProp("wpWidgetContent", e.target.value)}
+            rows={3}
+            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-mono text-slate-800 outline-none focus:border-blue-500"
+          />
+        </div>
+      )}
+
+      <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-3 space-y-2">
+        <label className="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={el.wpWidgetShowCount !== false}
+            onChange={(e) => updateProp("wpWidgetShowCount", e.target.checked)}
+            className="rounded border-slate-300 text-blue-600"
+          />
+          <span>Show Post/Category Counts</span>
+        </label>
+        <label className="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={el.wpWidgetDropdown || false}
+            onChange={(e) => updateProp("wpWidgetDropdown", e.target.checked)}
+            className="rounded border-slate-300 text-blue-600"
+          />
+          <span>Display as Dropdown Select</span>
+        </label>
+      </div>
+    </div>
+  );
+}
+
