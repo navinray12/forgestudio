@@ -10,7 +10,7 @@ import { AppError } from "../../utils/app-error.js";
 import { getWebsiteById } from "../website.service.js";
 import { canUserAccessResource } from "../permission.service.js";
 import { createRevision } from "../revision.service.js";
-import { transformPageToWordPress, transformPageToHTML, computeHtmlHash, sanitizeHtml, TransformedWordPressPage, TransformedHtmlPage } from "./transformer.service.js";
+import { transformPageToWordPress, transformPageToHTML, computeHtmlHash, sanitizeHtml, parseWordPressContentToElements, TransformedWordPressPage, TransformedHtmlPage } from "./transformer.service.js";
 import { assertSafeUrl } from "../../utils/ssrf.guard.js";
 import { enqueueJob, getJobById, listJobs, cancelJob, retryJob, processNextJob } from "../jobs/jobRunner.js";
 
@@ -75,34 +75,41 @@ export function validateAndNormalizeWordPressUrl(urlStr: string): string {
 
   const hostname = parsed.hostname.toLowerCase();
 
-  // SSRF Protection: Block loopback, private ranges, cloud metadata endpoints
-  const forbiddenHosts = ["localhost", "127.0.0.1", "::1", "0.0.0.0", "[::]", "169.254.169.254", "metadata.google.internal"];
-  if (
-    forbiddenHosts.includes(hostname) ||
-    hostname.endsWith(".local") ||
-    hostname.endsWith(".internal") ||
-    hostname.endsWith(".lan")
-  ) {
-    throw new AppError("URL points to a restricted target (SSRF Protection).", 400, "WORDPRESS_URL_INVALID");
-  }
+  const allowLocal =
+    process.env.ALLOW_LOCAL_WEBHOOKS === "true" ||
+    process.env.ALLOW_LOCAL_WORDPRESS === "true" ||
+    process.env.NODE_ENV === "development";
 
-  if (net.isIP(hostname)) {
+  if (!allowLocal) {
+    // SSRF Protection: Block loopback, private ranges, cloud metadata endpoints
+    const forbiddenHosts = ["localhost", "127.0.0.1", "::1", "0.0.0.0", "[::]", "169.254.169.254", "metadata.google.internal"];
     if (
-      hostname.startsWith("127.") ||
-      hostname.startsWith("10.") ||
-      hostname.startsWith("169.254.") ||
-      hostname.startsWith("192.168.") ||
-      (hostname.startsWith("172.") && (() => {
-        const parts = hostname.split(".");
-        const second = parseInt(parts[1], 10);
-        return second >= 16 && second <= 31;
-      })()) ||
-      hostname === "::1" ||
-      hostname.startsWith("fe80:") ||
-      hostname.startsWith("fc00:") ||
-      hostname.startsWith("fd00:")
+      forbiddenHosts.includes(hostname) ||
+      hostname.endsWith(".local") ||
+      hostname.endsWith(".internal") ||
+      hostname.endsWith(".lan")
     ) {
-      throw new AppError("URL points to a private network target (SSRF Protection).", 400, "WORDPRESS_URL_INVALID");
+      throw new AppError("URL points to a restricted target (SSRF Protection).", 400, "WORDPRESS_URL_INVALID");
+    }
+
+    if (net.isIP(hostname)) {
+      if (
+        hostname.startsWith("127.") ||
+        hostname.startsWith("10.") ||
+        hostname.startsWith("169.254.") ||
+        hostname.startsWith("192.168.") ||
+        (hostname.startsWith("172.") && (() => {
+          const parts = hostname.split(".");
+          const second = parseInt(parts[1], 10);
+          return second >= 16 && second <= 31;
+        })()) ||
+        hostname === "::1" ||
+        hostname.startsWith("fe80:") ||
+        hostname.startsWith("fc00:") ||
+        hostname.startsWith("fd00:")
+      ) {
+        throw new AppError("URL points to a private network target (SSRF Protection).", 400, "WORDPRESS_URL_INVALID");
+      }
     }
   }
 
@@ -3013,6 +3020,77 @@ export async function getWordPressPage(
   return {
     success: true,
     page: pageDto,
+  };
+}
+
+/**
+ * F-501 / F-502 — Import WordPress Page to ForgeStudio Visual Editor
+ */
+export async function importWordPressPageToForge(
+  websiteId: string,
+  pageId: number,
+  userId: string
+) {
+  const pageRes = await getWordPressPage(websiteId, pageId, userId);
+  const wpPage = pageRes.page;
+
+  const pageTitle = typeof wpPage.title === "object" ? (wpPage.title as any)?.rendered || (wpPage.title as any)?.raw || "WordPress Page" : wpPage.title || "WordPress Page";
+  const rawContent = typeof wpPage.content === "object" ? (wpPage.content as any)?.rendered || (wpPage.content as any)?.raw || "" : wpPage.content || "";
+  const slug = wpPage.slug || `wp-page-${pageId}`;
+
+  const elements = parseWordPressContentToElements(rawContent);
+
+  const forgePageId = `wp_page_${pageId}`;
+
+  try {
+    if (db?.wordPressPageMapping?.upsert) {
+      await db.wordPressPageMapping.upsert({
+        where: {
+          websiteId_wordpressPageId: {
+            websiteId,
+            wordpressPageId: pageId,
+          },
+        },
+        update: {
+          forgePageId,
+          wordpressSlug: slug,
+          lastSyncedAt: new Date(),
+        },
+        create: {
+          websiteId,
+          wordpressPageId: pageId,
+          forgePageId,
+          wordpressSlug: slug,
+          lastSyncedAt: new Date(),
+        },
+      });
+    }
+  } catch (err: any) {
+    // Non-blocking fallback
+  }
+
+  try {
+    await recordAuditLog(userId, "WORDPRESS_PAGE_IMPORTED", websiteId, {
+      wpPageId: pageId,
+      slug,
+      elementCount: elements.length,
+    });
+  } catch (err) {}
+
+  return {
+    success: true,
+    websiteId,
+    wordpressPageId: pageId,
+    forgePageId,
+    pageTitle,
+    slug,
+    status: wpPage.status || "publish",
+    elements,
+    pageSettings: {
+      title: pageTitle,
+      slug,
+      status: wpPage.status || "publish",
+    },
   };
 }
 

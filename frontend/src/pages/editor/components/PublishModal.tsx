@@ -103,6 +103,7 @@ export const PublishModal: React.FC<PublishModalProps> = ({
   const [wpPageStatusFilter, setWpPageStatusFilter] = useState("any");
   const [isCreatingPage, setIsCreatingPage] = useState(false);
   const [editingPageId, setEditingPageId] = useState<number | null>(null);
+  const [isImportingWpPageId, setIsImportingWpPageId] = useState<number | null>(null);
   const [pageFormData, setPageFormData] = useState({
     title: "",
     slug: "",
@@ -110,6 +111,22 @@ export const PublishModal: React.FC<PublishModalProps> = ({
     parent: 0,
     content: "",
   });
+
+  const handleImportPageToEditor = async (pageId: number) => {
+    if (!websiteId || isImportingWpPageId) return;
+    setIsImportingWpPageId(pageId);
+    try {
+      const res = await publishingService.importWordPressPage(websiteId, pageId);
+      if (res && res.elements) {
+        window.dispatchEvent(new CustomEvent("forgestudio:wp-page-imported", { detail: res }));
+        onClose();
+      }
+    } catch (err: any) {
+      alert(`Failed to import WordPress page: ${err.message}`);
+    } finally {
+      setIsImportingWpPageId(null);
+    }
+  };
 
   const handleFetchWpPages = async (overrideFilter?: string) => {
     if (!websiteId) return;
@@ -2836,6 +2853,15 @@ export const PublishModal: React.FC<PublishModalProps> = ({
                                   </td>
                                   <td className="px-3 py-2 text-right">
                                     <div className="flex items-center justify-end gap-1.5">
+                                      <button
+                                        type="button"
+                                        onClick={() => handleImportPageToEditor(page.id)}
+                                        disabled={isImportingWpPageId === page.id}
+                                        className="px-2 py-0.5 rounded bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-[10px] font-bold shadow-sm transition flex items-center gap-1 disabled:opacity-50 cursor-pointer"
+                                        title="Import WordPress page and open in ForgeStudio Visual Editor"
+                                      >
+                                        {isImportingWpPageId === page.id ? "Importing..." : "⚡ Edit in ForgeStudio"}
+                                      </button>
                                       <button
                                         type="button"
                                         onClick={() => {

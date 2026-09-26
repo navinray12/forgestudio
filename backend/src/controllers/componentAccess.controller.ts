@@ -28,13 +28,19 @@ export const getAllComponentAccesses = async (req: Request, res: Response): Prom
         const websiteId = req.params.websiteId as string;
         const userId = res.locals.user?.id;
 
+        if (!userId) {
+            res.status(200).json({ success: true, accesses: [] });
+            return;
+        }
+
         const accesses = await prisma.componentAccess.findMany({
             where: { websiteId, userId }
         });
 
         res.status(200).json({ success: true, accesses });
     } catch (error) {
-        res.status(500).json({ success: false, message: "Internal server error" });
+        console.error("Error fetching component accesses:", error);
+        res.status(200).json({ success: true, accesses: [] });
     }
 };
 

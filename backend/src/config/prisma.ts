@@ -79,6 +79,31 @@ async function ensureDbSchema() {
   } catch (e: any) {
     console.log("Migration check channel column:", e?.message || e);
   }
+  try {
+    await prisma.$executeRawUnsafe(`
+      DO $$ BEGIN
+        IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'wordpress_connections') THEN
+          IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'wordpress_connections' AND column_name = 'pluginVersion') THEN
+            ALTER TABLE "wordpress_connections" ADD COLUMN "pluginVersion" VARCHAR(50) DEFAULT '1.0.0';
+          END IF;
+          IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'wordpress_connections' AND column_name = 'apiVersion') THEN
+            ALTER TABLE "wordpress_connections" ADD COLUMN "apiVersion" VARCHAR(50) DEFAULT 'v1';
+          END IF;
+          IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'wordpress_connections' AND column_name = 'failureReason') THEN
+            ALTER TABLE "wordpress_connections" ADD COLUMN "failureReason" VARCHAR(500);
+          END IF;
+          IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'wordpress_connections' AND column_name = 'revokedAt') THEN
+            ALTER TABLE "wordpress_connections" ADD COLUMN "revokedAt" TIMESTAMP(6) WITH TIME ZONE;
+          END IF;
+          IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'wordpress_connections' AND column_name = 'lastSyncedAt') THEN
+            ALTER TABLE "wordpress_connections" ADD COLUMN "lastSyncedAt" TIMESTAMP(6) WITH TIME ZONE;
+          END IF;
+        END IF;
+      END $$;
+    `);
+  } catch (e: any) {
+    console.log("Migration check wordpress_connections columns:", e?.message || e);
+  }
 }
 
 async function ensureAdminAccounts() {

@@ -90,7 +90,16 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
   };
 
   return (
-    <div className="group relative flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-3.5 shadow-xs transition hover:border-purple-300 hover:shadow-md">
+    <div
+      draggable={true}
+      onDragStart={(e) => {
+        const payload = JSON.stringify({ type: "template", template });
+        e.dataTransfer.setData("application/json", payload);
+        e.dataTransfer.setData("text/plain", payload);
+        e.dataTransfer.effectAllowed = "copy";
+      }}
+      className="group relative flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-3.5 shadow-xs transition hover:border-purple-300 hover:shadow-md cursor-grab active:cursor-grabbing"
+    >
       {/* Top Banner / Preview Placeholder */}
       <div className="relative mb-3 flex h-24 w-full flex-col items-center justify-center rounded-lg bg-gradient-to-br from-slate-900 via-slate-800 to-purple-950 p-2 text-white shadow-inner overflow-hidden">
         {/* Favorite Star Button (F-326) */}

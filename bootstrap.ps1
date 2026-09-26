@@ -69,7 +69,8 @@ if ($statusExitCode -eq 0) {
         "20260914300000_add_wordpress_integration",
         "20260914400000_add_permissions_and_teams",
         "20260914500000_add_collaboration_and_enterprise",
-        "20260920000000_add_optimization_and_enterprise"
+        "20260920000000_add_optimization_and_enterprise",
+        "20260925000000_fix_wordpress_connection_and_block_templates"
     )
     foreach ($mig in $knownMigrations) {
         Write-Host "Resolving migration '$mig' as applied..." -ForegroundColor Yellow

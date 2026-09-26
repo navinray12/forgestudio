@@ -30,6 +30,7 @@ import {
   pluginIntegrationRoutes,
   multisiteRoutes,
   designTokenRoutes,
+  designSystemRoutes,
   commerceRoutes,
   enterpriseMultisiteRoutes,
   licenseRoutes,
@@ -38,6 +39,8 @@ import {
   stagingRoutes,
   serverConfigRoutes,
   hostingRoutes,
+  performanceRoutes,
+  imageOptimizationRoutes,
   aiHostingRoutes,
   elementorCloudRoutes,
   exportRoutes,
@@ -138,6 +141,8 @@ app.use("/api/v1/websites", experimentRoutes);
 app.use("/api/websites", experimentRoutes);
 app.use("/api/v1/teams", teamRoutes);
 app.use("/api/teams", teamRoutes);
+app.use("/api/v1/workspaces", teamRoutes);
+app.use("/api/workspaces", teamRoutes);
 
 // Media & Uploads
 app.use("/api/v1/uploads", uploadRoutes);
@@ -211,6 +216,12 @@ app.use("/api/websites", serverConfigRoutes);
 // Security, Privacy, Cache, Transfer & Hosting Logs
 app.use("/api/v1/websites", hostingRoutes);
 app.use("/api/websites", hostingRoutes);
+app.use("/api/v1/websites", performanceRoutes);
+app.use("/api/websites", performanceRoutes);
+app.use("/api/v1/websites", imageOptimizationRoutes);
+app.use("/api/websites", imageOptimizationRoutes);
+app.use("/api/v1/websites", designSystemRoutes);
+app.use("/api/websites", designSystemRoutes);
 app.use("/api/v1/websites", aiHostingRoutes);
 app.use("/api/websites", aiHostingRoutes);
 

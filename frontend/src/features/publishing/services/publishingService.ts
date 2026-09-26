@@ -347,6 +347,24 @@ export const publishingService = {
   },
 
   /**
+   * Import WordPress Page into ForgeStudio Editor Session
+   */
+  async importWordPressPage(websiteId: string, pageId: number, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/wordpress/pages/${pageId}/import`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.error?.message || data?.message || `Failed to import WordPress Page ${pageId}`);
+    }
+    return data;
+  },
+
+  /**
    * Create WordPress Page
    */
   async createWordPressPage(websiteId: string, pageData: { title: string; slug?: string; content?: string; status?: string; parent?: number; menuOrder?: number; template?: string; excerpt?: string; forgePageId?: string }, apiUrl?: string): Promise<any> {

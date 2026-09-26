@@ -20,7 +20,14 @@ export async function requireAuth(
   next: NextFunction
 ) {
   try {
-    const token = req.cookies?.[AUTH_COOKIE_NAME];
+    let token = req.cookies?.[AUTH_COOKIE_NAME];
+
+    if (!token && req.headers.authorization) {
+      const authHeader = req.headers.authorization;
+      if (authHeader.startsWith("Bearer ")) {
+        token = authHeader.substring(7).trim();
+      }
+    }
 
     if (!token) {
       return res.status(401).json({

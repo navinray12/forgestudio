@@ -12,7 +12,25 @@ export async function createTeamHandler(req: Request, res: Response, next: NextF
 export async function getUserTeamsHandler(req: Request, res: Response, next: NextFunction) {
     try {
         const teams = await teamService.getUserTeams(res.locals.user.id);
-        res.json({ success: true, teams });
+        const workspaces = (teams || []).map((t: any) => ({
+            id: t.id || t.teamId,
+            name: t.name || t.team?.name || "Workspace",
+            slug: t.slug || t.team?.slug || "",
+            userRole: t.role || t.userRole || "MEMBER",
+        }));
+        res.json({ success: true, teams, workspaces });
+    } catch (error) { next(error); }
+}
+
+export async function createWorkspaceHandler(req: Request, res: Response, next: NextFunction) {
+    try {
+        const { name, description } = req.body;
+        const team = await teamService.createTeam(res.locals.user.id, name, description);
+        res.status(201).json({
+            success: true,
+            workspace: { id: team.id, name: team.name, slug: team.slug },
+            team
+        });
     } catch (error) { next(error); }
 }
 

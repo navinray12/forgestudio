@@ -21,6 +21,7 @@ import {
   getWordPressSiteHealth,
   listWordPressPages,
   getWordPressPage,
+  importWordPressPageToForge,
   createWordPressPage,
   updateWordPressPage,
   deleteWordPressPage,
@@ -432,6 +433,19 @@ export async function getWordPressPageHandler(req: Request, res: Response, next:
     const userId = res.locals.user?.id;
 
     const result = await getWordPressPage(websiteId, pageId, userId);
+    return res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function importWordPressPageHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const websiteId = String(req.params.id);
+    const pageId = Number(req.params.pageId);
+    const userId = res.locals.user?.id;
+
+    const result = await importWordPressPageToForge(websiteId, pageId, userId);
     return res.status(200).json(result);
   } catch (error) {
     next(error);

@@ -1770,6 +1770,7 @@ export const ManagedSiteModal: React.FC<ManagedSiteModalProps> = ({
                                   <th className="py-2.5 px-3">WP Post ID</th>
                                   <th className="py-2.5 px-3">Remote Slug</th>
                                   <th className="py-2.5 px-3">Synced URL</th>
+                                  <th className="py-2.5 px-3 text-right">Actions</th>
                                 </tr>
                               </thead>
                               <tbody className="divide-y divide-slate-800/60">
@@ -1783,6 +1784,17 @@ export const ManagedSiteModal: React.FC<ManagedSiteModalProps> = ({
                                         <span>{m.wpPostUrl}</span>
                                         <ExternalLink className="w-3 h-3 shrink-0" />
                                       </a>
+                                    </td>
+                                    <td className="py-2 px-3 text-right">
+                                      <button
+                                        onClick={() => {
+                                          onClose();
+                                          window.location.href = `/editor?websiteId=${website.id}&pageId=${m.forgePageId}`;
+                                        }}
+                                        className="px-2 py-0.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold shadow-sm transition inline-flex items-center gap-1"
+                                      >
+                                        ⚡ Open in Editor
+                                      </button>
                                     </td>
                                   </tr>
                                 ))}

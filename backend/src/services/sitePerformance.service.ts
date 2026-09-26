@@ -65,8 +65,12 @@ export async function measureSitePerformance(
   let checkUrl: string = targetUrl || "";
   if (!checkUrl) {
     let wpConn: any = null;
-    if (db?.wordPressConnection?.findUnique) {
-      wpConn = await db.wordPressConnection.findUnique({ where: { websiteId } });
+    try {
+      if (db?.wordPressConnection?.findUnique) {
+        wpConn = await db.wordPressConnection.findUnique({ where: { websiteId } });
+      }
+    } catch (err: any) {
+      // Gracefully fall back if database table schema is updating or missing columns
     }
     if (wpConn?.siteUrl) {
       checkUrl = wpConn.siteUrl;

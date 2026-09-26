@@ -237,9 +237,11 @@ export function generateElementsHoverCSS(elementsList: EditorElement[], device: 
 
 // Tree Navigation & Manipulation Helpers
 export function findTreeElement(list: EditorElement[], id: string): EditorElement | null {
+  if (!Array.isArray(list) || !id) return null;
   for (const item of list) {
+    if (!item) continue;
     if (item.id === id) return item;
-    if (item.children && item.children.length > 0) {
+    if (item.children && Array.isArray(item.children) && item.children.length > 0) {
       const found = findTreeElement(item.children, id);
       if (found) return found;
     }
@@ -252,10 +254,12 @@ export function getElementBreadcrumbPath(
   targetId: string,
   currentPath: EditorElement[] = []
 ): EditorElement[] | null {
+  if (!Array.isArray(list) || !targetId) return null;
   for (const item of list) {
+    if (!item) continue;
     const newPath = [...currentPath, item];
     if (item.id === targetId) return newPath;
-    if (item.children && item.children.length > 0) {
+    if (item.children && Array.isArray(item.children) && item.children.length > 0) {
       const found = getElementBreadcrumbPath(item.children, targetId, newPath);
       if (found) return found;
     }
@@ -268,11 +272,13 @@ export function updateTreeElement(
   id: string,
   updater: (el: EditorElement) => EditorElement
 ): EditorElement[] {
+  if (!Array.isArray(list) || !id) return [];
   return list.map((item) => {
+    if (!item) return item;
     if (item.id === id) {
       return updater(item);
     }
-    if (item.children && item.children.length > 0) {
+    if (item.children && Array.isArray(item.children) && item.children.length > 0) {
       return {
         ...item,
         children: updateTreeElement(item.children, id, updater),

@@ -33,6 +33,8 @@ import usageRoutes from "./usage.routes.js";
 import stagingRoutes from "./staging.routes.js";
 import serverConfigRoutes from "./serverConfig.routes.js";
 import hostingRoutes from "./hosting.routes.js";
+import performanceRoutes from "./performance.routes.js";
+import imageOptimizationRoutes from "./imageOptimization.routes.js";
 
 const apiRouter = Router();
 
@@ -61,6 +63,8 @@ apiRouter.use("/websites", enterpriseMultisiteRoutes);
 apiRouter.use("/websites", stagingRoutes);
 apiRouter.use("/websites", serverConfigRoutes);
 apiRouter.use("/websites", hostingRoutes);
+apiRouter.use("/websites", performanceRoutes);
+apiRouter.use("/websites", imageOptimizationRoutes);
 apiRouter.use("/teams", teamRoutes);
 apiRouter.use("/uploads", uploadRoutes);
 apiRouter.use("/api-keys", apiKeysRoutes);
@@ -106,6 +110,7 @@ export { default as sftpRoutes } from "./sftp.routes.js";
 export { default as pluginIntegrationRoutes } from "./pluginIntegration.routes.js";
 export { default as multisiteRoutes } from "./multisite.routes.js";
 export { default as designTokenRoutes } from "./designToken.routes.js";
+export { default as designSystemRoutes } from "./designSystem.routes.js";
 export { default as commerceRoutes } from "./commerce.routes.js";
 export { default as enterpriseMultisiteRoutes } from "./enterpriseMultisite.routes.js";
 export { default as licenseRoutes } from "./license.routes.js";

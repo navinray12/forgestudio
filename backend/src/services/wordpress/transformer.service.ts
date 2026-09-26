@@ -744,3 +744,299 @@ function renderElementToHtml(
   }
 }
 
+/**
+ * F-501 — Reverse Content Importer: Converts WordPress Gutenberg blocks & raw HTML into ForgeStudio Canonical Document Elements.
+ */
+export function parseWordPressContentToElements(rawContent: string): any[] {
+  if (!rawContent || typeof rawContent !== "string") {
+    return [];
+  }
+
+  const content = rawContent.trim();
+  if (!content) return [];
+
+  const elements: any[] = [];
+  const hasGutenbergComments = /<!--\s+wp:/i.test(content);
+
+  if (hasGutenbergComments) {
+    const blockRegex = /<!--\s+wp:([a-z0-9/-]+)\s*(\{[^}]*\})?\s*(\/)?-->([\s\S]*?)(?:<!--\s+\/wp:\1\s*-->)?/gi;
+    let match: RegExpExecArray | null;
+    let lastIdx = 0;
+
+    while ((match = blockRegex.exec(content)) !== null) {
+      const matchIndex = match.index;
+      if (matchIndex > lastIdx) {
+        const precedingText = content.substring(lastIdx, matchIndex).trim();
+        if (precedingText) {
+          const htmlElements = parseRawHtmlChunkToElements(precedingText);
+          elements.push(...htmlElements);
+        }
+      }
+
+      const blockName = match[1];
+      const attrStr = match[2];
+      const isSelfClosing = Boolean(match[3]);
+      const innerContent = (match[4] || "").trim();
+
+      let attrs: Record<string, any> = {};
+      if (attrStr) {
+        try {
+          attrs = JSON.parse(attrStr);
+        } catch {}
+      }
+
+      const element = mapGutenbergBlockToElement(blockName, attrs, innerContent, isSelfClosing);
+      if (element) {
+        if (Array.isArray(element)) {
+          elements.push(...element);
+        } else {
+          elements.push(element);
+        }
+      }
+
+      lastIdx = blockRegex.lastIndex;
+    }
+
+    if (lastIdx < content.length) {
+      const trailingText = content.substring(lastIdx).trim();
+      if (trailingText) {
+        const htmlElements = parseRawHtmlChunkToElements(trailingText);
+        elements.push(...htmlElements);
+      }
+    }
+  } else {
+    const htmlElements = parseRawHtmlChunkToElements(content);
+    elements.push(...htmlElements);
+  }
+
+  return elements.length > 0 ? elements : [
+    {
+      id: `el_wp_html_${Math.random().toString(36).substring(2, 9)}`,
+      type: "html",
+      content: content,
+      styles: {},
+    }
+  ];
+}
+
+function mapGutenbergBlockToElement(
+  blockName: string,
+  attrs: Record<string, any>,
+  innerContent: string,
+  _isSelfClosing: boolean
+): any {
+  const id = `el_wp_${blockName.replace(/[^a-z0-9]/gi, "_")}_${Math.random().toString(36).substring(2, 9)}`;
+
+  switch (blockName) {
+    case "core/heading": {
+      const levelMatch = innerContent.match(/<h([1-6])/i);
+      const level = attrs.level || (levelMatch ? parseInt(levelMatch[1], 10) : 2);
+      const text = stripTags(innerContent);
+      return {
+        id,
+        type: "heading",
+        level,
+        content: text,
+        text,
+        styles: attrs.textAlign ? { textAlign: attrs.textAlign } : {},
+      };
+    }
+
+    case "core/paragraph": {
+      const text = stripTags(innerContent);
+      return {
+        id,
+        type: "text",
+        content: text,
+        text,
+        styles: attrs.align ? { textAlign: attrs.align } : {},
+      };
+    }
+
+    case "core/image": {
+      const srcMatch = innerContent.match(/src=["']([^"']+)["']/i);
+      const altMatch = innerContent.match(/alt=["']([^"']*)["']/i);
+      const captionMatch = innerContent.match(/<figcaption[^>]*>([\s\S]*?)<\/figcaption>/i);
+      return {
+        id,
+        type: "image",
+        src: attrs.url || (srcMatch ? srcMatch[1] : ""),
+        alt: attrs.alt || (altMatch ? altMatch[1] : ""),
+        caption: captionMatch ? stripTags(captionMatch[1]) : "",
+        wpAttachmentId: attrs.id || undefined,
+        styles: {},
+      };
+    }
+
+    case "core/button": {
+      const hrefMatch = innerContent.match(/href=["']([^"']+)["']/i);
+      const text = stripTags(innerContent) || attrs.text || "Button";
+      return {
+        id,
+        type: "button",
+        content: text,
+        text,
+        url: attrs.url || (hrefMatch ? hrefMatch[1] : "#"),
+        styles: {},
+      };
+    }
+
+    case "core/buttons": {
+      if (innerContent && innerContent.includes("wp:button")) {
+        return parseWordPressContentToElements(innerContent);
+      }
+      return {
+        id,
+        type: "container",
+        layout: { direction: "row" },
+        elements: parseWordPressContentToElements(innerContent),
+      };
+    }
+
+    case "core/columns": {
+      const childElements = parseWordPressContentToElements(innerContent);
+      return {
+        id,
+        type: "columns",
+        elements: childElements.length > 0 ? childElements : [],
+      };
+    }
+
+    case "core/column": {
+      const childElements = parseWordPressContentToElements(innerContent);
+      return {
+        id,
+        type: "column",
+        width: attrs.width || "50%",
+        elements: childElements,
+      };
+    }
+
+    case "core/group":
+    case "core/cover": {
+      const childElements = parseWordPressContentToElements(innerContent);
+      return {
+        id,
+        type: "container",
+        elements: childElements,
+      };
+    }
+
+    case "core/list": {
+      const liMatches = [...innerContent.matchAll(/<li[^>]*>([\s\S]*?)<\/li>/gi)];
+      const items = liMatches.map((m) => stripTags(m[1]));
+      return {
+        id,
+        type: "list",
+        ordered: Boolean(attrs.ordered || innerContent.includes("<ol")),
+        items: items.length > 0 ? items : ["List Item 1"],
+      };
+    }
+
+    case "core/quote": {
+      const citeMatch = innerContent.match(/<cite[^>]*>([\s\S]*?)<\/cite>/i);
+      const text = stripTags(innerContent.replace(/<cite[\s\S]*<\/cite>/gi, ""));
+      return {
+        id,
+        type: "quote",
+        content: text,
+        citation: citeMatch ? stripTags(citeMatch[1]) : (attrs.citation || ""),
+      };
+    }
+
+    case "core/separator": {
+      return { id, type: "divider" };
+    }
+
+    case "core/spacer": {
+      return { id, type: "spacer", height: attrs.height || 20 };
+    }
+
+    case "core/navigation": {
+      return {
+        id,
+        type: "nav-menu",
+        wpMenuId: attrs.ref ? String(attrs.ref) : "primary",
+        menuSource: "wordpress",
+      };
+    }
+
+    case "core/shortcode": {
+      return {
+        id,
+        type: "html",
+        content: innerContent || attrs.shortcode || "",
+      };
+    }
+
+    default: {
+      return {
+        id,
+        type: "html",
+        content: innerContent || `<!-- wp:${blockName} -->`,
+      };
+    }
+  }
+}
+
+function parseRawHtmlChunkToElements(htmlChunk: string): any[] {
+  if (!htmlChunk || !htmlChunk.trim()) return [];
+  const elements: any[] = [];
+  const trimmed = htmlChunk.trim();
+
+  const blocks = trimmed.split(/\n\s*\n/);
+  for (const block of blocks) {
+    const b = block.trim();
+    if (!b) continue;
+
+    const headingMatch = b.match(/^<h([1-6])[^>]*>([\s\S]*?)<\/h\1>$/i);
+    if (headingMatch) {
+      elements.push({
+        id: `el_wp_h_${Math.random().toString(36).substring(2, 9)}`,
+        type: "heading",
+        level: parseInt(headingMatch[1], 10),
+        content: stripTags(headingMatch[2]),
+        text: stripTags(headingMatch[2]),
+      });
+      continue;
+    }
+
+    const paragraphMatch = b.match(/^<p[^>]*>([\s\S]*?)<\/p>$/i);
+    if (paragraphMatch) {
+      elements.push({
+        id: `el_wp_p_${Math.random().toString(36).substring(2, 9)}`,
+        type: "text",
+        content: stripTags(paragraphMatch[1]),
+        text: stripTags(paragraphMatch[1]),
+      });
+      continue;
+    }
+
+    const imgMatch = b.match(/<img[^>]+src=["']([^"']+)["'][^>]*>/i);
+    if (imgMatch && (b.startsWith("<figure") || b.startsWith("<img"))) {
+      const altMatch = b.match(/alt=["']([^"']*)["']/i);
+      elements.push({
+        id: `el_wp_img_${Math.random().toString(36).substring(2, 9)}`,
+        type: "image",
+        src: imgMatch[1],
+        alt: altMatch ? altMatch[1] : "",
+      });
+      continue;
+    }
+
+    elements.push({
+      id: `el_wp_html_${Math.random().toString(36).substring(2, 9)}`,
+      type: "html",
+      content: b,
+    });
+  }
+
+  return elements;
+}
+
+function stripTags(html: string): string {
+  if (!html) return "";
+  return html.replace(/<[^>]*>/g, "").trim();
+}
+
+

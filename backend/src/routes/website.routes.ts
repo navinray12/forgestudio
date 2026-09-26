@@ -62,6 +62,7 @@ import {
   getWordPressSiteHealthHandler,
   listWordPressPagesHandler,
   getWordPressPageHandler,
+  importWordPressPageHandler,
   createWordPressPageHandler,
   updateWordPressPageHandler,
   deleteWordPressPageHandler,
@@ -248,6 +249,7 @@ router.get("/:id/wordpress/site-info", authorizeCapability("VIEW"), getWordPress
 router.get("/:id/wordpress/site-health", authorizeCapability("VIEW"), getWordPressSiteHealthHandler);
 router.get("/:id/wordpress/pages", authorizeCapability("VIEW"), listWordPressPagesHandler);
 router.get("/:id/wordpress/pages/:pageId", authorizeCapability("VIEW"), getWordPressPageHandler);
+router.post("/:id/wordpress/pages/:pageId/import", authorizeCapability("EDIT"), importWordPressPageHandler);
 router.post("/:id/wordpress/pages", authorizeCapability("EDIT"), createWordPressPageHandler);
 router.patch("/:id/wordpress/pages/:pageId", authorizeCapability("EDIT"), updateWordPressPageHandler);
 router.put("/:id/wordpress/pages/:pageId", authorizeCapability("EDIT"), updateWordPressPageHandler);

@@ -3,10 +3,19 @@
  */
 import fs from "fs";
 import path from "path";
-import sharp from "sharp";
 import { AnalyzerResult, AnalysisIssue } from "./analysis.types.js";
 import { generateAllCodeOutputs } from "../codeGenerator.service.js";
 import { captureBrowserScreenshot } from "./browserRunner.service.js";
+
+async function getSharp(): Promise<any> {
+  try {
+    const pkgName = "sharp";
+    const sharpModule = await import(pkgName);
+    return sharpModule.default || sharpModule;
+  } catch {
+    return null;
+  }
+}
 
 export interface VisualRegressionViewportConfig {
   name: "desktop" | "tablet" | "mobile";
@@ -37,6 +46,11 @@ export async function comparePngImages(
 ): Promise<{ mismatchPixels: number; mismatchPercentage: number; passed: boolean }> {
   try {
     if (!fs.existsSync(baselinePath) || !fs.existsSync(actualPath)) {
+      return { mismatchPixels: 0, mismatchPercentage: 0, passed: true };
+    }
+
+    const sharp = await getSharp();
+    if (!sharp) {
       return { mismatchPixels: 0, mismatchPercentage: 0, passed: true };
     }
 

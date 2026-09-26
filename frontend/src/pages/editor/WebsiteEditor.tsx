@@ -2085,6 +2085,49 @@ export default function WebsiteEditor() {
     setTimeout(() => setSaveMessage(""), 3500);
   };
 
+  // F-501 / F-502: Reactive WordPress Page Import Listener
+  useEffect(() => {
+    const handleWpPageImported = (e: any) => {
+      const data = e.detail;
+      if (!data || !data.elements) return;
+
+      const newPageId = data.forgePageId || `wp_${data.wordpressPageId || Date.now()}`;
+      const importedPage: PageConfig = {
+        id: newPageId,
+        name: data.pageTitle || data.pageSettings?.title || "WordPress Page",
+        slug: data.slug || data.pageSettings?.slug || `wp-${data.wordpressPageId}`,
+        elements: data.elements,
+        pageSettings: {
+          title: data.pageTitle || data.pageSettings?.title || "WordPress Page",
+          slug: data.slug || data.pageSettings?.slug || `wp-${data.wordpressPageId}`,
+          status: data.status || "publish",
+          wordpressPageId: data.wordpressPageId,
+        },
+      };
+
+      setPages((prev: any[]) => {
+        const existingIdx = prev.findIndex((p) => p.id === newPageId || (p.pageSettings as any)?.wordpressPageId === data.wordpressPageId);
+        if (existingIdx !== -1) {
+          const updated = [...prev];
+          updated[existingIdx] = { ...updated[existingIdx], ...importedPage };
+          return updated;
+        }
+        return [...prev, importedPage];
+      });
+
+      setActivePageId(newPageId);
+      setElements(data.elements);
+      if (data.pageSettings) {
+        setPageSettings((prev: any) => ({ ...prev, ...data.pageSettings, wordpressPageId: data.wordpressPageId }));
+      }
+      setSaveMessage(`Successfully imported "${data.pageTitle || "WordPress Page"}" into visual editor!`);
+      setTimeout(() => setSaveMessage(""), 4000);
+    };
+
+    window.addEventListener("forgestudio:wp-page-imported", handleWpPageImported);
+    return () => window.removeEventListener("forgestudio:wp-page-imported", handleWpPageImported);
+  }, []);
+
   // F-332 Template Replacement State & Logic
   const { templates: libraryTemplates } = useTemplateLibrary({ apiUrl });
   const [isReplaceTemplateOpen, setIsReplaceTemplateOpen] = useState(false);
@@ -2556,7 +2599,9 @@ export default function WebsiteEditor() {
 
     try {
       const data = JSON.parse(dataString);
-      if (data.type === "new" && data.widgetType) {
+      if (data.type === "template" && data.template) {
+        handleInsertTemplate(data.template);
+      } else if (data.type === "new" && data.widgetType) {
         if (disabledWidgets.includes(data.widgetType as ElementType)) return;
         const newEl = createDefaultElement(data.widgetType as ElementType);
         if (newEl.type === "button") {
@@ -2606,7 +2651,7 @@ export default function WebsiteEditor() {
   ) => {
     e.preventDefault();
     e.stopPropagation();
-    e.dataTransfer.dropEffect = "move";
+    e.dataTransfer.dropEffect = draggingId ? "move" : "copy";
 
     if (draggingId === elId || (draggingId && isDescendant(elements, draggingId, elId))) {
       setDropTargetId(null);
@@ -2977,7 +3022,7 @@ export default function WebsiteEditor() {
   };
 
   const renderTypographySection = () => {
-    if (!selectedElementAny) return null;
+    if (!selectedElementAny || !selectedElementAny.type) return null;
     const textTypes = ["heading", "text", "button", "paragraph", "blockquote"];
     if (!textTypes.includes(selectedElementAny.type)) return null;
 
@@ -3160,12 +3205,15 @@ export default function WebsiteEditor() {
     parentPath: string[] = []
   ): { element: EditorElement; path: string }[] => {
     let results: { element: EditorElement; path: string }[] = [];
+    if (!Array.isArray(nodes)) return results;
     const q = query.toLowerCase().trim();
 
     for (const node of nodes) {
-      const currentPath = [...parentPath, node.type];
+      if (!node || !node.id) continue;
+      const nodeType = node.type || "container";
+      const currentPath = [...parentPath, nodeType];
       const pathStr = currentPath.join(" › ");
-      const matchesType = node.type.toLowerCase().includes(q);
+      const matchesType = nodeType.toLowerCase().includes(q);
       const matchesContent = node.content?.toLowerCase().includes(q) ?? false;
       const matchesAlt = node.alt?.toLowerCase().includes(q) ?? false;
       const matchesId = node.id.toLowerCase().includes(q);
@@ -3174,7 +3222,7 @@ export default function WebsiteEditor() {
         results.push({ element: node, path: pathStr });
       }
 
-      if (node.children && node.children.length > 0) {
+      if (node.children && Array.isArray(node.children) && node.children.length > 0) {
         results = results.concat(flattenAndSearchElements(node.children, q, currentPath));
       }
     }
@@ -3183,11 +3231,13 @@ export default function WebsiteEditor() {
   };
 
   const renderNavigatorTreeItem = (el: EditorElement, depth: number = 0, isLast: boolean = true): React.ReactNode => {
+    if (!el || !el.id) return null;
     const isSelected = selectedIds.includes(el.id) || selectedId === el.id;
     const isContainer = el.type === "container";
     const isCollapsed = isContainer && !!collapsedContainers[el.id];
 
     const getElementIcon = (type: ElementType) => {
+      if (!type) return "📄";
       switch (type) {
         case "container":
           return "📦";
@@ -3225,6 +3275,7 @@ export default function WebsiteEditor() {
     };
 
     const getElementLabel = (item: EditorElement) => {
+      if (!item || !item.type) return "Element";
       if (item.type === "heading") return item.content ? `"${item.content.slice(0, 15)}"` : "Heading";
       if (item.type === "text") return item.content ? `"${item.content.slice(0, 15)}"` : "Text";
       if (item.type === "button") return item.content ? `"${item.content.slice(0, 15)}"` : "Button";
@@ -3235,7 +3286,7 @@ export default function WebsiteEditor() {
       if (item.type === "share-buttons") return item.shareNetworks ? `Share (${item.shareNetworks.length})` : "Share Buttons";
       if (item.type === "portfolio") return item.portfolioItems ? `Portfolio (${item.portfolioItems.length})` : "Portfolio Widget";
       if (item.type === "slides") return item.slidesItems ? `Slides (${item.slidesItems.length})` : "Slides Widget";
-      return item.type;
+      return item.type || "Element";
     };
 
     return (
@@ -4804,6 +4855,7 @@ export default function WebsiteEditor() {
 
   // Recursive Element Tree Renderer
   const renderElementTree = (el: EditorElement): React.ReactNode => {
+    if (!el || !el.id || !el.type) return null;
     const isSelected = (selectedIds.includes(el.id) || selectedId === el.id) && !isPreview;
     const isEditingHoverState = isSelected && activeElementState === "hover";
     const mergedStyles = getMergedStyles(el, activeDevice, isEditingHoverState ? "hover" : "normal");
@@ -8800,7 +8852,7 @@ export default function WebsiteEditor() {
             if (isRestrictedMode) return;
             e.preventDefault();
             handleCanvasAutoScroll(e);
-            e.dataTransfer.dropEffect = "move";
+            e.dataTransfer.dropEffect = draggingId ? "move" : "copy";
           }}
           onDrop={(e) => (isRestrictedMode ? undefined : handleDropElement(e, null, "after"))}
           className={`relative flex flex-1 justify-center items-start overflow-y-auto overflow-x-auto min-w-0 max-w-full ${canvasTheme === "dark" ? "bg-slate-950 text-slate-100" : "bg-[#f1f5f9]"
@@ -8859,7 +8911,7 @@ export default function WebsiteEditor() {
               e.preventDefault();
               e.stopPropagation();
               handleCanvasAutoScroll(e);
-              e.dataTransfer.dropEffect = "move";
+              e.dataTransfer.dropEffect = draggingId ? "move" : "copy";
             }}
             onDrop={(e) => handleDropElement(e, null, "after")}
             style={{
@@ -18745,7 +18797,7 @@ export default function WebsiteEditor() {
                     </div>
 
                 {/* F-222: Icon Library Inspector */}
-                {selectedElementAny.type === "icon-library" && (
+                {selectedElementAny?.type === "icon-library" && (
                   <div className="space-y-4 pt-2 border-t border-slate-100">
                     <span className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
                       ✨ Icon Library Styling
@@ -18774,7 +18826,7 @@ export default function WebsiteEditor() {
                 )}
 
                 {/* Advanced Spacing Controls for non-container elements */}
-                {selectedElementAny.type !== "container" && (
+                {selectedElementAny?.type !== "container" && (
                   <div className="space-y-4 pt-4 border-t border-slate-200">
                     <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
                       Advanced Spacing
