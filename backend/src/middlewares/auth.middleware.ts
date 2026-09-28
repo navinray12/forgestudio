@@ -24,8 +24,8 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
 
 export function requireRole(allowedRoles: string | string[]) {
   const roles = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];
-  return (_req: Request, res: Response, next: NextFunction) => {
-    const user = res.locals.user;
+  return (req: Request, res: Response, next: NextFunction) => {
+    const user = res.locals.user ?? (req as Request & { user?: { role: string } }).user;
     if (!user) return res.status(401).json({ success: false, message: "Authentication required" });
     if (!roles.includes(user.role)) return res.status(403).json({ success: false, error: { code: "FORBIDDEN", message: "You do not have access to this resource." } });
     next();

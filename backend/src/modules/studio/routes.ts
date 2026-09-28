@@ -9,7 +9,7 @@ import { id, name, object, revision, scope, siteQuery, StudioError, trustedOrigi
 const repository = new StudioRepository(pgPool);
 const router = Router();
 router.use(requireAuth);
-router.use(rateLimit({ windowMs: 60_000, limit: 180, standardHeaders: true, legacyHeaders: false, keyGenerator: (_req, res) => String(res.locals.user.id) }));
+router.use(rateLimit({ windowMs: 60_000, limit: 180, standardHeaders: true, legacyHeaders: false, keyGenerator: (_req: Request, res: Response) => String(res.locals.user.id) }));
 router.use((req: Request, res: Response, next: NextFunction) => {
   res.setHeader("Cache-Control", "no-store");
   if (!["GET", "HEAD", "OPTIONS"].includes(req.method)) {
