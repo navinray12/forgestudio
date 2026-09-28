@@ -100,6 +100,19 @@ export class Cms {
     await c.query('INSERT INTO studio.content_items(id,site_id,collection_id,group_id,locale,name,slug,draft) VALUES($1,$2,$3,$4,$5,$6,$7,$8::jsonb)',[id,siteId,collection.id,b.groupId || randomUUID(),b.locale,b.name,b.slug,JSON.stringify(data)]);
     await this.snapshot(c,id,0,b.name,b.slug,data,actor.id);return id;
   }
+  async createCollectionWithDrafts(actor:Actor,siteId:string,input:unknown){
+    const b=parse(z.object({collection:collectionInput,items:z.array(itemInput).max(20).default([])}).strict(),input);
+    return this.db.tx(async c=>{
+      const site=await this.db.site(c,actor,siteId,'EDIT_DESIGN',true);await this.db.site(c,actor,siteId,'EDIT_CONTENT');
+      const id=randomUUID();
+      for(const f of b.collection.fields.filter(f=>f.referenceCollection))if(f.referenceCollection!==id)await this.collection(c,siteId,f.referenceCollection!);
+      await c.query('INSERT INTO studio.collections(id,site_id,name,slug,fields) VALUES($1,$2,$3,$4,$5::jsonb)',[id,siteId,b.collection.name,b.collection.slug,JSON.stringify(b.collection.fields)]);
+      const collection={id,site_id:siteId,name:b.collection.name,slug:b.collection.slug,fields:b.collection.fields,revision:0};
+      const ids:string[]=[];for(const item of b.items)ids.push(await this.insertItem(c,actor,siteId,collection,item));
+      await this.db.audit(c,actor,site,'cms.ai_collection_drafts_created',`${b.collection.name}: ${ids.length} drafts`);
+      return {collectionId:id,itemIds:ids,count:ids.length};
+    });
+  }
   async createItem(actor:Actor,siteId:string,collectionId:string,input:unknown){
     const b=parse(itemInput,input);
     return this.db.tx(async c=>{
