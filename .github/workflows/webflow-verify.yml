@@ -2,6 +2,7 @@ name: Webflow branch verification
 on:
   push:
     branches: [webflow]
+    paths-ignore: ['docs/**']
   pull_request:
     branches: [backup-devnew]
   workflow_dispatch:
@@ -23,7 +24,7 @@ jobs:
           POSTGRES_PASSWORD: postgres
         ports: ['5432:5432']
         options: >-
-          --health-cmd pg_isready
+          --health-cmd 'pg_isready -U postgres -d forgestudio_studio_test'
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -57,6 +58,12 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: studio-frontend-dist
+          path: frontend/dist/
+          retention-days: 3
+          if-no-files-found: error
   backend-build:
     runs-on: ubuntu-latest
     timeout-minutes: 15
