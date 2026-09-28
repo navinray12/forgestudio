@@ -1,3 +1,6 @@
+import { createStudioNextRouter } from "./modules/studio-next/router.js";
+import { Database } from "./modules/studio-next/database.js";
+import { pgPool } from "./config/prisma.js";
 import path from "path";
 import express, { type Request, type Response } from "express";
 import cors from "cors";
@@ -87,6 +90,7 @@ app.use(
   })
 );
 
+app.use("/api/v1/studio-next/payments/webhook", express.raw({ type: "application/json", limit: "256kb" }));
 app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true, limit: "2mb" }));
 app.use(cookieParser());
@@ -125,6 +129,7 @@ app.use("/api/v1/users/me", usageRoutes);
 app.use("/api/users/me", usageRoutes);
 
 // Studio must precede the generic v1 router. Its own middleware authenticates every route.
+app.use("/api/v1/studio-next", createStudioNextRouter(new Database(pgPool)));
 app.use("/api/v1/studio", studioRoutes);
 app.use("/api/studio", studioRoutes);
 

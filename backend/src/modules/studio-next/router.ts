@@ -1,0 +1,108 @@
+import express,{type Request,type Response,type NextFunction,type RequestHandler} from 'express';
+import { rateLimit } from 'express-rate-limit';
+import { randomUUID } from 'node:crypto';
+import { Database,type Actor } from './database.js';
+import { Workspaces } from './workspaces.js';
+import { Cms } from './cms.js';
+import { Design } from './design.js';
+import { Localization } from './localization.js';
+import { Collaboration } from './collaboration.js';
+import { Domains,type TxtResolver } from './domains.js';
+import { Analytics } from './analytics.js';
+import { Commerce,stripeTransport,type CommerceConfig } from './commerce.js';
+import { Permissions } from './permissions.js';
+import { StudioError,parse,localeCode } from './validation.js';
+import { trustedOrigin } from '../studio/domain.js';
+export interface RouterOptions { commerce?:CommerceConfig;analyticsSecret?:string;resolveTxt?:TxtResolver;requestLimit?:number }
+export function configuredCommerce():CommerceConfig{
+  let accounts:Record<string,string>={};
+  if(process.env.STUDIO_STRIPE_ACCOUNTS){
+    try{const parsed=JSON.parse(process.env.STUDIO_STRIPE_ACCOUNTS);if(!parsed||typeof parsed!=='object'||Array.isArray(parsed)||Object.values(parsed).some(v=>typeof v!=='string'||!(v==='platform'||/^acct_[a-zA-Z0-9]+$/.test(v))))throw new Error();accounts=parsed;}catch{throw new Error('STUDIO_STRIPE_ACCOUNTS must map site UUIDs to approved Stripe account IDs or platform');}
+  }
+  return {accounts,origin:process.env.FRONTEND_URL?new URL(process.env.FRONTEND_URL).origin:'',webhookSecret:process.env.STUDIO_STRIPE_WEBHOOK_SECRET,...(process.env.STUDIO_STRIPE_SECRET?{transport:stripeTransport(process.env.STUDIO_STRIPE_SECRET)}:{})};
+}
+export function createStudioNextRouter(db:Database,options:RouterOptions={}){
+  const router=express.Router();
+  const workspaces=new Workspaces(db),cms=new Cms(db),design=new Design(db),localization=new Localization(db),reviews=new Collaboration(db),domains=new Domains(db,options.resolveTxt),analytics=new Analytics(db,options.analyticsSecret??process.env.STUDIO_ANALYTICS_SECRET),commerce=new Commerce(db,options.commerce??configuredCommerce()),permissions=new Permissions(db);
+  router.use((_req,res,next)=>{res.setHeader('Cache-Control','no-store');res.setHeader('X-Request-Id',randomUUID());next();});
+  type Run=(req:Request,actor:Actor)=>Promise<Record<string,unknown>>;
+  const route=(run:Run,status=200):RequestHandler=>async(req,res,next)=>{try{res.status(status).json({success:true,...await run(req,res.locals.actor)});}catch(e){next(e);}};
+  const p=(req:Request,key:string)=>String(req.params[key]);
+  // Must also precede the parent app's JSON parser. Never reconstruct bytes from parsed JSON.
+  router.post('/payments/webhook',express.raw({type:'application/json',limit:'256kb'}),route(req=>commerce.webhook(req.body,req.get('Stripe-Signature'))));
+  router.use(express.json({limit:'2mb'}));
+  const originGuard:RequestHandler=(req,res,next)=>{
+    if(!['GET','HEAD','OPTIONS'].includes(req.method)&&(!trustedOrigin(req.get('Origin'),process.env.FRONTEND_URL,process.env.NODE_ENV==='production')||req.get('X-Studio-Request')!=='1'))return res.status(403).json({success:false,error:{code:'ORIGIN_REJECTED',message:'Request origin or request marker rejected'}});
+    next();
+  };
+  const publicRouter=express.Router();
+  publicRouter.use(rateLimit({windowMs:60000,limit:options.requestLimit??120,standardHeaders:true,legacyHeaders:false}));
+  publicRouter.use(originGuard);
+  publicRouter.get('/sites/:siteId/collections/:slug',route(req=>cms.publicItems(p(req,'siteId'),p(req,'slug'),parse(localeCode,req.query.locale??'en'))));
+  publicRouter.get('/sites/:siteId/collections/:slug/:itemSlug',route(req=>cms.publicItems(p(req,'siteId'),p(req,'slug'),parse(localeCode,req.query.locale??'en'),p(req,'itemSlug'))));
+  publicRouter.get('/sites/:siteId/localization',route(req=>localization.publicData(p(req,'siteId'),parse(localeCode,req.query.locale??'en'))));
+  publicRouter.get('/sites/:siteId/catalog',route(req=>commerce.catalog(p(req,'siteId'))));
+  publicRouter.post('/sites/:siteId/checkout',route(req=>commerce.checkout(p(req,'siteId'),req.body),201));
+  publicRouter.get('/sites/:siteId/analytics',route(req=>analytics.publicConfig(p(req,'siteId'))));
+  publicRouter.post('/sites/:siteId/assignment',route(req=>analytics.assignment(p(req,'siteId'),req.body)));
+  publicRouter.post('/sites/:siteId/events',route(req=>analytics.track(p(req,'siteId'),req.body),202));
+  router.use('/public',publicRouter);
+  router.use(db.auth(),originGuard,rateLimit({windowMs:60000,limit:options.requestLimit??360,keyGenerator:(_req:Request,res:Response)=>res.locals.actor.id,standardHeaders:true,legacyHeaders:false}));
+  router.get('/invitations',route((_req,a)=>workspaces.inbox(a)));
+  router.post('/invitations/:invitationId/accept',route((req,a)=>workspaces.accept(a,p(req,'invitationId'))));
+  router.get('/workspaces/:workspaceId/people',route((req,a)=>workspaces.list(a,p(req,'workspaceId'))));
+  router.post('/workspaces/:workspaceId/invitations',route((req,a)=>workspaces.invite(a,p(req,'workspaceId'),req.body),201));
+  router.patch('/workspaces/:workspaceId/invitations/:invitationId',route((req,a)=>workspaces.changeInvite(a,p(req,'workspaceId'),p(req,'invitationId'),req.body)));
+  router.patch('/workspaces/:workspaceId/members/:userId',route((req,a)=>workspaces.changeMember(a,p(req,'workspaceId'),p(req,'userId'),req.body)));
+  router.get('/sites/:siteId/collections',route((req,a)=>cms.collections(a,p(req,'siteId'))));
+  router.post('/sites/:siteId/collections',route((req,a)=>cms.saveCollection(a,p(req,'siteId'),req.body),201));
+  router.put('/sites/:siteId/collections/:collectionId',route((req,a)=>cms.saveCollection(a,p(req,'siteId'),req.body,p(req,'collectionId'))));
+  router.delete('/sites/:siteId/collections/:collectionId',route((req,a)=>cms.removeCollection(a,p(req,'siteId'),p(req,'collectionId'))));
+  router.get('/sites/:siteId/collections/:collectionId/items',route((req,a)=>cms.items(a,p(req,'siteId'),p(req,'collectionId'),req.query)));
+  router.get('/sites/:siteId/collections/:collectionId/options',route((req,a)=>cms.referenceOptions(a,p(req,'siteId'),p(req,'collectionId'))));
+  router.post('/sites/:siteId/collections/:collectionId/items',route((req,a)=>cms.createItem(a,p(req,'siteId'),p(req,'collectionId'),req.body),201));
+  router.post('/sites/:siteId/collections/:collectionId/import',route((req,a)=>cms.importItems(a,p(req,'siteId'),p(req,'collectionId'),req.body),201));
+  router.put('/sites/:siteId/items/:itemId',route((req,a)=>cms.updateItem(a,p(req,'siteId'),p(req,'itemId'),req.body)));
+  router.post('/sites/:siteId/items/:itemId/actions',route((req,a)=>cms.action(a,p(req,'siteId'),p(req,'itemId'),req.body)));
+  router.get('/sites/:siteId/items/:itemId/revisions',route((req,a)=>cms.revisions(a,p(req,'siteId'),p(req,'itemId'))));
+  router.post('/sites/:siteId/items/:itemId/restore',route((req,a)=>cms.restoreRevision(a,p(req,'siteId'),p(req,'itemId'),req.body)));
+  router.get('/sites/:siteId/design',route((req,a)=>design.read(a,p(req,'siteId'))));
+  router.put('/sites/:siteId/design',route((req,a)=>design.save(a,p(req,'siteId'),req.body)));
+  router.get('/sites/:siteId/snapshots',route((req,a)=>design.snapshots(a,p(req,'siteId'))));
+  router.post('/sites/:siteId/snapshots',route((req,a)=>design.capture(a,p(req,'siteId'),req.body),201));
+  router.post('/sites/:siteId/snapshots/:snapshotId/restore',route((req,a)=>design.restore(a,p(req,'siteId'),p(req,'snapshotId'),req.body)));
+  router.get('/sites/:siteId/locales',route((req,a)=>localization.locales(a,p(req,'siteId'))));
+  router.put('/sites/:siteId/locales',route((req,a)=>localization.locales(a,p(req,'siteId'),req.body)));
+  router.get('/sites/:siteId/localization',route((req,a)=>localization.list(a,p(req,'siteId'),parse(localeCode,req.query.locale??'en'))));
+  router.put('/sites/:siteId/localization/:pageId/:locale',route((req,a)=>localization.save(a,p(req,'siteId'),p(req,'pageId'),p(req,'locale'),req.body)));
+  router.post('/sites/:siteId/localization/:pageId/:locale/publish',route((req,a)=>localization.publish(a,p(req,'siteId'),p(req,'pageId'),p(req,'locale'),req.body)));
+  router.get('/sites/:siteId/threads',route((req,a)=>reviews.threads(a,p(req,'siteId'))));
+  router.post('/sites/:siteId/threads',route((req,a)=>reviews.create(a,p(req,'siteId'),req.body),201));
+  router.patch('/sites/:siteId/threads/:threadId',route((req,a)=>reviews.change(a,p(req,'siteId'),p(req,'threadId'),req.body)));
+  router.get('/sites/:siteId/domains',route((req,a)=>domains.list(a,p(req,'siteId'))));
+  router.post('/sites/:siteId/domains',route((req,a)=>domains.add(a,p(req,'siteId'),req.body),201));
+  router.post('/sites/:siteId/domains/:domainId/verify',route((req,a)=>domains.verify(a,p(req,'siteId'),p(req,'domainId'))));
+  router.delete('/sites/:siteId/domains/:domainId',route((req,a)=>domains.remove(a,p(req,'siteId'),p(req,'domainId'))));
+  router.get('/sites/:siteId/permissions',route((req,a)=>permissions.list(a,p(req,'siteId'))));
+  router.put('/sites/:siteId/permissions',route((req,a)=>permissions.set(a,p(req,'siteId'),req.body)));
+  router.get('/sites/:siteId/products',route((req,a)=>commerce.products(a,p(req,'siteId'))));
+  router.post('/sites/:siteId/products',route((req,a)=>commerce.saveProduct(a,p(req,'siteId'),req.body),201));
+  router.put('/sites/:siteId/products/:productId',route((req,a)=>commerce.saveProduct(a,p(req,'siteId'),req.body,p(req,'productId'))));
+  router.get('/sites/:siteId/analytics',route((req,a)=>analytics.settings(a,p(req,'siteId'))));
+  router.put('/sites/:siteId/analytics',route((req,a)=>analytics.settings(a,p(req,'siteId'),req.body)));
+  router.get('/sites/:siteId/analytics/report',route((req,a)=>analytics.report(a,p(req,'siteId'))));
+  router.get('/sites/:siteId/experiments',route((req,a)=>analytics.experiments(a,p(req,'siteId'))));
+  router.post('/sites/:siteId/experiments',route((req,a)=>analytics.createExperiment(a,p(req,'siteId'),req.body),201));
+  router.patch('/sites/:siteId/experiments/:experimentId',route((req,a)=>analytics.changeExperiment(a,p(req,'siteId'),p(req,'experimentId'),req.body)));
+  router.use((_req,res)=>res.status(404).json({success:false,error:{code:'NOT_FOUND',message:'Endpoint not found'}}));
+  router.use((error:unknown,_req:Request,res:Response,_next:NextFunction)=>{
+    const code=(error as any)?.code;
+    let status=error instanceof StudioError?error.status:code==='23505'?409:['23503','23514','22P02'].includes(code)?400:['40001','40P01'].includes(code)?409:503;
+    if((error as any)?.type==='entity.parse.failed')status=400;
+    if((error as any)?.type==='entity.too.large')status=413;
+    const message=error instanceof StudioError?error.message:status===409?'A conflicting record or concurrent change exists. Reload and retry.':status===400?'Invalid request or reference.':status===413?'Request too large.':'Site Studio is unavailable. Check connectivity and apply its reviewed migrations.';
+    if(status===503)console.error('Site Studio request failed',{requestId:res.getHeader('X-Request-Id'),code:code||'UNKNOWN'});
+    res.status(status).json({success:false,error:{code:error instanceof StudioError?error.code:status===409?'CONFLICT':'REQUEST_FAILED',message,requestId:res.getHeader('X-Request-Id')}});
+  });
+  return router;
+}

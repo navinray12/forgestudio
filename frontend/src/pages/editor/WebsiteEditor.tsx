@@ -1,3 +1,4 @@
+import { loadDesign, saveDesign, DesignApiError } from "../../features/studio-next/designClient";
 
 import PopupManagerModal from "./components/PopupManagerModal";
 import IconPickerModal from "./components/IconPickerModal";
@@ -327,7 +328,7 @@ export default function WebsiteEditor() {
   const { websiteId } = useParams<{ websiteId: string }>();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "http://localhost:5000" : "");
 
   // State Management
   const [website, setWebsite] = useState<WebsiteData | null>(null);
@@ -1796,14 +1797,12 @@ export default function WebsiteEditor() {
 
         let loadedSite: any = null;
         try {
-          const res = await fetch(`${apiUrl}/api/websites/${websiteId}`, {
-            credentials: "include",
-          });
-          if (res.ok) {
-            const data = await res.json();
-            loadedSite = data.website || data;
-          }
+          loadedSite = await loadDesign(apiUrl, websiteId);
         } catch (netErr) {
+          if (netErr instanceof DesignApiError && [401,403,404].includes(netErr.status)) {
+            navigate("/dashboard", { replace: true });
+            throw netErr;
+          }
           console.warn("Backend fetch failed, checking localStorage fallback...", netErr);
         }
 
@@ -1959,6 +1958,7 @@ export default function WebsiteEditor() {
           setElements([]);
         }
       } catch (err) {
+        setErrorMessage(err instanceof Error ? err.message : "Unable to load this site");
         console.error("Error loading website:", err);
       } finally {
         setLoading(false);
@@ -2443,23 +2443,8 @@ export default function WebsiteEditor() {
         console.warn("Failed to write to localStorage:", lsErr);
       }
 
-      // 2. Attempt backend API save
-      try {
-        const res = await fetch(`${apiUrl}/api/websites/${websiteId}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify(payload),
-        });
-
-        if (!res.ok) {
-          console.warn("Backend save returned non-OK status, saved locally.");
-        }
-      } catch (netErr) {
-        console.warn("Backend save request failed, saved locally:", netErr);
-      }
+      // A local recovery copy is not evidence of a server save.
+      await saveDesign(apiUrl, websiteId, payload.editorData);
 
       // Update F-321 Autosave baseline on successful save
       updateAutosaveBaseline(
@@ -2480,8 +2465,8 @@ export default function WebsiteEditor() {
       setSaveMessage("Saved successfully!");
       setTimeout(() => setSaveMessage(""), 3000);
     } catch (err: any) {
-      setSaveMessage("Saved locally!");
-      setTimeout(() => setSaveMessage(""), 3000);
+      setSaveMessage("Server save failed — local recovery only");
+      setErrorMessage(err?.message || "Unable to save. Reconnect and reconcile before retrying.");
     } finally {
       setSaving(false);
     }
@@ -7214,6 +7199,7 @@ export default function WebsiteEditor() {
                 <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
               </button>
 
+              <Link to={`/studio/${websiteId}`} className="px-2 py-1 text-xs font-semibold rounded border border-blue-300 text-blue-700" title="CMS, locales, review, snapshots and site operations">Site Studio</Link>
               {/* Tokens */}
               <button
                 type="button"

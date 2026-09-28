@@ -12,7 +12,9 @@
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
     "test:studio": "tsc -p tsconfig.studio-tests.json && node --test tests/studio/domain.test.mjs",
-    "test:studio:postgres": "tsc -p tsconfig.studio-integration.json && node --test tests/studio/postgres.test.mjs"
+    "test:studio:postgres": "tsc -p tsconfig.studio-integration.json && node --test tests/studio/postgres.test.mjs",
+    "studio:worker": "tsx src/modules/studio-next/worker.ts",
+    "test:studio:next": "tsx --test tests/studio-next/*.test.ts"
   },
   "keywords": [],
   "author": "",

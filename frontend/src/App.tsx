@@ -25,6 +25,11 @@ const CustomEntriesList = lazy(() => import("./pages/dashboard/CustomEntriesList
 const CustomEntryEditor = lazy(() => import("./pages/dashboard/CustomEntryEditor"));
 const SharedTemplatePreviewPage = lazy(() => import("./pages/templates/SharedTemplatePreviewPage"));
 const PublishedSite = lazy(() => import("./pages/published/PublishedSite"));
+const SiteStudio = lazy(() => import("./features/studio-next/SiteStudio"));
+const WorkspacePeople = lazy(() => import("./features/studio-next/WorkspacePeople"));
+const InvitationsPage = lazy(() => import("./features/studio-next/WorkspacePeople").then(m => ({ default: m.InvitationsPage })));
+const PublicContent = lazy(() => import("./features/studio-next/PublicContent"));
+const PublicShop = lazy(() => import("./features/studio-next/PublicShop"));
 
 interface RoleRouteProps {
   allowedRoles: UserRole[];
@@ -242,6 +247,13 @@ function App() {
             path="/site/:websiteId/:pageSlug"
             element={<PublishedSite />}
           />
+
+          <Route path="/studio/:siteId" element={<RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}><SiteStudio /></RoleRoute>} />
+          <Route path="/workspaces/:workspaceId/people" element={<RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}><WorkspacePeople /></RoleRoute>} />
+          <Route path="/invitations" element={<RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}><InvitationsPage /></RoleRoute>} />
+          <Route path="/content/:siteId/:collectionSlug" element={<PublicContent />} />
+          <Route path="/content/:siteId/:collectionSlug/:itemSlug" element={<PublicContent />} />
+          <Route path="/shop/:siteId" element={<PublicShop />} />
 
           {/* ================= ROOT ================= */}
 

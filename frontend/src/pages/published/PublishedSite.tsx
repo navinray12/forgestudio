@@ -1,3 +1,4 @@
+import { usePublishedRuntime } from "../../features/studio-next/publicRuntime";
 import React, { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import {
@@ -830,7 +831,7 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
 
 function PublishedSite() {
     const { websiteId, pageSlug } = useParams<{ websiteId: string; pageSlug?: string }>();
-    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "http://localhost:5000" : "");
 
     const [loading, setLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState("");
@@ -1273,6 +1274,8 @@ function PublishedSite() {
         };
     }, [elements, activeBreakpointId, breakpoints, globalSettings]);
 
+    const studioRuntime = usePublishedRuntime(websiteId, activePageId, elements, pages.find(p => p.id === activePageId)?.slug || (pageSlug ? `/${pageSlug}` : "/"));
+
     if (loading) {
         return (
             <div className="min-h-screen text-slate-500 bg-slate-50 flex items-center justify-center text-sm font-medium">
@@ -1305,6 +1308,7 @@ function PublishedSite() {
     return (
         <WooCommerceProvider websiteId={websiteId}>
         <div data-website-id={websiteId} data-page-id={activePageId} className={`fs-global-canvas-${websiteId || 'default'} fs-page-canvas-${websiteId || 'default'} w-full min-h-screen font-sans bg-white relative m-auto`} style={{ maxWidth: '100%', overflowX: 'hidden' }}>
+            {studioRuntime.controls}
             {/* F-366: Keyboard Skip Link */}
             <SkipLinks targetId="main-content" />
 
@@ -1333,7 +1337,7 @@ function PublishedSite() {
                             globalSettings={globalSettings}
                             elementClassMap={elementClassMap}
                             apiUrl={apiUrl}
-                            allElements={elements}
+                            allElements={studioRuntime.elements}
                             pages={pages}
                             onSwitchPage={handleSwitchPage}
                             websiteId={websiteId}
@@ -1420,7 +1424,7 @@ function PublishedSite() {
 
             {/* F-361: Semantic Main Container */}
             <main id="main-content" className="w-full">
-                {elements.map((el, index) => (
+                {studioRuntime.elements.map((el, index) => (
                     <RenderNode
                         key={el.id}
                         el={el}
@@ -1430,7 +1434,7 @@ function PublishedSite() {
                         globalSettings={globalSettings}
                         elementClassMap={elementClassMap}
                         apiUrl={apiUrl}
-                        allElements={elements}
+                        allElements={studioRuntime.elements}
                         pages={pages}
                         onSwitchPage={handleSwitchPage}
                         websiteId={websiteId}
@@ -1464,7 +1468,7 @@ function PublishedSite() {
                             globalSettings={globalSettings}
                             elementClassMap={elementClassMap}
                             apiUrl={apiUrl}
-                            allElements={elements}
+                            allElements={studioRuntime.elements}
                             pages={pages}
                             onSwitchPage={handleSwitchPage}
                             websiteId={websiteId}

@@ -140,6 +140,7 @@ export default function StudioDashboard() {
         <button className={panel === "developer" ? "fs-active" : ""} onClick={() => selectPanel("developer")}><Code2 size={17} />Developer API</button>
         <button className={panel === "performance" ? "fs-active" : ""} onClick={() => selectPanel("performance")}><Gauge size={17} />Performance & SEO</button>
         <button className={panel === "billing" ? "fs-active" : ""} onClick={() => selectPanel("billing")}><CreditCard size={17} />Billing & invoices</button>
+        <Link to="/invitations"><Users size={17} />Invitations</Link>
         <Link to="/dashboard?legacy=1"><ArrowUpRight size={17} />Advanced console</Link>
       </nav>
       <div className="fs-account"><span className="fs-avatar">{(user?.fullName || user?.email || "F").slice(0, 1).toUpperCase()}</span><div><strong>{user?.fullName || "Your account"}</strong><span>{user?.email}</span></div><button className="fs-icon" title="Sign out" aria-label="Sign out" onClick={() => { void logout().then(() => navigate("/login")).catch(() => setFailure("Sign out failed. Try again.")); }}><LogOut size={16} /></button></div>

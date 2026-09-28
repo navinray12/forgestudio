@@ -29,7 +29,7 @@ export function useCanvasPresence(
 
   // Derive WebSocket URL
   const getWsUrl = () => {
-    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "http://localhost:5000" : window.location.origin);
     const parsed = new URL(apiUrl);
     const protocol = parsed.protocol === "https:" ? "wss:" : "ws:";
     return `${protocol}//${parsed.host}/ws/presence`;
@@ -98,15 +98,10 @@ export function useCanvasPresence(
 
               case "PEER_LEFT": {
                 const leftSocketId = data.socketId;
-                setPeers((prev) => prev.filter((p) => p.socketId !== leftSocketId));
-                setPeerSelections((prev) => {
-                  const next = { ...prev };
-                  for (const [elId, sel] of Object.entries(next)) {
-                    if (sel.user.userId === leftSocketId) {
-                      delete next[elId];
-                    }
-                  }
-                  return next;
+                setPeers((prev) => {
+                  const remaining = prev.filter((p) => p.socketId !== leftSocketId);
+                  setPeerSelections(Object.fromEntries(remaining.filter(p => p.selectedElementId).map(p => [p.selectedElementId!, { elementId: p.selectedElementId!, user: p.user }])));
+                  return remaining;
                 });
                 break;
               }

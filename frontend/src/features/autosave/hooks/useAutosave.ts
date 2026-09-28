@@ -1,3 +1,4 @@
+import { saveDesign } from "../../studio-next/designClient";
 import { useEffect, useRef, useState, useCallback } from "react";
 import type { AutosaveStatus } from "../types/autosave.types";
 import type { EditorElement } from "../../../pages/editor/WebsiteEditor";
@@ -248,24 +249,7 @@ export function useAutosave({
           console.warn("Failed to write to localStorage fallback:", lsErr);
         }
 
-        // 2. Attempt backend API save
-        try {
-          const res = await fetch(`${currentApiUrl}/api/websites/${currentWebId}`, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            credentials: "include",
-            body: JSON.stringify(bodyPayload),
-          });
-
-          if (!res.ok) {
-            const data = await res.json().catch(() => ({}));
-            console.warn("Backend save endpoint returned non-OK status, saved locally:", data);
-          }
-        } catch (netErr) {
-          console.warn("Backend save network request failed, saved locally:", netErr);
-        }
+        await saveDesign(currentApiUrl, currentWebId, bodyPayload.editorData);
 
         // Update baseline to the snapshot that was persisted
         baselineRef.current = payload.snapshot;
@@ -305,7 +289,8 @@ export function useAutosave({
         isSavingRef.current = false;
         queuedPayloadRef.current = null;
         console.error("Autosave error:", err);
-        setStatus("saved"); // Local save succeeded
+        setStatus("error");
+        setErrorMessage(err?.message || "Server save failed. A local recovery copy may exist.");
       }
     },
     [serializeState]
