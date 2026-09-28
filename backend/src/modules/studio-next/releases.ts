@@ -1,6 +1,7 @@
 import {randomUUID} from 'node:crypto';
 import {z} from 'zod';
 import {Database,type Actor} from './database.js';
+import type {EventOutbox} from './webhooks.js';
 import {designOnly,digest,jsonObject,parse,uuid,StudioError} from './validation.js';
 
 export interface ReleaseArtifact extends Record<string,unknown>{
@@ -53,7 +54,7 @@ function validateArtifact(design:Record<string,unknown>){
 }
 
 export class Releases{
-  constructor(private db:Database,private provider:PublishingProvider=new InternalPublishingProvider(db)){}
+  constructor(private db:Database,private provider:PublishingProvider=new InternalPublishingProvider(db),private outbox?:EventOutbox){}
   async list(actor:Actor,siteId:string){
     return this.db.tx(async c=>{
       await this.db.site(c,actor,siteId,'VIEW');
@@ -124,6 +125,7 @@ export class Releases{
         await c.query("UPDATE studio.releases SET status='ACTIVE',activated_at=now(),provider_ref=$2 WHERE id=$1",[releaseId,deployment!.reference]);
         await c.query(`INSERT INTO studio.release_pointer(site_id,release_id) VALUES($1,$2) ON CONFLICT(site_id) DO UPDATE SET release_id=EXCLUDED.release_id,updated_at=now()`,[siteId,releaseId]);
         await this.db.audit(c,actor,site,'release.activated',releaseId);
+        if(this.outbox)await this.outbox.emit(c,siteId,'release.activated',{releaseId,provider:this.provider.name,providerRef:deployment!.reference,artifactChecksum:release.artifact_checksum});
         return {releaseId,status:'ACTIVE',providerRef:deployment!.reference,alreadyActive:false};
       });
     }catch(error){
