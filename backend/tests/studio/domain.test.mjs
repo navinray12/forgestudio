@@ -1,0 +1,27 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { id, scope, name, integer, revision, siteQuery, object, literalSearch, trustedOrigin, copyDesign, assertRevision, StudioError } from '../../.studio-test-build/domain.js';
+const UUID = '6c3cfce4-a835-490e-8062-6f5c215f4d75';
+
+test('UUIDs are canonicalized', () => assert.equal(id(UUID.toUpperCase()), UUID));
+for (const value of ['', '../site', "1' OR 1=1", null, [], 12]) test(`reject invalid ID ${JSON.stringify(value)}`, () => assert.throws(() => id(value), StudioError));
+test('personal scope is explicit and does not accept empty strings', () => { assert.equal(scope('personal'), null); assert.equal(scope(undefined), null); assert.equal(scope(UUID), UUID); assert.throws(() => scope('')); });
+test('names are normalized without accepting blank values', () => { assert.equal(name('  Ｆorge  '), 'Forge'); assert.throws(() => name('  ')); assert.throws(() => name('a'.repeat(121))); assert.throws(() => name('x\ny')); });
+test('numeric parsing rejects coercion and range overflow', () => { assert.equal(integer('12', 1, 1, 48), 12); for (const value of ['', '1.2', '-1', 'Infinity', 100, null, true, []]) assert.throws(() => integer(value, 1, 1, 48)); });
+test('query defaults are bounded', () => { const q = siteQuery({}); assert.equal(q.page, 1); assert.equal(q.limit, 12); assert.equal(q.sort, 'updated'); assert.equal(q.workspaceId, null); });
+test('all supported sort/view combinations are accepted', () => { for (const sort of ['updated','created','name','published']) for (const view of ['all','favorites','archived','shared']) assert.equal(siteQuery({sort,view}).sort, sort); });
+test('sort SQL injection cannot enter query fragments', () => assert.throws(() => siteQuery({sort:'name; DROP TABLE users'})));
+test('unknown query fields and parameter arrays are rejected', () => { assert.throws(() => siteQuery({ownerId:UUID})); assert.throws(() => siteQuery({q:['x','y']})); assert.throws(() => siteQuery({limit:['48']})); });
+test('search input is trimmed and bounded', () => { assert.equal(siteQuery({q:'  agency  '}).q, 'agency'); assert.throws(() => siteQuery({q:'x'.repeat(121)})); });
+test('LIKE wildcards are treated literally', () => assert.equal(literalSearch('a%_\\b'), '%a\\%\\_\\\\b%'));
+test('body allowlist prevents mass assignment', () => { assert.deepEqual(object({name:'site'},['name']),{name:'site'}); for (const body of [[],null,'{}',{role:'OWNER'}]) assert.throws(() => object(body,['name'])); });
+test('revision is mandatory', () => assert.throws(() => revision(undefined), error => error.status === 428));
+test('revision mismatch is a conflict', () => { assertRevision(2,2); assert.throws(() => assertRevision(3,2), error => error.status === 409); });
+test('production rejects missing origin configuration', () => assert.equal(trustedOrigin('https://studio.example', undefined, true), false));
+test('origin matches are exact, not suffix matches', () => { assert.equal(trustedOrigin('https://studio.example','https://studio.example/',true),true); for (const origin of ['https://studio.example.evil.test','https://evil.test','null','https://studio.example/path','https://user@studio.example',undefined]) assert.equal(trustedOrigin(origin,'https://studio.example',true),false); });
+test('local development origins are bounded', () => { assert.equal(trustedOrigin('http://localhost:5173',undefined,false),true); assert.equal(trustedOrigin('http://localhost:9999',undefined,false),false); });
+test('design duplication preserves independent editable content', () => { const original={version:2,elements:[{id:'x',content:'Hello'}],pages:[]};const copy=copyDesign(original);copy.elements[0].content='Changed';assert.equal(original.elements[0].content,'Hello');assert.equal(copy.version,2); });
+test('design duplication drops operational state and nested credentials', () => { const copy=copyDesign({elements:[{content:'Hello',credentials:{password:'secret'}}],hostingConfig:{password:'secret'},publishedData:{elements:[]},integrations:[{apiKey:'secret'}],backups:[],pageSettings:{title:'Safe',accessToken:'secret'}});assert.equal(copy.hostingConfig,undefined);assert.equal(copy.publishedData,undefined);assert.equal(copy.integrations,undefined);assert.equal(copy.elements[0].credentials,undefined);assert.deepEqual(copy.pageSettings,{title:'Safe'}); });
+test('prototype pollution keys are removed', () => { const copy=copyDesign(JSON.parse('{"elements":[{"__proto__":{"polluted":true},"content":"text"}]}'));assert.equal(Object.prototype.polluted,undefined);assert.equal(Object.hasOwn(copy.elements[0],'__proto__'),false); });
+test('non-JSON design values are rejected', () => { assert.throws(() => copyDesign({elements:[NaN]}));assert.throws(() => copyDesign({elements:[undefined]}));assert.throws(() => copyDesign([])); });
+test('excessive nesting and oversized content fail safely', () => { let value='x';for(let i=0;i<70;i++)value={child:value};assert.throws(() => copyDesign({elements:[value]}));assert.throws(() => copyDesign({elements:['x'.repeat(2_000_001)]})); });

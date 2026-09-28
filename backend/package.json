@@ -10,7 +10,9 @@
     "start": "node dist/server.js",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
-    "db:seed": "tsx prisma/seed.ts"
+    "db:seed": "tsx prisma/seed.ts",
+    "test:studio": "tsc -p tsconfig.studio-tests.json && node --test tests/studio/domain.test.mjs",
+    "test:studio:postgres": "tsc -p tsconfig.studio-integration.json && node --test tests/studio/postgres.test.mjs"
   },
   "keywords": [],
   "author": "",

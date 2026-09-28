@@ -1,0 +1,12 @@
+import { dateLabel, useResource } from "./api";
+import type { ActivityEvent, Member, Workspace } from "./types";
+
+export function ActivityPanel({ workspaceId, refresh }: { workspaceId: string; refresh: number }) {
+  const resource = useResource<{ events: ActivityEvent[] }>(`/activity?workspaceId=${encodeURIComponent(workspaceId)}`, refresh);
+  return <section className="fs-panel"><h2>Workspace activity</h2><p className="fs-muted">Recent dashboard changes. Editor and deployment logs remain in Site settings.</p>{resource.loading && <p role="status">Loading activity…</p>}{resource.error && <p role="alert" className="fs-error">{resource.error}</p>}{resource.data?.events.length === 0 && <p>No dashboard activity yet.</p>}<div className="fs-activity">{resource.data?.events.map(event => <div key={event.id}><span className="fs-event-dot" /><div><strong>{event.label}</strong><p>{event.action.replaceAll(".", " · ").replaceAll("_", " ")}</p></div><time dateTime={event.createdAt}>{dateLabel(event.createdAt)}</time></div>)}</div></section>;
+}
+
+export function WorkspacePanel({ workspace, userName, refresh, onRename }: { workspace: Workspace | undefined; userName: string; refresh: number; onRename: () => void }) {
+  const resource = useResource<{ members: Member[] }>(workspace ? `/workspaces/${workspace.id}/members` : null, refresh);
+  return <section className="fs-panel"><h2>Workspace settings</h2><p className="fs-muted">Workspace membership and site permissions are separate. Manage each site’s access from its action menu.</p><div className="fs-settings-row"><div><strong>{workspace?.name || "Personal workspace"}</strong><p>{workspace ? `Your role: ${workspace.role}` : `Owned by ${userName}`}</p></div>{workspace?.canManage && <button className="fs-button" onClick={onRename}>Rename workspace</button>}</div><h3>Members</h3>{!workspace && <p>This is your personal space. Create a workspace to organize team projects; use site access controls to invite collaborators.</p>}{resource.loading && <p role="status">Loading members…</p>}{resource.error && <p role="alert" className="fs-error">{resource.error}</p>}{resource.data && <div className="fs-table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Workspace role</th></tr></thead><tbody>{resource.data.members.map(member => <tr key={member.id}><td>{member.fullName || "Member"}</td><td>{member.email || "—"}</td><td>{member.role}</td></tr>)}</tbody></table></div>}</section>;
+}

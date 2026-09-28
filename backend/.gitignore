@@ -3,3 +3,4 @@ dist/
 exports/
 scratch_*.ts
 *.log
+.studio-test-build/

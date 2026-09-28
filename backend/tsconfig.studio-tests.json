@@ -1,0 +1,4 @@
+{
+  "compilerOptions": { "target": "ES2022", "module": "NodeNext", "moduleResolution": "NodeNext", "strict": true, "skipLibCheck": true, "outDir": ".studio-test-build", "rootDir": "src/modules/studio", "types": [] },
+  "include": ["src/modules/studio/domain.ts"]
+}

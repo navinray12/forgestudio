@@ -44,6 +44,7 @@ import {
 } from "./routes/index.js";
 
 import apiV1Routes from "./routes/api-v1.routes.js";
+import studioRoutes from "./modules/studio/routes.js";
 import operationsRoutes from "./routes/operations.routes.js";
 import auditLogRoutes from "./routes/auditLog.routes.js";
 import mediaRoutes from "./routes/media.routes.js";
@@ -122,6 +123,10 @@ app.use("/api/v1/agency", whitelabelRoutes);
 app.use("/api/agency", whitelabelRoutes);
 app.use("/api/v1/users/me", usageRoutes);
 app.use("/api/users/me", usageRoutes);
+
+// Studio must precede the generic v1 router. Its own middleware authenticates every route.
+app.use("/api/v1/studio", studioRoutes);
+app.use("/api/studio", studioRoutes);
 
 // Public API v1 Standardized Endpoints
 app.use("/api/v1", apiV1Routes);
