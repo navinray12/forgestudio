@@ -62,8 +62,6 @@ function findUnique(value:any,id:string,result:any[]=[]):any[]{
   for(const child of Object.values(value))findUnique(child,id,result);
   return result;
 }
-function clone<T>(value:T):T{return JSON.parse(JSON.stringify(value));}
-
 export class AiOrchestrator{
   constructor(private db:Database,private commands:DomainCommands,private provider:AIProvider|null){}
   status(){return {configured:!!this.provider,provider:this.provider?.name??null,model:this.provider?.model??null,feature:'COPY_EDIT'};}
