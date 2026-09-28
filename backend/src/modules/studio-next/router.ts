@@ -11,9 +11,11 @@ import { Domains,type TxtResolver } from './domains.js';
 import { Analytics } from './analytics.js';
 import { Commerce,stripeTransport,type CommerceConfig } from './commerce.js';
 import { Permissions } from './permissions.js';
+import { DomainCommands } from './commands.js';
+import { AiOrchestrator,configuredCopyProvider,type AIProvider } from './ai.js';
 import { StudioError,parse,localeCode } from './validation.js';
 import { trustedOrigin } from '../studio/domain.js';
-export interface RouterOptions { commerce?:CommerceConfig;analyticsSecret?:string;resolveTxt?:TxtResolver;requestLimit?:number }
+export interface RouterOptions { commerce?:CommerceConfig;analyticsSecret?:string;resolveTxt?:TxtResolver;requestLimit?:number;aiProvider?:AIProvider|null }
 export function configuredCommerce():CommerceConfig{
   let accounts:Record<string,string>={};
   if(process.env.STUDIO_STRIPE_ACCOUNTS){
@@ -23,7 +25,7 @@ export function configuredCommerce():CommerceConfig{
 }
 export function createStudioNextRouter(db:Database,options:RouterOptions={}){
   const router=express.Router();
-  const workspaces=new Workspaces(db),cms=new Cms(db),design=new Design(db),localization=new Localization(db),reviews=new Collaboration(db),domains=new Domains(db,options.resolveTxt),analytics=new Analytics(db,options.analyticsSecret??process.env.STUDIO_ANALYTICS_SECRET),commerce=new Commerce(db,options.commerce??configuredCommerce()),permissions=new Permissions(db);
+  const commands=new DomainCommands(db),workspaces=new Workspaces(db),cms=new Cms(db),design=new Design(db,commands),localization=new Localization(db),reviews=new Collaboration(db),domains=new Domains(db,options.resolveTxt),analytics=new Analytics(db,options.analyticsSecret??process.env.STUDIO_ANALYTICS_SECRET),commerce=new Commerce(db,options.commerce??configuredCommerce()),permissions=new Permissions(db),ai=new AiOrchestrator(db,commands,options.aiProvider===undefined?configuredCopyProvider():options.aiProvider);
   router.use((_req,res,next)=>{res.setHeader('Cache-Control','no-store');res.setHeader('X-Request-Id',randomUUID());next();});
   type Run=(req:Request,actor:Actor)=>Promise<Record<string,unknown>>;
   const route=(run:Run,status=200):RequestHandler=>async(req,res,next)=>{try{res.status(status).json({success:true,...await run(req,res.locals.actor)});}catch(e){next(e);}};
@@ -54,6 +56,10 @@ export function createStudioNextRouter(db:Database,options:RouterOptions={}){
   router.post('/workspaces/:workspaceId/invitations',route((req,a)=>workspaces.invite(a,p(req,'workspaceId'),req.body),201));
   router.patch('/workspaces/:workspaceId/invitations/:invitationId',route((req,a)=>workspaces.changeInvite(a,p(req,'workspaceId'),p(req,'invitationId'),req.body)));
   router.patch('/workspaces/:workspaceId/members/:userId',route((req,a)=>workspaces.changeMember(a,p(req,'workspaceId'),p(req,'userId'),req.body)));
+  router.get('/sites/:siteId/ai/status',route((req,a)=>db.tx(async c=>{await db.site(c,a,p(req,'siteId'),'VIEW');return ai.status();})));
+  router.get('/sites/:siteId/ai/changes',route((req,a)=>ai.listChanges(a,p(req,'siteId'))));
+  router.post('/sites/:siteId/ai/copy/propose',route((req,a)=>ai.proposeCopy(a,p(req,'siteId'),req.body),201));
+  router.post('/sites/:siteId/ai/changes/:changeSetId/apply',route((req,a)=>ai.apply(a,p(req,'siteId'),p(req,'changeSetId'))));
   router.get('/sites/:siteId/collections',route((req,a)=>cms.collections(a,p(req,'siteId'))));
   router.post('/sites/:siteId/collections',route((req,a)=>cms.saveCollection(a,p(req,'siteId'),req.body),201));
   router.put('/sites/:siteId/collections/:collectionId',route((req,a)=>cms.saveCollection(a,p(req,'siteId'),req.body,p(req,'collectionId'))));
