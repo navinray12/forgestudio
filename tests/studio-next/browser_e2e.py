@@ -133,6 +133,26 @@ with sync_playwright() as p:
         page.goto(f"{meta['base']}/studio/{meta['siteId']}")
         expect(page.get_by_role('heading',name='Integration site',exact=True)).to_be_visible()
     run('AI plans and builds an editable multi-page site through the real UI and backend',ai_site_generation)
+    def ai_cms_generation():
+        page.goto(f"{meta['base']}/studio/{meta['siteId']}?panel=ai")
+        expect(page.get_by_role('heading',name='Reviewable AI website generation',exact=True)).to_be_visible()
+        page.get_by_role('button',name='Generate CMS',exact=True).click()
+        page.get_by_label('Instruction',exact=True).fill('Create a simple blog CMS with one draft article')
+        page.get_by_role('button',name='Generate CMS draft proposal',exact=True).click()
+        expect(page.get_by_role('heading',name='CMS collection: Browser Blog',exact=True)).to_be_visible()
+        before=page.request.get(f"{meta['base']}/api/v1/studio-next/sites/{meta['siteId']}/collections").json()
+        assert not any(c['slug']=='browser-blog' for c in before['collections'])
+        page.get_by_role('button',name='Apply reviewed change',exact=True).click()
+        expect(page.get_by_text('AI change applied',exact=True)).to_be_visible()
+        state=page.request.get(f"{meta['base']}/api/v1/studio-next/sites/{meta['siteId']}/collections").json()
+        collection=next(c for c in state['collections'] if c['slug']=='browser-blog')
+        items=page.request.get(f"{meta['base']}/api/v1/studio-next/sites/{meta['siteId']}/collections/{collection['id']}/items?locale=en").json()
+        assert len(items['items'])==1
+        public=page.request.get(f"{meta['base']}/api/v1/studio-next/public/sites/{meta['siteId']}/collections/browser-blog").json()
+        assert public['items']==[], 'AI CMS drafts were published without explicit publisher action'
+        page.get_by_role('button',name='Collections',exact=True).click()
+        expect(page.get_by_text('Browser Blog',exact=True)).to_be_visible()
+    run('AI proposes CMS schema and draft records without auto-publishing',ai_cms_generation)
     def mobile():
         page.get_by_role('button',name='Collections',exact=True).click()
         page.set_viewport_size({'width':390,'height':844})
