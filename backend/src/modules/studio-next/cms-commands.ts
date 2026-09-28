@@ -39,8 +39,9 @@ export class CmsCommands{
   private async fail(actor:Actor,operationId:string){
     await this.db.pool.query(`DELETE FROM studio.command_receipts WHERE actor_id=$1 AND idempotency_key=$2 AND result->>'pending'='true'`,[actor.id,operationId]).catch(()=>undefined);
   }
+  async context(actor:Actor,siteId:string){return this.cms.collections(actor,siteId);}
   async stateHash(actor:Actor,siteId:string){
-    const state=await this.cms.collections(actor,siteId);
+    const state=await this.context(actor,siteId);
     return digest({collections:(state.collections??[]).map((c:any)=>({id:c.id,name:c.name,slug:c.slug,fields:c.fields,revision:c.revision}))});
   }
   async createCollection(actor:Actor,siteId:string,input:unknown,meta:CmsCommandMeta={source:'HUMAN'}){
