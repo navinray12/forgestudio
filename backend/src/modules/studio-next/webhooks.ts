@@ -13,7 +13,7 @@ export interface EventOutbox {emit(c:Client,siteId:string,eventType:string,paylo
 
 const endpointInput=z.object({
   url:z.string().url().max(2000),
-  events:z.array(z.string().regex(/^[a-z][a-z0-9_.-]{1,99}$/)).min(1).max(50).transform(v=>[...new Set(v)]),
+  events:z.array(z.union([z.literal('*'),z.string().regex(/^[a-z][a-z0-9_.-]{1,99}$/)])).min(1).max(50).transform(v=>[...new Set(v)]),
 }).strict();
 const eventName=z.string().regex(/^[a-z][a-z0-9_.-]{1,99}$/);
 const MAX_RESPONSE=500;
@@ -25,6 +25,7 @@ function configuredMasterKey():Buffer|null{
 export function configuredWebhookConfig():WebhookConfig{return {masterKey:configuredMasterKey()};}
 
 function privateIp(address:string):boolean{
+  address=address.replace(/^\[|\]$/g,'').toLowerCase();
   if(address==='::1'||address==='0:0:0:0:0:0:0:1'||address==='0.0.0.0')return true;
   if(address.startsWith('fc')||address.startsWith('fd')||address.startsWith('fe8')||address.startsWith('fe9')||address.startsWith('fea')||address.startsWith('feb'))return true;
   if(isIP(address)===4){
@@ -125,9 +126,9 @@ export class Webhooks implements EventOutbox{
       const claimed=await this.db.tx(async c=>{
         const r=await c.query(`SELECT d.id,d.attempts,w.url,w.secret_iv,w.secret_ciphertext,e.id AS event_id,e.event_type,e.payload,e.created_at
           FROM studio.webhook_deliveries d JOIN studio.webhook_endpoints w ON w.id=d.endpoint_id JOIN studio.webhook_events e ON e.id=d.event_id
-          WHERE d.state='QUEUED' AND d.next_attempt_at<=now() AND w.enabled ORDER BY d.next_attempt_at,d.id FOR UPDATE OF d SKIP LOCKED LIMIT 1`);
+          WHERE ((d.state='QUEUED' AND d.next_attempt_at<=now()) OR (d.state='DELIVERING' AND d.next_attempt_at<=now())) AND w.enabled ORDER BY d.next_attempt_at,d.id FOR UPDATE OF d SKIP LOCKED LIMIT 1`);
         if(!r.rows[0])return null;
-        await c.query("UPDATE studio.webhook_deliveries SET state='DELIVERING',attempts=attempts+1 WHERE id=$1",[r.rows[0].id]);return r.rows[0];
+        await c.query("UPDATE studio.webhook_deliveries SET state='DELIVERING',attempts=attempts+1,next_attempt_at=now()+interval '2 minutes' WHERE id=$1",[r.rows[0].id]);return r.rows[0];
       });
       if(!claimed)break;
       let status:number|undefined,excerpt='',errorCode='';
