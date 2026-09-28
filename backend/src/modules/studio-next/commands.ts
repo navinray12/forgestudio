@@ -34,7 +34,7 @@ export class DomainCommands {
     const correlationId=metadata.correlationId??b.correlationId??randomUUID();
     const timestamp=metadata.timestamp??b.timestamp??new Date().toISOString();
     const requested=designOnly(b.editorData);
-    const payloadHash=digest({command:'design.save',siteId,baseHash:b.baseHash,editorData:requested,timestamp});
+    const payloadHash=digest({command:'design.save',siteId,baseHash:b.baseHash,editorData:requested});
     return this.db.tx(async c=>{
       const prior=await c.query('SELECT payload_hash,result FROM studio.command_receipts WHERE actor_id=$1 AND idempotency_key=$2 FOR UPDATE',[actor.id,operationId]);
       if(prior.rows[0]){
