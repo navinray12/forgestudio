@@ -52,10 +52,12 @@ Set backend environment variables through a secret manager or protected deployme
 | API persistence | `DATABASE_URL` | The backend cannot serve database workflows. |
 | Browser origin / links | `FRONTEND_URL` | Cookie-authenticated mutation origin checks must be satisfied. |
 | Invitation mail | `STUDIO_SMTP_URL`, `STUDIO_MAIL_FROM` | Invitations remain visible to the matched verified account; SMTP delivery is not claimed. |
-| One-time product checkout | `STUDIO_STRIPE_SECRET_KEY`, `STUDIO_STRIPE_WEBHOOK_SECRET`, `STUDIO_STRIPE_ACCOUNT_ID` | Checkout is disabled. Product records alone do not enable payments. |
+| One-time product checkout | `STUDIO_STRIPE_SECRET`, `STUDIO_STRIPE_WEBHOOK_SECRET`, `STUDIO_STRIPE_ACCOUNTS` | Checkout is disabled. Product records alone do not enable payments. |
 | Signed analytics tickets | `STUDIO_ANALYTICS_SECRET` (at least 32 characters) | Analytics collection is unavailable/disabled. |
 
-Stripe is restricted to the configured account. The public shop does not accept client-controlled amounts, and browser redirection does not mark an order paid. Payment completion requires a matching signed webhook. Configure and test provider webhooks in an isolated provider test environment before any live transaction. This increment does not implement refunds, inventory reservation, shipping/tax workflows, recurring subscription reconciliation, or marketplace seller payouts.
+`STUDIO_STRIPE_ACCOUNTS` is a JSON object mapping site UUIDs to deployment-approved Stripe account IDs (`acct_...`) or `platform`. It is configured by the deployment administrator, not selected by a tenant in an API request. The secret key is read from `STUDIO_STRIPE_SECRET`; no `STUDIO_STRIPE_SECRET_KEY` or singular `STUDIO_STRIPE_ACCOUNT_ID` variable is used by this module. The webhook URL path is `/api/v1/studio-next/payments/webhook`.
+
+Stripe is restricted to the configured account for each site. The public shop does not accept client-controlled amounts, and browser redirection does not mark an order paid. Payment completion requires a matching signed webhook. Configure and test provider webhooks in an isolated provider test environment before any live transaction. This increment does not implement refunds, inventory reservation, shipping/tax workflows, recurring subscription reconciliation, or marketplace seller payouts.
 
 TXT ownership verification checks the issued challenge. It does not create DNS records, certificates, CDN distributions, application deployments, or hostname routing. `NOT_PROVISIONED` is intentional and must not be relabeled as live hosting.
 
