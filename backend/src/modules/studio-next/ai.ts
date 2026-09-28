@@ -97,6 +97,21 @@ export class AiOrchestrator{
       throw error;
     }
   }
+  async reject(actor:Actor,siteId:string,changeSetId:string){
+    parse(uuid,changeSetId);
+    return this.db.tx(async c=>{
+      const site=await this.db.site(c,actor,siteId,'EDIT_CONTENT',true);
+      const r=await c.query("UPDATE studio.change_sets SET status='REJECTED' WHERE id=$1 AND site_id=$2 AND status='PROPOSED' RETURNING id",[changeSetId,siteId]);
+      if(!r.rowCount){
+        const current=await c.query('SELECT status FROM studio.change_sets WHERE id=$1 AND site_id=$2',[changeSetId,siteId]);
+        if(!current.rows[0])throw new StudioError('Changeset not found',404);
+        if(current.rows[0].status==='REJECTED')return {alreadyRejected:true};
+        throw new StudioError('Only a proposed changeset can be rejected',409,'CHANGESET_STATE');
+      }
+      await this.db.audit(c,actor,site,'ai.changeset_rejected',changeSetId);
+      return {alreadyRejected:false};
+    });
+  }
   async apply(actor:Actor,siteId:string,changeSetId:string){
     parse(uuid,changeSetId);
     const change=await this.db.tx(async c=>{
