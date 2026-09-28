@@ -6,7 +6,7 @@ import { contentOnly } from './design-policy.js';
 import { validateVariables,validateClasses } from '../../services/tokens/designToken.service.js';
 
 export type CommandSource='HUMAN'|'AI'|'SYSTEM';
-export interface CommandMetadata { source:CommandSource; operationId?:string; correlationId?:string; timestamp?:string; }
+export interface CommandMetadata { source:CommandSource; operationId?:string; correlationId?:string; timestamp?:string; validatedContentCommand?:boolean; }
 export interface DesignSaveResult extends Record<string,unknown> { hash:string; operationId:string; correlationId:string; replayed:boolean; }
 const stableId=z.string().regex(/^[A-Za-z0-9][A-Za-z0-9:_-]{0,149}$/);
 const pageSlug=z.string().min(1).max(180).regex(/^\/(?:[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*)?$/);
@@ -197,10 +197,11 @@ export class DomainCommands {
       return {hash:saved.hash,operationId:b.operationId,correlationId:typeof saved.correlationId==='string'?saved.correlationId:(b.correlationId??b.operationId),replayed:true} as DesignSaveResult;
     });
     if(replay)return replay;
-    const current=await this.db.tx(async c=>{const site=await this.db.site(c,actor,siteId,'VIEW');return designOnly(site.editorData);});
+    const contentSafe=b.commands.every(command=>['SET_ELEMENT_TEXT','UPDATE_PAGE_SETTINGS'].includes(command.type));
+    const current=await this.db.tx(async c=>{const site=await this.db.site(c,actor,siteId,contentSafe?'EDIT_CONTENT':'EDIT_DESIGN');return designOnly(site.editorData);});
     if(digest(current)!==b.baseHash)throw new StudioError('Another session changed this design. Reload and reconcile before applying commands.',409,'DESIGN_CONFLICT');
     const next=applyDesignCommands(current,b.commands);
-    const applied=await this.saveDesign(actor,siteId,{baseHash:b.baseHash,editorData:next,operationId:b.operationId,correlationId:b.correlationId,timestamp:b.timestamp},{...metadata,operationId:b.operationId,correlationId:b.correlationId,timestamp:b.timestamp});
+    const applied=await this.saveDesign(actor,siteId,{baseHash:b.baseHash,editorData:next,operationId:b.operationId,correlationId:b.correlationId,timestamp:b.timestamp},{...metadata,operationId:b.operationId,correlationId:b.correlationId,timestamp:b.timestamp,validatedContentCommand:contentSafe});
     await this.db.tx(async c=>{await c.query(`UPDATE studio.command_receipts SET result=result || $3::jsonb WHERE actor_id=$1 AND idempotency_key=$2`,[actor.id,b.operationId,JSON.stringify({commandHash,correlationId:applied.correlationId})]);});
     return applied;
   }
@@ -224,7 +225,7 @@ export class DomainCommands {
       const current=designOnly(site.editorData);
       if(digest(current)!==b.baseHash)throw new StudioError('Another session changed this design. Reload and reconcile before saving.',409,'DESIGN_CONFLICT');
       let incoming={...current,...requested};
-      if(!site.capabilities.includes('EDIT_DESIGN'))incoming=contentOnly(current,incoming);
+      if(!site.capabilities.includes('EDIT_DESIGN')&&!metadata.validatedContentCommand)incoming=contentOnly(current,incoming);
       if(site.userId!==actor.id){
         for(const id of protectedNodes(current).keys())if(digest(allById(incoming,id))!==digest(allById(current,id)))throw new StudioError('A protected component cannot be changed from this editor',403,'PROTECTED_COMPONENT');
       }
