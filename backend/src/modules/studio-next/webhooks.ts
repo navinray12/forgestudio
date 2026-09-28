@@ -133,6 +133,10 @@ export class Webhooks implements EventOutbox{
     });
   }
   async deliverDue():Promise<{delivered:number;retried:number;dead:number}>{
+    if(!this.key){
+      const pending=await this.db.pool.query("SELECT 1 FROM studio.webhook_deliveries WHERE state IN ('QUEUED','DELIVERING') LIMIT 1");
+      if(!pending.rowCount)return {delivered:0,retried:0,dead:0};
+    }
     const key=this.requireKey();let delivered=0,retried=0,dead=0;
     for(let iteration=0;iteration<25;iteration++){
       const claimed=await this.db.tx(async c=>{
@@ -164,5 +168,10 @@ export class Webhooks implements EventOutbox{
       }
     }
     return {delivered,retried,dead};
+  }
+  async retain(){
+    const r=await this.db.pool.query(`DELETE FROM studio.webhook_events e WHERE e.created_at<now()-interval '90 days'
+      AND NOT EXISTS(SELECT 1 FROM studio.webhook_deliveries d WHERE d.event_id=e.id AND d.state IN ('QUEUED','DELIVERING'))`);
+    return {deleted:r.rowCount??0};
   }
 }
