@@ -13,11 +13,12 @@ import { Analytics } from './analytics.js';
 import { Commerce,stripeTransport,type CommerceConfig } from './commerce.js';
 import { Permissions } from './permissions.js';
 import { Releases } from './releases.js';
+import { Webhooks,configuredWebhookConfig,type WebhookConfig } from './webhooks.js';
 import { DomainCommands } from './commands.js';
 import { AiOrchestrator,configuredCopyProvider,configuredProvider,type AIProvider } from './ai.js';
 import { StudioError,parse,localeCode } from './validation.js';
 import { trustedOrigin } from '../studio/domain.js';
-export interface RouterOptions { commerce?:CommerceConfig;analyticsSecret?:string;resolveTxt?:TxtResolver;requestLimit?:number;aiProvider?:AIProvider|null }
+export interface RouterOptions { commerce?:CommerceConfig;analyticsSecret?:string;resolveTxt?:TxtResolver;requestLimit?:number;aiProvider?:AIProvider|null;webhooks?:WebhookConfig }
 export function configuredCommerce():CommerceConfig{
   let accounts:Record<string,string>={};
   if(process.env.STUDIO_STRIPE_ACCOUNTS){
@@ -27,7 +28,7 @@ export function configuredCommerce():CommerceConfig{
 }
 export function createStudioNextRouter(db:Database,options:RouterOptions={}){
   const router=express.Router();
-  const commands=new DomainCommands(db),workspaces=new Workspaces(db),cms=new Cms(db),cmsCommands=new CmsCommands(db,cms),design=new Design(db,commands),localization=new Localization(db),reviews=new Collaboration(db),domains=new Domains(db,options.resolveTxt),analytics=new Analytics(db,options.analyticsSecret??process.env.STUDIO_ANALYTICS_SECRET),commerce=new Commerce(db,options.commerce??configuredCommerce()),permissions=new Permissions(db),releases=new Releases(db),ai=new AiOrchestrator(db,commands,options.aiProvider===undefined?configuredCopyProvider():options.aiProvider,options.aiProvider===undefined?(configuredProvider('EDITOR')??configuredCopyProvider()):options.aiProvider,options.aiProvider===undefined?(configuredProvider('PLANNER')??configuredProvider('EDITOR')??configuredCopyProvider()):options.aiProvider,options.aiProvider===undefined?(configuredProvider('EDITOR')??configuredCopyProvider()):options.aiProvider,cmsCommands);
+  const commands=new DomainCommands(db),workspaces=new Workspaces(db),webhooks=new Webhooks(db,options.webhooks??configuredWebhookConfig()),cms=new Cms(db,webhooks),cmsCommands=new CmsCommands(db,cms),design=new Design(db,commands),localization=new Localization(db),reviews=new Collaboration(db),domains=new Domains(db,options.resolveTxt),analytics=new Analytics(db,options.analyticsSecret??process.env.STUDIO_ANALYTICS_SECRET),commerce=new Commerce(db,options.commerce??configuredCommerce()),permissions=new Permissions(db),releases=new Releases(db,undefined,webhooks),ai=new AiOrchestrator(db,commands,options.aiProvider===undefined?configuredCopyProvider():options.aiProvider,options.aiProvider===undefined?(configuredProvider('EDITOR')??configuredCopyProvider()):options.aiProvider,options.aiProvider===undefined?(configuredProvider('PLANNER')??configuredProvider('EDITOR')??configuredCopyProvider()):options.aiProvider,options.aiProvider===undefined?(configuredProvider('EDITOR')??configuredCopyProvider()):options.aiProvider,cmsCommands);
   router.use((_req,res,next)=>{res.setHeader('Cache-Control','no-store');res.setHeader('X-Request-Id',randomUUID());next();});
   type Run=(req:Request,actor:Actor)=>Promise<Record<string,unknown>>;
   const route=(run:Run,status=200):RequestHandler=>async(req,res,next)=>{try{res.status(status).json({success:true,...await run(req,res.locals.actor)});}catch(e){next(e);}};
@@ -79,6 +80,11 @@ export function createStudioNextRouter(db:Database,options:RouterOptions={}){
   router.post('/sites/:siteId/items/:itemId/actions',route((req,a)=>cms.action(a,p(req,'siteId'),p(req,'itemId'),req.body)));
   router.get('/sites/:siteId/items/:itemId/revisions',route((req,a)=>cms.revisions(a,p(req,'siteId'),p(req,'itemId'))));
   router.post('/sites/:siteId/items/:itemId/restore',route((req,a)=>cms.restoreRevision(a,p(req,'siteId'),p(req,'itemId'),req.body)));
+  router.get('/sites/:siteId/webhooks',route((req,a)=>webhooks.list(a,p(req,'siteId'))));
+  router.post('/sites/:siteId/webhooks',route((req,a)=>webhooks.create(a,p(req,'siteId'),req.body),201));
+  router.post('/sites/:siteId/webhooks/:endpointId/test',route((req,a)=>webhooks.test(a,p(req,'siteId'),p(req,'endpointId')),202));
+  router.delete('/sites/:siteId/webhooks/:endpointId',route((req,a)=>webhooks.remove(a,p(req,'siteId'),p(req,'endpointId'))));
+  router.post('/sites/:siteId/webhook-deliveries/:deliveryId/redeliver',route((req,a)=>webhooks.redeliver(a,p(req,'siteId'),p(req,'deliveryId')),202));
   router.get('/sites/:siteId/releases',route((req,a)=>releases.list(a,p(req,'siteId'))));
   router.post('/sites/:siteId/releases',route((req,a)=>releases.prepare(a,p(req,'siteId'),req.body),201));
   router.post('/sites/:siteId/releases/:releaseId/publish',route((req,a)=>releases.publish(a,p(req,'siteId'),p(req,'releaseId'))));
