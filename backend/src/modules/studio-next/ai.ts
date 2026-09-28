@@ -104,8 +104,8 @@ function findUnique(value:any,id:string,result:any[]=[]):any[]{
   return result;
 }
 export class AiOrchestrator{
-  constructor(private db:Database,private commands:DomainCommands,private provider:AIProvider|null){}
-  status(){return {configured:!!this.provider,provider:this.provider?.name??null,model:this.provider?.model??null,feature:'COPY_EDIT'};}
+  constructor(private db:Database,private commands:DomainCommands,private provider:AIProvider|null,private sectionProvider:AIProvider|null=provider){}
+  status(){return {configured:!!this.provider||!!this.sectionProvider,features:{copy:{configured:!!this.provider,provider:this.provider?.name??null,model:this.provider?.model??null},section:{configured:!!this.sectionProvider,provider:this.sectionProvider?.name??null,model:this.sectionProvider?.model??null}},registry:new AIModelRegistry().publicStatus()};}
   async listChanges(actor:Actor,siteId:string){
     return this.db.tx(async c=>{await this.db.site(c,actor,siteId,'VIEW');const r=await c.query(`SELECT id,name,status,base_hash AS "baseHash",result_hash AS "resultHash",created_at AS "createdAt",applied_at AS "appliedAt" FROM studio.change_sets WHERE site_id=$1 ORDER BY created_at DESC LIMIT 50`,[siteId]);return {changes:r.rows};});
   }
@@ -137,7 +137,7 @@ export class AiOrchestrator{
     }
   }
   async proposeSection(actor:Actor,siteId:string,input:unknown){
-    if(!this.provider)throw new StudioError('AI generation is not configured',503,'AI_NOT_CONFIGURED');
+    if(!this.sectionProvider)throw new StudioError('AI section generation is not configured',503,'AI_NOT_CONFIGURED');
     const b=parse(sectionInput,input),started=Date.now(),runId=randomUUID();
     const context=await this.db.tx(async c=>{const site=await this.db.site(c,actor,siteId,'EDIT_DESIGN');return {site,design:designOnly(site.editorData)};});
     if(b.afterId&&findUnique(context.design,b.afterId).length!==1)throw new StudioError('Insertion anchor is missing or ambiguous',409,'ELEMENT_NOT_UNIQUE');
@@ -145,17 +145,17 @@ export class AiOrchestrator{
     const user=JSON.stringify({instruction:b.instruction,insertionAfter:b.afterId,existingTopLevel:(context.design.elements as any[]|undefined)?.map(x=>({id:x?.id,type:x?.type,styles:x?.styles}))??[]});
     const contextHash=digest({siteId,instruction:b.instruction,afterId:b.afterId,designHash:digest(context.design)});
     try{
-      const generated=await this.provider.generateStructured({system,user,timeoutMs:45000}),output=parse(sectionOutput,generated.value),changeSetId=randomUUID();
+      const generated=await this.sectionProvider.generateStructured({system,user,timeoutMs:45000}),output=parse(sectionOutput,generated.value),changeSetId=randomUUID();
       const command={type:'ADD_ELEMENT',parentId:null,afterId:b.afterId,element:output.section};
       await this.db.tx(async c=>{
         const site=await this.db.site(c,actor,siteId,'EDIT_DESIGN');
         await c.query(`INSERT INTO studio.change_sets(id,site_id,actor_id,source,name,status,base_hash,commands) VALUES($1,$2,$3,'AI',$4,'PROPOSED',$5,$6::jsonb)`,[changeSetId,siteId,actor.id,`AI section: ${b.instruction.slice(0,120)}`,digest(context.design),JSON.stringify([command])]);
-        await c.query(`INSERT INTO studio.ai_runs(id,site_id,workspace_id,user_id,feature,provider,model_requested,model_resolved,prompt_version,context_hash,input_units,output_units,latency_ms,status,changeset_id) VALUES($1,$2,$3,$4,'SECTION_GENERATION',$5,$6,$7,'section-v1',$8,$9,$10,$11,'SUCCEEDED',$12)`,[runId,siteId,site.workspaceId,actor.id,generated.provider??this.provider!.name,this.provider!.model,generated.modelResolved??this.provider!.model,contextHash,generated.usage?.inputUnits??null,generated.usage?.outputUnits??null,Date.now()-started,changeSetId]);
+        await c.query(`INSERT INTO studio.ai_runs(id,site_id,workspace_id,user_id,feature,provider,model_requested,model_resolved,prompt_version,context_hash,input_units,output_units,latency_ms,status,changeset_id) VALUES($1,$2,$3,$4,'SECTION_GENERATION',$5,$6,$7,'section-v1',$8,$9,$10,$11,'SUCCEEDED',$12)`,[runId,siteId,site.workspaceId,actor.id,generated.provider??this.sectionProvider!.name,this.sectionProvider!.model,generated.modelResolved??this.sectionProvider!.model,contextHash,generated.usage?.inputUnits??null,generated.usage?.outputUnits??null,Date.now()-started,changeSetId]);
         await this.db.audit(c,actor,site,'ai.section_proposed',output.section.id);
       });
-      return {changeSetId,baseHash:digest(context.design),section:output.section,rationale:output.rationale,provider:generated.provider??this.provider.name,model:generated.modelResolved??this.provider.model};
+      return {changeSetId,baseHash:digest(context.design),section:output.section,rationale:output.rationale,provider:generated.provider??this.sectionProvider.name,model:generated.modelResolved??this.sectionProvider.model};
     }catch(error){
-      await this.db.pool.query(`INSERT INTO studio.ai_runs(id,site_id,workspace_id,user_id,feature,provider,model_requested,model_resolved,prompt_version,context_hash,latency_ms,status,error_code) VALUES($1,$2,$3,$4,'SECTION_GENERATION',$5,$6,$6,'section-v1',$7,$8,'FAILED',$9)`,[runId,siteId,context.site.workspaceId,actor.id,this.provider.name,this.provider.model,contextHash,Date.now()-started,(error as any)?.code||'AI_FAILED']).catch(()=>undefined);throw error;
+      await this.db.pool.query(`INSERT INTO studio.ai_runs(id,site_id,workspace_id,user_id,feature,provider,model_requested,model_resolved,prompt_version,context_hash,latency_ms,status,error_code) VALUES($1,$2,$3,$4,'SECTION_GENERATION',$5,$6,$6,'section-v1',$7,$8,'FAILED',$9)`,[runId,siteId,context.site.workspaceId,actor.id,this.sectionProvider.name,this.sectionProvider.model,contextHash,Date.now()-started,(error as any)?.code||'AI_FAILED']).catch(()=>undefined);throw error;
     }
   }
   async reject(actor:Actor,siteId:string,changeSetId:string){
