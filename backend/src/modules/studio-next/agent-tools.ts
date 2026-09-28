@@ -19,7 +19,7 @@ export interface AgentToolDescriptor {
 
 const TOOL_CATALOG:AgentToolDescriptor[]=[
   {name:'site.read_context',description:'Read the authorized site summary, design hash, pages, design-system counts and CMS collection schemas.',capability:'VIEW',effect:'READ_ONLY',idempotency:'NONE',timeoutMs:10000,inputSchema:{type:'object',additionalProperties:false}},
-  {name:'design.apply_commands',description:'Apply validated stable-ID Designer commands with optimistic concurrency.',capability:'EDIT_DESIGN',effect:'SAFE_MUTATION',idempotency:'OPERATION_ID',timeoutMs:10000,inputSchema:{type:'object',required:['baseHash','operationId','commands'],properties:{baseHash:{type:'string'},operationId:{type:'string',format:'uuid'},correlationId:{type:'string',format:'uuid'},commands:{type:'array',minItems:1,maxItems:100}},additionalProperties:false}},
+  {name:'design.apply_commands',description:'Apply validated stable-ID Designer commands with optimistic concurrency.',capability:'EDIT_CONTENT',effect:'SAFE_MUTATION',idempotency:'OPERATION_ID',timeoutMs:10000,inputSchema:{type:'object',required:['baseHash','operationId','commands'],properties:{baseHash:{type:'string'},operationId:{type:'string',format:'uuid'},correlationId:{type:'string',format:'uuid'},commands:{type:'array',minItems:1,maxItems:100}},additionalProperties:false}},
   {name:'cms.schema',description:'Read CMS collection schemas and locale information for the authorized site.',capability:'VIEW',effect:'READ_ONLY',idempotency:'NONE',timeoutMs:10000,inputSchema:{type:'object',additionalProperties:false}},
   {name:'release.list',description:'Read immutable release history and the active release pointer.',capability:'VIEW',effect:'READ_ONLY',idempotency:'NONE',timeoutMs:10000,inputSchema:{type:'object',additionalProperties:false}},
   {name:'release.prepare',description:'Prepare an immutable release artifact from the current validated design.',capability:'PUBLISH',effect:'SAFE_MUTATION',idempotency:'OPERATION_ID',timeoutMs:15000,inputSchema:{type:'object',required:['baseHash','operationId'],properties:{baseHash:{type:'string'},operationId:{type:'string',format:'uuid'}},additionalProperties:false}},
@@ -38,8 +38,9 @@ export class AgentTools{
     private features:FeaturePolicy,
   ){}
   private async allowed(actor:Actor,siteId:string){
+    const site=await this.db.tx(async c=>this.db.site(c,actor,siteId,'VIEW'));
     await this.features.assert(siteId,'MCP');
-    return this.db.tx(async c=>this.db.site(c,actor,siteId,'VIEW'));
+    return site;
   }
   private async audit(actor:Actor,siteId:string,tool:string){
     await this.db.tx(async c=>{const site=await this.db.site(c,actor,siteId,'VIEW');await this.db.audit(c,actor,site,'agent.tool_executed',tool);});
