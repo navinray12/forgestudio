@@ -128,12 +128,12 @@ export class AiOrchestrator{
       await this.db.tx(async c=>{
         const site=await this.db.site(c,actor,siteId,'EDIT_CONTENT');
         await c.query(`INSERT INTO studio.change_sets(id,site_id,actor_id,source,name,status,base_hash,commands) VALUES($1,$2,$3,'AI',$4,'PROPOSED',$5,$6::jsonb)`,[changeSetId,siteId,actor.id,`AI copy: ${b.instruction.slice(0,120)}`,digest(context.design),JSON.stringify([command])]);
-        await c.query(`INSERT INTO studio.ai_runs(id,site_id,workspace_id,user_id,feature,provider,model_requested,model_resolved,prompt_version,context_hash,input_units,output_units,latency_ms,status,changeset_id) VALUES($1,$2,$3,$4,'COPY_EDIT',$5,$6,$7,COPY_EDIT_PROMPT.version,$8,$9,$10,$11,'SUCCEEDED',$12)`,[runId,siteId,site.workspaceId,actor.id,generated.provider??this.provider!.name,this.provider!.model,generated.modelResolved??this.provider!.model,contextHash,generated.usage?.inputUnits??null,generated.usage?.outputUnits??null,Date.now()-started,changeSetId]);
+        await c.query(`INSERT INTO studio.ai_runs(id,site_id,workspace_id,user_id,feature,provider,model_requested,model_resolved,prompt_version,context_hash,input_units,output_units,latency_ms,status,changeset_id) VALUES($1,$2,$3,$4,'COPY_EDIT',$5,$6,$7,$8,$9,$10,$11,$12,'SUCCEEDED',$13)`,[runId,siteId,site.workspaceId,actor.id,generated.provider??this.provider!.name,this.provider!.model,generated.modelResolved??this.provider!.model,COPY_EDIT_PROMPT.version,contextHash,generated.usage?.inputUnits??null,generated.usage?.outputUnits??null,Date.now()-started,changeSetId]);
         await this.db.audit(c,actor,site,'ai.copy_proposed',b.elementId);
       });
       return {changeSetId,baseHash:digest(context.design),elementId:b.elementId,field:b.field,current,replacement:output.replacement,rationale:output.rationale,provider:generated.provider??this.provider.name,model:generated.modelResolved??this.provider.model};
     }catch(error){
-      await this.db.pool.query(`INSERT INTO studio.ai_runs(id,site_id,workspace_id,user_id,feature,provider,model_requested,model_resolved,prompt_version,context_hash,latency_ms,status,error_code) VALUES($1,$2,$3,$4,'COPY_EDIT',$5,$6,$6,COPY_EDIT_PROMPT.version,$7,$8,'FAILED',$9)`,[runId,siteId,context.site.workspaceId,actor.id,this.provider.name,this.provider.model,contextHash,Date.now()-started,(error as any)?.code||'AI_FAILED']).catch(()=>undefined);
+      await this.db.pool.query(`INSERT INTO studio.ai_runs(id,site_id,workspace_id,user_id,feature,provider,model_requested,model_resolved,prompt_version,context_hash,latency_ms,status,error_code) VALUES($1,$2,$3,$4,'COPY_EDIT',$5,$6,$6,$7,$8,$9,'FAILED',$10)`,[runId,siteId,context.site.workspaceId,actor.id,this.provider.name,this.provider.model,COPY_EDIT_PROMPT.version,contextHash,Date.now()-started,(error as any)?.code||'AI_FAILED']).catch(()=>undefined);
       throw error;
     }
   }
@@ -151,12 +151,12 @@ export class AiOrchestrator{
       await this.db.tx(async c=>{
         const site=await this.db.site(c,actor,siteId,'EDIT_DESIGN');
         await c.query(`INSERT INTO studio.change_sets(id,site_id,actor_id,source,name,status,base_hash,commands) VALUES($1,$2,$3,'AI',$4,'PROPOSED',$5,$6::jsonb)`,[changeSetId,siteId,actor.id,`AI section: ${b.instruction.slice(0,120)}`,digest(context.design),JSON.stringify([command])]);
-        await c.query(`INSERT INTO studio.ai_runs(id,site_id,workspace_id,user_id,feature,provider,model_requested,model_resolved,prompt_version,context_hash,input_units,output_units,latency_ms,status,changeset_id) VALUES($1,$2,$3,$4,'SECTION_GENERATION',$5,$6,$7,SECTION_PROMPT.version,$8,$9,$10,$11,'SUCCEEDED',$12)`,[runId,siteId,site.workspaceId,actor.id,generated.provider??this.sectionProvider!.name,this.sectionProvider!.model,generated.modelResolved??this.sectionProvider!.model,contextHash,generated.usage?.inputUnits??null,generated.usage?.outputUnits??null,Date.now()-started,changeSetId]);
+        await c.query(`INSERT INTO studio.ai_runs(id,site_id,workspace_id,user_id,feature,provider,model_requested,model_resolved,prompt_version,context_hash,input_units,output_units,latency_ms,status,changeset_id) VALUES($1,$2,$3,$4,'SECTION_GENERATION',$5,$6,$7,$8,$9,$10,$11,$12,'SUCCEEDED',$13)`,[runId,siteId,site.workspaceId,actor.id,generated.provider??this.sectionProvider!.name,this.sectionProvider!.model,generated.modelResolved??this.sectionProvider!.model,SECTION_PROMPT.version,contextHash,generated.usage?.inputUnits??null,generated.usage?.outputUnits??null,Date.now()-started,changeSetId]);
         await this.db.audit(c,actor,site,'ai.section_proposed',output.section.id);
       });
       return {changeSetId,baseHash:digest(context.design),section:output.section,rationale:output.rationale,provider:generated.provider??this.sectionProvider.name,model:generated.modelResolved??this.sectionProvider.model};
     }catch(error){
-      await this.db.pool.query(`INSERT INTO studio.ai_runs(id,site_id,workspace_id,user_id,feature,provider,model_requested,model_resolved,prompt_version,context_hash,latency_ms,status,error_code) VALUES($1,$2,$3,$4,'SECTION_GENERATION',$5,$6,$6,SECTION_PROMPT.version,$7,$8,'FAILED',$9)`,[runId,siteId,context.site.workspaceId,actor.id,this.sectionProvider.name,this.sectionProvider.model,contextHash,Date.now()-started,(error as any)?.code||'AI_FAILED']).catch(()=>undefined);throw error;
+      await this.db.pool.query(`INSERT INTO studio.ai_runs(id,site_id,workspace_id,user_id,feature,provider,model_requested,model_resolved,prompt_version,context_hash,latency_ms,status,error_code) VALUES($1,$2,$3,$4,'SECTION_GENERATION',$5,$6,$6,$7,$8,$9,'FAILED',$10)`,[runId,siteId,context.site.workspaceId,actor.id,this.sectionProvider.name,this.sectionProvider.model,SECTION_PROMPT.version,contextHash,Date.now()-started,(error as any)?.code||'AI_FAILED']).catch(()=>undefined);throw error;
     }
   }
   async reject(actor:Actor,siteId:string,changeSetId:string){
