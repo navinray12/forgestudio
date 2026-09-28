@@ -5,7 +5,7 @@ import { DomainCommands } from './commands.js';
 import { CmsCommands } from './cms-commands.js';
 import { FeaturePolicy,AiGovernance,type Feature,type UsageReservation } from './governance.js';
 import { parse,uuid,digest,designOnly,StudioError,fieldsSchema } from './validation.js';
-import { COPY_EDIT_PROMPT,SECTION_PROMPT,PAGE_PROMPT,SITE_PLAN_PROMPT,SITE_BUILD_PROMPT,CMS_PROMPT,SEO_PROMPT } from './ai-prompts.js';
+import { COPY_EDIT_PROMPT,SECTION_PROMPT,PAGE_PROMPT,SITE_PLAN_PROMPT,SITE_BUILD_PROMPT,CMS_PROMPT } from './ai-prompts.js';
 
 export interface AIUsage { inputUnits?:number; outputUnits?:number; }
 export interface AIResult { value:unknown; usage?:AIUsage; provider?:string; modelResolved?:string; }
@@ -120,7 +120,6 @@ const cmsOutput=z.object({
   items:z.array(z.object({name:z.string().trim().min(1).max(200),slug:z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(160),locale:z.string().default('en'),fields:z.record(z.string(),z.unknown())}).strict()).max(20).default([]),
   rationale:z.string().max(1000).default(''),
 }).strict();
-const seoInput=z.object({pageId:z.string().min(1).max(150),instruction:z.string().trim().min(2).max(3000)}).strict();
 const seoOutput=z.object({
   title:z.string().trim().min(1).max(70),
   description:z.string().trim().min(1).max(200),
@@ -147,12 +146,6 @@ function validateGeneratedPages(pages:any[]){
     if(ids.has(page.id)||slugs.has(page.slug))throw new StudioError('Generated pages require unique IDs and slugs',400,'DUPLICATE_PAGE');
     ids.add(page.id);slugs.add(page.slug);pageIds(page.elements);
   }
-}
-function pageText(value:any,out:string[]=[]):string[]{
-  if(out.join(' ').length>5000||value===null||value===undefined)return out;
-  if(Array.isArray(value)){for(const child of value)pageText(child,out);return out;}
-  if(typeof value==='object')for(const [key,child] of Object.entries(value)){if(['content','text','alt'].includes(key)&&typeof child==='string')out.push(child.slice(0,1000));else pageText(child,out);}
-  return out;
 }
 function findUnique(value:any,id:string,result:any[]=[]):any[]{
   if(!value||typeof value!=='object')return result;
