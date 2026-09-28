@@ -7,6 +7,7 @@ import type {CommandSource} from './commands.js';
 
 const operationEnvelope=z.object({operationId:uuid.optional(),correlationId:uuid.optional()}).passthrough();
 export interface CmsCommandMeta {source:CommandSource;operationId?:string;correlationId?:string}
+export interface CmsCompoundResult extends Record<string,unknown>{collectionId:string;itemIds:string[];count:number;operationId:string;correlationId:string;replayed:boolean}
 
 export class CmsCommands{
   constructor(private db:Database,private cms:Cms){}
@@ -56,10 +57,10 @@ export class CmsCommands{
     try{const result=await this.cms.createItem(actor,siteId,collectionId,env.body);await this.finish(actor,env.operationId,result);return {...result,operationId:env.operationId,correlationId:env.correlationId,replayed:false};}
     catch(error){await this.fail(actor,env.operationId);throw error;}
   }
-  async createCollectionWithDrafts(actor:Actor,siteId:string,input:{collection:unknown;items:unknown[]},meta:CmsCommandMeta){
+  async createCollectionWithDrafts(actor:Actor,siteId:string,input:{collection:unknown;items:unknown[]},meta:CmsCommandMeta):Promise<CmsCompoundResult>{
     const operationId=meta.operationId??randomUUID(),correlationId=meta.correlationId??randomUUID();
     const reservation=await this.reserve(actor,siteId,'cms.create_collection_with_drafts',input,{...meta,operationId,correlationId},'EDIT_DESIGN');
-    if(reservation.existing)return {...reservation.existing.result,operationId,correlationId:reservation.existing.correlationId,replayed:true};
+    if(reservation.existing){const saved=reservation.existing.result;if(typeof saved.collectionId!=='string'||!Array.isArray(saved.itemIds)||typeof saved.count!=='number')throw new StudioError('Stored CMS command receipt is invalid',503,'COMMAND_RECEIPT_INVALID');return {collectionId:saved.collectionId,itemIds:saved.itemIds as string[],count:saved.count,operationId,correlationId:reservation.existing.correlationId,replayed:true};}
     try{
       const result=await this.cms.createCollectionWithDrafts(actor,siteId,input);
       await this.finish(actor,operationId,result);return {...result,operationId,correlationId,replayed:false};
