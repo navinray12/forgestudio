@@ -17,6 +17,7 @@ CREATE TABLE studio.releases (
 );
 CREATE INDEX studio_releases_site_time ON studio.releases(site_id,created_at DESC);
 CREATE UNIQUE INDEX studio_one_active_release ON studio.releases(site_id) WHERE status='ACTIVE';
+CREATE UNIQUE INDEX studio_one_release_inflight ON studio.releases(site_id) WHERE status IN ('DEPLOYING','VERIFYING');
 
 CREATE TABLE studio.release_pointer (
   site_id uuid PRIMARY KEY REFERENCES public.websites(id) ON DELETE CASCADE,
