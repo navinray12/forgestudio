@@ -3,14 +3,14 @@ import { z } from 'zod';
 import { Database,type Actor } from './database.js';
 import { DomainCommands } from './commands.js';
 import { parse,uuid,digest,designOnly,StudioError } from './validation.js';
-import { COPY_EDIT_PROMPT,SECTION_PROMPT } from './ai-prompts.js';
+import { COPY_EDIT_PROMPT,SECTION_PROMPT,PAGE_PROMPT,SITE_PLAN_PROMPT,SITE_BUILD_PROMPT } from './ai-prompts.js';
 
 export interface AIUsage { inputUnits?:number; outputUnits?:number; }
 export interface AIResult { value:unknown; usage?:AIUsage; provider?:string; modelResolved?:string; }
 export interface AIProvider {
   readonly name:string;
   readonly model:string;
-  generateStructured(input:{system:string;user:string;timeoutMs:number}):Promise<AIResult>;
+  generateStructured(input:{system:string;user:string;timeoutMs:number;maxOutputTokens?:number}):Promise<AIResult>;
 }
 function textFromOpenAI(payload:any):string{
   if(typeof payload?.output_text==='string')return payload.output_text;
@@ -24,8 +24,8 @@ function parseJsonText(text:string):unknown{
 export class OpenAIProvider implements AIProvider{
   readonly name='openai';
   constructor(readonly model:string,private apiKey:string){}
-  async generateStructured(input:{system:string;user:string;timeoutMs:number}):Promise<AIResult>{
-    const r=await fetch('https://api.openai.com/v1/responses',{method:'POST',redirect:'error',signal:AbortSignal.timeout(input.timeoutMs),headers:{Authorization:`Bearer ${this.apiKey}`,'Content-Type':'application/json'},body:JSON.stringify({model:this.model,input:[{role:'system',content:[{type:'input_text',text:input.system}]},{role:'user',content:[{type:'input_text',text:input.user}]}],max_output_tokens:800})});
+  async generateStructured(input:{system:string;user:string;timeoutMs:number;maxOutputTokens?:number}):Promise<AIResult>{
+    const r=await fetch('https://api.openai.com/v1/responses',{method:'POST',redirect:'error',signal:AbortSignal.timeout(input.timeoutMs),headers:{Authorization:`Bearer ${this.apiKey}`,'Content-Type':'application/json'},body:JSON.stringify({model:this.model,input:[{role:'system',content:[{type:'input_text',text:input.system}]},{role:'user',content:[{type:'input_text',text:input.user}]}],max_output_tokens:input.maxOutputTokens??800})});
     const p=await r.json().catch(()=>({}));
     if(!r.ok)throw new StudioError('AI provider rejected the request',502,'AI_PROVIDER_ERROR');
     return {value:parseJsonText(textFromOpenAI(p)),usage:{inputUnits:p.usage?.input_tokens,outputUnits:p.usage?.output_tokens}};
@@ -34,8 +34,8 @@ export class OpenAIProvider implements AIProvider{
 export class AnthropicProvider implements AIProvider{
   readonly name='anthropic';
   constructor(readonly model:string,private apiKey:string){}
-  async generateStructured(input:{system:string;user:string;timeoutMs:number}):Promise<AIResult>{
-    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',redirect:'error',signal:AbortSignal.timeout(input.timeoutMs),headers:{'x-api-key':this.apiKey,'anthropic-version':'2023-06-01','Content-Type':'application/json'},body:JSON.stringify({model:this.model,max_tokens:800,system:input.system,messages:[{role:'user',content:input.user}]})});
+  async generateStructured(input:{system:string;user:string;timeoutMs:number;maxOutputTokens?:number}):Promise<AIResult>{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',redirect:'error',signal:AbortSignal.timeout(input.timeoutMs),headers:{'x-api-key':this.apiKey,'anthropic-version':'2023-06-01','Content-Type':'application/json'},body:JSON.stringify({model:this.model,max_tokens:input.maxOutputTokens??800,system:input.system,messages:[{role:'user',content:input.user}]})});
     const p=await r.json().catch(()=>({}));
     if(!r.ok)throw new StudioError('AI provider rejected the request',502,'AI_PROVIDER_ERROR');
     const text=(p.content??[]).filter((x:any)=>x?.type==='text').map((x:any)=>x.text).join('');
@@ -72,7 +72,7 @@ function providerFor(provider:string,model:string):AIProvider|null{
 class FallbackStructuredProvider implements AIProvider{
   readonly name:string; readonly model:string;
   constructor(private candidates:AIProvider[]){this.name=candidates[0]?.name??'unconfigured';this.model=candidates[0]?.model??'unconfigured';}
-  async generateStructured(input:{system:string;user:string;timeoutMs:number}):Promise<AIResult>{
+  async generateStructured(input:{system:string;user:string;timeoutMs:number;maxOutputTokens?:number}):Promise<AIResult>{
     let last:unknown;
     for(let index=0;index<this.candidates.length;index++){
       const candidate=this.candidates[index];
@@ -97,7 +97,36 @@ const proposalInput=z.object({
 const providerOutput=z.object({replacement:z.string().max(20000),rationale:z.string().max(1000).default('')}).strict();
 const sectionInput=z.object({instruction:z.string().trim().min(3).max(3000),afterId:z.string().min(1).max(150).nullable().default(null)}).strict();
 const sectionOutput=z.object({section:z.object({id:z.string().regex(/^[A-Za-z0-9][A-Za-z0-9:_-]{0,149}$/),type:z.literal('section'),children:z.array(z.record(z.string(),z.unknown())).max(30).default([]),styles:z.record(z.string(),z.union([z.string(),z.number(),z.null()])).optional(),attributes:z.record(z.string(),z.string()).optional()}).strict(),rationale:z.string().max(1000).default('')}).strict();
+const generatedPage=z.object({
+  id:z.string().regex(/^[A-Za-z0-9][A-Za-z0-9:_-]{0,149}$/),name:z.string().trim().min(1).max(120),
+  slug:z.string().min(1).max(180).regex(/^\/(?:[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*)?$/),
+  elements:z.array(z.record(z.string(),z.unknown())).max(500),pageSettings:z.record(z.string(),z.unknown()).default({}),
+  customCss:z.string().max(50000).optional(),
+}).strict();
+const pageInput=z.object({instruction:z.string().trim().min(3).max(4000)}).strict();
+const pageOutput=z.object({page:generatedPage,rationale:z.string().max(1000).default('')}).strict();
+const siteInput=z.object({instruction:z.string().trim().min(3).max(5000)}).strict();
+const sitePlanOutput=z.object({
+  siteName:z.string().trim().min(1).max(120),
+  pages:z.array(z.object({id:z.string().regex(/^[A-Za-z0-9][A-Za-z0-9:_-]{0,149}$/),name:z.string().trim().min(1).max(120),slug:z.string().min(1).max(180).regex(/^\/(?:[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*)?$/),purpose:z.string().max(500)}).strict()).min(2).max(8),
+  designSystem:z.object({variables:z.array(z.record(z.string(),z.unknown())).max(100),classes:z.array(z.record(z.string(),z.unknown())).max(100)}).strict(),
+}).strict();
+const siteBuildOutput=z.object({pages:z.array(generatedPage).min(2).max(8)}).strict();
 
+
+function pageIds(value:any,result=new Set<string>()):Set<string>{
+  if(Array.isArray(value)){for(const child of value)pageIds(child,result);return result;}
+  if(!value||typeof value!=='object')return result;
+  if(typeof value.id==='string'){if(result.has(value.id))throw new StudioError('Generated content contains duplicate stable IDs',400,'DUPLICATE_ELEMENT_ID');result.add(value.id);}
+  for(const child of Object.values(value))pageIds(child,result);return result;
+}
+function validateGeneratedPages(pages:any[]){
+  const ids=new Set<string>(),slugs=new Set<string>();
+  for(const page of pages){
+    if(ids.has(page.id)||slugs.has(page.slug))throw new StudioError('Generated pages require unique IDs and slugs',400,'DUPLICATE_PAGE');
+    ids.add(page.id);slugs.add(page.slug);pageIds(page.elements);
+  }
+}
 function findUnique(value:any,id:string,result:any[]=[]):any[]{
   if(!value||typeof value!=='object')return result;
   if(value.id===id)result.push(value);
@@ -105,8 +134,8 @@ function findUnique(value:any,id:string,result:any[]=[]):any[]{
   return result;
 }
 export class AiOrchestrator{
-  constructor(private db:Database,private commands:DomainCommands,private provider:AIProvider|null,private sectionProvider:AIProvider|null=provider){}
-  status(){return {configured:!!this.provider||!!this.sectionProvider,features:{copy:{configured:!!this.provider,provider:this.provider?.name??null,model:this.provider?.model??null},section:{configured:!!this.sectionProvider,provider:this.sectionProvider?.name??null,model:this.sectionProvider?.model??null}},registry:new AIModelRegistry().publicStatus()};}
+  constructor(private db:Database,private commands:DomainCommands,private provider:AIProvider|null,private sectionProvider:AIProvider|null=provider,private plannerProvider:AIProvider|null=sectionProvider,private pageProvider:AIProvider|null=sectionProvider){}
+  status(){return {configured:!!this.provider||!!this.sectionProvider||!!this.pageProvider,features:{copy:{configured:!!this.provider,provider:this.provider?.name??null,model:this.provider?.model??null},section:{configured:!!this.sectionProvider,provider:this.sectionProvider?.name??null,model:this.sectionProvider?.model??null},page:{configured:!!this.pageProvider,provider:this.pageProvider?.name??null,model:this.pageProvider?.model??null},site:{configured:!!this.plannerProvider&&!!this.pageProvider,planner:this.plannerProvider?.model??null,editor:this.pageProvider?.model??null}},registry:new AIModelRegistry().publicStatus()};}
   async listChanges(actor:Actor,siteId:string){
     return this.db.tx(async c=>{await this.db.site(c,actor,siteId,'VIEW');const r=await c.query(`SELECT id,name,status,base_hash AS "baseHash",result_hash AS "resultHash",created_at AS "createdAt",applied_at AS "appliedAt" FROM studio.change_sets WHERE site_id=$1 ORDER BY created_at DESC LIMIT 50`,[siteId]);return {changes:r.rows};});
   }
@@ -159,6 +188,59 @@ export class AiOrchestrator{
       await this.db.pool.query(`INSERT INTO studio.ai_runs(id,site_id,workspace_id,user_id,feature,provider,model_requested,model_resolved,prompt_version,context_hash,latency_ms,status,error_code) VALUES($1,$2,$3,$4,'SECTION_GENERATION',$5,$6,$6,$7,$8,$9,'FAILED',$10)`,[runId,siteId,context.site.workspaceId,actor.id,this.sectionProvider.name,this.sectionProvider.model,SECTION_PROMPT.version,contextHash,Date.now()-started,(error as any)?.code||'AI_FAILED']).catch(()=>undefined);throw error;
     }
   }
+  async proposePage(actor:Actor,siteId:string,input:unknown){
+    if(!this.pageProvider)throw new StudioError('AI page generation is not configured',503,'AI_NOT_CONFIGURED');
+    const b=parse(pageInput,input),started=Date.now(),runId=randomUUID();
+    const context=await this.db.tx(async c=>{const site=await this.db.site(c,actor,siteId,'EDIT_DESIGN');return {site,design:designOnly(site.editorData)};});
+    const user=JSON.stringify({instruction:b.instruction,siteName:context.site.name,existingPages:(context.design.pages as any[]|undefined)?.map(p=>({id:p.id,name:p.name,slug:p.slug}))??[],designSystem:{variables:context.design.globalVariables??[],classes:context.design.globalClasses??[]}});
+    const contextHash=digest({siteId,instruction:b.instruction,designHash:digest(context.design)});
+    try{
+      const generated=await this.pageProvider.generateStructured({system:PAGE_PROMPT.system,user,timeoutMs:60000,maxOutputTokens:5000});
+      const output=parse(pageOutput,generated.value);validateGeneratedPages([output.page]);
+      const existing=(context.design.pages as any[]|undefined)??[];
+      if(existing.some(p=>p.id===output.page.id||p.slug===output.page.slug))throw new StudioError('Generated page conflicts with an existing page',409,'PAGE_CONFLICT');
+      const changeSetId=randomUUID(),commands=[{type:'CREATE_PAGE',page:output.page}];
+      await this.db.tx(async c=>{
+        const site=await this.db.site(c,actor,siteId,'EDIT_DESIGN');
+        await c.query(`INSERT INTO studio.change_sets(id,site_id,actor_id,source,name,status,base_hash,commands) VALUES($1,$2,$3,'AI',$4,'PROPOSED',$5,$6::jsonb)`,[changeSetId,siteId,actor.id,`AI page: ${output.page.name}`,digest(context.design),JSON.stringify(commands)]);
+        await c.query(`INSERT INTO studio.ai_runs(id,site_id,workspace_id,user_id,feature,provider,model_requested,model_resolved,prompt_version,context_hash,input_units,output_units,latency_ms,status,changeset_id) VALUES($1,$2,$3,$4,'PAGE_GENERATION',$5,$6,$7,$8,$9,$10,$11,$12,'SUCCEEDED',$13)`,[runId,siteId,site.workspaceId,actor.id,generated.provider??this.pageProvider!.name,this.pageProvider!.model,generated.modelResolved??this.pageProvider!.model,PAGE_PROMPT.version,contextHash,generated.usage?.inputUnits??null,generated.usage?.outputUnits??null,Date.now()-started,changeSetId]);
+        await this.db.audit(c,actor,site,'ai.page_proposed',output.page.id);
+      });
+      return {changeSetId,baseHash:digest(context.design),page:output.page,rationale:output.rationale,provider:generated.provider??this.pageProvider.name,model:generated.modelResolved??this.pageProvider.model};
+    }catch(error){
+      await this.db.pool.query(`INSERT INTO studio.ai_runs(id,site_id,workspace_id,user_id,feature,provider,model_requested,model_resolved,prompt_version,context_hash,latency_ms,status,error_code) VALUES($1,$2,$3,$4,'PAGE_GENERATION',$5,$6,$6,$7,$8,$9,'FAILED',$10)`,[runId,siteId,context.site.workspaceId,actor.id,this.pageProvider.name,this.pageProvider.model,PAGE_PROMPT.version,contextHash,Date.now()-started,(error as any)?.code||'AI_FAILED']).catch(()=>undefined);throw error;
+    }
+  }
+  async proposeSite(actor:Actor,siteId:string,input:unknown){
+    if(!this.plannerProvider||!this.pageProvider)throw new StudioError('AI site generation requires planner and editor models',503,'AI_NOT_CONFIGURED');
+    const b=parse(siteInput,input),started=Date.now(),planRunId=randomUUID(),buildRunId=randomUUID();
+    const context=await this.db.tx(async c=>{const site=await this.db.site(c,actor,siteId,'EDIT_DESIGN');return {site,design:designOnly(site.editorData)};});
+    const existingPages=(context.design.pages as any[]|undefined)??[];
+    if(existingPages.length)throw new StudioError('Full-site generation is available only before pages exist. Generate individual pages for an existing site.',409,'SITE_HAS_PAGES');
+    const contextHash=digest({siteId,instruction:b.instruction,designHash:digest(context.design)});
+    try{
+      const planned=await this.plannerProvider.generateStructured({system:SITE_PLAN_PROMPT.system,user:JSON.stringify({instruction:b.instruction,siteName:context.site.name}),timeoutMs:45000,maxOutputTokens:2500});
+      const plan=parse(sitePlanOutput,planned.value);
+      if(new Set(plan.pages.map(p=>p.id)).size!==plan.pages.length||new Set(plan.pages.map(p=>p.slug)).size!==plan.pages.length||plan.pages.filter(p=>p.slug==='/').length!==1)throw new StudioError('AI site plan contains duplicate pages or an invalid home route',400,'INVALID_SITE_PLAN');
+      if(plan.designSystem.variables.some(v=>typeof v.id!=='string')||plan.designSystem.classes.some(v=>typeof v.id!=='string'))throw new StudioError('AI design system entries require stable IDs',400,'INVALID_DESIGN_SYSTEM');
+      const built=await this.pageProvider.generateStructured({system:SITE_BUILD_PROMPT.system,user:JSON.stringify({instruction:b.instruction,siteName:plan.siteName,pages:plan.pages,designSystem:plan.designSystem}),timeoutMs:90000,maxOutputTokens:12000});
+      const build=parse(siteBuildOutput,built.value);validateGeneratedPages(build.pages);
+      const plannedById=new Map(plan.pages.map(p=>[p.id,p]));
+      if(build.pages.length!==plan.pages.length||build.pages.some(p=>{const expected=plannedById.get(p.id);return !expected||expected.name!==p.name||expected.slug!==p.slug;}))throw new StudioError('Generated pages do not match the approved site plan',400,'SITE_PLAN_MISMATCH');
+      const home=plan.pages.find(p=>p.slug==='/')!,changeSetId=randomUUID();
+      const commands:any[]=[{type:'SET_DESIGN_SYSTEM',variables:plan.designSystem.variables,classes:plan.designSystem.classes},...build.pages.map(page=>({type:'CREATE_PAGE',page:{...page,slug:page.id===home.id?'/':page.slug}})),{type:'SET_HOME_PAGE',pageId:home.id}];
+      await this.db.tx(async c=>{
+        const site=await this.db.site(c,actor,siteId,'EDIT_DESIGN');
+        await c.query(`INSERT INTO studio.change_sets(id,site_id,actor_id,source,name,status,base_hash,commands) VALUES($1,$2,$3,'AI',$4,'PROPOSED',$5,$6::jsonb)`,[changeSetId,siteId,actor.id,`AI site: ${plan.siteName}`,digest(context.design),JSON.stringify(commands)]);
+        await c.query(`INSERT INTO studio.ai_runs(id,site_id,workspace_id,user_id,feature,provider,model_requested,model_resolved,prompt_version,context_hash,input_units,output_units,latency_ms,status) VALUES($1,$2,$3,$4,'SITE_PLAN',$5,$6,$7,$8,$9,$10,$11,$12,'SUCCEEDED')`,[planRunId,siteId,site.workspaceId,actor.id,planned.provider??this.plannerProvider!.name,this.plannerProvider!.model,planned.modelResolved??this.plannerProvider!.model,SITE_PLAN_PROMPT.version,contextHash,planned.usage?.inputUnits??null,planned.usage?.outputUnits??null,Date.now()-started]);
+        await c.query(`INSERT INTO studio.ai_runs(id,site_id,workspace_id,user_id,feature,provider,model_requested,model_resolved,prompt_version,context_hash,input_units,output_units,latency_ms,status,changeset_id) VALUES($1,$2,$3,$4,'SITE_GENERATION',$5,$6,$7,$8,$9,$10,$11,$12,'SUCCEEDED',$13)`,[buildRunId,siteId,site.workspaceId,actor.id,built.provider??this.pageProvider!.name,this.pageProvider!.model,built.modelResolved??this.pageProvider!.model,SITE_BUILD_PROMPT.version,contextHash,built.usage?.inputUnits??null,built.usage?.outputUnits??null,Date.now()-started,changeSetId]);
+        await this.db.audit(c,actor,site,'ai.site_proposed',plan.siteName);
+      });
+      return {changeSetId,baseHash:digest(context.design),plan:{siteName:plan.siteName,pages:plan.pages,designSystem:{variableCount:plan.designSystem.variables.length,classCount:plan.designSystem.classes.length}},pageCount:build.pages.length};
+    }catch(error){
+      await this.db.pool.query(`INSERT INTO studio.ai_runs(id,site_id,workspace_id,user_id,feature,provider,model_requested,model_resolved,prompt_version,context_hash,latency_ms,status,error_code) VALUES($1,$2,$3,$4,'SITE_GENERATION',$5,$6,$6,$7,$8,$9,'FAILED',$10)`,[buildRunId,siteId,context.site.workspaceId,actor.id,this.pageProvider.name,this.pageProvider.model,SITE_BUILD_PROMPT.version,contextHash,Date.now()-started,(error as any)?.code||'AI_FAILED']).catch(()=>undefined);throw error;
+    }
+  }
   async reject(actor:Actor,siteId:string,changeSetId:string){
     parse(uuid,changeSetId);
     return this.db.tx(async c=>{
@@ -177,7 +259,7 @@ export class AiOrchestrator{
   async apply(actor:Actor,siteId:string,changeSetId:string){
     parse(uuid,changeSetId);
     const change=await this.db.tx(async c=>{
-      await this.db.site(c,actor,siteId,'EDIT_CONTENT');
+      await this.db.site(c,actor,siteId,'VIEW');
       const r=await c.query('SELECT * FROM studio.change_sets WHERE id=$1 AND site_id=$2',[changeSetId,siteId]);
       if(!r.rows[0])throw new StudioError('Changeset not found',404);
       if(r.rows[0].status==='APPLIED')return {...r.rows[0],alreadyApplied:true};
@@ -189,6 +271,8 @@ export class AiOrchestrator{
     if(digest(read.design)!==change.base_hash)throw new StudioError('The design changed after this AI proposal. Generate a new proposal.',409,'DESIGN_CONFLICT');
     const commands=Array.isArray(change.commands)?change.commands:JSON.parse(change.commands);
     if(!Array.isArray(commands)||commands.length<1||commands.length>100)throw new StudioError('Unsupported changeset commands',400,'INVALID_CHANGESET');
+    const structural=new Set(['ADD_ELEMENT','REMOVE_ELEMENT','CREATE_PAGE','UPDATE_PAGE','DELETE_PAGE','REORDER_PAGES','SET_HOME_PAGE','SET_DESIGN_SYSTEM']);
+    await this.db.tx(async c=>{await this.db.site(c,actor,siteId,commands.some((x:any)=>structural.has(x?.type))?'EDIT_DESIGN':'EDIT_CONTENT');return {};});
     const applied=await this.commands.executeDesignCommands(actor,siteId,{baseHash:change.base_hash,commands,operationId:changeSetId,correlationId:randomUUID()},{source:'AI'});
     await this.db.tx(async c=>{
       const site=await this.db.site(c,actor,siteId,'EDIT_CONTENT');
