@@ -1,16 +1,97 @@
-import { useState } from 'react';
-import { Plus,Globe } from 'lucide-react';
-import { useData,useMutation,Feedback,Modal } from './api';
+import { useEffect, useState } from 'react';
+import { Plus, Globe } from 'lucide-react';
+import { useData, useMutation, Feedback, Modal } from './api';
 import type { PanelProps } from './types';
-function TranslationEditor({page,record,locale,base,onClose,reload}:{page:any;record:any;locale:string;base:string;onClose:()=>void;reload:()=>void}){
-  const [draft,setDraft]=useState(record?.draft||{title:'',description:'',texts:{},alts:{}});const m=useMutation(reload);
-  return <Modal title={`${page.name} · ${locale}`} onClose={onClose} busy={m.busy}><form onSubmit={async e=>{e.preventDefault();if(await m.send(`${base}/localization/${encodeURIComponent(page.id)}/${locale}`,'PUT',{revision:record?.revision||0,data:draft},'Translation draft saved'))onClose();}}><p className="sn-help">Missing translations use primary-language text. Empty text is an intentional empty override. Publishing is a separate action.</p><label>Localized page title<input value={draft.title} maxLength={200} onChange={e=>setDraft({...draft,title:e.target.value})}/></label><label>Localized description<textarea value={draft.description} maxLength={1000} onChange={e=>setDraft({...draft,description:e.target.value})}/></label>{page.nodes.map((n:any)=><fieldset className="sn-field-card" key={n.id}><legend>{n.id}</legend><p className="sn-source">{n.text.slice(0,300)}</p><label>Translated text<textarea value={draft.texts[n.id]??''} placeholder="Primary-language fallback" onChange={e=>setDraft({...draft,texts:{...draft.texts,[n.id]:e.target.value}})}/></label><button className="sn-link" type="button" onClick={()=>{const texts={...draft.texts};delete texts[n.id];setDraft({...draft,texts});}}>Use primary text</button>{n.alt!==undefined&&<label>Image alternative text<input value={draft.alts[n.id]??''} onChange={e=>setDraft({...draft,alts:{...draft.alts,[n.id]:e.target.value}})}/></label>}</fieldset>)}<Feedback state={m}/><footer><button type="button" className="sn-button" onClick={onClose} disabled={m.busy}>Cancel</button><button className="sn-button sn-primary" disabled={m.busy}>Save translation draft</button></footer></form></Modal>;
+
+function LocaleEnabled({ locale, base, canEdit, mutation }: {
+  locale: { code: string; enabled: boolean; isPrimary?: boolean };
+  base: string;
+  canEdit: boolean;
+  mutation: ReturnType<typeof useMutation>;
+}) {
+  const [enabled, setEnabled] = useState(locale.enabled);
+  useEffect(() => setEnabled(locale.enabled), [locale.enabled]);
+
+  return <label className="sn-check">
+    <input
+      type="checkbox"
+      aria-label="Publicly enabled"
+      checked={enabled}
+      disabled={!canEdit || locale.isPrimary || mutation.busy}
+      onChange={async event => {
+        const next = event.target.checked;
+        // Show the user's choice immediately, but never retain it after a rejected save.
+        setEnabled(next);
+        const saved = await mutation.send(`${base}/locales/${locale.code}`, 'PATCH', { enabled: next }, 'Locale updated');
+        if (!saved) setEnabled(locale.enabled);
+      }}
+    />
+    Publicly enabled
+  </label>;
 }
-export default function LocalesPanel({site,locales,refresh,reload}:PanelProps){
-  const base=`/sites/${site.id}`,[selected,setSelected]=useState(locales.find(l=>l.code!=='en')?.code||'en'),[adding,setAdding]=useState(false),[code,setCode]=useState(''),[name,setName]=useState(''),[edit,setEdit]=useState<any>(null);
-  const r=useData(`${base}/localization?locale=${selected}`,refresh),m=useMutation(reload);const manager=site.capabilities.includes('MANAGE_SETTINGS'),publisher=site.capabilities.includes('PUBLISH');
-  return <section><div className="sn-section-heading"><div><h2>Localization</h2><p>Translate page text and metadata without changing the primary design. CMS item translations live in Collections.</p></div>{manager&&<button className="sn-button sn-primary" onClick={()=>setAdding(true)}><Plus size={15}/>Add locale</button>}</div><Feedback state={m}/><div className="sn-locale-cards">{locales.map(l=><article className={`sn-locale-card ${selected===l.code?'selected':''}`} key={l.code}><button onClick={()=>setSelected(l.code)}><Globe size={20}/><strong>{l.name}</strong><span>{l.code}{l.code==='en'?' · Primary':''}</span></button>{manager&&l.code!=='en'&&<label className="sn-check"><input type="checkbox" checked={l.enabled} disabled={m.busy} onChange={e=>{void m.send(`${base}/locales`,'PUT',{code:l.code,name:l.name,enabled:e.target.checked},'Locale visibility updated');}}/>Publicly enabled</label>}</article>)}</div><Feedback state={r}/>{selected==='en'?<div className="sn-empty">Edit primary-language pages in the Designer. Select a secondary locale to translate.</div>:<div className="sn-table"><table><thead><tr><th>Page</th><th>Translation status</th><th>Actions</th></tr></thead><tbody>{r.data?.pages.map((page:any)=>{const record=r.data.translations.find((x:any)=>x.pageId===page.id);return <tr key={page.id}><td>{page.name}<small>{page.nodes.length} text and image nodes</small></td><td>{record?.publishedRevision===undefined||record?.publishedRevision===null?'Not published':record.revision===record.publishedRevision?'Published':'Published · draft changes'}</td><td><div className="sn-inline-actions">{site.capabilities.includes('EDIT_CONTENT')&&<button className="sn-button" onClick={()=>setEdit({page,record})}>Translate</button>}{publisher&&record&&<><button className="sn-button" disabled={m.busy} onClick={()=>{void m.send(`${base}/localization/${encodeURIComponent(page.id)}/${selected}/publish`,'POST',{revision:record.revision,publish:true},'Translation published');}}>Publish translation</button>{record.publishedRevision!==null&&<button className="sn-button" disabled={m.busy} onClick={()=>{void m.send(`${base}/localization/${encodeURIComponent(page.id)}/${selected}/publish`,'POST',{revision:record.revision,publish:false},'Translation unpublished');}}>Unpublish</button>}</>}</div></td></tr>;})}</tbody></table></div>}
-    {adding&&<Modal title="Add a locale" onClose={()=>setAdding(false)} busy={m.busy}><form onSubmit={async e=>{e.preventDefault();if(await m.send(`${base}/locales`,'PUT',{code,name,enabled:false},'Locale added, disabled publicly')){setAdding(false);setSelected(code);setCode('');setName('');}}}><label>Language name<input required value={name} onChange={e=>setName(e.target.value)} placeholder="French"/></label><label>Canonical language tag<input required value={code} onChange={e=>setCode(e.target.value)} placeholder="fr or pt-BR"/></label><Feedback state={m}/><button className="sn-button sn-primary" disabled={m.busy}>Create locale</button></form></Modal>}
-    {edit&&<TranslationEditor page={edit.page} record={edit.record} locale={selected} base={base} onClose={()=>setEdit(null)} reload={reload}/>}
+
+function TranslationEditor({ page, record, locale, base, onClose, reload }: {
+  page: any; record: any; locale: string; base: string; onClose: () => void; reload: () => void;
+}) {
+  const [draft, setDraft] = useState(record?.draft || { title: '', description: '', texts: {}, alts: {} });
+  const m = useMutation(reload);
+  return <Modal title={`${page.name} · ${locale}`} onClose={onClose} busy={m.busy}>
+    <form onSubmit={async event => {
+      event.preventDefault();
+      if (await m.send(`${base}/localization/${encodeURIComponent(page.id)}/${locale}`, 'PUT', {
+        revision: record?.revision || 0, data: draft,
+      }, 'Translation draft saved')) onClose();
+    }}>
+      <p className="sn-help">Missing translations use primary-language text. Empty text is an intentional empty override. Publishing is a separate action.</p>
+      <label>Localized page title<input value={draft.title} maxLength={200} onChange={event => setDraft({ ...draft, title: event.target.value })} /></label>
+      <label>Localized description<textarea value={draft.description} maxLength={1000} onChange={event => setDraft({ ...draft, description: event.target.value })} /></label>
+      {page.nodes.map((node: any) => <fieldset className="sn-field-card" key={node.id}>
+        <legend>{node.id}</legend><p className="sn-source">{node.text.slice(0, 300)}</p>
+        <label>Translated text<textarea value={draft.texts[node.id] ?? ''} placeholder="Primary-language fallback" onChange={event => setDraft({ ...draft, texts: { ...draft.texts, [node.id]: event.target.value } })} /></label>
+        <button className="sn-link" type="button" onClick={() => {
+          const texts = { ...draft.texts }; delete texts[node.id]; setDraft({ ...draft, texts });
+        }}>Use primary text</button>
+        {node.alt !== undefined && <label>Image alternative text<input value={draft.alts[node.id] ?? ''} onChange={event => setDraft({ ...draft, alts: { ...draft.alts, [node.id]: event.target.value } })} /></label>}
+      </fieldset>)}
+      <Feedback state={m} />
+      <footer><button type="button" className="sn-button" onClick={onClose} disabled={m.busy}>Cancel</button><button className="sn-button sn-primary" disabled={m.busy}>Save translation draft</button></footer>
+    </form>
+  </Modal>;
+}
+
+export default function LocalesPanel({ site, refresh, reload }: PanelProps) {
+  const base = `/sites/${site.id}`, r = useData(`${base}/localization`, refresh), m = useMutation(reload);
+  const [creating, setCreating] = useState(false), [code, setCode] = useState(''), [name, setName] = useState('');
+  const [selected, setSelected] = useState(''), [editing, setEditing] = useState<any>(null);
+  const secondary = r.data?.locales.filter((locale: any) => !locale.isPrimary) || [];
+  const locale = secondary.find((entry: any) => entry.code === selected) || secondary[0];
+  const canEdit = site.capabilities.includes('EDIT_CONTENT'), canPublish = site.capabilities.includes('PUBLISH');
+
+  return <section>
+    <div className="sn-section-heading"><div><h2>Localization</h2><p>Translate page text and CMS items without changing the primary design. Only published translations are returned to visitors.</p></div>{site.capabilities.includes('MANAGE_SETTINGS') && <button className="sn-button sn-primary" onClick={() => setCreating(true)}><Plus size={15} />Add locale</button>}</div>
+    <Feedback state={r} /><Feedback state={m} />
+    <div className="sn-locale-cards">{r.data?.locales.map((entry: any) => <div className={`sn-locale-card ${locale?.code === entry.code ? 'selected' : ''}`} key={entry.code}>
+      <button onClick={() => { if (!entry.isPrimary) setSelected(entry.code); }}><Globe size={19} /><strong>{entry.name}</strong><span>{entry.code}{entry.isPrimary ? ' · Primary' : ''}</span></button>
+      <LocaleEnabled locale={entry} base={base} canEdit={site.capabilities.includes('MANAGE_SETTINGS')} mutation={m} />
+    </div>)}</div>
+    {!locale && !r.loading && <p className="sn-empty">Add a secondary locale to translate pages.</p>}
+    {locale && <div className="sn-table"><table><thead><tr><th>Page</th><th>{locale.name}</th><th>Actions</th></tr></thead><tbody>{r.data?.pages.map((page: any) => {
+      const record = r.data.translations.find((translation: any) => translation.pageId === page.id && translation.locale === locale.code);
+      return <tr key={page.id}><td>{page.name}<small>{page.slug}</small></td><td>{record?.liveRevision ? 'Published' : record ? 'Draft' : 'Primary fallback'}{record && <small>Draft {record.revision} / Live {record.liveRevision || '—'}</small>}</td><td><div className="sn-inline-actions">
+        {canEdit && <button className="sn-button" onClick={() => setEditing({ page, record })}>Edit translation</button>}
+        {canPublish && record && <button className="sn-button" disabled={m.busy} onClick={() => { void m.send(`${base}/localization/${encodeURIComponent(page.id)}/${locale.code}/publish`, 'POST', { revision: record.revision, publish: true }, 'Translation published'); }}>Publish</button>}
+        {canPublish && record?.liveRevision && <button className="sn-button" disabled={m.busy} onClick={() => { void m.send(`${base}/localization/${encodeURIComponent(page.id)}/${locale.code}/publish`, 'POST', { revision: record.revision, publish: false }, 'Translation unpublished'); }}>Unpublish</button>}
+      </div></td></tr>;
+    })}</tbody></table></div>}
+    {creating && <Modal title="Add locale" onClose={() => setCreating(false)} busy={m.busy}><form onSubmit={async event => {
+      event.preventDefault();
+      if (await m.send(`${base}/locales`, 'POST', { code, name }, 'Locale added')) { setCreating(false); setCode(''); setName(''); }
+    }}>
+      <label>Language code<input required placeholder="fr or pt-BR" maxLength={35} value={code} onChange={event => setCode(event.target.value)} /></label>
+      <label>Display name<input required placeholder="French" maxLength={120} value={name} onChange={event => setName(event.target.value)} /></label>
+      <Feedback state={m} /><footer><button className="sn-button sn-primary" disabled={m.busy}>Add locale</button></footer>
+    </form></Modal>}
+    {editing && locale && <TranslationEditor {...editing} locale={locale.code} base={base} onClose={() => setEditing(null)} reload={reload} />}
+    <p className="sn-help">Page translations cover known text and image-alt nodes. Global component slots, locale subdirectories and localized SEO routing are not generated by this panel.</p>
   </section>;
 }
