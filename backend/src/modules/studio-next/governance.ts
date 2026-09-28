@@ -3,7 +3,7 @@ import {z} from 'zod';
 import {Database,type Actor} from './database.js';
 import {parse,StudioError} from './validation.js';
 
-export const FEATURES=['AI_COPY','AI_SECTION_GENERATION','AI_PAGE_GENERATION','AI_SITE_GENERATION','AI_CMS','AI_SEO'] as const;
+export const FEATURES=['AI_COPY','AI_SECTION_GENERATION','AI_PAGE_GENERATION','AI_SITE_GENERATION','AI_CMS','AI_SEO','AI_IMAGES','AI_CODE_COMPONENTS','LOCALIZATION','COMMERCE','ANALYTICS','EXPERIMENTS','PERSONALIZATION','CUSTOM_CODE','MCP','WEBHOOKS'] as const;
 export type Feature=typeof FEATURES[number];
 const featureSchema=z.enum(FEATURES);
 const featureInput=z.object({feature:featureSchema,enabled:z.boolean()}).strict();
