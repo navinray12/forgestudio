@@ -5,7 +5,7 @@ import { DomainCommands } from './commands.js';
 import { parse,uuid,digest,designOnly,StudioError } from './validation.js';
 
 export interface AIUsage { inputUnits?:number; outputUnits?:number; }
-export interface AIResult { value:unknown; usage?:AIUsage; }
+export interface AIResult { value:unknown; usage?:AIUsage; provider?:string; modelResolved?:string; }
 export interface AIProvider {
   readonly name:string;
   readonly model:string;
@@ -41,14 +41,53 @@ export class AnthropicProvider implements AIProvider{
     return {value:parseJsonText(text),usage:{inputUnits:p.usage?.input_tokens,outputUnits:p.usage?.output_tokens}};
   }
 }
-export function configuredCopyProvider():AIProvider|null{
-  const provider=(process.env.AI_PROVIDER_COPY||process.env.AI_PROVIDER_DEFAULT||'').toLowerCase();
-  const model=process.env.AI_MODEL_COPY||'';
-  if(!provider||!model)return null;
+
+export type AIFeature='PLANNER'|'EDITOR'|'COPY'|'CODE'|'REVIEWER'|'VISION'|'IMAGE'|'EMBEDDING';
+export interface AIModelConfig {
+  feature:AIFeature; provider:'openai'|'anthropic'; model:string; enabled:boolean;
+  modalities:string[]; structuredOutput:boolean; toolSupport:boolean; contextLimit?:number;
+  inputMicrousdPerMillion?:number; outputMicrousdPerMillion?:number; fallbackModels:string[];
+}
+function modelEnv(feature:AIFeature){return process.env[`AI_MODEL_${feature}`]||'';}
+function providerEnv(feature:AIFeature){return (process.env[`AI_PROVIDER_${feature}`]||process.env.AI_PROVIDER_DEFAULT||'').toLowerCase();}
+function fallbackEnv(feature:AIFeature){return (process.env[`AI_FALLBACK_MODELS_${feature}`]||'').split(',').map(x=>x.trim()).filter(Boolean);}
+export class AIModelRegistry {
+  readonly models:AIModelConfig[];
+  constructor(models?:AIModelConfig[]){
+    this.models=models??(['PLANNER','EDITOR','COPY','CODE','REVIEWER','VISION','IMAGE','EMBEDDING'] as AIFeature[]).flatMap(feature=>{
+      const provider=providerEnv(feature),model=modelEnv(feature);
+      if(!model||!['openai','anthropic'].includes(provider))return [];
+      return [{feature,provider:provider as 'openai'|'anthropic',model,enabled:true,modalities:['text'],structuredOutput:true,toolSupport:false,fallbackModels:fallbackEnv(feature)}];
+    });
+  }
+  forFeature(feature:AIFeature){return this.models.filter(x=>x.feature===feature&&x.enabled);}
+  publicStatus(){return this.models.map(({feature,provider,model,enabled,modalities,structuredOutput,toolSupport,contextLimit,fallbackModels})=>({feature,provider,model,enabled,modalities,structuredOutput,toolSupport,contextLimit,fallbackModels}));}
+}
+function providerFor(provider:string,model:string):AIProvider|null{
   if(provider==='openai'&&process.env.OPENAI_API_KEY)return new OpenAIProvider(model,process.env.OPENAI_API_KEY);
   if(provider==='anthropic'&&process.env.ANTHROPIC_API_KEY)return new AnthropicProvider(model,process.env.ANTHROPIC_API_KEY);
   return null;
 }
+class FallbackStructuredProvider implements AIProvider{
+  readonly name:string; readonly model:string;
+  constructor(private candidates:AIProvider[]){this.name=candidates[0]?.name??'unconfigured';this.model=candidates[0]?.model??'unconfigured';}
+  async generateStructured(input:{system:string;user:string;timeoutMs:number}):Promise<AIResult>{
+    let last:unknown;
+    for(let index=0;index<this.candidates.length;index++){
+      const candidate=this.candidates[index];
+      try{const value=await candidate.generateStructured(input);return {...value,provider:candidate.name,modelResolved:candidate.model};}
+      catch(error){last=error;const code=(error as any)?.code;if(index===this.candidates.length-1||!['AI_PROVIDER_ERROR','UND_ERR_CONNECT_TIMEOUT','ETIMEDOUT','ECONNRESET'].includes(String(code)))throw error;}
+    }
+    throw last;
+  }
+}
+export function configuredProvider(feature:AIFeature,registry=new AIModelRegistry()):AIProvider|null{
+  const config=registry.forFeature(feature)[0];if(!config)return null;
+  const primary=providerFor(config.provider,config.model);if(!primary)return null;
+  const fallbacks=config.fallbackModels.map(spec=>{const [provider,model]=spec.includes(':')?spec.split(':',2):[config.provider,spec];return providerFor(provider,model);}).filter((x):x is AIProvider=>!!x);
+  return new FallbackStructuredProvider([primary,...fallbacks]);
+}
+export function configuredCopyProvider():AIProvider|null{return configuredProvider('COPY');}
 const proposalInput=z.object({
   elementId:z.string().min(1).max(150),
   field:z.enum(['content','text','alt']).default('content'),
@@ -86,10 +125,10 @@ export class AiOrchestrator{
       await this.db.tx(async c=>{
         const site=await this.db.site(c,actor,siteId,'EDIT_CONTENT');
         await c.query(`INSERT INTO studio.change_sets(id,site_id,actor_id,source,name,status,base_hash,commands) VALUES($1,$2,$3,'AI',$4,'PROPOSED',$5,$6::jsonb)`,[changeSetId,siteId,actor.id,`AI copy: ${b.instruction.slice(0,120)}`,digest(context.design),JSON.stringify([command])]);
-        await c.query(`INSERT INTO studio.ai_runs(id,site_id,workspace_id,user_id,feature,provider,model_requested,model_resolved,prompt_version,context_hash,input_units,output_units,latency_ms,status,changeset_id) VALUES($1,$2,$3,$4,'COPY_EDIT',$5,$6,$6,'copy-v1',$7,$8,$9,$10,'SUCCEEDED',$11)`,[runId,siteId,site.workspaceId,actor.id,this.provider!.name,this.provider!.model,contextHash,generated.usage?.inputUnits??null,generated.usage?.outputUnits??null,Date.now()-started,changeSetId]);
+        await c.query(`INSERT INTO studio.ai_runs(id,site_id,workspace_id,user_id,feature,provider,model_requested,model_resolved,prompt_version,context_hash,input_units,output_units,latency_ms,status,changeset_id) VALUES($1,$2,$3,$4,'COPY_EDIT',$5,$6,$6,'copy-v1',$7,$8,$9,$10,'SUCCEEDED',$11)`,[runId,siteId,site.workspaceId,actor.id,generated.provider??this.provider!.name,generated.modelResolved??this.provider!.model,contextHash,generated.usage?.inputUnits??null,generated.usage?.outputUnits??null,Date.now()-started,changeSetId]);
         await this.db.audit(c,actor,site,'ai.copy_proposed',b.elementId);
       });
-      return {changeSetId,baseHash:digest(context.design),elementId:b.elementId,field:b.field,current,replacement:output.replacement,rationale:output.rationale,provider:this.provider.name,model:this.provider.model};
+      return {changeSetId,baseHash:digest(context.design),elementId:b.elementId,field:b.field,current,replacement:output.replacement,rationale:output.rationale,provider:generated.provider??this.provider.name,model:generated.modelResolved??this.provider.model};
     }catch(error){
       await this.db.pool.query(`INSERT INTO studio.ai_runs(id,site_id,workspace_id,user_id,feature,provider,model_requested,model_resolved,prompt_version,context_hash,latency_ms,status,error_code) VALUES($1,$2,$3,$4,'COPY_EDIT',$5,$6,$6,'copy-v1',$7,$8,'FAILED',$9)`,[runId,siteId,context.site.workspaceId,actor.id,this.provider.name,this.provider.model,contextHash,Date.now()-started,(error as any)?.code||'AI_FAILED']).catch(()=>undefined);
       throw error;
