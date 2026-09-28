@@ -1,0 +1,19 @@
+import {useState} from 'react';
+import {useData,useMutation,Feedback,date} from './api';
+import type {PanelProps} from './types';
+
+export default function WebhooksPanel({site,refresh,reload}:PanelProps){
+  const data=useData<any>(`/sites/${site.id}/webhooks`,refresh),m=useMutation(reload);
+  const [url,setUrl]=useState(''),[events,setEvents]=useState('release.activated, cms.item.published'),[secret,setSecret]=useState('');
+  const create=async(e:React.FormEvent)=>{e.preventDefault();const list=events.split(',').map(x=>x.trim()).filter(Boolean);const result=await m.send<any>(`/sites/${site.id}/webhooks`,'POST',{url,events:list},'Webhook endpoint created');if(result){setSecret(result.secret);setUrl('');}};
+  const remove=async(id:string)=>{if(!confirm('Delete this webhook endpoint and its pending deliveries?'))return;await m.send(`/sites/${site.id}/webhooks/${id}`,'DELETE',undefined,'Webhook endpoint deleted');};
+  return <section className="sn-panel">
+    <div className="sn-panel-head"><div><p className="sn-eyebrow">DEVELOPER EVENTS</p><h2>Signed webhooks</h2><p className="sn-help">Domain events are written transactionally, delivered by the worker, signed with HMAC, retried with backoff, and dead-lettered after repeated failure.</p></div></div>
+    <Feedback state={data}/><Feedback state={m}/>
+    {!data.data?.configured&&<div className="sn-banner">Webhook creation is disabled until a 32-byte base64 <code>STUDIO_WEBHOOK_MASTER_KEY</code> is configured on the backend.</div>}
+    {secret&&<div className="sn-banner"><strong>Copy the signing secret now.</strong> It will not be shown again.<pre>{secret}</pre><button className="sn-button" onClick={()=>navigator.clipboard?.writeText(secret)}>Copy secret</button><button className="sn-button" onClick={()=>setSecret('')}>I saved it</button></div>}
+    <form className="sn-card" onSubmit={create}><h3>Add endpoint</h3><label>HTTPS endpoint<input type="url" required value={url} onChange={e=>setUrl(e.target.value)} placeholder="https://example.com/webhooks/forgestudio"/></label><label>Events, comma separated<input value={events} onChange={e=>setEvents(e.target.value)} placeholder="release.activated, cms.item.published"/></label><p className="sn-help">Use <code>*</code> to subscribe to every event. Private/local destinations are blocked.</p><button className="sn-button sn-primary" disabled={m.busy||!data.data?.configured}>Create endpoint</button></form>
+    <div className="sn-card"><h3>Endpoints</h3>{data.data?.endpoints?.length?data.data.endpoints.map((endpoint:any)=><div className="sn-row" key={endpoint.id}><div><strong>{endpoint.url}</strong><div className="sn-help">{endpoint.events.join(', ')} · created {date(endpoint.createdAt)}</div></div><div className="sn-inline-actions"><button className="sn-button" disabled={m.busy} onClick={()=>m.send(`/sites/${site.id}/webhooks/${endpoint.id}/test`,'POST',{},'Test event queued')}>Queue test</button><button className="sn-button" disabled={m.busy} onClick={()=>remove(endpoint.id)}>Delete</button></div></div>):<p className="sn-help">No webhook endpoints configured.</p>}</div>
+    <div className="sn-card"><h3>Recent deliveries</h3>{data.data?.deliveries?.length?data.data.deliveries.map((delivery:any)=><div className="sn-row" key={delivery.id}><div><strong>{delivery.eventType}</strong><div className="sn-help">{delivery.url} · {date(delivery.createdAt)} · attempts {delivery.attempts}{delivery.lastError?` · ${delivery.lastError}`:''}</div></div><div className="sn-inline-actions"><span className="sn-badge">{delivery.state}</span>{delivery.state==='DEAD'&&<button className="sn-button" disabled={m.busy} onClick={()=>m.send(`/sites/${site.id}/webhook-deliveries/${delivery.id}/redeliver`,'POST',{},'Delivery requeued')}>Redeliver</button>}</div></div>):<p className="sn-help">No delivery attempts yet.</p>}</div>
+  </section>;
+}
