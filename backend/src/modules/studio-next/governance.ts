@@ -10,7 +10,7 @@ const featureInput=z.object({feature:featureSchema,enabled:z.boolean()}).strict(
 const budgetInput=z.object({monthlyUnitLimit:z.number().int().min(1000).max(1_000_000_000).nullable(),warningPercent:z.number().int().min(50).max(99).default(80)}).strict();
 
 function globalEnabled(feature:Feature){
-  const raw=process.env[`STUDIO_FEATURE_${feature}`];return raw===undefined?!feature.startsWith('AI_')||true:!['0','false','off','disabled'].includes(raw.toLowerCase());
+  const raw=process.env[`STUDIO_FEATURE_${feature}`];return raw===undefined?true:!['0','false','off','disabled'].includes(raw.toLowerCase());
 }
 export class FeaturePolicy{
   constructor(private db:Database){}
@@ -22,6 +22,7 @@ export class FeaturePolicy{
   async assert(siteId:string,feature:Feature){
     if(!await this.effective(siteId,feature))throw new StudioError(`${feature} is disabled for this site`,403,'FEATURE_DISABLED');
   }
+  async snapshot(siteId:string){const values:Partial<Record<Feature,boolean>>={};for(const feature of FEATURES)values[feature]=await this.effective(siteId,feature);return values;}
   async list(actor:Actor,siteId:string){
     return this.db.tx(async c=>{
       await this.db.site(c,actor,siteId,'MANAGE_SETTINGS');
