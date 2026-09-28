@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { Database,type Actor } from './database.js';
 import { DomainCommands } from './commands.js';
 import { CmsCommands } from './cms-commands.js';
+import { FeaturePolicy,AiGovernance,type Feature,type UsageReservation } from './governance.js';
 import { parse,uuid,digest,designOnly,StudioError,fieldsSchema } from './validation.js';
 import { COPY_EDIT_PROMPT,SECTION_PROMPT,PAGE_PROMPT,SITE_PLAN_PROMPT,SITE_BUILD_PROMPT,CMS_PROMPT } from './ai-prompts.js';
 
@@ -141,8 +142,20 @@ function findUnique(value:any,id:string,result:any[]=[]):any[]{
   return result;
 }
 export class AiOrchestrator{
-  constructor(private db:Database,private commands:DomainCommands,private provider:AIProvider|null,private sectionProvider:AIProvider|null=provider,private plannerProvider:AIProvider|null=sectionProvider,private pageProvider:AIProvider|null=sectionProvider,private cmsCommands:CmsCommands|null=null){}
-  status(){return {configured:!!this.provider||!!this.sectionProvider||!!this.pageProvider||!!(this.plannerProvider&&this.cmsCommands),features:{copy:{configured:!!this.provider,provider:this.provider?.name??null,model:this.provider?.model??null},section:{configured:!!this.sectionProvider,provider:this.sectionProvider?.name??null,model:this.sectionProvider?.model??null},page:{configured:!!this.pageProvider,provider:this.pageProvider?.name??null,model:this.pageProvider?.model??null},site:{configured:!!this.plannerProvider&&!!this.pageProvider,planner:this.plannerProvider?.model??null,editor:this.pageProvider?.model??null},cms:{configured:!!this.plannerProvider&&!!this.cmsCommands,provider:this.plannerProvider?.name??null,model:this.plannerProvider?.model??null}},registry:new AIModelRegistry().publicStatus()};}
+  constructor(private db:Database,private commands:DomainCommands,private provider:AIProvider|null,private sectionProvider:AIProvider|null=provider,private plannerProvider:AIProvider|null=sectionProvider,private pageProvider:AIProvider|null=sectionProvider,private cmsCommands:CmsCommands|null=null,private featurePolicy?:FeaturePolicy,private governance?:AiGovernance){}
+  private async begin(actor:Actor,siteId:string,flag:Feature,feature:string,estimate:number):Promise<UsageReservation|null>{
+    if(this.featurePolicy)await this.featurePolicy.assert(siteId,flag);
+    return this.governance?await this.governance.reserve(actor,siteId,feature,estimate):null;
+  }
+  private usage(...values:(AIUsage|undefined)[]){return values.reduce((sum,value)=>sum+(value?.inputUnits??0)+(value?.outputUnits??0),0);}
+  private async success(reservation:UsageReservation|null|undefined,...values:(AIUsage|undefined)[]){if(this.governance)await this.governance.reconcile(reservation,this.usage(...values));}
+  private async failed(reservation:UsageReservation|null|undefined){if(this.governance)await this.governance.release(reservation);}
+
+  async status(siteId:string){
+    const flags=this.featurePolicy?await this.featurePolicy.snapshot(siteId):{} as any;
+    const enabled=(feature:Feature)=>flags[feature]??true;
+    return {configured:(!!this.provider&&enabled('AI_COPY'))||(!!this.sectionProvider&&enabled('AI_SECTION_GENERATION'))||(!!this.pageProvider&&enabled('AI_PAGE_GENERATION'))||(!!this.plannerProvider&&!!this.pageProvider&&enabled('AI_SITE_GENERATION'))||(!!this.plannerProvider&&!!this.cmsCommands&&enabled('AI_CMS')),features:{copy:{configured:!!this.provider&&enabled('AI_COPY'),provider:this.provider?.name??null,model:this.provider?.model??null},section:{configured:!!this.sectionProvider&&enabled('AI_SECTION_GENERATION'),provider:this.sectionProvider?.name??null,model:this.sectionProvider?.model??null},page:{configured:!!this.pageProvider&&enabled('AI_PAGE_GENERATION'),provider:this.pageProvider?.name??null,model:this.pageProvider?.model??null},site:{configured:!!this.plannerProvider&&!!this.pageProvider&&enabled('AI_SITE_GENERATION'),planner:this.plannerProvider?.model??null,editor:this.pageProvider?.model??null},cms:{configured:!!this.plannerProvider&&!!this.cmsCommands&&enabled('AI_CMS'),provider:this.plannerProvider?.name??null,model:this.plannerProvider?.model??null}},registry:new AIModelRegistry().publicStatus(),flags};
+  }
   async listChanges(actor:Actor,siteId:string){
     return this.db.tx(async c=>{await this.db.site(c,actor,siteId,'VIEW');const r=await c.query(`SELECT id,name,status,base_hash AS "baseHash",result_hash AS "resultHash",created_at AS "createdAt",applied_at AS "appliedAt" FROM studio.change_sets WHERE site_id=$1 ORDER BY created_at DESC LIMIT 50`,[siteId]);return {changes:r.rows};});
   }
