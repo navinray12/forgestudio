@@ -22,7 +22,8 @@ jobs:
             'backend/src/modules/studio-next/domains.ts': '065e9a5030cea3d19307ba34c917e09efe9b679c',
             'backend/tests/studio-next/fixture.ts': '50ccf1a19f074da450e24c8737e7a86eeb3f563a',
             'backend/src/modules/studio-next/design.ts': '368ce0db5daa7e3e6640981d7e46dc0f79f5a34f',
-            'backend/tests/studio-next/platform.test.ts': '38790b8b72ccaf814853838fb21e8879fc3b9fc6'
+            'backend/tests/studio-next/platform.test.ts': '38790b8b72ccaf814853838fb21e8879fc3b9fc6',
+            'frontend/src/features/studio-next/CmsPanel.tsx': '3f26e6f99bd6eeb509841d1e246b8c770a2212d4'
           }
           for name, sha in expected.items():
               data = Path(name).read_bytes()
@@ -32,7 +33,7 @@ jobs:
               p = Path(name)
               text = p.read_text()
               if text.count(old) != 1:
-                  raise SystemExit('Expected one exact source match: ' + name)
+                  raise SystemExit('Expected one exact source match: ' + name + ': ' + old[:80])
               p.write_text(text.replace(old, new))
           replace('backend/src/modules/studio-next/workspaces.ts',
               "state=$2,expires_at=CASE WHEN $2='PENDING'",
@@ -60,15 +61,27 @@ jobs:
               '\n}\nexport type TestActor=',
               "\n  await pool.query(await readFile(new URL('../../prisma/migrations/20260928210000_studio_constraint_order/migration.sql',import.meta.url),'utf8'));\n}\nexport type TestActor=")
           replace('backend/src/modules/studio-next/design.ts',
-              'for(const [id,node] of protectedNodes(before))if(digest(node)!==digest(findById(design,id)??null))',
-              'for(const id of new Set(protectedNodes(before).map(([id])=>id)))if(digest(findAllById(before,id))!==digest(findAllById(design,id)))')
-          replace('backend/src/modules/studio-next/design.ts',
-              "function findById(value:any,id:string):any{if(!value||typeof value!=='object')return null;if(value.id===id)return value;for(const child of Object.values(value)){const v=findById(child,id);if(v)return v;}return null;}",
-              "function findAllById(value:any,id:string,result:any[]=[]):any[]{if(!value||typeof value!=='object')return result;if(value.id===id)result.push(value);for(const child of Object.values(value))findAllById(child,id,result);return result;}")
+              'for(const [id,node] of nodes(current))if(digest(findById(incoming,id)||null)!==digest(node))',
+              'for(const id of nodes(current).keys())if(digest(findAllById(incoming,id))!==digest(findAllById(current,id)))')
+          p=Path('backend/src/modules/studio-next/design.ts')
+          text=p.read_text()
+          start=text.index('function findById(')
+          end=text.index('export class Design',start)
+          text=text[:start]+'''function findAllById(value:any,id:string,result:any[]=[]):any[]{
+            if(!value||typeof value!=='object')return result;
+            if(value.id===id)result.push(value);
+            for(const child of Object.values(value))findAllById(child,id,result);
+            return result;
+          }
+          '''+text[end:]
+          p.write_text(text)
           replace('backend/tests/studio-next/platform.test.ts',
               " test('snapshot restore makes a recovery point and leaves publishing state untouched'",
-              """ test('a duplicate element ID cannot conceal a protected-component mutation',async()=>{const u=await fresh(),v=await fresh(),site=await makeSite(pool,u,{version:1,elements:[{id:'locked',type:'heading',content:'Protected',componentProtected:true}]});await grant(pool,site,v,'DESIGNER');const d=await send(v,`/sites/${site}/design`);d.design.elements.push({...d.design.elements[0],content:'Unauthorized duplicate'});await send(v,`/sites/${site}/design`,'PUT',{design:d.design,baseHash:d.hash},403);});
+              """ test('duplicate IDs cannot conceal changes to protected components',async()=>{const a=await make(),b=await make(),s=await site(pool,a,{elements:[{id:'locked',isProtected:true,content:'Fixed'}]});await grant(pool,s,b,'DESIGNER');const d=await send('GET',`/sites/${s}/design`,b);d.website.editorData.elements.push({id:'locked',isProtected:true,content:'Changed duplicate'});await send('PUT',`/sites/${s}/design`,b,{baseHash:d.hash,editorData:d.website.editorData},403);});
            test('snapshot restore makes a recovery point and leaves publishing state untouched'""")
+          replace('frontend/src/features/studio-next/CmsPanel.tsx',
+              '<label>Type<select value={f.type}',
+              '<label>Type<select aria-label="Type" value={f.type}')
           PY
           git diff --check
           git diff --stat
@@ -76,7 +89,7 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add backend/src/modules/studio-next/workspaces.ts backend/src/modules/studio-next/domains.ts backend/src/modules/studio-next/design.ts backend/tests/studio-next/fixture.ts backend/tests/studio-next/platform.test.ts backend/prisma/migrations/20260928210000_studio_constraint_order/migration.sql
+          git add backend/src/modules/studio-next/workspaces.ts backend/src/modules/studio-next/domains.ts backend/src/modules/studio-next/design.ts backend/tests/studio-next/fixture.ts backend/tests/studio-next/platform.test.ts backend/prisma/migrations/20260928210000_studio_constraint_order/migration.sql frontend/src/features/studio-next/CmsPanel.tsx
           git rm .github/workflows/studio-verification-repair-once.yml
-          git commit -m 'fix(studio): correct SQL typing, deferred integrity checks, mail timeouts and protected-node identity checks'
+          git commit -m 'fix(studio): correct SQL typing, cascade integrity, mail options and protected-node checks; label CMS field types'
           git push origin HEAD:refs/heads/webflow
