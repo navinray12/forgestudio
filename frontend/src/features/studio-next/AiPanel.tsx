@@ -4,7 +4,7 @@ import type {PanelProps} from './types';
 
 export default function AiPanel({site,refresh,reload}:PanelProps){
   const base=`/sites/${site.id}/ai`,status=useData(`${base}/status`,refresh),changes=useData(`${base}/changes`,refresh);
-  const m=useMutation(()=>{reload();changes.reload();});
+  const m=useMutation(reload);
   const [elementId,setElementId]=useState('heading'),[field,setField]=useState('content'),[instruction,setInstruction]=useState('Make this copy more concise while preserving its meaning.'),[proposal,setProposal]=useState<any>(null);
   const propose=async(e:React.FormEvent)=>{e.preventDefault();const value=await m.send(`${base}/copy/propose`,'POST',{elementId,field,instruction},'AI proposal created');if(value)setProposal(value);};
   const apply=async()=>{if(!proposal)return;const value=await m.send(`${base}/changes/${proposal.changeSetId}/apply`,'POST',{},'AI change applied');if(value)setProposal(null);};
