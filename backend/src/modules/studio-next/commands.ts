@@ -6,6 +6,7 @@ import { contentOnly } from './design-policy.js';
 
 export type CommandSource='HUMAN'|'AI'|'SYSTEM';
 export interface CommandMetadata { source:CommandSource; operationId?:string; correlationId?:string; timestamp?:string; }
+export interface DesignSaveResult { hash:string; operationId:string; correlationId:string; replayed:boolean; }
 const saveInput=z.object({
   baseHash:z.string().regex(/^[a-f0-9]{64}$/),
   editorData:z.record(z.string(),z.unknown()),
@@ -28,7 +29,7 @@ function allById(value:any,id:string,result:any[]=[]):any[]{
 
 export class DomainCommands {
   constructor(private db:Database){}
-  async saveDesign(actor:Actor,siteId:string,input:unknown,metadata:CommandMetadata={source:'HUMAN'}){
+  async saveDesign(actor:Actor,siteId:string,input:unknown,metadata:CommandMetadata={source:'HUMAN'}):Promise<DesignSaveResult>{
     const b=parse(saveInput,input);
     const operationId=metadata.operationId??b.operationId??randomUUID();
     const correlationId=metadata.correlationId??b.correlationId??randomUUID();
@@ -39,7 +40,8 @@ export class DomainCommands {
       const prior=await c.query('SELECT payload_hash,result FROM studio.command_receipts WHERE actor_id=$1 AND idempotency_key=$2 FOR UPDATE',[actor.id,operationId]);
       if(prior.rows[0]){
         if(prior.rows[0].payload_hash!==payloadHash)throw new StudioError('Idempotency key was already used for a different command',409,'IDEMPOTENCY_CONFLICT');
-        return {...jsonObject(prior.rows[0].result),operationId,correlationId,replayed:true};
+        const saved=jsonObject(prior.rows[0].result);if(typeof saved.hash!=='string')throw new StudioError('Stored command receipt is invalid',503,'COMMAND_RECEIPT_INVALID');
+        return {hash:saved.hash,operationId,correlationId,replayed:true};
       }
       const site=await this.db.site(c,actor,siteId,'VIEW',true);
       if(!site.capabilities.includes('EDIT_DESIGN')&&!site.capabilities.includes('EDIT_CONTENT'))throw new StudioError('Editing is not permitted',403,'FORBIDDEN');
