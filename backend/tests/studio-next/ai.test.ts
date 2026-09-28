@@ -3,7 +3,7 @@ import {randomUUID} from 'node:crypto';
 import assert from 'node:assert/strict';
 import type pg from 'pg';
 import type {Server} from 'node:http';
-import {testPool,install,actor,site,serverFor,url,type TestActor} from './fixture.js';
+import {testPool,install,actor,site,grant,serverFor,url,type TestActor} from './fixture.js';
 import {Database} from '../../src/modules/studio-next/database.js';
 import type {AIProvider} from '../../src/modules/studio-next/ai.js';
 
