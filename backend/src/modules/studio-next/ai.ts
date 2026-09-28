@@ -127,10 +127,9 @@ export class AiOrchestrator{
     if(digest(read.design)!==change.base_hash)throw new StudioError('The design changed after this AI proposal. Generate a new proposal.',409,'DESIGN_CONFLICT');
     const commands=Array.isArray(change.commands)?change.commands:JSON.parse(change.commands);
     if(commands.length!==1||commands[0]?.type!=='SET_ELEMENT_TEXT')throw new StudioError('Unsupported changeset command',400,'INVALID_CHANGESET');
-    const cmd=commands[0],next=clone(read.design),matches=findUnique(next,cmd.elementId);
+    const cmd=commands[0],matches=findUnique(read.design,cmd.elementId);
     if(matches.length!==1||!['content','text','alt'].includes(cmd.field)||typeof matches[0]?.[cmd.field]!=='string'||typeof cmd.value!=='string')throw new StudioError('Changeset target is no longer valid',409,'INVALID_CHANGESET');
-    matches[0][cmd.field]=cmd.value;
-    const applied=await this.commands.saveDesign(actor,siteId,{baseHash:change.base_hash,editorData:next,operationId:changeSetId},{source:'AI',operationId:changeSetId,correlationId:randomUUID()});
+    const applied=await this.commands.executeDesignCommands(actor,siteId,{baseHash:change.base_hash,commands:[cmd],operationId:changeSetId,correlationId:randomUUID()},{source:'AI'});
     await this.db.tx(async c=>{
       const site=await this.db.site(c,actor,siteId,'EDIT_CONTENT');
       await c.query(`UPDATE studio.change_sets SET status='APPLIED',result_hash=$3,applied_at=now() WHERE id=$1 AND site_id=$2`,[changeSetId,siteId,applied.hash]);
