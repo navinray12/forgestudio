@@ -12,6 +12,7 @@ import { Domains,type TxtResolver } from './domains.js';
 import { Analytics } from './analytics.js';
 import { Commerce,stripeTransport,type CommerceConfig } from './commerce.js';
 import { Permissions } from './permissions.js';
+import { Releases } from './releases.js';
 import { DomainCommands } from './commands.js';
 import { AiOrchestrator,configuredCopyProvider,configuredProvider,type AIProvider } from './ai.js';
 import { StudioError,parse,localeCode } from './validation.js';
@@ -26,7 +27,7 @@ export function configuredCommerce():CommerceConfig{
 }
 export function createStudioNextRouter(db:Database,options:RouterOptions={}){
   const router=express.Router();
-  const commands=new DomainCommands(db),workspaces=new Workspaces(db),cms=new Cms(db),cmsCommands=new CmsCommands(db,cms),design=new Design(db,commands),localization=new Localization(db),reviews=new Collaboration(db),domains=new Domains(db,options.resolveTxt),analytics=new Analytics(db,options.analyticsSecret??process.env.STUDIO_ANALYTICS_SECRET),commerce=new Commerce(db,options.commerce??configuredCommerce()),permissions=new Permissions(db),ai=new AiOrchestrator(db,commands,options.aiProvider===undefined?configuredCopyProvider():options.aiProvider,options.aiProvider===undefined?(configuredProvider('EDITOR')??configuredCopyProvider()):options.aiProvider,options.aiProvider===undefined?(configuredProvider('PLANNER')??configuredProvider('EDITOR')??configuredCopyProvider()):options.aiProvider,options.aiProvider===undefined?(configuredProvider('EDITOR')??configuredCopyProvider()):options.aiProvider,cmsCommands);
+  const commands=new DomainCommands(db),workspaces=new Workspaces(db),cms=new Cms(db),cmsCommands=new CmsCommands(db,cms),design=new Design(db,commands),localization=new Localization(db),reviews=new Collaboration(db),domains=new Domains(db,options.resolveTxt),analytics=new Analytics(db,options.analyticsSecret??process.env.STUDIO_ANALYTICS_SECRET),commerce=new Commerce(db,options.commerce??configuredCommerce()),permissions=new Permissions(db),releases=new Releases(db),ai=new AiOrchestrator(db,commands,options.aiProvider===undefined?configuredCopyProvider():options.aiProvider,options.aiProvider===undefined?(configuredProvider('EDITOR')??configuredCopyProvider()):options.aiProvider,options.aiProvider===undefined?(configuredProvider('PLANNER')??configuredProvider('EDITOR')??configuredCopyProvider()):options.aiProvider,options.aiProvider===undefined?(configuredProvider('EDITOR')??configuredCopyProvider()):options.aiProvider,cmsCommands);
   router.use((_req,res,next)=>{res.setHeader('Cache-Control','no-store');res.setHeader('X-Request-Id',randomUUID());next();});
   type Run=(req:Request,actor:Actor)=>Promise<Record<string,unknown>>;
   const route=(run:Run,status=200):RequestHandler=>async(req,res,next)=>{try{res.status(status).json({success:true,...await run(req,res.locals.actor)});}catch(e){next(e);}};
@@ -78,6 +79,10 @@ export function createStudioNextRouter(db:Database,options:RouterOptions={}){
   router.post('/sites/:siteId/items/:itemId/actions',route((req,a)=>cms.action(a,p(req,'siteId'),p(req,'itemId'),req.body)));
   router.get('/sites/:siteId/items/:itemId/revisions',route((req,a)=>cms.revisions(a,p(req,'siteId'),p(req,'itemId'))));
   router.post('/sites/:siteId/items/:itemId/restore',route((req,a)=>cms.restoreRevision(a,p(req,'siteId'),p(req,'itemId'),req.body)));
+  router.get('/sites/:siteId/releases',route((req,a)=>releases.list(a,p(req,'siteId'))));
+  router.post('/sites/:siteId/releases',route((req,a)=>releases.prepare(a,p(req,'siteId'),req.body),201));
+  router.post('/sites/:siteId/releases/:releaseId/publish',route((req,a)=>releases.publish(a,p(req,'siteId'),p(req,'releaseId'))));
+  router.post('/sites/:siteId/releases/:releaseId/rollback',route((req,a)=>releases.rollback(a,p(req,'siteId'),p(req,'releaseId')),201));
   router.get('/sites/:siteId/design',route((req,a)=>design.read(a,p(req,'siteId'))));
   router.put('/sites/:siteId/design',route((req,a)=>design.save(a,p(req,'siteId'),req.body)));
   router.post('/sites/:siteId/design/commands',route((req,a)=>commands.executeDesignCommands(a,p(req,'siteId'),req.body,{source:'HUMAN'})));
