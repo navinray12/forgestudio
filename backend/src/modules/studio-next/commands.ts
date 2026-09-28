@@ -6,7 +6,7 @@ import { contentOnly } from './design-policy.js';
 
 export type CommandSource='HUMAN'|'AI'|'SYSTEM';
 export interface CommandMetadata { source:CommandSource; operationId?:string; correlationId?:string; timestamp?:string; }
-export interface DesignSaveResult { hash:string; operationId:string; correlationId:string; replayed:boolean; }
+export interface DesignSaveResult extends Record<string,unknown> { hash:string; operationId:string; correlationId:string; replayed:boolean; }
 const saveInput=z.object({
   baseHash:z.string().regex(/^[a-f0-9]{64}$/),
   editorData:z.record(z.string(),z.unknown()),
