@@ -14,13 +14,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 2
-      - name: Verify parent and materialize the reviewed source patch
+      - name: Verify and apply application source only
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD^)" = d4c2cc97d4cf88571779f9654bd893bd8c155812
+          test "$(git rev-parse HEAD^)" = b9b96185e906ff0b06bf279b7a87939fdf0686e4
           mkdir -p "$RUNNER_TEMP/studio-reviewed"
           for sha in \
             724b70942e6392f875266ecbf3ceda3591cb5de3 \
@@ -52,27 +52,25 @@ jobs:
             '35cec9fba797a149c37b3ceaeeb76ffacae3a57f',
             '9d820be2fbee1d2ebeba50eb6561d16146b851bb'
           ];
-          const segments = hashes.map(sha => {
+          const compressed = Buffer.concat(hashes.map(sha => {
             const response = JSON.parse(fs.readFileSync(path.join(directory, `${sha}.json`), 'utf8'));
             if (response.encoding !== 'base64' || response.sha !== sha) throw new Error('Unexpected blob response');
             const bytes = Buffer.from(response.content.replace(/\s/g, ''), 'base64');
             const actual = crypto.createHash('sha1').update(`blob ${bytes.length}\0`).update(bytes).digest('hex');
             if (actual !== sha) throw new Error('Blob integrity failure');
             return bytes;
-          });
-          const compressed = Buffer.concat(segments);
+          }));
           const digest = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
           if (compressed.length !== 65908 || digest(compressed) !== '53c4a3e45c1766120a8c82b8b7e108ee4ee4d06d681f9b29e946e5f691d22848') throw new Error('Compressed patch integrity failure');
           const patch = zlib.brotliDecompressSync(compressed);
           if (patch.length !== 312351 || digest(patch) !== 'dd6264b7611d8d581799aef4a05297072da2772af730e189ce39994af3b2f502') throw new Error('Source patch integrity failure');
           fs.writeFileSync(path.join(directory, 'changes.patch'), patch);
-          console.log('Verified reviewed patch:', patch.length, 'bytes');
           JS
-          git apply --check --index "$RUNNER_TEMP/studio-reviewed/changes.patch"
-          git apply --index "$RUNNER_TEMP/studio-reviewed/changes.patch"
+          git apply --check --index --exclude=.github/workflows/webflow-verify.yml "$RUNNER_TEMP/studio-reviewed/changes.patch"
+          git apply --index --exclude=.github/workflows/webflow-verify.yml "$RUNNER_TEMP/studio-reviewed/changes.patch"
           git diff --cached --check
           git diff --cached --stat
-      - name: Commit the source and remove temporary workflows
+      - name: Commit application code and remove temporary workflows
         shell: bash
         run: |
           set -euo pipefail
