@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { Database,type Actor } from './database.js';
 import { Workspaces } from './workspaces.js';
 import { Cms } from './cms.js';
+import { CmsCommands } from './cms-commands.js';
 import { Design } from './design.js';
 import { Localization } from './localization.js';
 import { Collaboration } from './collaboration.js';
@@ -25,7 +26,7 @@ export function configuredCommerce():CommerceConfig{
 }
 export function createStudioNextRouter(db:Database,options:RouterOptions={}){
   const router=express.Router();
-  const commands=new DomainCommands(db),workspaces=new Workspaces(db),cms=new Cms(db),design=new Design(db,commands),localization=new Localization(db),reviews=new Collaboration(db),domains=new Domains(db,options.resolveTxt),analytics=new Analytics(db,options.analyticsSecret??process.env.STUDIO_ANALYTICS_SECRET),commerce=new Commerce(db,options.commerce??configuredCommerce()),permissions=new Permissions(db),ai=new AiOrchestrator(db,commands,options.aiProvider===undefined?configuredCopyProvider():options.aiProvider,options.aiProvider===undefined?(configuredProvider('EDITOR')??configuredCopyProvider()):options.aiProvider,options.aiProvider===undefined?(configuredProvider('PLANNER')??configuredProvider('EDITOR')??configuredCopyProvider()):options.aiProvider,options.aiProvider===undefined?(configuredProvider('EDITOR')??configuredCopyProvider()):options.aiProvider);
+  const commands=new DomainCommands(db),workspaces=new Workspaces(db),cms=new Cms(db),cmsCommands=new CmsCommands(db,cms),design=new Design(db,commands),localization=new Localization(db),reviews=new Collaboration(db),domains=new Domains(db,options.resolveTxt),analytics=new Analytics(db,options.analyticsSecret??process.env.STUDIO_ANALYTICS_SECRET),commerce=new Commerce(db,options.commerce??configuredCommerce()),permissions=new Permissions(db),ai=new AiOrchestrator(db,commands,options.aiProvider===undefined?configuredCopyProvider():options.aiProvider,options.aiProvider===undefined?(configuredProvider('EDITOR')??configuredCopyProvider()):options.aiProvider,options.aiProvider===undefined?(configuredProvider('PLANNER')??configuredProvider('EDITOR')??configuredCopyProvider()):options.aiProvider,options.aiProvider===undefined?(configuredProvider('EDITOR')??configuredCopyProvider()):options.aiProvider,cmsCommands);
   router.use((_req,res,next)=>{res.setHeader('Cache-Control','no-store');res.setHeader('X-Request-Id',randomUUID());next();});
   type Run=(req:Request,actor:Actor)=>Promise<Record<string,unknown>>;
   const route=(run:Run,status=200):RequestHandler=>async(req,res,next)=>{try{res.status(status).json({success:true,...await run(req,res.locals.actor)});}catch(e){next(e);}};
@@ -62,15 +63,16 @@ export function createStudioNextRouter(db:Database,options:RouterOptions={}){
   router.post('/sites/:siteId/ai/sections/propose',route((req,a)=>ai.proposeSection(a,p(req,'siteId'),req.body),201));
   router.post('/sites/:siteId/ai/pages/propose',route((req,a)=>ai.proposePage(a,p(req,'siteId'),req.body),201));
   router.post('/sites/:siteId/ai/sites/propose',route((req,a)=>ai.proposeSite(a,p(req,'siteId'),req.body),201));
+  router.post('/sites/:siteId/ai/cms/propose',route((req,a)=>ai.proposeCms(a,p(req,'siteId'),req.body),201));
   router.post('/sites/:siteId/ai/changes/:changeSetId/apply',route((req,a)=>ai.apply(a,p(req,'siteId'),p(req,'changeSetId'))));
   router.post('/sites/:siteId/ai/changes/:changeSetId/reject',route((req,a)=>ai.reject(a,p(req,'siteId'),p(req,'changeSetId'))));
   router.get('/sites/:siteId/collections',route((req,a)=>cms.collections(a,p(req,'siteId'))));
-  router.post('/sites/:siteId/collections',route((req,a)=>cms.saveCollection(a,p(req,'siteId'),req.body),201));
+  router.post('/sites/:siteId/collections',route((req,a)=>cmsCommands.createCollection(a,p(req,'siteId'),req.body,{source:'HUMAN'}),201));
   router.put('/sites/:siteId/collections/:collectionId',route((req,a)=>cms.saveCollection(a,p(req,'siteId'),req.body,p(req,'collectionId'))));
   router.delete('/sites/:siteId/collections/:collectionId',route((req,a)=>cms.removeCollection(a,p(req,'siteId'),p(req,'collectionId'))));
   router.get('/sites/:siteId/collections/:collectionId/items',route((req,a)=>cms.items(a,p(req,'siteId'),p(req,'collectionId'),req.query)));
   router.get('/sites/:siteId/collections/:collectionId/options',route((req,a)=>cms.referenceOptions(a,p(req,'siteId'),p(req,'collectionId'))));
-  router.post('/sites/:siteId/collections/:collectionId/items',route((req,a)=>cms.createItem(a,p(req,'siteId'),p(req,'collectionId'),req.body),201));
+  router.post('/sites/:siteId/collections/:collectionId/items',route((req,a)=>cmsCommands.createItem(a,p(req,'siteId'),p(req,'collectionId'),req.body,{source:'HUMAN'}),201));
   router.post('/sites/:siteId/collections/:collectionId/import',route((req,a)=>cms.importItems(a,p(req,'siteId'),p(req,'collectionId'),req.body),201));
   router.put('/sites/:siteId/items/:itemId',route((req,a)=>cms.updateItem(a,p(req,'siteId'),p(req,'itemId'),req.body)));
   router.post('/sites/:siteId/items/:itemId/actions',route((req,a)=>cms.action(a,p(req,'siteId'),p(req,'itemId'),req.body)));
