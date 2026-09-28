@@ -2,8 +2,9 @@ import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { Database,type Actor } from './database.js';
 import { DomainCommands } from './commands.js';
-import { parse,uuid,digest,designOnly,StudioError } from './validation.js';
-import { COPY_EDIT_PROMPT,SECTION_PROMPT,PAGE_PROMPT,SITE_PLAN_PROMPT,SITE_BUILD_PROMPT } from './ai-prompts.js';
+import { CmsCommands } from './cms-commands.js';
+import { parse,uuid,digest,designOnly,StudioError,fieldsSchema } from './validation.js';
+import { COPY_EDIT_PROMPT,SECTION_PROMPT,PAGE_PROMPT,SITE_PLAN_PROMPT,SITE_BUILD_PROMPT,CMS_PROMPT } from './ai-prompts.js';
 
 export interface AIUsage { inputUnits?:number; outputUnits?:number; }
 export interface AIResult { value:unknown; usage?:AIUsage; provider?:string; modelResolved?:string; }
@@ -112,6 +113,12 @@ const sitePlanOutput=z.object({
   designSystem:z.object({variables:z.array(z.record(z.string(),z.unknown())).max(100),classes:z.array(z.record(z.string(),z.unknown())).max(100)}).strict(),
 }).strict();
 const siteBuildOutput=z.object({pages:z.array(generatedPage).min(2).max(8)}).strict();
+const cmsInput=z.object({instruction:z.string().trim().min(3).max(4000)}).strict();
+const cmsOutput=z.object({
+  collection:z.object({name:z.string().trim().min(1).max(120),slug:z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(120),fields:fieldsSchema}).strict(),
+  items:z.array(z.object({name:z.string().trim().min(1).max(200),slug:z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(160),locale:z.string().default('en'),fields:z.record(z.string(),z.unknown())}).strict()).max(20).default([]),
+  rationale:z.string().max(1000).default(''),
+}).strict();
 
 
 function pageIds(value:any,result=new Set<string>()):Set<string>{
@@ -134,8 +141,8 @@ function findUnique(value:any,id:string,result:any[]=[]):any[]{
   return result;
 }
 export class AiOrchestrator{
-  constructor(private db:Database,private commands:DomainCommands,private provider:AIProvider|null,private sectionProvider:AIProvider|null=provider,private plannerProvider:AIProvider|null=sectionProvider,private pageProvider:AIProvider|null=sectionProvider){}
-  status(){return {configured:!!this.provider||!!this.sectionProvider||!!this.pageProvider,features:{copy:{configured:!!this.provider,provider:this.provider?.name??null,model:this.provider?.model??null},section:{configured:!!this.sectionProvider,provider:this.sectionProvider?.name??null,model:this.sectionProvider?.model??null},page:{configured:!!this.pageProvider,provider:this.pageProvider?.name??null,model:this.pageProvider?.model??null},site:{configured:!!this.plannerProvider&&!!this.pageProvider,planner:this.plannerProvider?.model??null,editor:this.pageProvider?.model??null}},registry:new AIModelRegistry().publicStatus()};}
+  constructor(private db:Database,private commands:DomainCommands,private provider:AIProvider|null,private sectionProvider:AIProvider|null=provider,private plannerProvider:AIProvider|null=sectionProvider,private pageProvider:AIProvider|null=sectionProvider,private cmsCommands:CmsCommands|null=null){}
+  status(){return {configured:!!this.provider||!!this.sectionProvider||!!this.pageProvider||!!(this.plannerProvider&&this.cmsCommands),features:{copy:{configured:!!this.provider,provider:this.provider?.name??null,model:this.provider?.model??null},section:{configured:!!this.sectionProvider,provider:this.sectionProvider?.name??null,model:this.sectionProvider?.model??null},page:{configured:!!this.pageProvider,provider:this.pageProvider?.name??null,model:this.pageProvider?.model??null},site:{configured:!!this.plannerProvider&&!!this.pageProvider,planner:this.plannerProvider?.model??null,editor:this.pageProvider?.model??null},cms:{configured:!!this.plannerProvider&&!!this.cmsCommands,provider:this.plannerProvider?.name??null,model:this.plannerProvider?.model??null}},registry:new AIModelRegistry().publicStatus()};}
   async listChanges(actor:Actor,siteId:string){
     return this.db.tx(async c=>{await this.db.site(c,actor,siteId,'VIEW');const r=await c.query(`SELECT id,name,status,base_hash AS "baseHash",result_hash AS "resultHash",created_at AS "createdAt",applied_at AS "appliedAt" FROM studio.change_sets WHERE site_id=$1 ORDER BY created_at DESC LIMIT 50`,[siteId]);return {changes:r.rows};});
   }
@@ -241,6 +248,28 @@ export class AiOrchestrator{
       await this.db.pool.query(`INSERT INTO studio.ai_runs(id,site_id,workspace_id,user_id,feature,provider,model_requested,model_resolved,prompt_version,context_hash,latency_ms,status,error_code) VALUES($1,$2,$3,$4,'SITE_GENERATION',$5,$6,$6,$7,$8,$9,'FAILED',$10)`,[buildRunId,siteId,context.site.workspaceId,actor.id,this.pageProvider.name,this.pageProvider.model,SITE_BUILD_PROMPT.version,contextHash,Date.now()-started,(error as any)?.code||'AI_FAILED']).catch(()=>undefined);throw error;
     }
   }
+  async proposeCms(actor:Actor,siteId:string,input:unknown){
+    if(!this.plannerProvider||!this.cmsCommands)throw new StudioError('AI CMS generation is not configured',503,'AI_NOT_CONFIGURED');
+    const b=parse(cmsInput,input),started=Date.now(),runId=randomUUID();
+    const site=await this.db.tx(async c=>this.db.site(c,actor,siteId,'EDIT_DESIGN'));
+    const context=await this.cmsCommands.context(actor,siteId),baseHash=await this.cmsCommands.stateHash(actor,siteId);
+    const contextHash=digest({siteId,instruction:b.instruction,collections:(context.collections??[]).map((x:any)=>({name:x.name,slug:x.slug,fields:x.fields}))});
+    try{
+      const generated=await this.plannerProvider.generateStructured({system:CMS_PROMPT.system,user:JSON.stringify({instruction:b.instruction,existingCollections:(context.collections??[]).map((x:any)=>({name:x.name,slug:x.slug,fields:x.fields}))}),timeoutMs:60000,maxOutputTokens:5000});
+      const output=parse(cmsOutput,generated.value);
+      if((context.collections??[]).some((x:any)=>x.slug===output.collection.slug))throw new StudioError('Generated collection slug already exists',409,'COLLECTION_CONFLICT');
+      const changeSetId=randomUUID(),command={type:'CREATE_CMS_COLLECTION_WITH_DRAFTS',collection:output.collection,items:output.items};
+      await this.db.tx(async c=>{
+        const current=await this.db.site(c,actor,siteId,'EDIT_DESIGN');
+        await c.query(`INSERT INTO studio.change_sets(id,site_id,actor_id,source,name,status,base_hash,commands) VALUES($1,$2,$3,'AI',$4,'PROPOSED',$5,$6::jsonb)`,[changeSetId,siteId,actor.id,`AI CMS: ${output.collection.name}`,baseHash,JSON.stringify([command])]);
+        await c.query(`INSERT INTO studio.ai_runs(id,site_id,workspace_id,user_id,feature,provider,model_requested,model_resolved,prompt_version,context_hash,input_units,output_units,latency_ms,status,changeset_id) VALUES($1,$2,$3,$4,'CMS_GENERATION',$5,$6,$7,$8,$9,$10,$11,$12,'SUCCEEDED',$13)`,[runId,siteId,current.workspaceId,actor.id,generated.provider??this.plannerProvider!.name,this.plannerProvider!.model,generated.modelResolved??this.plannerProvider!.model,CMS_PROMPT.version,contextHash,generated.usage?.inputUnits??null,generated.usage?.outputUnits??null,Date.now()-started,changeSetId]);
+        await this.db.audit(c,actor,current,'ai.cms_proposed',output.collection.name);
+      });
+      return {changeSetId,baseHash,collection:output.collection,itemCount:output.items.length,rationale:output.rationale};
+    }catch(error){
+      await this.db.pool.query(`INSERT INTO studio.ai_runs(id,site_id,workspace_id,user_id,feature,provider,model_requested,model_resolved,prompt_version,context_hash,latency_ms,status,error_code) VALUES($1,$2,$3,$4,'CMS_GENERATION',$5,$6,$6,$7,$8,$9,'FAILED',$10)`,[runId,siteId,site.workspaceId,actor.id,this.plannerProvider.name,this.plannerProvider.model,CMS_PROMPT.version,contextHash,Date.now()-started,(error as any)?.code||'AI_FAILED']).catch(()=>undefined);throw error;
+    }
+  }
   async reject(actor:Actor,siteId:string,changeSetId:string){
     parse(uuid,changeSetId);
     return this.db.tx(async c=>{
@@ -267,10 +296,20 @@ export class AiOrchestrator{
       return r.rows[0];
     });
     if(change.alreadyApplied)return {alreadyApplied:true,hash:change.result_hash};
-    const read=await this.db.tx(async c=>{const site=await this.db.site(c,actor,siteId,'EDIT_CONTENT');return {design:designOnly(site.editorData),site};});
-    if(digest(read.design)!==change.base_hash)throw new StudioError('The design changed after this AI proposal. Generate a new proposal.',409,'DESIGN_CONFLICT');
     const commands=Array.isArray(change.commands)?change.commands:JSON.parse(change.commands);
     if(!Array.isArray(commands)||commands.length<1||commands.length>100)throw new StudioError('Unsupported changeset commands',400,'INVALID_CHANGESET');
+    const cmsOnly=commands.every((x:any)=>x?.type==='CREATE_CMS_COLLECTION_WITH_DRAFTS');
+    if(cmsOnly){
+      if(!this.cmsCommands||commands.length!==1)throw new StudioError('CMS command executor is unavailable',503,'CMS_COMMANDS_UNAVAILABLE');
+      const currentHash=await this.cmsCommands.stateHash(actor,siteId);if(currentHash!==change.base_hash)throw new StudioError('CMS schema changed after this proposal. Generate a new proposal.',409,'CMS_CONFLICT');
+      const cmd=commands[0],applied=await this.cmsCommands.createCollectionWithDrafts(actor,siteId,{collection:cmd.collection,items:cmd.items},{source:'AI',operationId:changeSetId,correlationId:randomUUID()});
+      const resultHash=await this.cmsCommands.stateHash(actor,siteId);
+      await this.db.tx(async c=>{const site=await this.db.site(c,actor,siteId,'EDIT_DESIGN');await c.query(`UPDATE studio.change_sets SET status='APPLIED',result_hash=$3,applied_at=now() WHERE id=$1 AND site_id=$2`,[changeSetId,siteId,resultHash]);const run=await c.query('SELECT id FROM studio.ai_runs WHERE changeset_id=$1 ORDER BY created_at DESC LIMIT 1',[changeSetId]);if(run.rows[0])await c.query(`INSERT INTO studio.ai_tool_calls(id,run_id,tool,arguments_hash,duration_ms,status,result_metadata) VALUES($1,$2,'cms.create_collection_with_drafts',$3,0,'SUCCEEDED',$4::jsonb)`,[randomUUID(),run.rows[0].id,digest(commands),JSON.stringify({collectionId:applied.collectionId,count:applied.count})]);await this.db.audit(c,actor,site,'ai.changeset_applied',changeSetId);});
+      return {alreadyApplied:false,hash:resultHash,operationId:applied.operationId};
+    }
+    if(commands.some((x:any)=>x?.type==='CREATE_CMS_COLLECTION_WITH_DRAFTS'))throw new StudioError('CMS and design commands cannot be mixed in one changeset',400,'INVALID_CHANGESET');
+    const read=await this.db.tx(async c=>{const site=await this.db.site(c,actor,siteId,'EDIT_CONTENT');return {design:designOnly(site.editorData),site};});
+    if(digest(read.design)!==change.base_hash)throw new StudioError('The design changed after this AI proposal. Generate a new proposal.',409,'DESIGN_CONFLICT');
     const structural=new Set(['ADD_ELEMENT','REMOVE_ELEMENT','CREATE_PAGE','UPDATE_PAGE','DELETE_PAGE','REORDER_PAGES','SET_HOME_PAGE','SET_DESIGN_SYSTEM']);
     await this.db.tx(async c=>{await this.db.site(c,actor,siteId,commands.some((x:any)=>structural.has(x?.type))?'EDIT_DESIGN':'EDIT_CONTENT');return {};});
     const applied=await this.commands.executeDesignCommands(actor,siteId,{baseHash:change.base_hash,commands,operationId:changeSetId,correlationId:randomUUID()},{source:'AI'});
