@@ -1,0 +1,22 @@
+import {before,after,test} from 'node:test';
+import assert from 'node:assert/strict';
+import type pg from 'pg';
+import type {Server} from 'node:http';
+import {testPool,install,actor,site,serverFor,url,type TestActor} from './fixture.js';
+import {Database} from '../../src/modules/studio-next/database.js';
+import type {AIProvider} from '../../src/modules/studio-next/ai.js';
+
+if(!url)test('AI integration requires STUDIO_TEST_DATABASE_URL',{skip:true},()=>{});
+else {
+  let pool:pg.Pool,server:Server,base:string,user:TestActor,siteId:string,calls=0;
+  const provider:AIProvider={name:'fixture',model:'fixture-copy-v1',async generateStructured(){calls++;return {value:{replacement:'Concise heading',rationale:'Shorter without changing the claim.'},usage:{inputUnits:10,outputUnits:5}};}};
+  const send=async(method:string,path:string,body?:unknown,expected=200)=>{
+    const r=await fetch(base+path,{method,headers:{Cookie:`forge_session=${user.token}`,Origin:'http://localhost:5173','X-Studio-Request':'1',...(body!==undefined?{'Content-Type':'application/json'}:{})},...(body!==undefined?{body:JSON.stringify(body)}:{})});
+    const value=await r.json();assert.equal(r.status,expected,`${method} ${path}: ${JSON.stringify(value)}`);return value;
+  };
+  before(async()=>{process.env.FRONTEND_URL='http://localhost:5173';process.env.NODE_ENV='test';pool=testPool();await install(pool);const db=new Database(pool);user=await actor(pool);siteId=await site(pool,user);({server}=serverFor(db,{aiProvider:provider,requestLimit:100000}));await new Promise<void>(resolve=>server.listen(0,'127.0.0.1',resolve));base=`http://127.0.0.1:${(server.address() as any).port}/api/v1/studio-next`;});
+  after(async()=>{await new Promise<void>(resolve=>server.close(()=>resolve()));await pool.query('DELETE FROM public.users WHERE id=$1',[user.id]);await pool.end();});
+  test('AI proposal is persisted but does not mutate the design until approval',async()=>{const before=await send('GET',`/sites/${siteId}/design`);const p=await send('POST',`/sites/${siteId}/ai/copy/propose`,{elementId:'heading',field:'content',instruction:'Make it concise'});assert.equal(p.replacement,'Concise heading');assert.equal((await send('GET',`/sites/${siteId}/design`)).website.editorData.elements[0].content,'Original heading');await send('POST',`/sites/${siteId}/ai/changes/${p.changeSetId}/apply`,{});assert.equal((await send('GET',`/sites/${siteId}/design`)).website.editorData.elements[0].content,'Concise heading');assert.equal(calls,1);const receipt=await pool.query('SELECT source,command FROM studio.command_receipts WHERE idempotency_key=$1',[p.changeSetId]);assert.deepEqual(receipt.rows[0],{source:'AI',command:'design.save'});assert.notEqual(before.hash,(await send('GET',`/sites/${siteId}/design`)).hash);});
+  test('applying an AI changeset is idempotent',async()=>{const p=await send('POST',`/sites/${siteId}/ai/copy/propose`,{elementId:'heading',field:'content',instruction:'Shorten again'});const first=await send('POST',`/sites/${siteId}/ai/changes/${p.changeSetId}/apply`,{});const second=await send('POST',`/sites/${siteId}/ai/changes/${p.changeSetId}/apply`,{});assert.equal(first.hash,second.hash);assert.equal(second.alreadyApplied,true);});
+  test('stale AI proposals cannot overwrite a newer manual save',async()=>{const p=await send('POST',`/sites/${siteId}/ai/copy/propose`,{elementId:'heading',field:'content',instruction:'Another version'});const d=await send('GET',`/sites/${siteId}/design`);d.website.editorData.elements[0].content='Manual newer edit';await send('PUT',`/sites/${siteId}/design`,{baseHash:d.hash,editorData:d.website.editorData,operationId:crypto.randomUUID()});await send('POST',`/sites/${siteId}/ai/changes/${p.changeSetId}/apply`,{},409);assert.equal((await send('GET',`/sites/${siteId}/design`)).website.editorData.elements[0].content,'Manual newer edit');});
+}
