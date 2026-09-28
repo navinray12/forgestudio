@@ -2,13 +2,14 @@ import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { Database, type Actor, type Client } from './database.js';
 import { parse, uuid, title, slug, revision, localeCode, fieldsSchema, validateFields, checkRevision, StudioError, type Field } from './validation.js';
+import type {EventOutbox} from './webhooks.js';
 const collectionInput=z.object({name:title,slug,fields:fieldsSchema}).strict();
 const itemInput=z.object({name:z.string().trim().min(1).max(200),slug:z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(160),fields:z.record(z.string(),z.unknown()),locale:localeCode.default('en'),groupId:uuid.optional()}).strict();
 const itemPatch=itemInput.omit({locale:true,groupId:true}).extend({revision}).strict();
 const actionInput=z.object({action:z.enum(['PUBLISH','UNPUBLISH','ARCHIVE','RESTORE','READY','SCHEDULE','CANCEL_SCHEDULE']),revision,scheduledAt:z.string().datetime({offset:true}).optional()}).strict();
 const projection=`i.id,i.collection_id AS "collectionId",i.group_id AS "groupId",i.locale,i.name,i.slug,i.draft AS fields,i.revision,i.live_revision AS "liveRevision",i.archived,i.ready,i.scheduled_at AS "scheduledAt",i.published_at AS "publishedAt",i.updated_at AS "updatedAt",(i.live IS NOT NULL) AS "isLive"`;
 export class Cms {
-  constructor(readonly db:Database){}
+  constructor(readonly db:Database,private outbox?:EventOutbox){}
   private async collection(c:Client,siteId:string,collectionId:string){
     const r=await c.query('SELECT * FROM studio.collections WHERE id=$1 AND site_id=$2',[parse(uuid,collectionId),siteId]);
     if(!r.rows[0])throw new StudioError('Collection not found',404,'NOT_FOUND');return r.rows[0];
@@ -55,6 +56,7 @@ export class Cms {
       }
       if(collectionId)await c.query('UPDATE studio.collections SET name=$2,slug=$3,fields=$4::jsonb,revision=revision+1,updated_at=now() WHERE id=$1',[id,body.name,body.slug,JSON.stringify(body.fields)]);
       else await c.query('INSERT INTO studio.collections(id,site_id,name,slug,fields) VALUES($1,$2,$3,$4,$5::jsonb)',[id,siteId,body.name,body.slug,JSON.stringify(body.fields)]);
+      if(this.outbox)await this.outbox.emit(c,siteId,collectionId?'cms.collection.updated':'cms.collection.created',{collectionId:id,name:body.name,slug:body.slug,revision:collectionId?(body as any).revision+1:0});
       await this.db.audit(c,actor,site,collectionId?'cms.schema_updated':'cms.collection_created',body.name);return {id};
     });
   }
@@ -109,6 +111,7 @@ export class Cms {
       await c.query('INSERT INTO studio.collections(id,site_id,name,slug,fields) VALUES($1,$2,$3,$4,$5::jsonb)',[id,siteId,b.collection.name,b.collection.slug,JSON.stringify(b.collection.fields)]);
       const collection={id,site_id:siteId,name:b.collection.name,slug:b.collection.slug,fields:b.collection.fields,revision:0};
       const ids:string[]=[];for(const item of b.items)ids.push(await this.insertItem(c,actor,siteId,collection,item));
+      if(this.outbox){await this.outbox.emit(c,siteId,'cms.collection.created',{collectionId:id,name:b.collection.name,slug:b.collection.slug,revision:0});if(ids.length)await this.outbox.emit(c,siteId,'cms.items.drafted',{collectionId:id,itemIds:ids,count:ids.length});}
       await this.db.audit(c,actor,site,'cms.ai_collection_drafts_created',`${b.collection.name}: ${ids.length} drafts`);
       return {collectionId:id,itemIds:ids,count:ids.length};
     });
@@ -117,7 +120,7 @@ export class Cms {
     const b=parse(itemInput,input);
     return this.db.tx(async c=>{
       const site=await this.db.site(c,actor,siteId,'EDIT_CONTENT',true);const collection=await this.collection(c,siteId,collectionId);
-      const id=await this.insertItem(c,actor,siteId,collection,b);await this.db.audit(c,actor,site,'cms.item_created',b.name);return {id};
+      const id=await this.insertItem(c,actor,siteId,collection,b);if(this.outbox)await this.outbox.emit(c,siteId,'cms.item.drafted',{itemId:id,collectionId,name:b.name,slug:b.slug,locale:b.locale});await this.db.audit(c,actor,site,'cms.item_created',b.name);return {id};
     });
   }
   async importItems(actor:Actor,siteId:string,collectionId:string,input:unknown){
@@ -149,6 +152,7 @@ export class Cms {
     const snapshot={id:item.id,groupId:item.group_id,name:item.name,slug:item.slug,locale:item.locale,fields:data};
     await c.query(`UPDATE studio.content_items SET live=$2::jsonb,live_revision=revision+1,revision=revision+1,ready=false,published_at=now(),scheduled_at=NULL,scheduled_revision=NULL,scheduled_by=NULL WHERE id=$1`,[item.id,JSON.stringify(snapshot)]);
     await this.snapshot(c,item.id,item.revision+1,item.name,item.slug,data,actor.id);
+    if(this.outbox)await this.outbox.emit(c,siteId,'cms.item.published',{itemId:item.id,collectionId:item.collection_id,slug:item.slug,locale:item.locale,revision:item.revision+1});
   }
   async action(actor:Actor,siteId:string,itemId:string,input:unknown){
     const b=parse(actionInput,input);
