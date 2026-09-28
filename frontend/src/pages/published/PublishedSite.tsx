@@ -852,7 +852,6 @@ function PublishedSite() {
     const [statementOpen, setStatementOpen] = useState<boolean>(false);
     const [experiments, setExperiments] = useState<any[]>([]);
     const [assignedVariants, setAssignedVariants] = useState<Record<string, string>>({});
-    const [sitePartsState, setSitePartsState] = useState<any>(null);
 
     // F-339 & F-344: Compile Design System CSS Variables (:root) and Global Classes
     const compiledDesignTokensCss = useMemo(() => {
