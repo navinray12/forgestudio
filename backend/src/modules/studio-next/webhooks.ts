@@ -94,6 +94,18 @@ export class Webhooks implements EventOutbox{
       return {id,url,events:b.events,secret};
     });
   }
+  async test(actor:Actor,siteId:string,endpointId:string){
+    parse(uuid,endpointId);
+    return this.db.tx(async c=>{
+      const site=await this.db.site(c,actor,siteId,'MANAGE_SETTINGS',true);
+      const endpoint=await c.query('SELECT id FROM studio.webhook_endpoints WHERE id=$1 AND site_id=$2 AND enabled',[endpointId,siteId]);
+      if(!endpoint.rows[0])throw new StudioError('Webhook endpoint not found',404,'NOT_FOUND');
+      const eventId=randomUUID(),deliveryId=randomUUID();
+      await c.query(`INSERT INTO studio.webhook_events(id,site_id,event_type,payload) VALUES($1,$2,'webhook.test',$3::jsonb)`,[eventId,siteId,JSON.stringify({message:'ForgeStudio webhook test',endpointId})]);
+      await c.query('INSERT INTO studio.webhook_deliveries(id,event_id,endpoint_id) VALUES($1,$2,$3)',[deliveryId,eventId,endpointId]);
+      await this.db.audit(c,actor,site,'webhook.test_queued',endpointId);return {deliveryId};
+    });
+  }
   async remove(actor:Actor,siteId:string,endpointId:string){
     parse(uuid,endpointId);
     return this.db.tx(async c=>{
