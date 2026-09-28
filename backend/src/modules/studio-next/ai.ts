@@ -170,6 +170,7 @@ export class AiOrchestrator{
     const system=COPY_EDIT_PROMPT.system;
     const user=JSON.stringify({instruction:b.instruction,field:b.field,currentText:current,siteName:context.site.name});
     const contextHash=digest({siteId,elementId:b.elementId,field:b.field,currentText:current,instruction:b.instruction});
+    const reservation=await this.begin(actor,siteId,'AI_COPY','COPY_EDIT',2000);
     try{
       const generated=await this.provider.generateStructured({system,user,timeoutMs:30000});
       const output=parse(providerOutput,generated.value),changeSetId=randomUUID();
@@ -180,8 +181,10 @@ export class AiOrchestrator{
         await c.query(`INSERT INTO studio.ai_runs(id,site_id,workspace_id,user_id,feature,provider,model_requested,model_resolved,prompt_version,context_hash,input_units,output_units,latency_ms,status,changeset_id) VALUES($1,$2,$3,$4,'COPY_EDIT',$5,$6,$7,$8,$9,$10,$11,$12,'SUCCEEDED',$13)`,[runId,siteId,site.workspaceId,actor.id,generated.provider??this.provider!.name,this.provider!.model,generated.modelResolved??this.provider!.model,COPY_EDIT_PROMPT.version,contextHash,generated.usage?.inputUnits??null,generated.usage?.outputUnits??null,Date.now()-started,changeSetId]);
         await this.db.audit(c,actor,site,'ai.copy_proposed',b.elementId);
       });
+      await this.success(reservation,generated.usage);
       return {changeSetId,baseHash:digest(context.design),elementId:b.elementId,field:b.field,current,replacement:output.replacement,rationale:output.rationale,provider:generated.provider??this.provider.name,model:generated.modelResolved??this.provider.model};
     }catch(error){
+      await this.failed(reservation);
       await this.db.pool.query(`INSERT INTO studio.ai_runs(id,site_id,workspace_id,user_id,feature,provider,model_requested,model_resolved,prompt_version,context_hash,latency_ms,status,error_code) VALUES($1,$2,$3,$4,'COPY_EDIT',$5,$6,$6,$7,$8,$9,'FAILED',$10)`,[runId,siteId,context.site.workspaceId,actor.id,this.provider.name,this.provider.model,COPY_EDIT_PROMPT.version,contextHash,Date.now()-started,(error as any)?.code||'AI_FAILED']).catch(()=>undefined);
       throw error;
     }
@@ -194,6 +197,7 @@ export class AiOrchestrator{
     const system=SECTION_PROMPT.system;
     const user=JSON.stringify({instruction:b.instruction,insertionAfter:b.afterId,existingTopLevel:(context.design.elements as any[]|undefined)?.map(x=>({id:x?.id,type:x?.type,styles:x?.styles}))??[]});
     const contextHash=digest({siteId,instruction:b.instruction,afterId:b.afterId,designHash:digest(context.design)});
+    const reservation=await this.begin(actor,siteId,'AI_SECTION_GENERATION','SECTION_GENERATION',6000);
     try{
       const generated=await this.sectionProvider.generateStructured({system,user,timeoutMs:45000}),output=parse(sectionOutput,generated.value),changeSetId=randomUUID();
       const command={type:'ADD_ELEMENT',parentId:null,afterId:b.afterId,element:output.section};
@@ -203,8 +207,10 @@ export class AiOrchestrator{
         await c.query(`INSERT INTO studio.ai_runs(id,site_id,workspace_id,user_id,feature,provider,model_requested,model_resolved,prompt_version,context_hash,input_units,output_units,latency_ms,status,changeset_id) VALUES($1,$2,$3,$4,'SECTION_GENERATION',$5,$6,$7,$8,$9,$10,$11,$12,'SUCCEEDED',$13)`,[runId,siteId,site.workspaceId,actor.id,generated.provider??this.sectionProvider!.name,this.sectionProvider!.model,generated.modelResolved??this.sectionProvider!.model,SECTION_PROMPT.version,contextHash,generated.usage?.inputUnits??null,generated.usage?.outputUnits??null,Date.now()-started,changeSetId]);
         await this.db.audit(c,actor,site,'ai.section_proposed',output.section.id);
       });
+      await this.success(reservation,generated.usage);
       return {changeSetId,baseHash:digest(context.design),section:output.section,rationale:output.rationale,provider:generated.provider??this.sectionProvider.name,model:generated.modelResolved??this.sectionProvider.model};
     }catch(error){
+      await this.failed(reservation);
       await this.db.pool.query(`INSERT INTO studio.ai_runs(id,site_id,workspace_id,user_id,feature,provider,model_requested,model_resolved,prompt_version,context_hash,latency_ms,status,error_code) VALUES($1,$2,$3,$4,'SECTION_GENERATION',$5,$6,$6,$7,$8,$9,'FAILED',$10)`,[runId,siteId,context.site.workspaceId,actor.id,this.sectionProvider.name,this.sectionProvider.model,SECTION_PROMPT.version,contextHash,Date.now()-started,(error as any)?.code||'AI_FAILED']).catch(()=>undefined);throw error;
     }
   }
@@ -214,6 +220,7 @@ export class AiOrchestrator{
     const context=await this.db.tx(async c=>{const site=await this.db.site(c,actor,siteId,'EDIT_DESIGN');return {site,design:designOnly(site.editorData)};});
     const user=JSON.stringify({instruction:b.instruction,siteName:context.site.name,existingPages:(context.design.pages as any[]|undefined)?.map(p=>({id:p.id,name:p.name,slug:p.slug}))??[],designSystem:{variables:context.design.globalVariables??[],classes:context.design.globalClasses??[]}});
     const contextHash=digest({siteId,instruction:b.instruction,designHash:digest(context.design)});
+    const reservation=await this.begin(actor,siteId,'AI_PAGE_GENERATION','PAGE_GENERATION',12000);
     try{
       const generated=await this.pageProvider.generateStructured({system:PAGE_PROMPT.system,user,timeoutMs:60000,maxOutputTokens:5000});
       const output=parse(pageOutput,generated.value);validateGeneratedPages([output.page]);
@@ -226,8 +233,10 @@ export class AiOrchestrator{
         await c.query(`INSERT INTO studio.ai_runs(id,site_id,workspace_id,user_id,feature,provider,model_requested,model_resolved,prompt_version,context_hash,input_units,output_units,latency_ms,status,changeset_id) VALUES($1,$2,$3,$4,'PAGE_GENERATION',$5,$6,$7,$8,$9,$10,$11,$12,'SUCCEEDED',$13)`,[runId,siteId,site.workspaceId,actor.id,generated.provider??this.pageProvider!.name,this.pageProvider!.model,generated.modelResolved??this.pageProvider!.model,PAGE_PROMPT.version,contextHash,generated.usage?.inputUnits??null,generated.usage?.outputUnits??null,Date.now()-started,changeSetId]);
         await this.db.audit(c,actor,site,'ai.page_proposed',output.page.id);
       });
+      await this.success(reservation,generated.usage);
       return {changeSetId,baseHash:digest(context.design),page:output.page,rationale:output.rationale,provider:generated.provider??this.pageProvider.name,model:generated.modelResolved??this.pageProvider.model};
     }catch(error){
+      await this.failed(reservation);
       await this.db.pool.query(`INSERT INTO studio.ai_runs(id,site_id,workspace_id,user_id,feature,provider,model_requested,model_resolved,prompt_version,context_hash,latency_ms,status,error_code) VALUES($1,$2,$3,$4,'PAGE_GENERATION',$5,$6,$6,$7,$8,$9,'FAILED',$10)`,[runId,siteId,context.site.workspaceId,actor.id,this.pageProvider.name,this.pageProvider.model,PAGE_PROMPT.version,contextHash,Date.now()-started,(error as any)?.code||'AI_FAILED']).catch(()=>undefined);throw error;
     }
   }
@@ -238,6 +247,7 @@ export class AiOrchestrator{
     const existingPages=(context.design.pages as any[]|undefined)??[];
     if(existingPages.length)throw new StudioError('Full-site generation is available only before pages exist. Generate individual pages for an existing site.',409,'SITE_HAS_PAGES');
     const contextHash=digest({siteId,instruction:b.instruction,designHash:digest(context.design)});
+    const reservation=await this.begin(actor,siteId,'AI_SITE_GENERATION','SITE_GENERATION',25000);
     try{
       const planned=await this.plannerProvider.generateStructured({system:SITE_PLAN_PROMPT.system,user:JSON.stringify({instruction:b.instruction,siteName:context.site.name}),timeoutMs:45000,maxOutputTokens:2500});
       const plan=parse(sitePlanOutput,planned.value);
@@ -256,8 +266,10 @@ export class AiOrchestrator{
         await c.query(`INSERT INTO studio.ai_runs(id,site_id,workspace_id,user_id,feature,provider,model_requested,model_resolved,prompt_version,context_hash,input_units,output_units,latency_ms,status,changeset_id) VALUES($1,$2,$3,$4,'SITE_GENERATION',$5,$6,$7,$8,$9,$10,$11,$12,'SUCCEEDED',$13)`,[buildRunId,siteId,site.workspaceId,actor.id,built.provider??this.pageProvider!.name,this.pageProvider!.model,built.modelResolved??this.pageProvider!.model,SITE_BUILD_PROMPT.version,contextHash,built.usage?.inputUnits??null,built.usage?.outputUnits??null,Date.now()-started,changeSetId]);
         await this.db.audit(c,actor,site,'ai.site_proposed',plan.siteName);
       });
+      await this.success(reservation,planned.usage,built.usage);
       return {changeSetId,baseHash:digest(context.design),plan:{siteName:plan.siteName,pages:plan.pages,designSystem:{variableCount:plan.designSystem.variables.length,classCount:plan.designSystem.classes.length}},pageCount:build.pages.length};
     }catch(error){
+      await this.failed(reservation);
       await this.db.pool.query(`INSERT INTO studio.ai_runs(id,site_id,workspace_id,user_id,feature,provider,model_requested,model_resolved,prompt_version,context_hash,latency_ms,status,error_code) VALUES($1,$2,$3,$4,'SITE_GENERATION',$5,$6,$6,$7,$8,$9,'FAILED',$10)`,[buildRunId,siteId,context.site.workspaceId,actor.id,this.pageProvider.name,this.pageProvider.model,SITE_BUILD_PROMPT.version,contextHash,Date.now()-started,(error as any)?.code||'AI_FAILED']).catch(()=>undefined);throw error;
     }
   }
@@ -267,6 +279,7 @@ export class AiOrchestrator{
     const site=await this.db.tx(async c=>this.db.site(c,actor,siteId,'EDIT_DESIGN'));
     const context=await this.cmsCommands.context(actor,siteId),baseHash=await this.cmsCommands.stateHash(actor,siteId);
     const contextHash=digest({siteId,instruction:b.instruction,collections:(context.collections??[]).map((x:any)=>({name:x.name,slug:x.slug,fields:x.fields}))});
+    const reservation=await this.begin(actor,siteId,'AI_CMS','CMS_GENERATION',8000);
     try{
       const generated=await this.plannerProvider.generateStructured({system:CMS_PROMPT.system,user:JSON.stringify({instruction:b.instruction,existingCollections:(context.collections??[]).map((x:any)=>({name:x.name,slug:x.slug,fields:x.fields}))}),timeoutMs:60000,maxOutputTokens:5000});
       const output=parse(cmsOutput,generated.value);
@@ -278,8 +291,10 @@ export class AiOrchestrator{
         await c.query(`INSERT INTO studio.ai_runs(id,site_id,workspace_id,user_id,feature,provider,model_requested,model_resolved,prompt_version,context_hash,input_units,output_units,latency_ms,status,changeset_id) VALUES($1,$2,$3,$4,'CMS_GENERATION',$5,$6,$7,$8,$9,$10,$11,$12,'SUCCEEDED',$13)`,[runId,siteId,current.workspaceId,actor.id,generated.provider??this.plannerProvider!.name,this.plannerProvider!.model,generated.modelResolved??this.plannerProvider!.model,CMS_PROMPT.version,contextHash,generated.usage?.inputUnits??null,generated.usage?.outputUnits??null,Date.now()-started,changeSetId]);
         await this.db.audit(c,actor,current,'ai.cms_proposed',output.collection.name);
       });
+      await this.success(reservation,generated.usage);
       return {changeSetId,baseHash,collection:output.collection,itemCount:output.items.length,rationale:output.rationale};
     }catch(error){
+      await this.failed(reservation);
       await this.db.pool.query(`INSERT INTO studio.ai_runs(id,site_id,workspace_id,user_id,feature,provider,model_requested,model_resolved,prompt_version,context_hash,latency_ms,status,error_code) VALUES($1,$2,$3,$4,'CMS_GENERATION',$5,$6,$6,$7,$8,$9,'FAILED',$10)`,[runId,siteId,site.workspaceId,actor.id,this.plannerProvider.name,this.plannerProvider.model,CMS_PROMPT.version,contextHash,Date.now()-started,(error as any)?.code||'AI_FAILED']).catch(()=>undefined);throw error;
     }
   }
