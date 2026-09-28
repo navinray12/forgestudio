@@ -151,7 +151,7 @@ with sync_playwright() as p:
         public=page.request.get(f"{meta['base']}/api/v1/studio-next/public/sites/{meta['siteId']}/collections/browser-blog").json()
         assert public['items']==[], 'AI CMS drafts were published without explicit publisher action'
         page.get_by_role('button',name='Collections',exact=True).click()
-        expect(page.get_by_text('Browser Blog',exact=True)).to_be_visible()
+        expect(page.get_by_label('Collection').locator('option',has_text='Browser Blog')).to_have_count(1)
     run('AI proposes CMS schema and draft records without auto-publishing',ai_cms_generation)
     def mobile():
         page.get_by_role('button',name='Collections',exact=True).click()
