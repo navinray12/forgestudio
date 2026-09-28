@@ -12,8 +12,9 @@ export function saveDesign(api:string,siteId:string,editorData:unknown):Promise<
   const job=(queues.get(siteId)||Promise.resolve()).catch(()=>undefined).then(async()=>{
     const baseHash=hashes.get(siteId);
     if(!baseHash)throw new Error('No server version is available. Reconnect and reload before saving. Your local recovery copy is retained.');
+    const operationId=crypto.randomUUID(),timestamp=new Date().toISOString();
     const res=await fetch(`${api}/api/v1/studio-next/sites/${siteId}/design`,{
-      method:'PUT',credentials:'include',signal:AbortSignal.timeout(20000),headers:{'Content-Type':'application/json','X-Studio-Request':'1'},body:JSON.stringify({baseHash,editorData}),
+      method:'PUT',credentials:'include',signal:AbortSignal.timeout(20000),headers:{'Content-Type':'application/json','X-Studio-Request':'1'},body:JSON.stringify({baseHash,editorData,operationId,correlationId:operationId,timestamp}),
     });
     const result=await res.json().catch(()=>({}));
     if(!res.ok||!result.success)throw new Error(result.error?.message||`Server save failed (${res.status}). Local recovery only.`);
