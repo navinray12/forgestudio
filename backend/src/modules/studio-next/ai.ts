@@ -198,6 +198,7 @@ export class AiOrchestrator{
     }catch(error){
       await this.failed(reservation);
       await this.db.pool.query(`INSERT INTO studio.ai_runs(id,site_id,workspace_id,user_id,feature,provider,model_requested,model_resolved,prompt_version,context_hash,latency_ms,status,error_code) VALUES($1,$2,$3,$4,'COPY_EDIT',$5,$6,$6,$7,$8,$9,'FAILED',$10)`,[runId,siteId,context.site.workspaceId,actor.id,this.provider.name,this.provider.model,COPY_EDIT_PROMPT.version,contextHash,Date.now()-started,(error as any)?.code||'AI_FAILED']).catch(()=>undefined);
+      if(!(error instanceof StudioError)&&(error as any)?.code==='AI_PROVIDER_ERROR')throw new StudioError('AI provider failed',502,'AI_PROVIDER_ERROR');
       throw error;
     }
   }
