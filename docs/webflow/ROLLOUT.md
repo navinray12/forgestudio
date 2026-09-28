@@ -11,6 +11,7 @@ Studio's migrations must be applied in this order:
 1. `backend/prisma/migrations/20260928150000_studio_dashboard/migration.sql` — existing Studio dashboard tables and scope checks.
 2. `backend/prisma/migrations/20260928200000_studio_platform/migration.sql` — CMS, locales, reviews, invitations, snapshots, domains, checkout and analytics.
 3. `backend/prisma/migrations/20260928210000_studio_constraint_order/migration.sql` — deferred foreign-key checks that permit complete parent cascades while still rejecting invalid standalone deletion at commit.
+4. `backend/prisma/migrations/20260928220000_studio_commands_ai/migration.sql` — shared human/AI command receipts, reviewable changesets, AI run records and tool-call audit metadata.
 
 For a database with a verified, consistent Prisma migration history, use the repository's normal `prisma migrate status` and `prisma migrate deploy` process. Do not erase history, edit checksums, or mark failed migrations successful just to bypass errors. Do not use `db push`, `migrate reset`, or the test fixture to initialize a shared/customer database.
 
@@ -54,6 +55,7 @@ Set backend environment variables through a secret manager or protected deployme
 | Invitation mail | `STUDIO_SMTP_URL`, `STUDIO_MAIL_FROM` | Invitations remain visible to the matched verified account; SMTP delivery is not claimed. |
 | One-time product checkout | `STUDIO_STRIPE_SECRET`, `STUDIO_STRIPE_WEBHOOK_SECRET`, `STUDIO_STRIPE_ACCOUNTS` | Checkout is disabled. Product records alone do not enable payments. |
 | Signed analytics tickets | `STUDIO_ANALYTICS_SECRET` (at least 32 characters) | Analytics collection is unavailable/disabled. |
+| AI copy assistant | `AI_PROVIDER_COPY` or `AI_PROVIDER_DEFAULT`, `AI_MODEL_COPY`, plus the matching `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` | AI Assistant reports not configured; manual Designer/CMS workflows continue normally. |
 
 `STUDIO_STRIPE_ACCOUNTS` is a JSON object mapping site UUIDs to deployment-approved Stripe account IDs (`acct_...`) or `platform`. It is configured by the deployment administrator, not selected by a tenant in an API request. The secret key is read from `STUDIO_STRIPE_SECRET`; no `STUDIO_STRIPE_SECRET_KEY` or singular `STUDIO_STRIPE_ACCOUNT_ID` variable is used by this module. The webhook URL path is `/api/v1/studio-next/payments/webhook`.
 
@@ -69,6 +71,7 @@ TXT ownership verification checks the issued challenge. It does not create DNS r
 - `/invitations` — invitations for the signed-in, verified email address.
 - `/content/:siteId/:collectionSlug` and `/content/:siteId/:collectionSlug/:itemSlug` — published CMS content only.
 - `/shop/:siteId` — approved products and configured checkout.
+- `/studio/:siteId?panel=ai` — reviewable AI copy proposals. AI cannot apply a proposal until the signed-in editor explicitly chooses Apply; Reject records a rejected changeset without mutating the design.
 
 Workspace membership alone does not grant access to every existing site. Assign site-level access deliberately. The new explicit capability overrides are enforced in the new module; inherited routes have not all been requalified against that model.
 
