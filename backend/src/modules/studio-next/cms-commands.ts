@@ -60,14 +60,10 @@ export class CmsCommands{
     const operationId=meta.operationId??randomUUID(),correlationId=meta.correlationId??randomUUID();
     const reservation=await this.reserve(actor,siteId,'cms.create_collection_with_drafts',input,{...meta,operationId,correlationId},'EDIT_DESIGN');
     if(reservation.existing)return {...reservation.existing.result,operationId,correlationId:reservation.existing.correlationId,replayed:true};
-    let collectionId:string|undefined;
     try{
-      const created=await this.cms.saveCollection(actor,siteId,input.collection);collectionId=created.id;
-      const imported=input.items.length?await this.cms.importItems(actor,siteId,collectionId,{items:input.items}):{ids:[],count:0};
-      const result={collectionId,itemIds:imported.ids,count:imported.count};
+      const result=await this.cms.createCollectionWithDrafts(actor,siteId,input);
       await this.finish(actor,operationId,result);return {...result,operationId,correlationId,replayed:false};
     }catch(error){
-      if(collectionId)await this.cms.removeCollection(actor,siteId,collectionId).catch(()=>undefined);
       await this.fail(actor,operationId);throw error;
     }
   }
