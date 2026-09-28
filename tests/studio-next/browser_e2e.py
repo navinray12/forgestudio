@@ -110,6 +110,29 @@ with sync_playwright() as p:
         expect(q.get_by_role('button',name='Accept invitation',exact=True)).to_have_count(0)
         other.close()
     run('A second verified account accepts its own workspace invitation',invitations)
+    def ai_site_generation():
+        page.goto(f"{meta['base']}/studio/{meta['aiSiteId']}?panel=ai")
+        expect(page.get_by_role('heading',name='Reviewable AI website generation',exact=True)).to_be_visible()
+        page.get_by_role('button',name='Generate site',exact=True).click()
+        page.get_by_label('Instruction',exact=True).fill('Create a professional accounting SaaS website')
+        page.get_by_role('button',name='Plan and generate site',exact=True).click()
+        expect(page.get_by_role('heading',name='Browser Accounting',exact=True)).to_be_visible()
+        expect(page.get_by_text('Home, Features, Contact',exact=False)).to_be_visible()
+        before=page.request.get(f"{meta['base']}/api/v1/studio-next/sites/{meta['aiSiteId']}/design").json()
+        assert before['website']['editorData']['pages']==[], 'AI proposal mutated the design before approval'
+        page.get_by_role('button',name='Apply reviewed change',exact=True).click()
+        expect(page.get_by_text('AI change applied',exact=True)).to_be_visible()
+        current=page.request.get(f"{meta['base']}/api/v1/studio-next/sites/{meta['aiSiteId']}/design").json()
+        assert len(current['website']['editorData']['pages'])==3
+        assert current['website']['editorData']['homePageId']=='browser-home'
+        assert current['website']['editorData']['globalVariables'][0]['id']=='browser-primary'
+        edit=page.request.post(f"{meta['base']}/api/v1/studio-next/sites/{meta['aiSiteId']}/design/commands",headers={'Origin':meta['base'],'X-Studio-Request':'1','Content-Type':'application/json'},data=json.dumps({'baseHash':current['hash'],'operationId':'11111111-1111-4111-8111-111111111111','commands':[{'type':'SET_ELEMENT_TEXT','elementId':'browser-home-title','field':'content','value':'Edited manually after AI'}]}))
+        assert edit.status==200, edit.text()
+        after=page.request.get(f"{meta['base']}/api/v1/studio-next/sites/{meta['aiSiteId']}/design").json()
+        assert after['website']['editorData']['pages'][0]['elements'][0]['content']=='Edited manually after AI'
+        page.goto(f"{meta['base']}/studio/{meta['siteId']}")
+        expect(page.get_by_role('heading',name='Integration site',exact=True)).to_be_visible()
+    run('AI plans and builds an editable multi-page site through the real UI and backend',ai_site_generation)
     def mobile():
         page.get_by_role('button',name='Collections',exact=True).click()
         page.set_viewport_size({'width':390,'height':844})
