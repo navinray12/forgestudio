@@ -159,7 +159,7 @@ function applyDesignCommands(design:Record<string,unknown>,commands:DesignComman
     } else if(command.type==='UPDATE_PAGE'){
       const pages=pagesOf(next),page=pages.find(p=>p.id===command.pageId);if(!page)throw new StudioError('Page not found',404,'PAGE_NOT_FOUND');
       const patch=cloneJson(command.patch) as any;if(patch.slug!==undefined)validatePageSlugValue(patch.slug,pages,page.id,page.id===next.homePageId);
-      Object.assign(page,patch);if(page.id===next.homePageId)page.slug='/';page.updatedAt=new Date().toISOString();page.pageSettings={...(page.pageSettings||{}),title:page.name,path:page.slug};
+      const settings=patch.pageSettings;delete patch.pageSettings;Object.assign(page,patch);if(settings)page.pageSettings={...(page.pageSettings||{}),...settings};if(page.id===next.homePageId)page.slug='/';page.updatedAt=new Date().toISOString();page.pageSettings={...(page.pageSettings||{}),title:page.name,path:page.slug};
     } else if(command.type==='DELETE_PAGE'){
       const pages=pagesOf(next);if(pages.length<=1)throw new StudioError('Cannot delete the only page',409,'LAST_PAGE');
       const index=pages.findIndex(p=>p.id===command.pageId);if(index<0)throw new StudioError('Page not found',404,'PAGE_NOT_FOUND');
