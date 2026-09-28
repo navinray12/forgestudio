@@ -7,8 +7,8 @@ Date: 2026-09-28.
 - Repository: `navinray12/forgestudio`
 - Branch: `webflow`
 - Previous delivered increment: `c67a42bd305103f62af7417a57f9c505b34b36a4`
-- Tested application revision: `3eb86f3d4b3462bfcc51d1d957ce0f3148f161c4`
-- Passing GitHub Actions run: https://github.com/navinray12/forgestudio/actions/runs/36458009845
+- Tested application revision: `747698d01d77d6dc32725c5f657097181784f670`
+- Passing GitHub Actions run: https://github.com/navinray12/forgestudio/actions/runs/36460277583
 - Workflow: `.github/workflows/webflow-verify.yml`
 
 All six jobs in this run completed successfully. Later rollout/verification documentation changes do not change the tested application source. This increment was committed only to `webflow`; no merge to the default branch, production database migration, Google browser login, live payment, SMTP delivery, DNS-provider write, TLS provisioning or application deployment was performed.
@@ -22,10 +22,10 @@ All six jobs in this run completed successfully. Later rollout/verification docu
 | Existing Studio validation cases | 27 passed | Earlier dashboard validation and copy-policy suite, rerun in the final workflow. |
 | Existing Studio PostgreSQL cases | 14 passed | Earlier dashboard persistence and isolation suite, rerun in the final workflow. |
 | Existing dashboard browser smoke cases | 13 passed | Production frontend with intercepted synthetic API fixtures. |
-| New Site Studio validation and API cases | 77 passed, 0 failed, 0 skipped | 22 validation cases plus 55 real HTTP/PostgreSQL/WebSocket cases. Provider transports are controlled test substitutes. |
+| New Site Studio validation and API cases | 81 passed, 0 failed, 0 skipped | 22 validation cases plus 55 real HTTP/PostgreSQL/WebSocket cases. Provider transports are controlled test substitutes. |
 | New Site Studio browser workflows | 12 passed, 0 failed | Built frontend, real new-module routes, PostgreSQL persistence and real database-backed session cookies; synthetic accounts. |
 
-Total: **143 passing automated cases**, plus both successful full application builds. This count is not a security rating or proof of exhaustive feature parity. The browser report records zero uncaught JavaScript exceptions in the exercised flows; that is not a claim that every application screen has no possible error.
+Total: **147 passing automated cases**, plus both successful full application builds. This count is not a security rating or proof of exhaustive feature parity. The browser report records zero uncaught JavaScript exceptions in the exercised flows; that is not a claim that every application screen has no possible error.
 
 ### Final job identifiers
 
@@ -59,7 +59,7 @@ Synthetic users receive real session cookies backed by PostgreSQL. The browser d
 
 ## Backend and security behaviors tested
 
-The new 77-case suite checks session absence/expiry/inactive accounts; hostile origins and missing request markers; cross-tenant reads/writes; invitation identity/verification/expiry/revocation/replay; owner/admin restrictions; schema and typed-field validation; draft/live separation; references and locale scope; stale revisions; atomic import rollback; scheduling with fresh permission checks; design-hash conflicts; protected components including duplicate-ID mutations; content-only editing restrictions; pre-restore snapshots; capability overrides; review authorship; TXT challenge ownership; duplicate domain claims; checkout configuration/amount/account validation; signed webhook reconciliation and replay; opt-in analytics/assignment/event rules; and authenticated WebSocket identity.
+The new 81-case suite checks session absence/expiry/inactive accounts; hostile origins and missing request markers; cross-tenant reads/writes; invitation identity/verification/expiry/revocation/replay; owner/admin restrictions; schema and typed-field validation; draft/live separation; references and locale scope; stale revisions; atomic import rollback; scheduling with fresh permission checks; design-hash conflicts; protected components including duplicate-ID mutations; content-only editing restrictions; pre-restore snapshots; capability overrides; review authorship; TXT challenge ownership; duplicate domain claims; checkout configuration/amount/account validation; signed webhook reconciliation and replay; opt-in analytics/assignment/event rules; and authenticated WebSocket identity.
 
 PostgreSQL is a real service in CI. The tests install Studio migrations onto a disposable minimal legacy-table contract. That is not a test of the entire historical Prisma migration chain, an existing customer database, cross-region failover, production-scale concurrency, or every legacy authorization path. Stripe transport and DNS resolution use injected substitutes. SMTP is not delivered to real recipients.
 
@@ -79,7 +79,7 @@ The report was downloaded and inspected: 12 passed, 0 failed. Desktop and mobile
 
 ## Delivered implementation and remaining boundaries
 
-The increment adds new frontend/backend workflows for typed CMS and publication, page and item localization, workspace invitations and membership management, site capability overrides, reviews and authenticated presence, hash-checked Designer saves and snapshots, TXT domain ownership verification, one-time hosted checkout with order reconciliation, and opt-in analytics with text experiments. Dashboard and Designer entry points lead to these tools. See `PLATFORM_EXTENSION.md` for the exact contract and feature matrix.
+The increment adds new frontend/backend workflows for typed CMS and publication, page and item localization, workspace invitations and membership management, site capability overrides, reviews and authenticated presence, hash-checked Designer saves and snapshots, TXT domain ownership verification, one-time hosted checkout with order reconciliation, opt-in analytics with text experiments, and a shared domain-command path used by both manual Designer saves and explicitly approved AI copy changes. AI proposals are durable changesets with provider/model/run metadata and can be applied or rejected. Dashboard and Designer entry points lead to these tools. See `PLATFORM_EXTENSION.md` for the exact contract and feature matrix.
 
 **This is not an exhaustive Webflow clone.** The following remain incomplete or unverified: full Designer canvas/style/animation/component-slot parity; native binding of the new CMS into Designer collection widgets; simultaneous CRDT/OT document merging; cluster-wide presence; localized URL routing/hreflang/server-side SEO; enterprise SSO/SCIM/seat billing; domain routing/TLS/CDN/build-host provisioning; multi-item carts, inventory, shipping/tax/refunds, recurring subscriptions and entitlements; complete analytics/optimization functionality; full accessibility/cross-browser/load/fault testing; production migration qualification; and live provider/Google-login end-to-end verification.
 
