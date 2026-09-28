@@ -3,7 +3,7 @@ import {useData,useMutation,Feedback} from './api';
 import type {PanelProps} from './types';
 
 const labels:Record<string,string>={
-  AI_COPY:'AI copy editing',AI_SECTION_GENERATION:'AI section generation',AI_PAGE_GENERATION:'AI page generation',AI_SITE_GENERATION:'AI full-site generation',AI_CMS:'AI CMS generation'
+  AI_COPY:'AI copy editing',AI_SECTION_GENERATION:'AI section generation',AI_PAGE_GENERATION:'AI page generation',AI_SITE_GENERATION:'AI full-site generation',AI_CMS:'AI CMS generation',AI_SEO:'AI SEO / AEO assistance'
 };
 export default function GovernancePanel({site,refresh,reload}:PanelProps){
   const features=useData<any>(`/sites/${site.id}/governance/features`,refresh),budget=useData<any>(`/sites/${site.id}/governance/ai-budget`,refresh),m=useMutation(reload);
