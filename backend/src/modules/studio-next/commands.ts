@@ -26,6 +26,7 @@ const designCommand=z.discriminatedUnion('type',[
   z.object({type:z.literal('REMOVE_ELEMENT'),elementId:stableId}).strict(),
   z.object({type:z.literal('CREATE_PAGE'),page:pageDefinition}).strict(),
   z.object({type:z.literal('UPDATE_PAGE'),pageId:stableId,patch:pagePatch}).strict(),
+  z.object({type:z.literal('UPDATE_PAGE_SETTINGS'),pageId:stableId,settings:z.record(z.string(),z.unknown())}).strict(),
   z.object({type:z.literal('DELETE_PAGE'),pageId:stableId}).strict(),
   z.object({type:z.literal('REORDER_PAGES'),pageIds:z.array(stableId).min(1).max(200)}).strict(),
   z.object({type:z.literal('SET_HOME_PAGE'),pageId:stableId}).strict(),
@@ -160,6 +161,9 @@ function applyDesignCommands(design:Record<string,unknown>,commands:DesignComman
       const pages=pagesOf(next),page=pages.find(p=>p.id===command.pageId);if(!page)throw new StudioError('Page not found',404,'PAGE_NOT_FOUND');
       const patch=cloneJson(command.patch) as any;if(patch.slug!==undefined)validatePageSlugValue(patch.slug,pages,page.id,page.id===next.homePageId);
       const settings=patch.pageSettings;delete patch.pageSettings;Object.assign(page,patch);if(settings)page.pageSettings={...(page.pageSettings||{}),...settings};if(page.id===next.homePageId)page.slug='/';page.updatedAt=new Date().toISOString();page.pageSettings={...(page.pageSettings||{}),title:page.name,path:page.slug};
+    } else if(command.type==='UPDATE_PAGE_SETTINGS'){
+      const pages=pagesOf(next),page=pages.find(p=>p.id===command.pageId);if(!page)throw new StudioError('Page not found',404,'PAGE_NOT_FOUND');
+      const settings=jsonObject(cloneJson(command.settings));page.pageSettings={...(page.pageSettings||{}),...settings,title:page.name,path:page.slug};page.updatedAt=new Date().toISOString();
     } else if(command.type==='DELETE_PAGE'){
       const pages=pagesOf(next);if(pages.length<=1)throw new StudioError('Cannot delete the only page',409,'LAST_PAGE');
       const index=pages.findIndex(p=>p.id===command.pageId);if(index<0)throw new StudioError('Page not found',404,'PAGE_NOT_FOUND');
