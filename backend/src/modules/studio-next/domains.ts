@@ -35,7 +35,7 @@ export class Domains {
     catch(e){if(!['ENODATA','ENOTFOUND','ESERVFAIL'].includes((e as any)?.code))throw new StudioError('DNS lookup failed. Retry after checking DNS availability.',503,'DNS_UNAVAILABLE');}
     return this.db.tx(async c=>{
       const site=await this.db.site(c,actor,siteId,'MANAGE_SETTINGS',true);
-      const r=await c.query(`UPDATE studio.verified_domains SET checked_at=now(),state=$3,verified_at=CASE WHEN $3='VERIFIED' THEN now() ELSE NULL END WHERE id=$1 AND site_id=$2 AND challenge=$4 RETURNING id`,[domainId,siteId,found?'VERIFIED':'PENDING',record.challenge]);
+      const r=await c.query(`UPDATE studio.verified_domains SET checked_at=now(),state=$3::varchar,verified_at=CASE WHEN $3::varchar='VERIFIED' THEN now() ELSE NULL END WHERE id=$1 AND site_id=$2 AND challenge=$4 RETURNING id`,[domainId,siteId,found?'VERIFIED':'PENDING',record.challenge]);
       if(!r.rowCount)throw new StudioError('Domain changed during verification',409);
       await this.db.audit(c,actor,site,found?'domain.ownership_verified':'domain.verification_pending',record.hostname);
       return {verified:found,hostingStatus:'NOT_PROVISIONED'};

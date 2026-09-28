@@ -22,10 +22,11 @@ function nodes(value:any,result=new Map<string,any>()):Map<string,any>{
   else if(value&&typeof value==='object'){if(typeof value.id==='string' && value.isProtected)result.set(value.id,value);Object.values(value).forEach(v=>nodes(v,result));}
   return result;
 }
-function findById(value:any,id:string):any {
-  if(!value||typeof value!=='object')return undefined;
-  if(value.id===id)return value;
-  for(const child of Object.values(value)){const found=findById(child,id);if(found)return found;}
+function findAllById(value:any,id:string,result:any[]=[]):any[]{
+  if(!value||typeof value!=='object')return result;
+  if(value.id===id)result.push(value);
+  for(const child of Object.values(value))findAllById(child,id,result);
+  return result;
 }
 export class Design {
   constructor(private db:Database){}
@@ -45,7 +46,7 @@ export class Design {
       let incoming={...current,...designOnly(b.editorData)};
       if(!site.capabilities.includes('EDIT_DESIGN'))incoming=contentOnly(current,incoming);
       if(site.userId!==actor.id){
-        for(const [id,node] of nodes(current))if(digest(findById(incoming,id)||null)!==digest(node))throw new StudioError('A protected component cannot be changed from this editor',403,'PROTECTED_COMPONENT');
+        for(const id of nodes(current).keys())if(digest(findAllById(incoming,id))!==digest(findAllById(current,id)))throw new StudioError('A protected component cannot be changed from this editor',403,'PROTECTED_COMPONENT');
       }
       if(incoming.elements!==undefined&&!Array.isArray(incoming.elements))throw new StudioError('Elements must be an array');
       if(incoming.pages!==undefined&&(!Array.isArray(incoming.pages)||incoming.pages.some((p:any)=>!p||typeof p.id!=='string'||!Array.isArray(p.elements))))throw new StudioError('Each page needs an ID and an elements array');

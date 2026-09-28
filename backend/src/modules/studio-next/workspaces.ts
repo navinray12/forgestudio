@@ -73,7 +73,7 @@ export class Workspaces {
       if(i.state!=='PENDING')throw new StudioError('Invitation is no longer pending',409);
       if(b.action==='RESEND' && new Date(i.updated_at).getTime()>Date.now()-60_000)throw new StudioError('Wait at least one minute between sends',429,'RESEND_LIMIT');
       await c.query(`UPDATE studio.mail_outbox SET state='CANCELLED' WHERE invite_id=$1 AND state='QUEUED'`,[i.id]);
-      await c.query(`UPDATE studio.workspace_invites SET state=$2,expires_at=CASE WHEN $2='PENDING' THEN now()+interval '7 days' ELSE expires_at END,revision=revision+1,updated_at=now() WHERE id=$1`,[i.id,b.action==='RESEND'?'PENDING':'REVOKED']);
+      await c.query(`UPDATE studio.workspace_invites SET state=$2::varchar,expires_at=CASE WHEN $2::varchar='PENDING' THEN now()+interval '7 days' ELSE expires_at END,revision=revision+1,updated_at=now() WHERE id=$1`,[i.id,b.action==='RESEND'?'PENDING':'REVOKED']);
       if(b.action==='RESEND')await c.query(`INSERT INTO studio.mail_outbox(id,invite_id) VALUES($1,$2)`,[randomUUID(),i.id]);
       await this.db.audit(c,actor,{workspaceId},`workspace.invite_${b.action.toLowerCase()}`,i.email);
       return {};
@@ -99,7 +99,11 @@ export class Workspaces {
 export async function deliverInvitations(db:Database):Promise<number>{
   if(!process.env.STUDIO_SMTP_URL || !process.env.FRONTEND_URL || !process.env.STUDIO_MAIL_FROM)return 0;
   const origin=new URL(process.env.FRONTEND_URL).origin;
-  const transport=nodemailer.createTransport(process.env.STUDIO_SMTP_URL,{connectionTimeout:5000,socketTimeout:8000});
+  const smtpUrl=new URL(process.env.STUDIO_SMTP_URL);
+  if(!['smtp:','smtps:'].includes(smtpUrl.protocol))throw new StudioError('Invalid mail transport configuration',503,'MAIL_NOT_CONFIGURED');
+  for(const [key,value] of Object.entries({connectionTimeout:'5000',greetingTimeout:'5000',socketTimeout:'8000',dnsTimeout:'5000',disableFileAccess:'true',disableUrlAccess:'true'}))smtpUrl.searchParams.set(key,value);
+  if(process.env.NODE_ENV==='production')smtpUrl.searchParams.set('requireTLS','true');
+  const transport=nodemailer.createTransport(smtpUrl.toString());
   try { return await db.tx(async c=>{
     const r=await c.query(`SELECT o.id,i.id AS invite_id,i.email,i.state,i.expires_at,w.name FROM studio.mail_outbox o
       JOIN studio.workspace_invites i ON i.id=o.invite_id JOIN public.workspaces w ON w.id=i.workspace_id

@@ -26,6 +26,7 @@ export async function install(pool:pg.Pool){
     const exists=await pool.query('SELECT to_regclass($1) AS name',[table]);
     if(!exists.rows[0].name)await pool.query(await readFile(new URL(`../../prisma/migrations/${file}/migration.sql`,import.meta.url),'utf8'));
   }
+  await pool.query(await readFile(new URL('../../prisma/migrations/20260928210000_studio_constraint_order/migration.sql',import.meta.url),'utf8'));
 }
 export type TestActor=Actor&{token:string};
 export async function actor(pool:pg.Pool,overrides:Partial<Actor>={},status='ACTIVE'):Promise<TestActor>{
