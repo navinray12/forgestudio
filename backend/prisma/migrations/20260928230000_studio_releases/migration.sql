@@ -7,12 +7,13 @@ CREATE TABLE studio.releases (
   artifact jsonb NOT NULL CHECK (jsonb_typeof(artifact)='object'),
   provider varchar(40) NOT NULL,
   provider_ref text,
-  status varchar(24) NOT NULL CHECK(status IN ('PREPARED','DEPLOYING','ACTIVE','SUPERSEDED','FAILED')),
+  status varchar(32) NOT NULL CHECK(status IN ('PREPARED','DEPLOYING','VERIFYING','ACTIVE','SUPERSEDED','FAILED','RECONCILIATION_REQUIRED')),
   created_by uuid REFERENCES public.users(id) ON DELETE SET NULL,
   error_code varchar(80),
+  rollback_of uuid REFERENCES studio.releases(id) ON DELETE SET NULL,
   created_at timestamptz NOT NULL DEFAULT now(),
   activated_at timestamptz,
-  CHECK ((status='ACTIVE') = (activated_at IS NOT NULL))
+  CHECK (status<>'ACTIVE' OR activated_at IS NOT NULL)
 );
 CREATE INDEX studio_releases_site_time ON studio.releases(site_id,created_at DESC);
 CREATE UNIQUE INDEX studio_one_active_release ON studio.releases(site_id) WHERE status='ACTIVE';
