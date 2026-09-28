@@ -63,7 +63,7 @@ else {
     assert.equal(proposal.collection.slug,'blog-posts');assert.equal(proposal.itemCount,2);
     const stillBefore=await send('GET',`/sites/${s}/collections`);assert.equal(stillBefore.collections.some((x:any)=>x.slug==='blog-posts'),false);
     const applied=await send('POST',`/sites/${s}/ai/changes/${proposal.changeSetId}/apply`,{});assert.ok(applied.hash);
-    const state=await send('GET',`/sites/${s}/collections`,user);const collection=state.collections.find((x:any)=>x.slug==='blog-posts');assert.ok(collection);
+    const state=await send('GET',`/sites/${s}/collections`);const collection=state.collections.find((x:any)=>x.slug==='blog-posts');assert.ok(collection);
     const items=await send('GET',`/sites/${s}/collections/${collection.id}/items?locale=en`);assert.equal(items.items.length,2);assert.ok(items.items.every((x:any)=>x.live===null||x.live===undefined));
     const publicRead=await send('GET',`/public/sites/${s}/collections/blog-posts`,undefined);assert.equal(publicRead.items.length,0);
     const receipt=await pool.query('SELECT source,command FROM studio.command_receipts WHERE actor_id=$1 AND idempotency_key=$2',[user.id,proposal.changeSetId]);assert.deepEqual(receipt.rows[0],{source:'AI',command:'cms.create_collection_with_drafts'});
