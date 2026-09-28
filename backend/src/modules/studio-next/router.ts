@@ -18,6 +18,7 @@ import { FeaturePolicy,AiGovernance } from './governance.js';
 import { DomainCommands } from './commands.js';
 import { AiOrchestrator,configuredCopyProvider,configuredProvider,type AIProvider } from './ai.js';
 import { AiSeo } from './ai-seo.js';
+import { AgentTools } from './agent-tools.js';
 import { StudioError,parse,localeCode } from './validation.js';
 import { trustedOrigin } from '../studio/domain.js';
 export interface RouterOptions { commerce?:CommerceConfig;analyticsSecret?:string;resolveTxt?:TxtResolver;requestLimit?:number;aiProvider?:AIProvider|null;webhooks?:WebhookConfig }
@@ -30,7 +31,7 @@ export function configuredCommerce():CommerceConfig{
 }
 export function createStudioNextRouter(db:Database,options:RouterOptions={}){
   const router=express.Router();
-  const commands=new DomainCommands(db),workspaces=new Workspaces(db),featurePolicy=new FeaturePolicy(db),aiGovernance=new AiGovernance(db),webhooks=new Webhooks(db,options.webhooks??configuredWebhookConfig()),cms=new Cms(db,webhooks),cmsCommands=new CmsCommands(db,cms),design=new Design(db,commands),localization=new Localization(db),reviews=new Collaboration(db),domains=new Domains(db,options.resolveTxt),analytics=new Analytics(db,options.analyticsSecret??process.env.STUDIO_ANALYTICS_SECRET),commerce=new Commerce(db,options.commerce??configuredCommerce()),permissions=new Permissions(db),releases=new Releases(db,undefined,webhooks),ai=new AiOrchestrator(db,commands,options.aiProvider===undefined?configuredCopyProvider():options.aiProvider,options.aiProvider===undefined?(configuredProvider('EDITOR')??configuredCopyProvider()):options.aiProvider,options.aiProvider===undefined?(configuredProvider('PLANNER')??configuredProvider('EDITOR')??configuredCopyProvider()):options.aiProvider,options.aiProvider===undefined?(configuredProvider('EDITOR')??configuredCopyProvider()):options.aiProvider,cmsCommands,featurePolicy,aiGovernance),seoAi=new AiSeo(db,options.aiProvider===undefined?configuredCopyProvider():options.aiProvider,featurePolicy,aiGovernance);
+  const commands=new DomainCommands(db),workspaces=new Workspaces(db),featurePolicy=new FeaturePolicy(db),aiGovernance=new AiGovernance(db),webhooks=new Webhooks(db,options.webhooks??configuredWebhookConfig()),cms=new Cms(db,webhooks),cmsCommands=new CmsCommands(db,cms),design=new Design(db,commands),localization=new Localization(db),reviews=new Collaboration(db),domains=new Domains(db,options.resolveTxt),analytics=new Analytics(db,options.analyticsSecret??process.env.STUDIO_ANALYTICS_SECRET),commerce=new Commerce(db,options.commerce??configuredCommerce()),permissions=new Permissions(db),releases=new Releases(db,undefined,webhooks),ai=new AiOrchestrator(db,commands,options.aiProvider===undefined?configuredCopyProvider():options.aiProvider,options.aiProvider===undefined?(configuredProvider('EDITOR')??configuredCopyProvider()):options.aiProvider,options.aiProvider===undefined?(configuredProvider('PLANNER')??configuredProvider('EDITOR')??configuredCopyProvider()):options.aiProvider,options.aiProvider===undefined?(configuredProvider('EDITOR')??configuredCopyProvider()):options.aiProvider,cmsCommands,featurePolicy,aiGovernance),seoAi=new AiSeo(db,options.aiProvider===undefined?configuredCopyProvider():options.aiProvider,featurePolicy,aiGovernance),agentTools=new AgentTools(db,commands,cmsCommands,releases,featurePolicy);
   router.use((_req,res,next)=>{res.setHeader('Cache-Control','no-store');res.setHeader('X-Request-Id',randomUUID());next();});
   type Run=(req:Request,actor:Actor)=>Promise<Record<string,unknown>>;
   const route=(run:Run,status=200):RequestHandler=>async(req,res,next)=>{try{res.status(status).json({success:true,...await run(req,res.locals.actor)});}catch(e){next(e);}};
@@ -62,6 +63,8 @@ export function createStudioNextRouter(db:Database,options:RouterOptions={}){
   router.patch('/workspaces/:workspaceId/invitations/:invitationId',route((req,a)=>workspaces.changeInvite(a,p(req,'workspaceId'),p(req,'invitationId'),req.body)));
   router.patch('/workspaces/:workspaceId/members/:userId',route((req,a)=>workspaces.changeMember(a,p(req,'workspaceId'),p(req,'userId'),req.body)));
   router.get('/sites/:siteId/ai/status',route((req,a)=>db.tx(async c=>{await db.site(c,a,p(req,'siteId'),'VIEW');return ai.status(p(req,'siteId'));})));
+  router.get('/sites/:siteId/agent/tools',route((req,a)=>agentTools.catalog(a,p(req,'siteId'))));
+  router.post('/sites/:siteId/agent/tools/:tool/execute',route((req,a)=>agentTools.execute(a,p(req,'siteId'),p(req,'tool'),req.body)));
   router.get('/sites/:siteId/governance/features',route((req,a)=>featurePolicy.list(a,p(req,'siteId'))));
   router.put('/sites/:siteId/governance/features',route((req,a)=>featurePolicy.set(a,p(req,'siteId'),req.body)));
   router.get('/sites/:siteId/governance/ai-budget',route((req,a)=>aiGovernance.report(a,p(req,'siteId'))));
