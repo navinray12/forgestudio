@@ -5,6 +5,9 @@ import { parse,uuid,title,slug,revision,checkRevision,StudioError } from './vali
 const pathSchema=z.string().min(1).max(300).regex(/^\/(?!\/)[^?#\s]*$/);
 const variantsSchema=z.array(z.object({id:slug,label:title,weight:z.number().int().min(1).max(99),text:z.string().max(2000)}).strict()).min(2).max(5).refine(v=>v.reduce((n,x)=>n+x.weight,0)===100&&new Set(v.map(x=>x.id)).size===v.length,'Variant IDs must be unique and weights must total 100');
 const experimentSchema=z.object({name:title,path:pathSchema,targetElementId:z.string().min(1).max(150),variants:variantsSchema}).strict();
+const attributeValue=z.union([z.string().max(300),z.number().finite(),z.boolean(),z.null()]);
+const attributesSchema=z.record(z.string().regex(/^[a-zA-Z][a-zA-Z0-9_.-]{0,49}$/),attributeValue).refine(v=>Object.keys(v).length<=20,'At most 20 analytics attributes are allowed');
+const trackedEvent=z.enum(['PAGEVIEW','CONVERSION','CLICK','FORM_SUBMIT','CUSTOM_EVENT']);
 interface Ticket {siteId:string;visitorHash:string;path:string;expires:number;experimentId:string|null;variant:string|null}
 export class Analytics {
   constructor(private db:Database,private secret:string|undefined){}
@@ -19,10 +22,12 @@ export class Analytics {
   async report(actor:Actor,siteId:string){
     return this.db.tx(async c=>{
       await this.db.site(c,actor,siteId,'VIEW_ANALYTICS');
-      const daily=await c.query(`SELECT (created_at AT TIME ZONE 'UTC')::date AS day,count(*) FILTER(WHERE event='PAGEVIEW')::int AS views,count(*) FILTER(WHERE event='CONVERSION')::int AS conversions,count(DISTINCT visitor_hash)::int AS visitors FROM studio.analytics_events WHERE site_id=$1 AND created_at>now()-interval '30 days' GROUP BY day ORDER BY day`,[siteId]);
-      const pages=await c.query(`SELECT path,count(*) FILTER(WHERE event='PAGEVIEW')::int AS views FROM studio.analytics_events WHERE site_id=$1 AND created_at>now()-interval '30 days' GROUP BY path ORDER BY views DESC LIMIT 100`,[siteId]);
+      const daily=await c.query(`SELECT (created_at AT TIME ZONE 'UTC')::date AS day,count(*) FILTER(WHERE event='PAGEVIEW')::int AS views,count(*) FILTER(WHERE event='CONVERSION')::int AS conversions,count(*) FILTER(WHERE event='CLICK')::int AS clicks,count(*) FILTER(WHERE event='FORM_SUBMIT')::int AS "formSubmits",count(*) FILTER(WHERE event='CUSTOM_EVENT')::int AS "customEvents",count(DISTINCT visitor_hash)::int AS visitors FROM studio.analytics_events WHERE site_id=$1 AND created_at>now()-interval '30 days' GROUP BY day ORDER BY day`,[siteId]);
+      const pages=await c.query(`SELECT path,count(*) FILTER(WHERE event='PAGEVIEW')::int AS views,count(*) FILTER(WHERE event='CLICK')::int AS clicks,count(*) FILTER(WHERE event='FORM_SUBMIT')::int AS "formSubmits",count(*) FILTER(WHERE event='CONVERSION')::int AS conversions FROM studio.analytics_events WHERE site_id=$1 AND created_at>now()-interval '30 days' GROUP BY path ORDER BY views DESC LIMIT 100`,[siteId]);
+      const eventCounts=await c.query(`SELECT event,count(*)::int AS count FROM studio.analytics_events WHERE site_id=$1 AND created_at>now()-interval '30 days' GROUP BY event ORDER BY event`,[siteId]);
+      const customEvents=await c.query(`SELECT attributes->>'name' AS name,count(*)::int AS count FROM studio.analytics_events WHERE site_id=$1 AND event='CUSTOM_EVENT' AND created_at>now()-interval '30 days' AND attributes ? 'name' GROUP BY attributes->>'name' ORDER BY count DESC LIMIT 50`,[siteId]);
       const variants=await c.query(`SELECT experiment_id AS "experimentId",variant,count(DISTINCT visitor_hash) FILTER(WHERE event='PAGEVIEW')::int AS visitors,count(DISTINCT visitor_hash) FILTER(WHERE event='CONVERSION')::int AS conversions FROM studio.analytics_events WHERE site_id=$1 AND experiment_id IS NOT NULL AND created_at>now()-interval '30 days' GROUP BY experiment_id,variant`,[siteId]);
-      return {daily:daily.rows,pages:pages.rows,variants:variants.rows,visitorDefinition:'Daily, site-scoped pseudonymous browser identifiers; not unique people. No automatic winner or statistical-significance claim.'};
+      return {daily:daily.rows,pages:pages.rows,eventCounts:eventCounts.rows,customEvents:customEvents.rows,variants:variants.rows,visitorDefinition:'Daily, site-scoped pseudonymous browser identifiers; not unique people. No automatic winner or statistical-significance claim.'};
     });
   }
   async experiments(actor:Actor,siteId:string){
@@ -66,7 +71,7 @@ export class Analytics {
     return ticket;
   }
   async track(siteId:string,input:unknown){
-    const b=parse(z.object({id:uuid,ticket:z.string().max(4096),event:z.enum(['PAGEVIEW','CONVERSION'])}).strict(),input);
+    const b=parse(z.object({id:uuid,ticket:z.string().max(4096),event:trackedEvent,attributes:attributesSchema.default({})}).strict(),input);
     const t=this.verify(b.ticket);if(t.siteId!==siteId)throw new StudioError('Analytics ticket belongs to another site',403);
     if(!(await this.publicConfig(siteId)).enabled)throw new StudioError('Analytics is disabled',403);
     if(t.experimentId){const r=await this.db.pool.query(`SELECT 1 FROM studio.experiments WHERE id=$1 AND site_id=$2 AND state='RUNNING'`,[t.experimentId,siteId]);if(!r.rowCount)return {ignored:true};}
@@ -74,7 +79,8 @@ export class Analytics {
     if(b.event==='CONVERSION'){
       const viewed=await this.db.pool.query(`SELECT 1 FROM studio.analytics_events WHERE site_id=$1 AND visitor_hash=$2 AND path=$3 AND event='PAGEVIEW' AND created_at>now()-interval '1 day' LIMIT 1`,[siteId,t.visitorHash,t.path]);if(!viewed.rowCount)throw new StudioError('Record a pageview before a conversion',409);
     }
-    await this.db.pool.query(`INSERT INTO studio.analytics_events(id,site_id,event,path,experiment_id,variant,visitor_hash) VALUES($1,$2,$3,$4,$5,$6,$7) ON CONFLICT DO NOTHING`,[b.id,siteId,b.event,t.path,t.experimentId,t.variant,t.visitorHash]);return {};
+    if(b.event==='CUSTOM_EVENT'&&(typeof b.attributes.name!=='string'||!/^[a-zA-Z][a-zA-Z0-9_.-]{1,79}$/.test(b.attributes.name)))throw new StudioError('Custom events require a bounded name attribute');
+    await this.db.pool.query(`INSERT INTO studio.analytics_events(id,site_id,event,path,experiment_id,variant,visitor_hash,attributes) VALUES($1,$2,$3,$4,$5,$6,$7,$8::jsonb) ON CONFLICT DO NOTHING`,[b.id,siteId,b.event,t.path,t.experimentId,t.variant,t.visitorHash,JSON.stringify(b.attributes)]);return {};
   }
   async retain(){await this.db.pool.query(`DELETE FROM studio.analytics_events WHERE created_at<now()-interval '30 days'`);}
 }
