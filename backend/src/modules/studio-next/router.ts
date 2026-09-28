@@ -17,6 +17,7 @@ import { Webhooks,configuredWebhookConfig,type WebhookConfig } from './webhooks.
 import { FeaturePolicy,AiGovernance } from './governance.js';
 import { DomainCommands } from './commands.js';
 import { AiOrchestrator,configuredCopyProvider,configuredProvider,type AIProvider } from './ai.js';
+import { AiSeo } from './ai-seo.js';
 import { StudioError,parse,localeCode } from './validation.js';
 import { trustedOrigin } from '../studio/domain.js';
 export interface RouterOptions { commerce?:CommerceConfig;analyticsSecret?:string;resolveTxt?:TxtResolver;requestLimit?:number;aiProvider?:AIProvider|null;webhooks?:WebhookConfig }
@@ -29,7 +30,7 @@ export function configuredCommerce():CommerceConfig{
 }
 export function createStudioNextRouter(db:Database,options:RouterOptions={}){
   const router=express.Router();
-  const commands=new DomainCommands(db),workspaces=new Workspaces(db),featurePolicy=new FeaturePolicy(db),aiGovernance=new AiGovernance(db),webhooks=new Webhooks(db,options.webhooks??configuredWebhookConfig()),cms=new Cms(db,webhooks),cmsCommands=new CmsCommands(db,cms),design=new Design(db,commands),localization=new Localization(db),reviews=new Collaboration(db),domains=new Domains(db,options.resolveTxt),analytics=new Analytics(db,options.analyticsSecret??process.env.STUDIO_ANALYTICS_SECRET),commerce=new Commerce(db,options.commerce??configuredCommerce()),permissions=new Permissions(db),releases=new Releases(db,undefined,webhooks),ai=new AiOrchestrator(db,commands,options.aiProvider===undefined?configuredCopyProvider():options.aiProvider,options.aiProvider===undefined?(configuredProvider('EDITOR')??configuredCopyProvider()):options.aiProvider,options.aiProvider===undefined?(configuredProvider('PLANNER')??configuredProvider('EDITOR')??configuredCopyProvider()):options.aiProvider,options.aiProvider===undefined?(configuredProvider('EDITOR')??configuredCopyProvider()):options.aiProvider,cmsCommands,featurePolicy,aiGovernance);
+  const commands=new DomainCommands(db),workspaces=new Workspaces(db),featurePolicy=new FeaturePolicy(db),aiGovernance=new AiGovernance(db),webhooks=new Webhooks(db,options.webhooks??configuredWebhookConfig()),cms=new Cms(db,webhooks),cmsCommands=new CmsCommands(db,cms),design=new Design(db,commands),localization=new Localization(db),reviews=new Collaboration(db),domains=new Domains(db,options.resolveTxt),analytics=new Analytics(db,options.analyticsSecret??process.env.STUDIO_ANALYTICS_SECRET),commerce=new Commerce(db,options.commerce??configuredCommerce()),permissions=new Permissions(db),releases=new Releases(db,undefined,webhooks),ai=new AiOrchestrator(db,commands,options.aiProvider===undefined?configuredCopyProvider():options.aiProvider,options.aiProvider===undefined?(configuredProvider('EDITOR')??configuredCopyProvider()):options.aiProvider,options.aiProvider===undefined?(configuredProvider('PLANNER')??configuredProvider('EDITOR')??configuredCopyProvider()):options.aiProvider,options.aiProvider===undefined?(configuredProvider('EDITOR')??configuredCopyProvider()):options.aiProvider,cmsCommands,featurePolicy,aiGovernance),seoAi=new AiSeo(db,options.aiProvider===undefined?configuredCopyProvider():options.aiProvider,featurePolicy,aiGovernance);
   router.use((_req,res,next)=>{res.setHeader('Cache-Control','no-store');res.setHeader('X-Request-Id',randomUUID());next();});
   type Run=(req:Request,actor:Actor)=>Promise<Record<string,unknown>>;
   const route=(run:Run,status=200):RequestHandler=>async(req,res,next)=>{try{res.status(status).json({success:true,...await run(req,res.locals.actor)});}catch(e){next(e);}};
@@ -71,6 +72,7 @@ export function createStudioNextRouter(db:Database,options:RouterOptions={}){
   router.post('/sites/:siteId/ai/pages/propose',route((req,a)=>ai.proposePage(a,p(req,'siteId'),req.body),201));
   router.post('/sites/:siteId/ai/sites/propose',route((req,a)=>ai.proposeSite(a,p(req,'siteId'),req.body),201));
   router.post('/sites/:siteId/ai/cms/propose',route((req,a)=>ai.proposeCms(a,p(req,'siteId'),req.body),201));
+  router.post('/sites/:siteId/ai/seo/propose',route((req,a)=>seoAi.propose(a,p(req,'siteId'),req.body),201));
   router.post('/sites/:siteId/ai/changes/:changeSetId/apply',route((req,a)=>ai.apply(a,p(req,'siteId'),p(req,'changeSetId'))));
   router.post('/sites/:siteId/ai/changes/:changeSetId/reject',route((req,a)=>ai.reject(a,p(req,'siteId'),p(req,'changeSetId'))));
   router.get('/sites/:siteId/collections',route((req,a)=>cms.collections(a,p(req,'siteId'))));
