@@ -98,11 +98,23 @@ function applyElementCommands(design:Record<string,unknown>,commands:ElementComm
 export class DomainCommands {
   constructor(private db:Database){}
   async executeDesignCommands(actor:Actor,siteId:string,input:unknown,metadata:CommandMetadata={source:'HUMAN'}):Promise<DesignSaveResult>{
-    const b=parse(commandBatch,input);
+    const b=parse(commandBatch,input),commandHash=digest({command:'design.commands',siteId,baseHash:b.baseHash,commands:b.commands});
+    const replay=await this.db.tx(async c=>{
+      await this.db.site(c,actor,siteId,'VIEW');
+      const prior=await c.query('SELECT result FROM studio.command_receipts WHERE actor_id=$1 AND idempotency_key=$2',[actor.id,b.operationId]);
+      if(!prior.rows[0])return null;
+      const saved=jsonObject(prior.rows[0].result);
+      if(saved.commandHash!==commandHash)throw new StudioError('Idempotency key was already used for a different command',409,'IDEMPOTENCY_CONFLICT');
+      if(typeof saved.hash!=='string')throw new StudioError('Stored command receipt is invalid',503,'COMMAND_RECEIPT_INVALID');
+      return {hash:saved.hash,operationId:b.operationId,correlationId:typeof saved.correlationId==='string'?saved.correlationId:(b.correlationId??b.operationId),replayed:true} as DesignSaveResult;
+    });
+    if(replay)return replay;
     const current=await this.db.tx(async c=>{const site=await this.db.site(c,actor,siteId,'VIEW');return designOnly(site.editorData);});
     if(digest(current)!==b.baseHash)throw new StudioError('Another session changed this design. Reload and reconcile before applying commands.',409,'DESIGN_CONFLICT');
     const next=applyElementCommands(current,b.commands);
-    return this.saveDesign(actor,siteId,{baseHash:b.baseHash,editorData:next,operationId:b.operationId,correlationId:b.correlationId,timestamp:b.timestamp},{...metadata,operationId:b.operationId,correlationId:b.correlationId,timestamp:b.timestamp});
+    const applied=await this.saveDesign(actor,siteId,{baseHash:b.baseHash,editorData:next,operationId:b.operationId,correlationId:b.correlationId,timestamp:b.timestamp},{...metadata,operationId:b.operationId,correlationId:b.correlationId,timestamp:b.timestamp});
+    await this.db.tx(async c=>{await c.query(`UPDATE studio.command_receipts SET result=result || $3::jsonb WHERE actor_id=$1 AND idempotency_key=$2`,[actor.id,b.operationId,JSON.stringify({commandHash,correlationId:applied.correlationId})]);});
+    return applied;
   }
 
   async saveDesign(actor:Actor,siteId:string,input:unknown,metadata:CommandMetadata={source:'HUMAN'}):Promise<DesignSaveResult>{
