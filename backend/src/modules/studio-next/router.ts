@@ -59,6 +59,7 @@ export function createStudioNextRouter(db:Database,options:RouterOptions={}){
   router.get('/sites/:siteId/ai/status',route((req,a)=>db.tx(async c=>{await db.site(c,a,p(req,'siteId'),'VIEW');return ai.status();})));
   router.get('/sites/:siteId/ai/changes',route((req,a)=>ai.listChanges(a,p(req,'siteId'))));
   router.post('/sites/:siteId/ai/copy/propose',route((req,a)=>ai.proposeCopy(a,p(req,'siteId'),req.body),201));
+  router.post('/sites/:siteId/ai/sections/propose',route((req,a)=>ai.proposeSection(a,p(req,'siteId'),req.body),201));
   router.post('/sites/:siteId/ai/changes/:changeSetId/apply',route((req,a)=>ai.apply(a,p(req,'siteId'),p(req,'changeSetId'))));
   router.post('/sites/:siteId/ai/changes/:changeSetId/reject',route((req,a)=>ai.reject(a,p(req,'siteId'),p(req,'changeSetId'))));
   router.get('/sites/:siteId/collections',route((req,a)=>cms.collections(a,p(req,'siteId'))));
