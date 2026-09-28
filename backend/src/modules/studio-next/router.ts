@@ -75,6 +75,7 @@ export function createStudioNextRouter(db:Database,options:RouterOptions={}){
   router.post('/sites/:siteId/items/:itemId/restore',route((req,a)=>cms.restoreRevision(a,p(req,'siteId'),p(req,'itemId'),req.body)));
   router.get('/sites/:siteId/design',route((req,a)=>design.read(a,p(req,'siteId'))));
   router.put('/sites/:siteId/design',route((req,a)=>design.save(a,p(req,'siteId'),req.body)));
+  router.post('/sites/:siteId/design/commands',route((req,a)=>commands.executeDesignCommands(a,p(req,'siteId'),req.body,{source:'HUMAN'})));
   router.get('/sites/:siteId/snapshots',route((req,a)=>design.snapshots(a,p(req,'siteId'))));
   router.post('/sites/:siteId/snapshots',route((req,a)=>design.capture(a,p(req,'siteId'),req.body),201));
   router.post('/sites/:siteId/snapshots/:snapshotId/restore',route((req,a)=>design.restore(a,p(req,'siteId'),p(req,'snapshotId'),req.body)));
