@@ -13,8 +13,9 @@ export function testPool(){
 }
 export async function install(pool:pg.Pool){
   await pool.query(`
-  CREATE TABLE IF NOT EXISTS public.users(id uuid PRIMARY KEY,status text NOT NULL DEFAULT 'ACTIVE',"fullName" text,email text,"emailVerified" boolean NOT NULL DEFAULT true);
+  CREATE TABLE IF NOT EXISTS public.users(id uuid PRIMARY KEY,status text NOT NULL DEFAULT 'ACTIVE',role text NOT NULL DEFAULT 'USER',"fullName" text,email text,"emailVerified" boolean NOT NULL DEFAULT true);
   ALTER TABLE public.users ADD COLUMN IF NOT EXISTS "emailVerified" boolean NOT NULL DEFAULT true;
+  ALTER TABLE public.users ADD COLUMN IF NOT EXISTS role text NOT NULL DEFAULT 'USER';
   CREATE TABLE IF NOT EXISTS public.sessions(id uuid PRIMARY KEY,"userId" uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,"tokenHash" text UNIQUE NOT NULL,"expiresAt" timestamptz NOT NULL,"revokedAt" timestamptz,"lastUsedAt" timestamptz);
   CREATE TABLE IF NOT EXISTS public.workspaces(id uuid PRIMARY KEY,"ownerId" uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,name text,slug text UNIQUE,settings jsonb,"createdAt" timestamptz DEFAULT now(),"updatedAt" timestamptz DEFAULT now());
   CREATE TABLE IF NOT EXISTS public.workspace_members(id uuid PRIMARY KEY,"workspaceId" uuid REFERENCES public.workspaces(id) ON DELETE CASCADE,"userId" uuid REFERENCES public.users(id) ON DELETE CASCADE,role text,"createdAt" timestamptz DEFAULT now(),"updatedAt" timestamptz DEFAULT now(),UNIQUE("workspaceId","userId"));
