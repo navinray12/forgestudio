@@ -12,10 +12,10 @@ else{
   let pool:pg.Pool,server:Server,base:string,owner:TestActor,siteId:string;
   const signing='commerce-expansion-secret',accounts:Record<string,string>={},calls:Array<{path:string;method:string;body?:URLSearchParams}>=[];
   const prices:Record<string,any>={
-    price_one_a:{active:true,type:'one_time',currency:'usd',unit_amount:1000},
-    price_one_b:{active:true,type:'one_time',currency:'usd',unit_amount:2500},
-    price_sub_a:{active:true,type:'recurring',currency:'usd',unit_amount:500,recurring:{interval:'month'}},
-    price_sub_b:{active:true,type:'recurring',currency:'usd',unit_amount:800,recurring:{interval:'month'}},
+    price_onea:{active:true,type:'one_time',currency:'usd',unit_amount:1000},
+    price_oneb:{active:true,type:'one_time',currency:'usd',unit_amount:2500},
+    price_suba:{active:true,type:'recurring',currency:'usd',unit_amount:500,recurring:{interval:'month'}},
+    price_subb:{active:true,type:'recurring',currency:'usd',unit_amount:800,recurring:{interval:'month'}},
   };
   const transport:StripeTransport=async(_account,path,method,body)=>{
     calls.push({path,method,body});
@@ -44,7 +44,7 @@ else{
   after(async()=>{await new Promise<void>(resolve=>server.close(()=>resolve()));await pool.query('DELETE FROM public.users WHERE id=$1',[owner.id]);await pool.end();});
 
   test('multi-item carts snapshot server prices and reserve inventory',async()=>{
-    const a=await product({name:'A',priceMinor:1000,stripePriceId:'price_one_a',inventoryQuantity:5}),b=await product({name:'B',priceMinor:2500,stripePriceId:'price_one_b',inventoryQuantity:4}),operationId=randomUUID();
+    const a=await product({name:'A',priceMinor:1000,stripePriceId:'price_onea',inventoryQuantity:5}),b=await product({name:'B',priceMinor:2500,stripePriceId:'price_oneb',inventoryQuantity:4}),operationId=randomUUID();
     const result=await send('POST',`/public/sites/${siteId}/checkout-cart`,{items:[{productId:a,quantity:2},{productId:b,quantity:1}],operationId},201);
     assert.equal(result.mode,'payment');
     const order=await pool.query('SELECT total_minor,quantity,state,inventory_reserved FROM studio.checkout_orders WHERE id=$1',[operationId]);assert.equal(order.rows[0].total_minor,4500);assert.equal(order.rows[0].quantity,3);assert.equal(order.rows[0].state,'CHECKOUT');assert.equal(order.rows[0].inventory_reserved,true);
@@ -55,7 +55,7 @@ else{
   });
 
   test('recurring cart checkout creates and reconciles product entitlements',async()=>{
-    const a=await product({name:'Monthly A',priceMinor:500,stripePriceId:'price_sub_a',billingType:'RECURRING',billingInterval:'month'}),b=await product({name:'Monthly B',priceMinor:800,stripePriceId:'price_sub_b',billingType:'RECURRING',billingInterval:'month'}),operationId=randomUUID(),session=`cs_${operationId.replaceAll('-','')}`;
+    const a=await product({name:'Monthly A',priceMinor:500,stripePriceId:'price_suba',billingType:'RECURRING',billingInterval:'month'}),b=await product({name:'Monthly B',priceMinor:800,stripePriceId:'price_subb',billingType:'RECURRING',billingInterval:'month'}),operationId=randomUUID(),session=`cs_${operationId.replaceAll('-','')}`;
     const result=await send('POST',`/public/sites/${siteId}/checkout-cart`,{items:[{productId:a,quantity:1},{productId:b,quantity:1}],operationId},201);assert.equal(result.mode,'subscription');
     await signedEvent('checkout.session.completed',{id:session,mode:'subscription',payment_status:'paid',metadata:{studio_order_id:operationId,studio_site_id:siteId},client_reference_id:operationId,amount_total:1300,currency:'usd',subscription:'sub_fixture',payment_intent:'pi_fixture',customer:'cus_fixture'});
     let entitlements=await pool.query('SELECT product_id,state FROM studio.entitlements WHERE order_id=$1 ORDER BY product_id',[operationId]);assert.equal(entitlements.rows.length,2);assert.ok(entitlements.rows.every(x=>x.state==='ACTIVE'));
@@ -64,7 +64,7 @@ else{
   });
 
   test('paid one-time orders can be refunded idempotently but never above the remaining amount',async()=>{
-    const p=await product({name:'Refundable',priceMinor:1000,stripePriceId:'price_one_a'}),operationId=randomUUID(),session=`cs_${operationId.replaceAll('-','')}`;
+    const p=await product({name:'Refundable',priceMinor:1000,stripePriceId:'price_onea'}),operationId=randomUUID(),session=`cs_${operationId.replaceAll('-','')}`;
     await send('POST',`/public/sites/${siteId}/checkout-cart`,{items:[{productId:p,quantity:1}],operationId},201);
     await signedEvent('checkout.session.completed',{id:session,mode:'payment',payment_status:'paid',metadata:{studio_order_id:operationId,studio_site_id:siteId},client_reference_id:operationId,amount_total:1000,currency:'usd',payment_intent:'pi_refundable',customer:'cus_refund'});
     const refundId=randomUUID(),first=await send('POST',`/sites/${siteId}/refunds`,{orderId:operationId,amountMinor:600,operationId:refundId},201),replay=await send('POST',`/sites/${siteId}/refunds`,{orderId:operationId,amountMinor:600,operationId:refundId},201);
