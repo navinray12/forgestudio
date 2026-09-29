@@ -830,7 +830,9 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
 });
 
 function PublishedSite() {
-    const { websiteId, pageSlug } = useParams<{ websiteId: string; pageSlug?: string }>();
+    const routeParams = useParams<{ websiteId: string; pageSlug?: string; "*": string }>();
+    const { websiteId, pageSlug } = routeParams;
+    const wildcard = routeParams["*"];
     const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "http://localhost:5000" : "");
 
     const [loading, setLoading] = useState(true);
@@ -838,6 +840,7 @@ function PublishedSite() {
     const [elements, setElements] = useState<EditorElement[]>([]);
     const [pages, setPages] = useState<PageConfig[]>([]);
     const [activePageId, setActivePageId] = useState<string>("home");
+    const [resolvedLocale, setResolvedLocale] = useState<string>("en");
     const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
     const [popups, setPopups] = useState<PopupConfig[]>([]);
     const [globalSettings, setGlobalSettings] = useState<any>({});
@@ -945,11 +948,24 @@ function PublishedSite() {
                     setPages(pagesList);
                     const urlParams = new URLSearchParams(window.location.search);
                     const queryPage = urlParams.get("page");
-                    const initialSlug = pageSlug || queryPage;
+                    const initialSlug = wildcard || pageSlug || queryPage;
+                    const routePath = "/" + (wildcard || pageSlug || "").replace(/^\/+/, "");
                     const cleanSlug = initialSlug ? initialSlug.replace(/^\//, "") : "";
                     const isPostRoute = cleanSlug.startsWith("post/") || cleanSlug.startsWith("blog/");
                     const isTermRoute = cleanSlug.startsWith("category/") || cleanSlug.startsWith("tag/");
-                    const matchedPage = initialSlug ? findTargetPage(pagesList, initialSlug) : undefined;
+                    let matchedPage = initialSlug ? findTargetPage(pagesList, initialSlug) : undefined;
+                    if (wildcard || pageSlug) {
+                        try {
+                            const routeResponse = await fetch(`${apiUrl}/api/v1/studio-next/public/sites/${websiteId}/localization/resolve?path=${encodeURIComponent(routePath)}`);
+                            if (routeResponse.ok) {
+                                const routePayload = await routeResponse.json();
+                                setResolvedLocale(routePayload.locale || "en");
+                                matchedPage = pagesList.find((page) => page.id === routePayload.pageId) || matchedPage;
+                            } else setResolvedLocale("en");
+                        } catch { setResolvedLocale("en"); }
+                    } else {
+                        setResolvedLocale(urlParams.get("locale") || "en");
+                    }
 
                     if (matchedPage) {
                         setActivePageId(matchedPage.id || "home");
@@ -1004,7 +1020,7 @@ function PublishedSite() {
             }
         };
         fetchWebsite();
-    }, [websiteId, apiUrl, pageSlug]);
+    }, [websiteId, apiUrl, pageSlug, wildcard]);
 
     // Phase 3 Subsystem 2: A/B Split Testing & Impression Telemetry
     useEffect(() => {
@@ -1274,7 +1290,7 @@ function PublishedSite() {
         };
     }, [elements, activeBreakpointId, breakpoints, globalSettings]);
 
-    const studioRuntime = usePublishedRuntime(websiteId, activePageId, elements, pages.find(p => p.id === activePageId)?.slug || (pageSlug ? `/${pageSlug}` : "/"));
+    const studioRuntime = usePublishedRuntime(websiteId, activePageId, elements, pages.find(p => p.id === activePageId)?.slug || (pageSlug ? `/${pageSlug}` : "/"), resolvedLocale);
 
     if (loading) {
         return (
