@@ -39,6 +39,11 @@ export async function install(pool:pg.Pool){
   if(!analyticsEvents.rowCount)await pool.query(await readFile(new URL('../../prisma/migrations/20260928260000_studio_analytics_events/migration.sql',import.meta.url),'utf8'));
   const aiRoutes=await pool.query("SELECT to_regclass('studio.ai_model_routes') AS name");
   if(!aiRoutes.rows[0].name)await pool.query(await readFile(new URL('../../prisma/migrations/20260928270000_studio_ai_control_plane/migration.sql',import.meta.url),'utf8'));
+  const assetProvenance=await pool.query("SELECT column_name FROM information_schema.columns WHERE table_schema='public' AND table_name='media_assets' AND column_name='provenance'");
+  if(!assetProvenance.rowCount){
+    await pool.query(`CREATE TABLE IF NOT EXISTS public.media_assets(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),"userId" uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,"websiteId" uuid REFERENCES public.websites(id) ON DELETE SET NULL,filename varchar(255) NOT NULL,"originalName" varchar(255) NOT NULL,"mimeType" varchar(100) NOT NULL,"sizeBytes" integer NOT NULL,url varchar(1000) NOT NULL,width integer,height integer,"altText" varchar(500),format varchar(50) NOT NULL DEFAULT 'ORIGINAL',"createdAt" timestamptz NOT NULL DEFAULT now(),"updatedAt" timestamptz NOT NULL DEFAULT now())`);
+    await pool.query(await readFile(new URL('../../prisma/migrations/20260928280000_asset_provenance_ai_images/migration.sql',import.meta.url),'utf8'));
+  }
 }
 export type TestActor=Actor&{token:string};
 export async function actor(pool:pg.Pool,overrides:Partial<Actor>={},status='ACTIVE'):Promise<TestActor>{
