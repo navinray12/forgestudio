@@ -35,6 +35,22 @@ function applyCmsValues(elements:any[],values:Record<string,Record<string,unknow
     return resolved;
   });
 }
+function applyPersonalization(elements:any[],variants:any[]):any[]{
+  const byId=new Map((variants||[]).map(v=>[v?.targetElementId,v?.variant]));
+  return elements.map(el=>{
+    const resolved={...el},variant=byId.get(el.id);
+    if(variant&&typeof variant==='object'){
+      if(typeof variant.text==='string')resolved.content=plainHtml(variant.text);
+      if(variant.styles&&typeof variant.styles==='object'&&!Array.isArray(variant.styles))resolved.styles={...(resolved.styles||{}),...variant.styles};
+      if(variant.attributes&&typeof variant.attributes==='object'&&!Array.isArray(variant.attributes)){
+        const safe=Object.fromEntries(Object.entries(variant.attributes).filter(([key,value])=>(key==='title'||key.startsWith('aria-')||key.startsWith('data-'))&&typeof value==='string'));
+        resolved.attributes={...(resolved.attributes||{}),...safe};
+      }
+    }
+    if(el.children)resolved.children=applyPersonalization(el.children,variants);
+    return resolved;
+  });
+}
 function optOutRequested(){return navigator.doNotTrack==='1'||(navigator as Navigator&{globalPrivacyControl?:boolean}).globalPrivacyControl===true;}
 export function usePublishedRuntime(siteId:string|undefined,pageId:string,elements:any[],path:string,resolvedLocale?:string){
   const trackPath=path==='/'?'/':`/${path.replace(/^\/+/, '')}`;
@@ -42,6 +58,7 @@ export function usePublishedRuntime(siteId:string|undefined,pageId:string,elemen
   const [localized,setLocalized]=useState<{key:string;locales:any[];pages:Record<string,Translation>;routes:Array<{pageId:string;alternatives:LocaleRoute[]}>}>({key:'',locales:[],pages:{},routes:[]});
   const [enabled,setEnabled]=useState(false),[consent,setConsent]=useState(false),[variant,setVariant]=useState<{text:string;targetElementId:string}|null>(null);
   const [cmsValues,setCmsValues]=useState<Record<string,Record<string,unknown>>>({});
+  const [personalized,setPersonalized]=useState<any[]>([]);
   const key=`${siteId}:${locale}`;
   useEffect(()=>{
     if(!siteId)return;const c=new AbortController();
@@ -60,6 +77,19 @@ export function usePublishedRuntime(siteId:string|undefined,pageId:string,elemen
       .catch(()=>{if(!c.signal.aborted)setCmsValues({});});
     return()=>c.abort();
   },[siteId,locale,elements]);
+
+  useEffect(()=>{
+    if(!siteId){setPersonalized([]);return;}
+    const c=new AbortController(),params=new URLSearchParams(window.location.search),width=window.innerWidth;
+    let returningVisitor:boolean|undefined,trafficSource:string|undefined;
+    if(!optOutRequested()){try{const key=`studio.personalization.seen.${siteId}`;returningVisitor=localStorage.getItem(key)==='yes';localStorage.setItem(key,'yes');}catch{}}
+    try{trafficSource=document.referrer?new URL(document.referrer).hostname:undefined;}catch{}
+    const context:any={deviceCategory:width<768?'mobile':width<1100?'tablet':'desktop'};
+    const campaign=params.get('utm_campaign');if(campaign)context.utmCampaign=campaign.slice(0,120);
+    if(trafficSource)context.trafficSource=trafficSource.slice(0,120);if(returningVisitor!==undefined)context.returningVisitor=returningVisitor;
+    api<any>(`/public/sites/${siteId}/personalization`,'POST',{path:trackPath,context},c.signal).then(r=>{if(!c.signal.aborted)setPersonalized(Array.isArray(r.variants)?r.variants:[]);}).catch(()=>{if(!c.signal.aborted)setPersonalized([]);});
+    return()=>c.abort();
+  },[siteId,pageId,trackPath]);
 
   useEffect(()=>{
     setVariant(null);if(!siteId||!enabled||!consent||optOutRequested())return;
@@ -84,7 +114,7 @@ export function usePublishedRuntime(siteId:string|undefined,pageId:string,elemen
     if(currentAlt){canonical=document.createElement('link');canonical.rel='canonical';canonical.href=new URL(currentAlt.href,window.location.origin).href;document.head.appendChild(canonical);}
     return()=>{document.title=original;if(meta&&old!==null&&old!==undefined)meta.setAttribute('content',old);for(const link of added)link.remove();canonical?.remove();};
   },[translation,current,pageId,locale]);
-  const localizedElements=useMemo(()=>applyCmsValues(applyTranslation(elements,translation,variant),cmsValues),[elements,translation,variant,cmsValues]);
+  const localizedElements=useMemo(()=>applyPersonalization(applyCmsValues(applyTranslation(elements,translation,variant),cmsValues),personalized),[elements,translation,variant,cmsValues,personalized]);
   function choose(value:boolean){setConsent(value);try{localStorage.setItem(`studio.analytics.consent.${siteId}`,value?'yes':'no');if(!value)localStorage.removeItem(`studio.analytics.visitor.${siteId}`);}catch{}}
   const controls=(!enabled&&(!current||current.locales.length<=1))?null:<div style={{position:'relative',zIndex:20,display:'flex',flexWrap:'wrap',justifyContent:'flex-end',gap:12,padding:'8px 16px',font:'12px system-ui',background:'#f8fafc',color:'#334155'}}>
     {!!current?.locales.length&&current.locales.length>1&&<label>Language <select aria-label="Published page language" value={locale} onChange={e=>{const route=current.routes.find(r=>r.pageId===pageId);const target=route?.alternatives.find(a=>a.locale===e.target.value)?.href;if(target)window.location.assign(target);else{const fallback=new URL(window.location.href);fallback.searchParams.set('locale',e.target.value);window.location.assign(fallback.href);}}}>{current.locales.map(l=><option key={l.code} value={l.code}>{l.name}</option>)}</select></label>}
