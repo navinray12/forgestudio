@@ -830,6 +830,12 @@ model MediaAsset {
   height       Int?
   altText      String?   @db.VarChar(500)
   format       String    @default("ORIGINAL") @db.VarChar(50)
+  provenance   String    @default("UPLOADED") @db.VarChar(20)
+  providerName String?   @db.VarChar(80)
+  modelId      String?   @db.VarChar(160)
+  promptHash   String?   @db.Char(64)
+  generatedAt  DateTime? @db.Timestamptz(6)
+  metadata     Json      @default("{}")
   createdAt    DateTime  @default(now()) @db.Timestamptz(6)
   updatedAt    DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
 
