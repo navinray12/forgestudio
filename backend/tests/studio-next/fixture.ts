@@ -59,6 +59,8 @@ export async function install(pool:pg.Pool){
   if(!aiControlExtension.rowCount)await pool.query(await readFile(new URL('../../prisma/migrations/20260928340000_ai_control_extensions/migration.sql',import.meta.url),'utf8'));
   const blogPersonalization=await pool.query("SELECT to_regclass('studio.blog_configs') AS name");
   if(!blogPersonalization.rows[0].name)await pool.query(await readFile(new URL('../../prisma/migrations/20260928350000_blog_personalization/migration.sql',import.meta.url),'utf8'));
+  const domainHosting=await pool.query("SELECT column_name FROM information_schema.columns WHERE table_schema='studio' AND table_name='verified_domains' AND column_name='hosting_state'");
+  if(!domainHosting.rowCount)await pool.query(await readFile(new URL('../../prisma/migrations/20260928360000_domain_provisioning/migration.sql',import.meta.url),'utf8'));
 }
 export type TestActor=Actor&{token:string};
 export async function actor(pool:pg.Pool,overrides:Partial<Actor>={},status='ACTIVE'):Promise<TestActor>{
