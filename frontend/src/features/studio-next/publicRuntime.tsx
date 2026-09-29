@@ -8,9 +8,9 @@ export function applyTranslation<T extends {id:string;content?:string;alt?:strin
   return elements.map(el=>({...el,...(translation?.texts&&Object.hasOwn(translation.texts,el.id)?{content:DOMPurify.sanitize(translation.texts[el.id],{USE_PROFILES:{html:true}})}:{}),...(translation?.alts&&Object.hasOwn(translation.alts,el.id)?{alt:translation.alts[el.id]}:{}),...(variant?.targetElementId===el.id?{content:plainHtml(variant.text)}:{}),...(el.children?{children:applyTranslation(el.children,translation,variant)}:{})}));
 }
 function optOutRequested(){return navigator.doNotTrack==='1'||(navigator as Navigator&{globalPrivacyControl?:boolean}).globalPrivacyControl===true;}
-export function usePublishedRuntime(siteId:string|undefined,pageId:string,elements:any[],path:string){
+export function usePublishedRuntime(siteId:string|undefined,pageId:string,elements:any[],path:string,resolvedLocale?:string){
   const trackPath=path==='/'?'/':`/${path.replace(/^\/+/, '')}`;
-  const locale=new URLSearchParams(window.location.search).get('locale')||'en';
+  const locale=resolvedLocale||new URLSearchParams(window.location.search).get('locale')||'en';
   const [localized,setLocalized]=useState<{key:string;locales:any[];pages:Record<string,Translation>;routes:Array<{pageId:string;alternatives:LocaleRoute[]}>}>({key:'',locales:[],pages:{},routes:[]});
   const [enabled,setEnabled]=useState(false),[consent,setConsent]=useState(false),[variant,setVariant]=useState<{text:string;targetElementId:string}|null>(null);
   const key=`${siteId}:${locale}`;
