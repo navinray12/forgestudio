@@ -1,4 +1,4 @@
-import {createHash,randomBytes,randomUUID,timingSafeEqual} from 'node:crypto';
+import {createHash,createPublicKey,randomBytes,randomUUID,timingSafeEqual,verify as verifySignature} from 'node:crypto';
 import {isIP} from 'node:net';
 import {z} from 'zod';
 import {Database,type Actor} from './database.js';
@@ -34,8 +34,77 @@ function tokenMatches(value:string,expected:string){const a=Buffer.from(hashToke
 function displayName(body:z.infer<typeof scimCreate>){return body.displayName||body.name?.formatted||[body.name?.givenName,body.name?.familyName].filter(Boolean).join(' ')||body.userName.split('@')[0];}
 function scimUser(row:any){return {schemas:['urn:ietf:params:scim:schemas:core:2.0:User'],id:String(row.externalId),externalId:String(row.externalId),userName:String(row.email),displayName:row.fullName??undefined,active:!!row.active,meta:{resourceType:'User',lastModified:row.updatedAt}};}
 
+export type OidcTransport=(url:string,init?:RequestInit)=>Promise<{status:number;json():Promise<any>;text():Promise<string>}>;
+export type SecretResolver=(reference:string)=>Promise<string>;
+export interface OidcStart {authorizationUrl:string;stateId:string;verifier:string}
+export interface OidcLoginResult {sessionToken:string;returnTo:string;userId:string;workspaceId:string}
+function defaultSecretResolver(reference:string){
+  const match=/^env:([A-Z][A-Z0-9_]{1,127})$/.exec(reference);
+  if(!match)throw new StudioError('This deployment supports OIDC secret references in env:VARIABLE format. Configure a secret resolver for other secret managers.',503,'OIDC_SECRET_RESOLVER');
+  const value=process.env[match[1]];if(!value)throw new StudioError('OIDC client secret is not available from the configured secret reference',503,'OIDC_SECRET_UNAVAILABLE');return Promise.resolve(value);
+}
+function b64url(value:Buffer){return value.toString('base64url');}
+function decodePart(part:string){try{return JSON.parse(Buffer.from(part,'base64url').toString('utf8'));}catch{throw new StudioError('Identity provider returned an invalid ID token',502,'OIDC_TOKEN_INVALID');}}
+function safeReturnTo(value:unknown){const raw=typeof value==='string'?value:'/dashboard';return raw.startsWith('/')&&!raw.startsWith('//')&&raw.length<=500?raw:'/dashboard';}
+function validatePublicProviderUrl(raw:string,label:string){
+  try{return publicHttps(raw);}catch{throw new StudioError(`${label} must be a public HTTPS URL`,502,'OIDC_PROVIDER_METADATA');}
+}
+
 export class EnterpriseIdentity{
-  constructor(private db:Database){}
+  constructor(private db:Database,private oidcTransport:OidcTransport=async(url,init)=>fetch(url,init) as any,private secretResolver:SecretResolver=defaultSecretResolver){}
+  private async oidcConfiguration(workspaceId:string){
+    const r=await this.db.pool.query(`SELECT oidc_enabled AS "oidcEnabled",oidc_issuer AS issuer,oidc_client_id AS "clientId",oidc_client_secret_ref AS "clientSecretRef",allowed_email_domain AS "allowedEmailDomain" FROM studio.enterprise_identity_configs WHERE workspace_id=$1`,[workspaceId]);
+    const config=r.rows[0];if(!config?.oidcEnabled||!config.issuer||!config.clientId||!config.clientSecretRef)throw new StudioError('OIDC is not enabled for this workspace',404,'OIDC_NOT_CONFIGURED');
+    return config;
+  }
+  private async discovery(issuer:string){
+    const url=validatePublicProviderUrl(issuer,'OIDC issuer').replace(/\/$/,'')+'/.well-known/openid-configuration',response=await this.oidcTransport(url,{method:'GET',redirect:'error',signal:AbortSignal.timeout(10000)});
+    if(response.status<200||response.status>=300)throw new StudioError('OIDC discovery failed',502,'OIDC_DISCOVERY_FAILED');
+    const metadata=await response.json();
+    if(metadata.issuer!==issuer)throw new StudioError('OIDC discovery issuer mismatch',502,'OIDC_DISCOVERY_MISMATCH');
+    for(const key of ['authorization_endpoint','token_endpoint','jwks_uri'])if(typeof metadata[key]!=='string')throw new StudioError('OIDC discovery metadata is incomplete',502,'OIDC_DISCOVERY_INVALID');
+    return {...metadata,authorization_endpoint:validatePublicProviderUrl(metadata.authorization_endpoint,'Authorization endpoint'),token_endpoint:validatePublicProviderUrl(metadata.token_endpoint,'Token endpoint'),jwks_uri:validatePublicProviderUrl(metadata.jwks_uri,'JWKS endpoint')};
+  }
+  async startOidc(workspaceId:string,returnTo:unknown):Promise<OidcStart>{
+    parse(uuid,workspaceId);const config=await this.oidcConfiguration(workspaceId),metadata=await this.discovery(config.issuer),stateId=randomUUID(),verifier=b64url(randomBytes(48)),challenge=b64url(createHash('sha256').update(verifier).digest()),nonce=b64url(randomBytes(24)),redirectUri=`${(process.env.FRONTEND_URL||'').replace(/\/$/,'')}/api/v1/studio-next/oidc/${workspaceId}/callback`;
+    if(!process.env.FRONTEND_URL||!/^https?:\/\//.test(redirectUri))throw new StudioError('FRONTEND_URL is required for OIDC login',503,'OIDC_ORIGIN');
+    await this.db.pool.query(`INSERT INTO studio.oidc_login_states(id,workspace_id,verifier_hash,nonce,return_to,expires_at) VALUES($1,$2,$3,$4,$5,now()+interval '10 minutes')`,[stateId,workspaceId,hashToken(verifier),nonce,safeReturnTo(returnTo)]);
+    const auth=new URL(metadata.authorization_endpoint);auth.searchParams.set('response_type','code');auth.searchParams.set('client_id',config.clientId);auth.searchParams.set('redirect_uri',redirectUri);auth.searchParams.set('scope','openid email profile');auth.searchParams.set('state',stateId);auth.searchParams.set('nonce',nonce);auth.searchParams.set('code_challenge',challenge);auth.searchParams.set('code_challenge_method','S256');
+    return {authorizationUrl:auth.toString(),stateId,verifier};
+  }
+  private async validateIdToken(token:string,metadata:any,config:any,nonce:string){
+    const parts=token.split('.');if(parts.length!==3)throw new StudioError('Identity provider returned an invalid ID token',502,'OIDC_TOKEN_INVALID');
+    const header=decodePart(parts[0]),claims=decodePart(parts[1]);if(header.alg!=='RS256'||typeof header.kid!=='string')throw new StudioError('Only signed RS256 OIDC ID tokens are accepted',502,'OIDC_TOKEN_ALGORITHM');
+    const jwksResponse=await this.oidcTransport(metadata.jwks_uri,{method:'GET',redirect:'error',signal:AbortSignal.timeout(10000)});if(jwksResponse.status<200||jwksResponse.status>=300)throw new StudioError('OIDC signing keys are unavailable',502,'OIDC_JWKS_FAILED');
+    const jwks=await jwksResponse.json(),jwk=Array.isArray(jwks.keys)?jwks.keys.find((key:any)=>key?.kid===header.kid&&key?.kty==='RSA'):null;if(!jwk)throw new StudioError('OIDC signing key was not found',502,'OIDC_JWKS_KEY');
+    let key;try{key=createPublicKey({key:jwk,format:'jwk'});}catch{throw new StudioError('OIDC signing key is invalid',502,'OIDC_JWKS_KEY');}
+    if(!verifySignature('RSA-SHA256',Buffer.from(`${parts[0]}.${parts[1]}`),key,Buffer.from(parts[2],'base64url')))throw new StudioError('OIDC ID token signature is invalid',401,'OIDC_TOKEN_SIGNATURE');
+    const now=Math.floor(Date.now()/1000),aud=Array.isArray(claims.aud)?claims.aud:[claims.aud];
+    if(claims.iss!==config.issuer||!aud.includes(config.clientId)||typeof claims.exp!=='number'||claims.exp<=now||typeof claims.iat!=='number'||claims.iat>now+60||claims.nonce!==nonce)throw new StudioError('OIDC ID token claims are invalid',401,'OIDC_TOKEN_CLAIMS');
+    if(typeof claims.sub!=='string'||typeof claims.email!=='string'||claims.email_verified!==true)throw new StudioError('OIDC login requires a verified email identity',403,'OIDC_EMAIL_REQUIRED');
+    return claims;
+  }
+  async finishOidc(workspaceId:string,stateId:string,code:string,verifierCookie:string|undefined):Promise<OidcLoginResult>{
+    parse(uuid,workspaceId);parse(uuid,stateId);if(!code||code.length>4000)throw new StudioError('OIDC authorization code is required',400,'OIDC_CODE');
+    const cookie=verifierCookie||'',split=cookie.indexOf('.'),cookieState=split>0?cookie.slice(0,split):'',verifier=split>0?cookie.slice(split+1):'';
+    if(cookieState!==stateId||!verifier||verifier.length>500)throw new StudioError('OIDC PKCE verifier is missing',401,'OIDC_STATE');
+    const state=await this.db.tx(async c=>{const r=await c.query('SELECT * FROM studio.oidc_login_states WHERE id=$1 AND workspace_id=$2 FOR UPDATE',[stateId,workspaceId]);const row=r.rows[0];if(!row||row.used_at||new Date(row.expires_at)<=new Date()||!tokenMatches(verifier,row.verifier_hash))throw new StudioError('OIDC login state is invalid or expired',401,'OIDC_STATE');await c.query('UPDATE studio.oidc_login_states SET used_at=now() WHERE id=$1',[stateId]);return row;});
+    const config=await this.oidcConfiguration(workspaceId),metadata=await this.discovery(config.issuer),clientSecret=await this.secretResolver(config.clientSecretRef),redirectUri=`${(process.env.FRONTEND_URL||'').replace(/\/$/,'')}/api/v1/studio-next/oidc/${workspaceId}/callback`,body=new URLSearchParams({grant_type:'authorization_code',code,redirect_uri:redirectUri,client_id:config.clientId,client_secret:clientSecret,code_verifier:verifier});
+    const tokenResponse=await this.oidcTransport(metadata.token_endpoint,{method:'POST',redirect:'error',signal:AbortSignal.timeout(10000),headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body.toString()});
+    if(tokenResponse.status<200||tokenResponse.status>=300)throw new StudioError('OIDC token exchange failed',401,'OIDC_TOKEN_EXCHANGE');
+    const tokens=await tokenResponse.json();if(typeof tokens.id_token!=='string')throw new StudioError('OIDC token response did not include an ID token',502,'OIDC_TOKEN_INVALID');
+    const claims=await this.validateIdToken(tokens.id_token,metadata,config,state.nonce),email=String(claims.email).toLowerCase();await this.allowedDomain(workspaceId,email);
+    return this.db.tx(async c=>{
+      let user=await c.query('SELECT id,status FROM public.users WHERE lower(email)=lower($1) LIMIT 1',[email]);let userId=user.rows[0]?.id;
+      if(user.rows[0]&&user.rows[0].status!=='ACTIVE')throw new StudioError('This account is not active',403,'ACCOUNT_INACTIVE');
+      if(!userId){userId=randomUUID();await c.query(`INSERT INTO public.users(id,email,"fullName","emailVerified",status,role) VALUES($1,$2,$3,true,'ACTIVE','USER')`,[userId,email,typeof claims.name==='string'?claims.name:email.split('@')[0]]);}
+      const workspace=await c.query('SELECT "ownerId" FROM public.workspaces WHERE id=$1 FOR UPDATE',[workspaceId]);if(!workspace.rows[0])throw new StudioError('Workspace not found',404,'NOT_FOUND');
+      if(workspace.rows[0].ownerId!==userId)await c.query(`INSERT INTO public.workspace_members(id,"workspaceId","userId",role) VALUES($1,$2,$3,'MEMBER') ON CONFLICT("workspaceId","userId") DO NOTHING`,[randomUUID(),workspaceId,userId]);
+      const sessionToken=randomBytes(32).toString('hex');await c.query(`INSERT INTO public.sessions(id,"userId","tokenHash","expiresAt") VALUES($1,$2,$3,now()+interval '30 days')`,[randomUUID(),userId,hashToken(sessionToken)]);
+      await c.query(`INSERT INTO studio.events(id,actor_id,workspace_id,action,label) VALUES($1,$2,$3,'enterprise.oidc_login',$4)`,[randomUUID(),userId,workspaceId,email]);
+      return {sessionToken,returnTo:safeReturnTo(state.return_to),userId,workspaceId};
+    });
+  }
   async get(actor:Actor,workspaceId:string){
     return this.db.tx(async c=>{
       const workspace=await this.db.workspace(c,actor,workspaceId,true);
