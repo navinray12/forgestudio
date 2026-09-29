@@ -321,7 +321,12 @@ export class AiOrchestrator{
     parse(uuid,changeSetId);
     return this.db.tx(async c=>{
       const site=await this.db.site(c,actor,siteId,'EDIT_CONTENT',true);
+      const pending=await c.query("SELECT commands FROM studio.change_sets WHERE id=$1 AND site_id=$2 AND status='PROPOSED' FOR UPDATE",[changeSetId,siteId]);
       const r=await c.query("UPDATE studio.change_sets SET status='REJECTED' WHERE id=$1 AND site_id=$2 AND status='PROPOSED' RETURNING id",[changeSetId,siteId]);
+      if(r.rowCount&&pending.rows[0]){
+        const commands=Array.isArray(pending.rows[0].commands)?pending.rows[0].commands:JSON.parse(pending.rows[0].commands||'[]');
+        for(const command of commands){const artifactId=command?.element?.sandboxArtifactId;if(typeof artifactId==='string'&&uuid.safeParse(artifactId).success)await c.query("UPDATE studio.code_component_artifacts SET status='REJECTED' WHERE id=$1 AND site_id=$2 AND status='VALIDATED'",[artifactId,siteId]);}
+      }
       if(!r.rowCount){
         const current=await c.query('SELECT status FROM studio.change_sets WHERE id=$1 AND site_id=$2',[changeSetId,siteId]);
         if(!current.rows[0])throw new StudioError('Changeset not found',404);
@@ -365,6 +370,7 @@ export class AiOrchestrator{
       await c.query(`UPDATE studio.change_sets SET status='APPLIED',result_hash=$3,applied_at=now() WHERE id=$1 AND site_id=$2`,[changeSetId,siteId,applied.hash]);
       const run=await c.query('SELECT id FROM studio.ai_runs WHERE changeset_id=$1 ORDER BY created_at DESC LIMIT 1',[changeSetId]);
       if(run.rows[0])await c.query(`INSERT INTO studio.ai_tool_calls(id,run_id,tool,arguments_hash,duration_ms,status,result_metadata) VALUES($1,$2,'design.save',$3,0,'SUCCEEDED',$4::jsonb)`,[randomUUID(),run.rows[0].id,digest(commands),JSON.stringify({hash:applied.hash,commandCount:commands.length})]);
+      for(const command of commands){const artifactId=(command as any)?.element?.sandboxArtifactId;if(typeof artifactId==='string'&&uuid.safeParse(artifactId).success)await c.query("UPDATE studio.code_component_artifacts SET status='APPLIED' WHERE id=$1 AND site_id=$2 AND status='VALIDATED'",[artifactId,siteId]);}
       await this.db.audit(c,actor,site,'ai.changeset_applied',changeSetId);
     });
     return {alreadyApplied:false,hash:applied.hash,operationId:applied.operationId};
