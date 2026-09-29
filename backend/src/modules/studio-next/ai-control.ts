@@ -79,7 +79,7 @@ export async function getAIInfrastructure(){
       {provider:'anthropic',credentialConfigured:!!process.env.ANTHROPIC_API_KEY,health:process.env.ANTHROPIC_API_KEY?'CONFIGURED':'MISSING_CREDENTIAL'},
     ],
     routes:AI_FEATURES.map(feature=>{
-      const row=map.get(feature),provider=row?.provider??envProvider(feature)||null,model=row?.model??envModel(feature)||null;
+      const row=map.get(feature),provider=(row?.provider??envProvider(feature))||null,model=(row?.model??envModel(feature))||null;
       return {
         feature,
         provider,model,
