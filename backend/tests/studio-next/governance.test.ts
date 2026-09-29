@@ -1,5 +1,6 @@
 import {before,after,test} from 'node:test';
 import assert from 'node:assert/strict';
+import {randomUUID} from 'node:crypto';
 import type pg from 'pg';
 import type {Server} from 'node:http';
 import {testPool,install,actor,site,workspace,grant,serverFor,url,type TestActor} from './fixture.js';
