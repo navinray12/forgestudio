@@ -13,13 +13,13 @@ export const localeCode = z.string().min(2).max(35).refine(value => {
 export const email = z.string().trim().email().max(254).transform(value => value.toLowerCase());
 export const fieldSchema = z.object({
   key: z.string().regex(/^[a-z][a-z0-9_]{0,49}$/).refine(v => !['constructor','prototype','__proto__'].includes(v)),
-  name: title, type: z.enum(['TEXT','RICH_TEXT','NUMBER','BOOLEAN','DATE','EMAIL','URL','IMAGE','COLOR','OPTION','REFERENCE','MULTI_REFERENCE']),
+  name: title, type: z.enum(['TEXT','RICH_TEXT','NUMBER','BOOLEAN','DATE','EMAIL','URL','IMAGE','FILE','COLOR','OPTION','MULTI_OPTION','REFERENCE','MULTI_REFERENCE','JSON']),
   required: z.boolean().default(false), options: z.array(z.string().min(1).max(100)).max(100).optional(),
   referenceCollection: uuid.optional(),
 }).strict();
 export const fieldsSchema = z.array(fieldSchema).max(50).refine(fields => new Set(fields.map(f => f.key)).size === fields.length, 'Field keys must be unique').superRefine((fields, ctx) => {
   for (const [i, field] of fields.entries()) {
-    if (field.type === 'OPTION' && (!field.options?.length || new Set(field.options).size !== field.options.length)) ctx.addIssue({code:'custom', path:[i,'options'], message:'Options must be nonempty and unique'});
+    if (['OPTION','MULTI_OPTION'].includes(field.type) && (!field.options?.length || new Set(field.options).size !== field.options.length)) ctx.addIssue({code:'custom', path:[i,'options'], message:'Options must be nonempty and unique'});
     if (['REFERENCE','MULTI_REFERENCE'].includes(field.type) && !field.referenceCollection) ctx.addIssue({code:'custom',path:[i,'referenceCollection'],message:'A reference collection is required'});
   }
 });
@@ -62,9 +62,14 @@ export function validateFields(fields: Field[], input: unknown, publishing = fal
       case 'EMAIL': valid = email.safeParse(value).success; break;
       case 'COLOR': valid = typeof value === 'string' && /^#[\da-f]{6}([\da-f]{2})?$/i.test(value); break;
       case 'OPTION': valid = typeof value === 'string' && !!field.options?.includes(value); break;
+      case 'MULTI_OPTION': valid = Array.isArray(value) && value.length<=100 && new Set(value).size===value.length && value.every(x=>typeof x==='string'&&!!field.options?.includes(x)); break;
+      case 'JSON': {
+        if(!(Array.isArray(value)||(value!==null&&typeof value==='object'))){valid=false;break;}
+        try{valid=Buffer.byteLength(JSON.stringify(value))<=100000;}catch{valid=false;}break;
+      }
       case 'REFERENCE': valid = uuid.safeParse(value).success; break;
       case 'MULTI_REFERENCE': valid = Array.isArray(value) && value.length <= 100 && new Set(value).size === value.length && value.every(x=>uuid.safeParse(x).success); break;
-      case 'URL': case 'IMAGE':
+      case 'URL': case 'IMAGE': case 'FILE':
         try { const u = new URL(String(value)); valid = typeof value === 'string' && ['https:','http:'].includes(u.protocol) && !u.username && !u.password && value.length < 2000; } catch { valid=false; } break;
       default: valid = typeof value === 'string' && value.length <= (field.type === 'RICH_TEXT' ? 100000 : 20000);
     }
