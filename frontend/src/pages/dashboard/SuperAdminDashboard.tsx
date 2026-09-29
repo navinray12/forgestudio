@@ -70,7 +70,16 @@ interface BackgroundJobRecord {
   createdAt: string;
 }
 
-type SuperAdminTab = "overview" | "users" | "audit-logs" | "jobs";
+interface AIInfrastructure {
+  providers: Array<{ provider: string; credentialConfigured: boolean; health: string }>;
+  routes: Array<{
+    feature: string; provider: string | null; model: string | null; enabled: boolean;
+    fallbackModels: string[]; timeoutMs: number; maxOutputTokens: number;
+    source: "DATABASE" | "ENVIRONMENT"; credentialConfigured: boolean;
+  }>;
+}
+
+type SuperAdminTab = "overview" | "users" | "audit-logs" | "jobs" | "ai-infrastructure";
 
 function SuperAdminDashboard() {
   const navigate = useNavigate();
@@ -81,6 +90,8 @@ function SuperAdminDashboard() {
   const [stats, setStats] = useState<SuperAdminStats | null>(null);
   const [usersList, setUsersList] = useState<ManagedUser[]>([]);
   const [jobsList, setJobsList] = useState<BackgroundJobRecord[]>([]);
+  const [aiInfrastructure, setAiInfrastructure] = useState<AIInfrastructure | null>(null);
+  const [routeDrafts, setRouteDrafts] = useState<Record<string, AIInfrastructure["routes"][number]>>({});
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -90,10 +101,11 @@ function SuperAdminDashboard() {
     setLoading(true);
     setFeedback(null);
     try {
-      const [statsRes, usersRes, jobsRes] = await Promise.all([
+      const [statsRes, usersRes, jobsRes, aiRes] = await Promise.all([
         fetch(`${apiUrl}/api/v1/operations/admin/stats`, { credentials: "include" }),
         fetch(`${apiUrl}/api/v1/operations/admin/users?limit=100`, { credentials: "include" }),
         fetch(`${apiUrl}/api/v1/operations/jobs?limit=50`, { credentials: "include" }),
+        fetch(`${apiUrl}/api/v1/operations/admin/ai-infrastructure`, { credentials: "include" }),
       ]);
 
       if (!statsRes.ok || !usersRes.ok) {
@@ -103,10 +115,13 @@ function SuperAdminDashboard() {
       const statsData = await statsRes.json();
       const usersData = await usersRes.json();
       const jobsData = jobsRes.ok ? await jobsRes.json() : { data: [] };
+      const aiData = aiRes.ok ? await aiRes.json() : { data: null };
 
       setStats(statsData.data);
       setUsersList(usersData.data || []);
       setJobsList(jobsData.data || []);
+      setAiInfrastructure(aiData.data);
+      if (aiData.data?.routes) setRouteDrafts(Object.fromEntries(aiData.data.routes.map((route: AIInfrastructure["routes"][number]) => [route.feature, route])));
     } catch (err: any) {
       setFeedback({ type: "error", message: err?.message || "Failed to load dashboard." });
     } finally {
@@ -199,6 +214,39 @@ function SuperAdminDashboard() {
     }
   };
 
+  const handleSaveAIRoute = async (feature: string) => {
+    const route = routeDrafts[feature];
+    if (!route || !route.provider || !route.model) {
+      setFeedback({ type: "error", message: "Provider and model are required." });
+      return;
+    }
+    setActionLoading(`ai:${feature}`);
+    try {
+      const res = await fetch(`${apiUrl}/api/v1/operations/admin/ai-infrastructure/routes`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          feature,
+          provider: route.provider,
+          model: route.model,
+          fallbackModels: route.fallbackModels,
+          timeoutMs: route.timeoutMs,
+          maxOutputTokens: route.maxOutputTokens,
+          enabled: route.enabled,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error?.message || data.message || "Failed to update AI routing policy.");
+      setFeedback({ type: "success", message: `${feature} routing policy updated` });
+      await fetchPlatformData();
+    } catch (err: any) {
+      setFeedback({ type: "error", message: err?.message || "AI routing update failed." });
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const handleLogout = async () => {
     await logout();
     navigate("/login", { replace: true });
@@ -257,7 +305,7 @@ function SuperAdminDashboard() {
       {/* Tab Navigation */}
       <div className="border-b border-slate-800 bg-slate-900/50 px-6 py-2">
         <div className="max-w-7xl mx-auto flex gap-2">
-          {(["overview", "users", "audit-logs", "jobs"] as SuperAdminTab[]).map((tab) => (
+          {(["overview", "users", "audit-logs", "jobs", "ai-infrastructure"] as SuperAdminTab[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -271,7 +319,8 @@ function SuperAdminDashboard() {
               {tab === "users" && <Users className="w-3.5 h-3.5" />}
               {tab === "audit-logs" && <FileText className="w-3.5 h-3.5" />}
               {tab === "jobs" && <Cpu className="w-3.5 h-3.5" />}
-              {tab.replace("-", " ")}
+              {tab === "ai-infrastructure" && <Cpu className="w-3.5 h-3.5" />}
+              {tab.replaceAll("-", " ")}
             </button>
           ))}
         </div>
@@ -472,6 +521,50 @@ function SuperAdminDashboard() {
                   )}
                 </tbody>
               </table>
+            </div>
+          </section>
+        )}
+
+        {activeTab === "ai-infrastructure" && (
+          <section className="space-y-6">
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
+              <h2 className="text-lg font-bold text-white">AI Infrastructure</h2>
+              <p className="text-xs text-slate-400 mt-1">Approved provider/model routing. Credentials remain in deployment secrets and are never returned by this API.</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
+                {(aiInfrastructure?.providers || []).map((provider) => (
+                  <div key={provider.provider} className="rounded-xl border border-slate-800 bg-slate-950/50 p-4">
+                    <div className="flex items-center justify-between">
+                      <strong className="capitalize text-slate-100">{provider.provider}</strong>
+                      <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${provider.credentialConfigured ? "bg-emerald-500/10 text-emerald-400" : "bg-rose-500/10 text-rose-400"}`}>{provider.health}</span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 mt-2">{provider.credentialConfigured ? "Credential is configured in the backend secret environment." : "No backend credential is configured."}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 space-y-4">
+              <div>
+                <h3 className="text-sm font-bold text-white uppercase tracking-wider">Model routing</h3>
+                <p className="text-xs text-slate-400">Database policy takes precedence over environment defaults. Fallback entries use provider:model syntax.</p>
+              </div>
+              {(aiInfrastructure?.routes || []).map((route) => {
+                const draft = routeDrafts[route.feature] || route;
+                return <div key={route.feature} className="rounded-xl border border-slate-800 bg-slate-950/40 p-4 space-y-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div><strong className="text-sm text-white">{route.feature}</strong><div className="text-[10px] text-slate-500">Source: {route.source} · credential {route.credentialConfigured ? "configured" : "missing"}</div></div>
+                    <label className="flex items-center gap-2 text-xs text-slate-300"><input type="checkbox" checked={draft.enabled} onChange={e=>setRouteDrafts(prev=>({...prev,[route.feature]:{...draft,enabled:e.target.checked}}))}/> Enabled</label>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <label className="text-xs text-slate-400">Provider<select value={draft.provider || ""} onChange={e=>setRouteDrafts(prev=>({...prev,[route.feature]:{...draft,provider:e.target.value}}))} className="mt-1 w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-100"><option value="">Select</option><option value="openai">OpenAI</option><option value="anthropic">Anthropic</option></select></label>
+                    <label className="text-xs text-slate-400">Model<input value={draft.model || ""} onChange={e=>setRouteDrafts(prev=>({...prev,[route.feature]:{...draft,model:e.target.value}}))} className="mt-1 w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-100"/></label>
+                    <label className="text-xs text-slate-400">Timeout ms<input type="number" min={1000} max={180000} value={draft.timeoutMs} onChange={e=>setRouteDrafts(prev=>({...prev,[route.feature]:{...draft,timeoutMs:Number(e.target.value)}}))} className="mt-1 w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-100"/></label>
+                    <label className="text-xs text-slate-400">Max output tokens<input type="number" min={64} max={100000} value={draft.maxOutputTokens} onChange={e=>setRouteDrafts(prev=>({...prev,[route.feature]:{...draft,maxOutputTokens:Number(e.target.value)}}))} className="mt-1 w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-100"/></label>
+                  </div>
+                  <label className="block text-xs text-slate-400">Fallback models<input value={(draft.fallbackModels || []).join(", ")} onChange={e=>setRouteDrafts(prev=>({...prev,[route.feature]:{...draft,fallbackModels:e.target.value.split(",").map(v=>v.trim()).filter(Boolean)}}))} placeholder="openai:model-a, anthropic:model-b" className="mt-1 w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-100"/></label>
+                  <div className="flex justify-end"><button type="button" onClick={()=>handleSaveAIRoute(route.feature)} disabled={actionLoading===`ai:${route.feature}`} className="px-4 py-2 rounded-lg bg-amber-500 text-slate-950 text-xs font-bold disabled:opacity-50">{actionLoading===`ai:${route.feature}` ? "Saving..." : "Save routing policy"}</button></div>
+                </div>;
+              })}
             </div>
           </section>
         )}
