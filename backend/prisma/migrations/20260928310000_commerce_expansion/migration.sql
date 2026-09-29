@@ -23,7 +23,7 @@ ALTER TABLE studio.checkout_orders ADD CONSTRAINT studio_checkout_mode CHECK(che
 CREATE TABLE studio.checkout_order_items (
   id uuid PRIMARY KEY,
   order_id uuid NOT NULL REFERENCES studio.checkout_orders(id) ON DELETE CASCADE,
-  product_id uuid NOT NULL REFERENCES studio.products(id),
+  product_id uuid NOT NULL REFERENCES studio.products(id) DEFERRABLE INITIALLY DEFERRED,
   product_name varchar(120) NOT NULL,
   price_id varchar(120) NOT NULL,
   quantity integer NOT NULL CHECK(quantity BETWEEN 1 AND 20),
@@ -38,7 +38,7 @@ CREATE TABLE studio.entitlements (
   id uuid PRIMARY KEY,
   site_id uuid NOT NULL REFERENCES public.websites(id) ON DELETE CASCADE,
   order_id uuid NOT NULL REFERENCES studio.checkout_orders(id) ON DELETE CASCADE,
-  product_id uuid NOT NULL REFERENCES studio.products(id),
+  product_id uuid NOT NULL REFERENCES studio.products(id) DEFERRABLE INITIALLY DEFERRED,
   provider_subscription varchar(180),
   state varchar(30) NOT NULL CHECK(state IN ('ACTIVE','PAST_DUE','CANCELED')),
   current_period_end timestamptz,
@@ -51,7 +51,7 @@ CREATE INDEX studio_entitlements_site_state ON studio.entitlements(site_id,state
 CREATE TABLE studio.refunds (
   id uuid PRIMARY KEY,
   site_id uuid NOT NULL REFERENCES public.websites(id) ON DELETE CASCADE,
-  order_id uuid NOT NULL REFERENCES studio.checkout_orders(id),
+  order_id uuid NOT NULL REFERENCES studio.checkout_orders(id) DEFERRABLE INITIALLY DEFERRED,
   operation_id uuid NOT NULL UNIQUE,
   amount_minor integer NOT NULL CHECK(amount_minor>0),
   state varchar(30) NOT NULL DEFAULT 'REQUESTED' CHECK(state IN ('REQUESTED','SUCCEEDED','FAILED')),
