@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
+import { getAIInfrastructure,setAIInfrastructureRoute } from "../modules/studio-next/ai-control.js";
 import {
   getSystemHealth,
   getOperationalAlerts,
@@ -275,3 +276,19 @@ export async function getAdminWebsitesHandler(req: Request, res: Response, next:
   }
 }
 
+
+
+export async function getAdminAIInfrastructureHandler(_req: Request, res: Response, next: NextFunction) {
+  try {
+    const data = await getAIInfrastructure();
+    return res.status(200).json({ success: true, data });
+  } catch (err) { next(err); }
+}
+
+export async function updateAdminAIRouteHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const adminUser = res.locals.user || (req as any).user;
+    const data = await setAIInfrastructureRoute(adminUser.id, req.body);
+    return res.status(200).json({ success: true, data, message: "AI routing policy updated" });
+  } catch (err) { next(err); }
+}
