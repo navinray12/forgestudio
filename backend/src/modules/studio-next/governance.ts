@@ -12,6 +12,18 @@ const budgetInput=z.object({monthlyUnitLimit:z.number().int().min(1000).max(1_00
 function globalEnabled(feature:Feature){
   const raw=process.env[`STUDIO_FEATURE_${feature}`];return raw===undefined?true:!['0','false','off','disabled'].includes(raw.toLowerCase());
 }
+const FEATURE_ROUTE:Partial<Record<Feature,string>>={
+  AI_COPY:'COPY',AI_SECTION_GENERATION:'EDITOR',AI_PAGE_GENERATION:'EDITOR',AI_SITE_GENERATION:'PLANNER',
+  AI_CMS:'PLANNER',AI_SEO:'COPY',AI_IMAGES:'IMAGE',AI_CODE_COMPONENTS:'CODE',
+};
+const ROUTE_USAGE:Record<string,string[]>={
+  COPY:['COPY_EDIT','SEO'],EDITOR:['SECTION_GENERATION','PAGE_GENERATION'],PLANNER:['SITE_GENERATION','CMS_GENERATION'],
+  IMAGE:['IMAGE_GENERATION'],CODE:['CODE_COMPONENT'],REVIEWER:['DESIGN_REVIEW'],VISION:['VISION_REVIEW'],EMBEDDING:['EMBEDDING'],
+};
+function routeForUsage(feature:string){
+  for(const [route,features] of Object.entries(ROUTE_USAGE))if(features.includes(feature))return route;
+  return null;
+}
 export class FeaturePolicy{
   constructor(private db:Database){}
   async effective(siteId:string,feature:Feature){
@@ -21,6 +33,9 @@ export class FeaturePolicy{
   }
   async assert(siteId:string,feature:Feature){
     if(!await this.effective(siteId,feature))throw new StudioError(`${feature} is disabled for this site`,403,'FEATURE_DISABLED');
+    const route=FEATURE_ROUTE[feature];if(!route)return;
+    const r=await this.db.pool.query(`SELECT w."workspaceId",m.workspace_restrictions AS restrictions FROM public.websites w LEFT JOIN studio.ai_model_routes m ON m.feature=$2 WHERE w.id=$1`,[siteId,route]);
+    const restrictions=r.rows[0]?.restrictions;if(Array.isArray(restrictions)&&restrictions.length&&(!r.rows[0]?.workspaceId||!restrictions.includes(r.rows[0].workspaceId)))throw new StudioError('This AI capability is not enabled for the site workspace',403,'AI_WORKSPACE_RESTRICTED');
   }
   async snapshot(siteId:string){const values:Partial<Record<Feature,boolean>>={};for(const feature of FEATURES)values[feature]=await this.effective(siteId,feature);return values;}
   async list(actor:Actor,siteId:string){
@@ -73,6 +88,18 @@ export class AiGovernance{
     return this.db.tx(async c=>{
       await this.db.site(c,actor,siteId,'VIEW');
       const budget=await c.query('SELECT monthly_unit_limit FROM studio.ai_budgets WHERE site_id=$1 FOR UPDATE',[siteId]);
+      const route=routeForUsage(feature);let routeLimit:number|null=null,routeConsumed=0;
+      if(route){
+        const routeRow=await c.query('SELECT daily_budget_units FROM studio.ai_model_routes WHERE feature=$1 FOR UPDATE',[route]);
+        routeLimit=routeRow.rows[0]?.daily_budget_units===null||routeRow.rows[0]?.daily_budget_units===undefined?null:Number(routeRow.rows[0].daily_budget_units);
+        if(routeLimit){
+          const related=ROUTE_USAGE[route]||[feature];
+          const usedRoute=await c.query(`SELECT COALESCE(sum(COALESCE(input_units,0)+COALESCE(output_units,0)),0)::bigint AS units FROM studio.ai_runs WHERE feature=ANY($1::text[]) AND created_at>=date_trunc('day',now())`,[related]);
+          const reservedRoute=await c.query(`SELECT COALESCE(sum(reserved_units),0)::bigint AS units FROM studio.ai_usage_reservations WHERE feature=ANY($1::text[]) AND state='RESERVED' AND expires_at>now()`,[related]);
+          routeConsumed=Number(usedRoute.rows[0].units)+Number(reservedRoute.rows[0].units);
+          if(routeConsumed+units>routeLimit)throw new StudioError('The configured daily AI route budget has been reached',429,'AI_ROUTE_BUDGET_EXCEEDED');
+        }
+      }
       if(!budget.rows[0])return null;
       await c.query("UPDATE studio.ai_usage_reservations SET state='RELEASED' WHERE site_id=$1 AND state='RESERVED' AND expires_at<=now()",[siteId]);
       const used=await c.query(`SELECT COALESCE(sum(COALESCE(input_units,0)+COALESCE(output_units,0)),0)::bigint AS units FROM studio.ai_runs WHERE site_id=$1 AND created_at>=date_trunc('month',now())`,[siteId]);
