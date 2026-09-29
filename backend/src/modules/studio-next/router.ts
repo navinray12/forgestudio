@@ -26,7 +26,7 @@ import { configuredExternalPublishingProvider } from './cloud-publishing.js';
 import { StudioError,parse,localeCode } from './validation.js';
 import { trustedOrigin } from '../studio/domain.js';
 import { AUTH_COOKIE_NAME,AUTH_COOKIE_OPTIONS } from '../../config/auth.js';
-export interface RouterOptions { commerce?:CommerceConfig;analyticsSecret?:string;resolveTxt?:TxtResolver;requestLimit?:number;aiProvider?:AIProvider|null;imageProvider?:ImageGenerationProvider|null;codeSandbox?:CodeSandboxProvider|null;webhooks?:WebhookConfig }
+export interface RouterOptions { commerce?:CommerceConfig;analyticsSecret?:string;resolveTxt?:TxtResolver;requestLimit?:number;aiProvider?:AIProvider|null;imageProvider?:ImageGenerationProvider|null;codeSandbox?:CodeSandboxProvider|null;webhooks?:WebhookConfig;oidcTransport?:OidcTransport;oidcSecretResolver?:SecretResolver }
 export function configuredCommerce():CommerceConfig{
   let accounts:Record<string,string>={};
   if(process.env.STUDIO_STRIPE_ACCOUNTS){
