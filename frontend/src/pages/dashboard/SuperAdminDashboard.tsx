@@ -78,8 +78,12 @@ interface AIInfrastructure {
     source: "DATABASE" | "ENVIRONMENT"; credentialConfigured: boolean;
   }>;
 }
+interface StudioObservability {
+  requests:number;errors:number;errorRate:number;generatedAt:string;scope:string;
+  routes:Array<{route:string;count:number;errors:number;errorRate:number;p50Ms:number;p95Ms:number;p99Ms:number;lastStatus:number;lastSeen:string}>;
+}
 
-type SuperAdminTab = "overview" | "users" | "audit-logs" | "jobs" | "ai-infrastructure";
+type SuperAdminTab = "overview" | "users" | "audit-logs" | "jobs" | "ai-infrastructure" | "observability";
 
 function SuperAdminDashboard() {
   const navigate = useNavigate();
@@ -91,6 +95,7 @@ function SuperAdminDashboard() {
   const [usersList, setUsersList] = useState<ManagedUser[]>([]);
   const [jobsList, setJobsList] = useState<BackgroundJobRecord[]>([]);
   const [aiInfrastructure, setAiInfrastructure] = useState<AIInfrastructure | null>(null);
+  const [studioObservability, setStudioObservability] = useState<StudioObservability | null>(null);
   const [routeDrafts, setRouteDrafts] = useState<Record<string, AIInfrastructure["routes"][number]>>({});
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -101,11 +106,12 @@ function SuperAdminDashboard() {
     setLoading(true);
     setFeedback(null);
     try {
-      const [statsRes, usersRes, jobsRes, aiRes] = await Promise.all([
+      const [statsRes, usersRes, jobsRes, aiRes, observabilityRes] = await Promise.all([
         fetch(`${apiUrl}/api/v1/operations/admin/stats`, { credentials: "include" }),
         fetch(`${apiUrl}/api/v1/operations/admin/users?limit=100`, { credentials: "include" }),
         fetch(`${apiUrl}/api/v1/operations/jobs?limit=50`, { credentials: "include" }),
         fetch(`${apiUrl}/api/v1/operations/admin/ai-infrastructure`, { credentials: "include" }),
+        fetch(`${apiUrl}/api/v1/operations/admin/studio-observability`, { credentials: "include" }),
       ]);
 
       if (!statsRes.ok || !usersRes.ok) {
@@ -116,11 +122,13 @@ function SuperAdminDashboard() {
       const usersData = await usersRes.json();
       const jobsData = jobsRes.ok ? await jobsRes.json() : { data: [] };
       const aiData = aiRes.ok ? await aiRes.json() : { data: null };
+      const observabilityData = observabilityRes.ok ? await observabilityRes.json() : { data: null };
 
       setStats(statsData.data);
       setUsersList(usersData.data || []);
       setJobsList(jobsData.data || []);
       setAiInfrastructure(aiData.data);
+      setStudioObservability(observabilityData.data);
       if (aiData.data?.routes) setRouteDrafts(Object.fromEntries(aiData.data.routes.map((route: AIInfrastructure["routes"][number]) => [route.feature, route])));
     } catch (err: any) {
       setFeedback({ type: "error", message: err?.message || "Failed to load dashboard." });
@@ -305,7 +313,7 @@ function SuperAdminDashboard() {
       {/* Tab Navigation */}
       <div className="border-b border-slate-800 bg-slate-900/50 px-6 py-2">
         <div className="max-w-7xl mx-auto flex gap-2">
-          {(["overview", "users", "audit-logs", "jobs", "ai-infrastructure"] as SuperAdminTab[]).map((tab) => (
+          {(["overview", "users", "audit-logs", "jobs", "ai-infrastructure", "observability"] as SuperAdminTab[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -320,6 +328,7 @@ function SuperAdminDashboard() {
               {tab === "audit-logs" && <FileText className="w-3.5 h-3.5" />}
               {tab === "jobs" && <Cpu className="w-3.5 h-3.5" />}
               {tab === "ai-infrastructure" && <Cpu className="w-3.5 h-3.5" />}
+              {tab === "observability" && <Activity className="w-3.5 h-3.5" />}
               {tab.replaceAll("-", " ")}
             </button>
           ))}
@@ -565,6 +574,20 @@ function SuperAdminDashboard() {
                   <div className="flex justify-end"><button type="button" onClick={()=>handleSaveAIRoute(route.feature)} disabled={actionLoading===`ai:${route.feature}`} className="px-4 py-2 rounded-lg bg-amber-500 text-slate-950 text-xs font-bold disabled:opacity-50">{actionLoading===`ai:${route.feature}` ? "Saving..." : "Save routing policy"}</button></div>
                 </div>;
               })}
+            </div>
+          </section>
+        )}
+
+        {activeTab === "observability" && (
+          <section className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5"><div className="text-xs uppercase tracking-wider text-slate-400">Studio requests</div><div className="mt-2 text-3xl font-black text-white">{studioObservability?.requests ?? 0}</div></div>
+              <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5"><div className="text-xs uppercase tracking-wider text-slate-400">Server errors</div><div className="mt-2 text-3xl font-black text-rose-400">{studioObservability?.errors ?? 0}</div></div>
+              <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5"><div className="text-xs uppercase tracking-wider text-slate-400">Error rate</div><div className="mt-2 text-3xl font-black text-amber-400">{studioObservability?.errorRate ?? 0}%</div></div>
+            </div>
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
+              <div className="flex items-center justify-between mb-4"><div><h2 className="text-lg font-bold text-white">Studio route telemetry</h2><p className="text-xs text-slate-400">Per-process bounded metrics. Aggregate replicas in the deployment telemetry backend for global SLOs.</p></div><span className="text-[10px] font-bold text-slate-500">{studioObservability?.scope || "PROCESS"}</span></div>
+              <div className="overflow-x-auto rounded-xl border border-slate-800"><table className="w-full text-left text-xs"><thead className="bg-slate-950 text-slate-400 uppercase text-[10px]"><tr><th className="p-3">Route</th><th className="p-3">Requests</th><th className="p-3">Errors</th><th className="p-3">p50</th><th className="p-3">p95</th><th className="p-3">p99</th><th className="p-3">Last</th></tr></thead><tbody className="divide-y divide-slate-800">{(studioObservability?.routes || []).map(route=><tr key={route.route}><td className="p-3 font-mono text-slate-300">{route.route}</td><td className="p-3">{route.count}</td><td className="p-3">{route.errors} ({route.errorRate}%)</td><td className="p-3">{route.p50Ms}ms</td><td className="p-3">{route.p95Ms}ms</td><td className="p-3">{route.p99Ms}ms</td><td className="p-3 text-slate-500">{route.lastStatus}</td></tr>)}</tbody></table></div>
             </div>
           </section>
         )}
