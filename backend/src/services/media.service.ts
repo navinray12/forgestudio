@@ -187,6 +187,12 @@ export interface CreateMediaAssetInput {
   width?: number;
   height?: number;
   altText?: string;
+  provenance?: "UPLOADED" | "GENERATED" | "IMPORTED";
+  providerName?: string;
+  modelId?: string;
+  promptHash?: string;
+  generatedAt?: Date;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -204,6 +210,12 @@ export async function createMediaAsset(input: CreateMediaAssetInput) {
     width,
     height,
     altText,
+    provenance,
+    providerName,
+    modelId,
+    promptHash,
+    generatedAt,
+    metadata,
   } = input;
 
   if (!userId || !filename || !url) {
@@ -222,6 +234,12 @@ export async function createMediaAsset(input: CreateMediaAssetInput) {
       width: width || null,
       height: height || null,
       altText: altText || null,
+      provenance: provenance || "UPLOADED",
+      providerName: providerName || null,
+      modelId: modelId || null,
+      promptHash: promptHash || null,
+      generatedAt: generatedAt || null,
+      metadata: metadata || {},
     },
   });
 
@@ -329,8 +347,24 @@ export async function updateMediaAsset(
 /**
  * Delete media asset and remove file from disk
  */
+function containsAssetReference(value: unknown, url: string): boolean {
+  if (typeof value === "string") return value === url;
+  if (Array.isArray(value)) return value.some((item) => containsAssetReference(item, url));
+  if (value && typeof value === "object") return Object.values(value as Record<string, unknown>).some((item) => containsAssetReference(item, url));
+  return false;
+}
+
 export async function deleteMediaAsset(id: string, userId: string) {
   const asset = await getMediaAssetById(id, userId);
+  const sites = await db.website.findMany({
+    where: asset.websiteId ? { id: asset.websiteId, userId } : { userId },
+    select: { id: true, editorData: true },
+    take: 500,
+  });
+  const referencedBy = sites.find((site: any) => containsAssetReference(site.editorData, asset.url));
+  if (referencedBy) {
+    throw new AppError("Asset is still referenced by a website. Remove its references before deleting.", 409, "MEDIA_IN_USE");
+  }
 
   await db.mediaAsset.delete({
     where: { id },
