@@ -68,7 +68,7 @@ else{
       VALUES('COPY','openai','fixture-model','[]'::jsonb,30000,2000,true,$1::jsonb)
       ON CONFLICT(feature) DO UPDATE SET enabled=true,workspace_restrictions=$1::jsonb,daily_budget_units=NULL`,[JSON.stringify([other])]);
     const before=calls;await send('POST',`/sites/${restrictedSite}/ai/copy/propose`,owner,{elementId:'heading',field:'content',instruction:'blocked by workspace policy'},403);assert.equal(calls,before);
-    await pool.query("UPDATE studio.ai_model_routes SET workspace_restrictions=$2::jsonb WHERE feature='COPY'",['COPY',JSON.stringify([w])]);
+    await pool.query("UPDATE studio.ai_model_routes SET workspace_restrictions=$1::jsonb WHERE feature='COPY'",[JSON.stringify([w])]);
     await send('POST',`/sites/${restrictedSite}/ai/copy/propose`,owner,{elementId:'heading',field:'content',instruction:'allowed by workspace policy'},201);
   });
 
