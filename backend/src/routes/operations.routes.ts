@@ -21,6 +21,7 @@ import {
   updateAdminAIRouteHandler,
   getAdminStudioObservabilityHandler,
 } from "../controllers/operations.controller.js";
+import {getAiInfrastructureHandler,updateAiRouteHandler,checkAiProviderHandler} from "../controllers/aiInfrastructure.controller.js";
 
 const router = Router();
 
@@ -41,6 +42,9 @@ router.get("/admin/stats", requireAuth, requireRole(["ADMIN", "SUPER_ADMIN"]), g
 router.get("/admin/users", requireAuth, requireRole(["ADMIN", "SUPER_ADMIN"]), getAdminUsersHandler);
 router.put("/admin/users/:userId/status", requireAuth, requireRole(["SUPER_ADMIN"]), updateAdminUserStatusHandler);
 router.get("/admin/websites", requireAuth, requireRole(["ADMIN", "SUPER_ADMIN"]), getAdminWebsitesHandler);
+router.get("/admin/ai-infrastructure", requireAuth, requireRole(["SUPER_ADMIN"]), getAiInfrastructureHandler);
+router.put("/admin/ai-infrastructure/routes/:feature", requireAuth, requireRole(["SUPER_ADMIN"]), updateAiRouteHandler);
+router.post("/admin/ai-infrastructure/providers/:provider/check", requireAuth, requireRole(["SUPER_ADMIN"]), checkAiProviderHandler);
 router.get("/admin/ai-infrastructure", requireAuth, requireRole(["SUPER_ADMIN"]), getAdminAIInfrastructureHandler);
 router.put("/admin/ai-infrastructure/routes", requireAuth, requireRole(["SUPER_ADMIN"]), updateAdminAIRouteHandler);
 router.get("/admin/studio-observability", requireAuth, requireRole(["SUPER_ADMIN"]), getAdminStudioObservabilityHandler);
