@@ -17,6 +17,8 @@ import {
   getAdminUsersHandler,
   updateAdminUserStatusHandler,
   getAdminWebsitesHandler,
+  getAdminAIInfrastructureHandler,
+  updateAdminAIRouteHandler,
 } from "../controllers/operations.controller.js";
 
 const router = Router();
@@ -38,6 +40,8 @@ router.get("/admin/stats", requireAuth, requireRole(["ADMIN", "SUPER_ADMIN"]), g
 router.get("/admin/users", requireAuth, requireRole(["ADMIN", "SUPER_ADMIN"]), getAdminUsersHandler);
 router.put("/admin/users/:userId/status", requireAuth, requireRole(["SUPER_ADMIN"]), updateAdminUserStatusHandler);
 router.get("/admin/websites", requireAuth, requireRole(["ADMIN", "SUPER_ADMIN"]), getAdminWebsitesHandler);
+router.get("/admin/ai-infrastructure", requireAuth, requireRole(["SUPER_ADMIN"]), getAdminAIInfrastructureHandler);
+router.put("/admin/ai-infrastructure/routes", requireAuth, requireRole(["SUPER_ADMIN"]), updateAdminAIRouteHandler);
 
 // Website Operational Actions
 router.post("/websites/:id/schedule-publish", requireAuth, authorizeCapability("PUBLISH"), schedulePublishHandler);
