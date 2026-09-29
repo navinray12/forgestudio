@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import AiInfrastructurePanel from "./components/AiInfrastructurePanel";
 import {
   ShieldAlert,
   Users,
@@ -328,6 +329,7 @@ function SuperAdminDashboard() {
               {tab === "audit-logs" && <FileText className="w-3.5 h-3.5" />}
               {tab === "jobs" && <Cpu className="w-3.5 h-3.5" />}
               {tab === "ai-infrastructure" && <Cpu className="w-3.5 h-3.5" />}
+              {tab === "ai-infrastructure" && <Cpu className="w-3.5 h-3.5" />}
               {tab === "observability" && <Activity className="w-3.5 h-3.5" />}
               {tab.replaceAll("-", " ")}
             </button>
@@ -591,6 +593,8 @@ function SuperAdminDashboard() {
             </div>
           </section>
         )}
+
+        {activeTab === "ai-infrastructure" && <AiInfrastructurePanel apiUrl={apiUrl} />}
 
         {/* JOBS TAB */}
         {activeTab === "jobs" && (
