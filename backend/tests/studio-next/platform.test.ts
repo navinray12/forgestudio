@@ -98,6 +98,16 @@ describe('Site Studio authenticated HTTP and PostgreSQL integration',{skip:!url}
    await send('PUT',`/sites/${s}/localization/home/fr`,a,{revision:1,data:{title:'Accueil',slug:'/a-propos',texts:{'home-title':'Accueil'}}},409);
  });
  test('locale settings cannot disable the primary locale or reference nonexistent elements',async()=>{const a=await make(),s=await site(pool,a);await send('PUT',`/sites/${s}/locales`,a,{code:'en',name:'English',enabled:false},400);await send('PUT',`/sites/${s}/locales`,a,{code:'fr',name:'French',enabled:true});await send('PUT',`/sites/${s}/localization/home/fr`,a,{revision:0,data:{texts:{not_an_element:'no'}}},400);});
+ test('structured interactions are validated persisted and reject unsafe actions',async()=>{
+   const a=await make(),s=await site(pool,a),d=await send('GET',`/sites/${s}/design`,a);
+   await send('POST',`/sites/${s}/design/commands`,a,{baseHash:d.hash,operationId:randomUUID(),commands:[
+     {type:'SET_MOTION_CONFIG',elementId:'heading',motion:{entranceAnimation:'fade-in-up',entranceDurationMs:'600',hover:{scale:'1.05',durationMs:'250'},scroll:{enabled:true,speedY:'0.3',transparency:'fade-in'}}},
+     {type:'SET_INTERACTIONS',elementId:'heading',rules:[{id:'rule-open',trigger:'click',action:'open-url',actionValue:'/contact'},{id:'rule-class',trigger:'hover',action:'toggle-class',targetSelector:'#target',toggleClass:'is-active'}]}
+   ]});
+   let state=await send('GET',`/sites/${s}/design`,a);assert.equal(state.website.editorData.elements[0].motionConfig.entranceAnimation,'fade-in-up');assert.equal(state.website.editorData.elements[0].interactions.length,2);
+   await send('POST',`/sites/${s}/design/commands`,a,{baseHash:state.hash,operationId:randomUUID(),commands:[{type:'SET_INTERACTIONS',elementId:'heading',rules:[{id:'bad-url',trigger:'click',action:'open-url',actionValue:'javascript:alert(1)'}]}]},400);
+   state=await send('GET',`/sites/${s}/design`,a);await send('POST',`/sites/${s}/design/commands`,a,{baseHash:state.hash,operationId:randomUUID(),commands:[{type:'SET_MOTION_CONFIG',elementId:'heading',motion:{entranceAnimation:'fade-in',entranceDurationMs:'90000'}}]},400);
+ });
  test('canonical components persist variants slots and detachable instances',async()=>{
    const a=await make(),s=await site(pool,a,{version:1,elements:[]},'DRAFT');let d=await send('GET',`/sites/${s}/design`,a);
    await send('POST',`/sites/${s}/design/commands`,a,{baseHash:d.hash,operationId:randomUUID(),commands:[
