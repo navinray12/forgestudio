@@ -37,6 +37,14 @@ export async function install(pool:pg.Pool){
   if(!governance.rows[0].name)await pool.query(await readFile(new URL('../../prisma/migrations/20260928250000_studio_governance/migration.sql',import.meta.url),'utf8'));
   const analyticsEvents=await pool.query("SELECT column_name FROM information_schema.columns WHERE table_schema='studio' AND table_name='analytics_events' AND column_name='attributes'");
   if(!analyticsEvents.rowCount)await pool.query(await readFile(new URL('../../prisma/migrations/20260928260000_studio_analytics_events/migration.sql',import.meta.url),'utf8'));
+  const aiControl=await pool.query("SELECT to_regclass('studio.ai_model_routes') AS name");
+  if(!aiControl.rows[0].name)await pool.query(await readFile(new URL('../../prisma/migrations/20260928270000_studio_ai_control_plane/migration.sql',import.meta.url),'utf8'));
+  const assetProvenance=await pool.query("SELECT column_name FROM information_schema.columns WHERE table_schema='public' AND table_name='media_assets' AND column_name='provenance'");
+  if(!assetProvenance.rowCount)await pool.query(await readFile(new URL('../../prisma/migrations/20260928280000_asset_provenance_ai_images/migration.sql',import.meta.url),'utf8'));
+  const codeArtifacts=await pool.query("SELECT to_regclass('studio.code_component_artifacts') AS name");
+  if(!codeArtifacts.rows[0].name)await pool.query(await readFile(new URL('../../prisma/migrations/20260928290000_code_sandbox_components/migration.sql',import.meta.url),'utf8'));
+  const presence=await pool.query("SELECT to_regclass('studio.presence_leases') AS name");
+  if(!presence.rows[0].name)await pool.query(await readFile(new URL('../../prisma/migrations/20260928300000_distributed_presence/migration.sql',import.meta.url),'utf8'));
   const aiRoutes=await pool.query("SELECT to_regclass('studio.ai_model_routes') AS name");
   if(!aiRoutes.rows[0].name)await pool.query(await readFile(new URL('../../prisma/migrations/20260928270000_studio_ai_control_plane/migration.sql',import.meta.url),'utf8'));
   const assetProvenance=await pool.query("SELECT column_name FROM information_schema.columns WHERE table_schema='public' AND table_name='media_assets' AND column_name='provenance'");
