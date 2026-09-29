@@ -23,6 +23,7 @@ import { AtomicEditor, GlobalElementService, ReusableComponentService } from "..
 import { publishingService } from "../../features/publishing/services/publishingService";
 import { useComponentAccess } from "../../features/permissions/hooks/useComponentAccess";
 import { ContentOnlyInspector } from "./components/ContentOnlyInspector";
+import { CmsBindingInspector } from "./components/CmsBindingInspector";
 import { ExperimentManagerModal } from "./components/experiments/ExperimentManagerModal";
 import { useCanvasPresence } from "../../features/collaboration/hooks/useCanvasPresence";
 import { WooCommerceProvider } from "../../context/WooCommerceContext";
@@ -9376,6 +9377,14 @@ export default function WebsiteEditor() {
                         </button>
                       </div>
                     </div>
+
+                    {websiteId && ["heading","text","paragraph","image","button"].includes(selectedElementAny.type) && (
+                      <CmsBindingInspector
+                        websiteId={websiteId}
+                        element={selectedElementAny}
+                        onChange={(binding) => updateSelectedProp("cmsBinding", binding)}
+                      />
+                    )}
 
                     {/* Element State Selector (F-036) */}
                     <div className="rounded-xl border border-slate-200 bg-slate-50 p-2.5 space-y-2 shadow-xs">
