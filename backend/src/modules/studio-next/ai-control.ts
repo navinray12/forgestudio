@@ -83,6 +83,19 @@ export class DatabaseRoutedProvider implements AIProvider{
   }
 }
 
+
+export async function checkAIProviderHealth(provider:string){
+  if(!['openai','anthropic'].includes(provider))throw new StudioError('Unsupported AI provider',400,'VALIDATION_ERROR');
+  if(!credentialConfigured(provider))return {provider,status:'UNCONFIGURED',latencyMs:null,errorCode:null};
+  const start=Date.now();
+  try{
+    const url=provider==='openai'?'https://api.openai.com/v1/models':'https://api.anthropic.com/v1/models?limit=1';
+    const headers=provider==='openai'?{Authorization:`Bearer ${process.env.OPENAI_API_KEY}`}:{'x-api-key':String(process.env.ANTHROPIC_API_KEY),'anthropic-version':'2023-06-01'};
+    const response=await fetch(url,{method:'GET',redirect:'error',signal:AbortSignal.timeout(8000),headers});
+    return {provider,status:response.ok?'HEALTHY':response.status>=500?'UNAVAILABLE':'DEGRADED',latencyMs:Date.now()-start,errorCode:response.ok?null:`HTTP_${response.status}`};
+  }catch(error){return {provider,status:'UNAVAILABLE',latencyMs:Date.now()-start,errorCode:String((error as any)?.code||'PROBE_FAILED').slice(0,80)};}
+}
+
 export async function getAIInfrastructure(){
   const {prisma}=await import('../../config/prisma.js');
   const rows=await prisma.$queryRawUnsafe<any[]>(`SELECT feature,provider,model,fallback_models AS "fallbackModels",timeout_ms AS "timeoutMs",max_output_tokens AS "maxOutputTokens",enabled,daily_budget_units AS "dailyBudgetUnits",workspace_restrictions AS "workspaceRestrictions",updated_at AS "updatedAt" FROM studio.ai_model_routes ORDER BY feature`);
