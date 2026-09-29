@@ -26,8 +26,10 @@ export class S3CompatiblePublishingProvider implements PublishingProvider{
   constructor(private config:ObjectPublishingConfig,transport?:ObjectTransport){
     this.name=config.name;this.transport=transport??(async(url,init)=>fetch(url,init) as any);
     const endpoint=new URL(config.endpoint);
+    const publicBase=new URL(config.publicBaseUrl);
     if(endpoint.protocol!=='https:'||endpoint.username||endpoint.password)throw new Error('Object publishing endpoint must use HTTPS without embedded credentials');
-    if(!config.accessKeyId||!config.secretAccessKey||!config.publicBaseUrl)throw new Error('Object publishing credentials and public base URL are required');
+    if(publicBase.protocol!=='https:'||publicBase.username||publicBase.password)throw new Error('Object publishing public base URL must use HTTPS without embedded credentials');
+    if(!config.accessKeyId||!config.secretAccessKey)throw new Error('Object publishing credentials are required');
   }
   private objectPath(key:string){
     const base=[this.config.bucketPath||'',this.config.prefix||'',key].filter(Boolean).join('/').replace(/\/+/g,'/');
@@ -69,7 +71,7 @@ export function configuredExternalPublishingProvider(){
   const kind=(process.env.STUDIO_PUBLISHING_PROVIDER||'').toLowerCase();
   if(!['aws-s3','cloudflare-r2'].includes(kind))return null;
   const accessKeyId=process.env.STUDIO_OBJECT_ACCESS_KEY_ID||'',secretAccessKey=process.env.STUDIO_OBJECT_SECRET_ACCESS_KEY||'',publicBaseUrl=process.env.STUDIO_OBJECT_PUBLIC_BASE_URL||'';
-  let endpoint=process.env.STUDIO_OBJECT_ENDPOINT||'',region=process.env.STUDIO_OBJECT_REGION||'';
+  let endpoint=process.env.STUDIO_OBJECT_ENDPOINT||'',region=process.env.STUDIO_OBJECT_REGION||'',bucketPath=process.env.STUDIO_OBJECT_BUCKET_PATH;
   if(kind==='aws-s3'){
     const bucket=process.env.STUDIO_AWS_S3_BUCKET||'';region=region||process.env.AWS_REGION||'us-east-1';
     if(!endpoint&&bucket)endpoint=`https://${bucket}.s3.${region}.amazonaws.com`;
@@ -77,8 +79,8 @@ export function configuredExternalPublishingProvider(){
   if(kind==='cloudflare-r2'){
     const account=process.env.STUDIO_CLOUDFLARE_ACCOUNT_ID||'',bucket=process.env.STUDIO_CLOUDFLARE_R2_BUCKET||'';region=region||'auto';
     if(!endpoint&&account)endpoint=`https://${account}.r2.cloudflarestorage.com`;
-    if(!process.env.STUDIO_OBJECT_BUCKET_PATH&&bucket)process.env.STUDIO_OBJECT_BUCKET_PATH=bucket;
+    bucketPath=bucketPath||bucket||undefined;
   }
   if(!endpoint||!accessKeyId||!secretAccessKey||!publicBaseUrl)throw new Error('Configured external publishing provider is missing endpoint, credentials, or public base URL');
-  return new S3CompatiblePublishingProvider({name:kind as any,endpoint,region,bucketPath:process.env.STUDIO_OBJECT_BUCKET_PATH,accessKeyId,secretAccessKey,sessionToken:process.env.STUDIO_OBJECT_SESSION_TOKEN,publicBaseUrl,prefix:process.env.STUDIO_OBJECT_PREFIX});
+  return new S3CompatiblePublishingProvider({name:kind as any,endpoint,region,bucketPath,accessKeyId,secretAccessKey,sessionToken:process.env.STUDIO_OBJECT_SESSION_TOKEN,publicBaseUrl,prefix:process.env.STUDIO_OBJECT_PREFIX});
 }
