@@ -115,7 +115,7 @@ export async function checkAIProvider(actorId:string,provider:string){
   if(configured){
     try{
       const url=provider==='openai'?'https://api.openai.com/v1/models':'https://api.anthropic.com/v1/models?limit=1';
-      const headers=provider==='openai'?{Authorization:`Bearer ${process.env.OPENAI_API_KEY}`}:{'x-api-key':String(process.env.ANTHROPIC_API_KEY),'anthropic-version':'2023-06-01'};
+      const headers:Record<string,string>=provider==='openai'?{Authorization:`Bearer ${String(process.env.OPENAI_API_KEY)}`}:{'x-api-key':String(process.env.ANTHROPIC_API_KEY),'anthropic-version':'2023-06-01'};
       const response=await fetch(url,{method:'GET',redirect:'error',signal:AbortSignal.timeout(8000),headers});
       status=response.ok?'HEALTHY':response.status>=500?'UNAVAILABLE':'DEGRADED';if(!response.ok)errorCode=`HTTP_${response.status}`;
     }catch(error){status='UNAVAILABLE';errorCode=String((error as any)?.code||'PROBE_FAILED').slice(0,80);}
