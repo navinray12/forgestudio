@@ -6,7 +6,7 @@ import {Database,type Actor} from './database.js';
 import {FeaturePolicy,AiGovernance} from './governance.js';
 import {resolveAIRoute} from './ai-control.js';
 import {parse,StudioError} from './validation.js';
-import {createMediaAsset,extractImageDimensions} from '../../services/media.service.js';
+import {extractImageDimensions} from '../../services/media.service.js';
 
 const inputSchema=z.object({
   prompt:z.string().trim().min(3).max(4000),
@@ -70,12 +70,12 @@ export class Assets{
       const extension=generated.mimeType==='image/jpeg'?'jpg':generated.mimeType==='image/webp'?'webp':'png';
       const filename=`ai_${Date.now()}_${randomBytes(6).toString('hex')}.${extension}`,dir=path.join(process.cwd(),'uploads','images');
       await fs.mkdir(dir,{recursive:true});await fs.writeFile(path.join(dir,filename),generated.bytes,{flag:'wx'});
-      const dimensions=extractImageDimensions(generated.bytes,generated.mimeType),asset=await createMediaAsset({
-        userId:actor.id,websiteId:siteId,filename,originalName:`AI generated ${filename}`,mimeType:generated.mimeType,sizeBytes:generated.bytes.length,
-        url:`/uploads/images/${filename}`,width:dimensions.width,height:dimensions.height,altText:body.altText,
-        provenance:'GENERATED',providerName:generated.provider,modelId:generated.model,promptHash,generatedAt:new Date(),
-        metadata:{size:body.size,quality:body.quality,outputFormat:body.outputFormat},
-      });
+      const dimensions=extractImageDimensions(generated.bytes,generated.mimeType),assetId=randomUUID(),publicUrl=`/uploads/images/${filename}`;
+      const inserted=await this.db.pool.query(`INSERT INTO public.media_assets(id,"userId","websiteId",filename,"originalName","mimeType","sizeBytes",url,width,height,"altText",format,provenance,"providerName","modelId","promptHash","generatedAt",metadata)
+        VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,'ORIGINAL','GENERATED',$12,$13,$14,now(),$15::jsonb)
+        RETURNING id,"userId","websiteId",filename,"originalName","mimeType","sizeBytes",url,width,height,"altText",format,provenance,"providerName","modelId","promptHash","generatedAt",metadata,"createdAt","updatedAt"`,
+        [assetId,actor.id,siteId,filename,`AI generated ${filename}`,generated.mimeType,generated.bytes.length,publicUrl,dimensions.width??null,dimensions.height??null,body.altText??null,generated.provider,generated.model,promptHash,JSON.stringify({size:body.size,quality:body.quality,outputFormat:body.outputFormat})]);
+      const asset=inserted.rows[0];
       const inputUnits=generated.usage?.inputUnits??0,outputUnits=generated.usage?.outputUnits??0;
       await this.db.pool.query(`INSERT INTO studio.ai_runs(id,site_id,workspace_id,user_id,feature,provider,model_requested,model_resolved,prompt_version,context_hash,input_units,output_units,image_count,latency_ms,status)
         VALUES($1,$2,$3,$4,'IMAGE_GENERATION',$5,$6,$7,'image-v1',$8,$9,$10,1,$11,'SUCCEEDED')`,
