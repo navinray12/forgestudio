@@ -1398,6 +1398,8 @@ export interface EditorElement {
   componentId?: string;
   isComponent?: boolean;
   componentName?: string;
+  componentVariantId?: string;
+  componentSlotName?: string;
   responsiveStyles?: Record<string, ElementStyles> & {
     desktop?: Partial<ElementStyles>;
     tablet?: Partial<ElementStyles>;
