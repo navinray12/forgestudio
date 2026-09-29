@@ -556,6 +556,24 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
 
     if (el.type === "divider") return <React.Fragment key={el.id}><hr ref={assignRefIfTracked as any} {...mergedProps} className={`${mergedProps.className} ${optInnerClass}`} style={{ borderColor: "#cbd5e1", ...mergedProps.style, ...finalInnerStyles }} /></React.Fragment>;
 
+    if (el.type === "code-component") {
+        const sandboxUrl = typeof (el as any).sandboxUrl === "string" && (el as any).sandboxUrl.startsWith("https://") ? (el as any).sandboxUrl : "";
+        return (
+            <div key={el.id} ref={assignRefIfTracked as any} {...mergedProps} className={`${mergedProps.className} ${optInnerClass}`} style={{ ...mergedProps.style, ...finalInnerStyles, overflow: "hidden" }}>
+                {sandboxUrl ? (
+                    <iframe
+                        title={(el as any).content || "Isolated code component"}
+                        src={sandboxUrl}
+                        sandbox="allow-scripts"
+                        referrerPolicy="no-referrer"
+                        loading="lazy"
+                        style={{ width: "100%", minHeight: (el as any).styles?.minHeight || "320px", border: 0, display: "block" }}
+                    />
+                ) : <div role="alert">Code component sandbox is unavailable.</div>}
+            </div>
+        );
+    }
+
     if (el.type === "html") return (
         <React.Suspense fallback={null} key={el.id}>
             <HtmlNode el={el} mergedProps={{ ...mergedProps, ref: assignRefIfTracked as any }} optInnerClass={optInnerClass} finalInnerStyles={finalInnerStyles} />
