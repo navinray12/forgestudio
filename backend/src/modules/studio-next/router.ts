@@ -49,6 +49,7 @@ export function createStudioNextRouter(db:Database,options:RouterOptions={}){
   publicRouter.get('/sites/:siteId/collections/:slug',route(req=>cms.publicItems(p(req,'siteId'),p(req,'slug'),parse(localeCode,req.query.locale??'en'))));
   publicRouter.get('/sites/:siteId/collections/:slug/:itemSlug',route(req=>cms.publicItems(p(req,'siteId'),p(req,'slug'),parse(localeCode,req.query.locale??'en'),p(req,'itemSlug'))));
   publicRouter.get('/sites/:siteId/localization',route(req=>localization.publicData(p(req,'siteId'),parse(localeCode,req.query.locale??'en'))));
+  publicRouter.get('/sites/:siteId/localization/resolve',route(req=>localization.resolvePath(p(req,'siteId'),String(req.query.path??'/'))));
   publicRouter.get('/sites/:siteId/catalog',route(req=>commerce.catalog(p(req,'siteId'))));
   publicRouter.post('/sites/:siteId/checkout',route(req=>commerce.checkout(p(req,'siteId'),req.body),201));
   publicRouter.get('/sites/:siteId/analytics',route(req=>analytics.publicConfig(p(req,'siteId'))));
