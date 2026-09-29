@@ -42,7 +42,8 @@ export class Commerce {
     return this.db.tx(async c=>{
       await this.db.site(c,actor,siteId,'MANAGE_SETTINGS');
       const r=await c.query(`SELECT id,name,description,price_minor AS "priceMinor",currency,stripe_price_id AS "stripePriceId",active,revision,billing_type AS "billingType",billing_interval AS "billingInterval",inventory_quantity AS "inventoryQuantity" FROM studio.products WHERE site_id=$1 ORDER BY created_at DESC LIMIT 200`,[siteId]);
-      const orders=await c.query(`SELECT o.id,o.quantity,o.total_minor AS "totalMinor",o.currency,o.state,o.checkout_mode AS "checkoutMode",o.provider_subscription AS "providerSubscription",o.created_at AS "createdAt",
+      const orders=await c.query(`SELECT o.id,o.quantity,o.total_minor AS "totalMinor",o.currency,o.state,o.checkout_mode AS "checkoutMode",o.provider_subscription AS "providerSubscription",o.provider_payment_intent AS "providerPaymentIntent",o.created_at AS "createdAt",
+        GREATEST(0,o.total_minor-COALESCE((SELECT sum(r.amount_minor) FROM studio.refunds r WHERE r.order_id=o.id AND r.state IN ('REQUESTED','SUCCEEDED')),0))::int AS "refundableMinor",
         COALESCE(json_agg(json_build_object('productId',i.product_id,'name',i.product_name,'quantity',i.quantity,'unitMinor',i.unit_minor,'totalMinor',i.total_minor)) FILTER (WHERE i.id IS NOT NULL),'[]') AS items
         FROM studio.checkout_orders o LEFT JOIN studio.checkout_order_items i ON i.order_id=o.id WHERE o.site_id=$1 GROUP BY o.id ORDER BY o.created_at DESC LIMIT 100`,[siteId]);
       const entitlements=await c.query(`SELECT e.id,e.order_id AS "orderId",e.product_id AS "productId",p.name,e.state,e.provider_subscription AS "providerSubscription",e.current_period_end AS "currentPeriodEnd",e.updated_at AS "updatedAt" FROM studio.entitlements e JOIN studio.products p ON p.id=e.product_id WHERE e.site_id=$1 ORDER BY e.updated_at DESC LIMIT 200`,[siteId]);
