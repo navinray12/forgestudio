@@ -3,6 +3,7 @@ import {z} from 'zod';
 import {Database,type Actor} from './database.js';
 import type {EventOutbox} from './webhooks.js';
 import {designOnly,digest,jsonObject,parse,uuid,StudioError} from './validation.js';
+import {inspectDesign} from './quality.js';
 
 export interface ReleaseArtifact extends Record<string,unknown>{
   publishing:{releaseId:string;preparedAt:string;provider:string};
@@ -77,8 +78,9 @@ export class Releases{
       const site=await this.db.site(c,actor,siteId,'PUBLISH',true),design=designOnly(site.editorData),sourceHash=digest(design);
       if(sourceHash!==b.baseHash)throw new StudioError('The design changed. Reload before preparing a release.',409,'DESIGN_CONFLICT');
       validateArtifact(design);
+      const quality=inspectDesign(design),blocking=quality.filter(f=>f.severity==='ERROR');if(blocking.length)throw new StudioError(`Release blocked by ${blocking.length} critical quality finding(s): ${blocking.slice(0,3).map(x=>x.code).join(', ')}`,409,'RELEASE_QUALITY_BLOCKED');
       const releaseId=randomUUID(),preparedAt=new Date().toISOString();
-      const artifact={...design,publishing:{releaseId,preparedAt,provider:this.provider.name}} as ReleaseArtifact;
+      const artifact={...design,publishing:{releaseId,preparedAt,provider:this.provider.name,quality:{warningCount:quality.filter(f=>f.severity==='WARNING').length,codes:[...new Set(quality.map(f=>f.code))].slice(0,50)}}} as ReleaseArtifact;
       const checksum=digest(artifact);
       await c.query(`INSERT INTO studio.releases(id,site_id,source_hash,artifact_checksum,artifact,provider,status,created_by) VALUES($1,$2,$3,$4,$5::jsonb,$6,'PREPARED',$7)`,[releaseId,siteId,sourceHash,checksum,JSON.stringify(artifact),this.provider.name,actor.id]);
       await c.query(`INSERT INTO studio.command_receipts(id,actor_id,site_id,command,source,idempotency_key,correlation_id,payload_hash,result)
