@@ -20,6 +20,11 @@ function envProvider(feature:AIFeature){return (process.env[`AI_PROVIDER_${featu
 function envModel(feature:AIFeature){return process.env[`AI_MODEL_${feature}`]||'';}
 function envFallbacks(feature:AIFeature){return (process.env[`AI_FALLBACK_MODELS_${feature}`]||'').split(',').map(v=>v.trim()).filter(Boolean);}
 export function approvedModels(provider:string){
+  const configured=AI_FEATURES.map(feature=>process.env[`AI_MODEL_${feature}`]).filter((x):x is string=>!!x);
+  const explicit=(process.env[`STUDIO_APPROVED_${provider.toUpperCase()}_MODELS`]||'').split(',').map(v=>v.trim()).filter(Boolean);
+  return [...new Set([...configured,...explicit])];
+}
+export function approvedModels(provider:string){
   const explicit=(process.env[`STUDIO_APPROVED_${provider.toUpperCase()}_MODELS`]||'').split(',').map(v=>v.trim()).filter(Boolean);
   const configured=AI_FEATURES.filter(feature=>envProvider(feature)===provider).map(feature=>envModel(feature)).filter(Boolean);
   return [...new Set([...explicit,...configured])];
