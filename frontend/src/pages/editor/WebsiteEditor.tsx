@@ -471,9 +471,10 @@ export default function WebsiteEditor() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [activeElementState, setActiveElementState] = useState<ElementState>("normal");
+  const [componentVariantName, setComponentVariantName] = useState("");
 
   // Reusable Components State (F-005)
-  const [components, setComponents] = useState<Record<string, { name: string; element: EditorElement; isFavorite?: boolean }>>(() => {
+  const [components, setComponents] = useState<Record<string, { name: string; element: EditorElement; isFavorite?: boolean; slots?: string[]; variants?: Record<string,{id:string;name:string;element:EditorElement}>; version?: number }>>(() => {
     try {
       const saved = localStorage.getItem("forgestudio_reusable_components");
       if (saved) return JSON.parse(saved);
@@ -573,6 +574,9 @@ export default function WebsiteEditor() {
       [compId]: {
         name: compName,
         element: masterCopy,
+        slots: [],
+        variants: {},
+        version: 1,
       },
     }));
 
@@ -1944,6 +1948,21 @@ export default function WebsiteEditor() {
           if (Array.isArray(loadedSite?.editorData?.globalClasses)) {
             setGlobalClasses(loadedSite.editorData.globalClasses);
           }
+          if (loadedSite?.editorData?.components && typeof loadedSite.editorData.components === "object" && !Array.isArray(loadedSite.editorData.components)) {
+            setComponents((previous) =>
+              Object.fromEntries(Object.entries(loadedSite.editorData.components).map(([id, definition]: [string, any]) => [
+                id,
+                {
+                  name: definition?.name || id,
+                  element: definition?.element || definition?.rootElement,
+                  slots: Array.isArray(definition?.slots) ? definition.slots : [],
+                  variants: definition?.variants && typeof definition.variants === "object" ? definition.variants : {},
+                  version: Number(definition?.version || 1),
+                  isFavorite: previous[id]?.isFavorite || false,
+                },
+              ]).filter(([,definition]: any) => definition.element))
+            );
+          }
         } else {
           // Default empty initialization if completely fresh project
           const defaultHome: PageConfig = {
@@ -2266,6 +2285,13 @@ export default function WebsiteEditor() {
     const canonical404Elements = canvasMode === "404" ? elements : (siteParts.notFound404?.elements || []);
     const canonicalSearchResultsElements = canvasMode === "search-results" ? elements : (siteParts.searchResults?.elements || []);
     const canonicalPageElements = canvasMode === "page" ? elements : (pages.find(p => p.id === activePageId)?.elements || []);
+    const canonicalComponents = Object.fromEntries(Object.entries(components).map(([id, definition]) => [id, {
+      name: definition.name,
+      element: definition.element,
+      slots: definition.slots || [],
+      variants: definition.variants || {},
+      version: definition.version || 1,
+    }]));
 
     const workingDraftSnapshot = {
       version: 1,
@@ -2305,6 +2331,9 @@ export default function WebsiteEditor() {
       deployment,
       breakpoints,
       globalSettings,
+      globalVariables,
+      globalClasses,
+      components: canonicalComponents,
       popups,
       pageCss,
       pageSettings,
@@ -2386,6 +2415,13 @@ export default function WebsiteEditor() {
       const canonical404Elements = canvasMode === "404" ? elements : (siteParts.notFound404?.elements || []);
       const canonicalSearchResultsElements = canvasMode === "search-results" ? elements : (siteParts.searchResults?.elements || []);
       const canonicalPageElements = canvasMode === "page" ? elements : (pages.find(p => p.id === activePageId)?.elements || []);
+      const canonicalComponents = Object.fromEntries(Object.entries(components).map(([id, definition]) => [id, {
+        name: definition.name,
+        element: definition.element,
+        slots: definition.slots || [],
+        variants: definition.variants || {},
+        version: definition.version || 1,
+      }]));
 
       const payload = {
         editorData: {
@@ -2430,6 +2466,7 @@ export default function WebsiteEditor() {
           globalStyles: globalSettings?.globalStyles,
           globalVariables,
           globalClasses,
+          components: canonicalComponents,
           popups,
           pageCss,
           pageSettings,
@@ -9377,6 +9414,50 @@ export default function WebsiteEditor() {
                         </button>
                       </div>
                     </div>
+
+                    {selectedElementAny.componentId && components[selectedElementAny.componentId] && (
+                      <div className="rounded-xl border border-indigo-200 bg-indigo-50/60 p-3 space-y-3">
+                        <div className="text-[11px] font-bold uppercase tracking-wider text-indigo-700">Component Instance</div>
+                        <div className="text-[10px] text-indigo-500">{components[selectedElementAny.componentId].name} · v{components[selectedElementAny.componentId].version || 1}</div>
+                        <label className="block text-[11px] font-semibold text-slate-600">Variant
+                          <select className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs" value={selectedElementAny.componentVariantId || ""}
+                            onChange={(event) => {
+                              const id = event.target.value;
+                              const definition = components[selectedElementAny.componentId];
+                              const variant = definition?.variants?.[id];
+                              if (!variant) { updateSelectedProp("componentVariantId", undefined); return; }
+                              setElements((previous) => updateTreeElement(previous, selectedElementAny.id, (current) => ({
+                                ...JSON.parse(JSON.stringify(variant.element)),
+                                id: current.id,
+                                componentId: current.componentId,
+                                componentName: current.componentName,
+                                isComponent: true,
+                                componentVariantId: id,
+                              })));
+                            }}>
+                            <option value="">Default</option>
+                            {Object.values(components[selectedElementAny.componentId].variants || {}).map((variant) => <option key={variant.id} value={variant.id}>{variant.name}</option>)}
+                          </select>
+                        </label>
+                        <div className="flex gap-2">
+                          <input className="min-w-0 flex-1 rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs" value={componentVariantName} onChange={e=>setComponentVariantName(e.target.value)} placeholder="New variant name"/>
+                          <button type="button" className="rounded-lg bg-indigo-600 px-2.5 py-1.5 text-[11px] font-bold text-white disabled:opacity-50" disabled={!componentVariantName.trim()} onClick={()=>{
+                            const name=componentVariantName.trim(),variantId="variant_"+Math.random().toString(36).slice(2,9),snapshot=JSON.parse(JSON.stringify(selectedElementAny));
+                            setComponents(previous=>{
+                              const definition=previous[selectedElementAny.componentId];if(!definition)return previous;
+                              return {...previous,[selectedElementAny.componentId]:{...definition,version:(definition.version||1)+1,variants:{...(definition.variants||{}),[variantId]:{id:variantId,name,element:snapshot}}}};
+                            });
+                            updateSelectedProp("componentVariantId",variantId);setComponentVariantName("");
+                          }}>Save variant</button>
+                        </div>
+                        <label className="block text-[11px] font-semibold text-slate-600">Slot name
+                          <input className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs" value={selectedElementAny.componentSlotName || ""} placeholder="e.g. headline" onChange={e=>{
+                            const value=e.target.value.replace(/[^a-zA-Z0-9_-]/g,"").slice(0,80);updateSelectedProp("componentSlotName",value||undefined);
+                            if(value)setComponents(previous=>{const definition=previous[selectedElementAny.componentId];if(!definition)return previous;return {...previous,[selectedElementAny.componentId]:{...definition,slots:Array.from(new Set([...(definition.slots||[]),value]))}};});
+                          }}/>
+                        </label>
+                      </div>
+                    )}
 
                     {websiteId && ["heading","text","paragraph","image","button"].includes(selectedElementAny.type) && (
                       <CmsBindingInspector
