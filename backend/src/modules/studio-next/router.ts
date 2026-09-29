@@ -23,6 +23,8 @@ import { CodeComponents,configuredCodeSandboxProvider,type CodeSandboxProvider }
 import { observeStudioRequests } from './observability.js';
 import { EnterpriseIdentity,type OidcTransport,type SecretResolver } from './enterprise.js';
 import { configuredExternalPublishingProvider } from './cloud-publishing.js';
+import { Blog } from './blog.js';
+import { Personalization } from './personalization.js';
 import { StudioError,parse,localeCode } from './validation.js';
 import { trustedOrigin } from '../studio/domain.js';
 import { AUTH_COOKIE_NAME,AUTH_COOKIE_OPTIONS } from '../../config/auth.js';
@@ -36,7 +38,7 @@ export function configuredCommerce():CommerceConfig{
 }
 export function createStudioNextRouter(db:Database,options:RouterOptions={}){
   const router=express.Router();
-  const commands=new DomainCommands(db),workspaces=new Workspaces(db),featurePolicy=new FeaturePolicy(db),aiGovernance=new AiGovernance(db),webhooks=new Webhooks(db,options.webhooks??configuredWebhookConfig()),cms=new Cms(db,webhooks),cmsCommands=new CmsCommands(db,cms),design=new Design(db,commands),localization=new Localization(db),reviews=new Collaboration(db),domains=new Domains(db,options.resolveTxt),analytics=new Analytics(db,options.analyticsSecret??process.env.STUDIO_ANALYTICS_SECRET),commerce=new Commerce(db,options.commerce??configuredCommerce()),permissions=new Permissions(db),releases=new Releases(db,configuredExternalPublishingProvider()??undefined,webhooks),ai=new AiOrchestrator(db,commands,options.aiProvider===undefined?databaseConfiguredProvider(db,'COPY'):options.aiProvider,options.aiProvider===undefined?databaseConfiguredProvider(db,'EDITOR'):options.aiProvider,options.aiProvider===undefined?databaseConfiguredProvider(db,'PLANNER'):options.aiProvider,options.aiProvider===undefined?databaseConfiguredProvider(db,'EDITOR'):options.aiProvider,cmsCommands,featurePolicy,aiGovernance),seoAi=new AiSeo(db,options.aiProvider===undefined?databaseConfiguredProvider(db,'COPY'):options.aiProvider,featurePolicy,aiGovernance),agentTools=new AgentTools(db,commands,cmsCommands,releases,featurePolicy),assets=new Assets(db,featurePolicy,aiGovernance,options.imageProvider===undefined?undefined:options.imageProvider),codeComponents=new CodeComponents(db,options.aiProvider===undefined?databaseConfiguredProvider(db,'CODE'):options.aiProvider,options.codeSandbox===undefined?configuredCodeSandboxProvider():options.codeSandbox,featurePolicy,aiGovernance),enterprise=new EnterpriseIdentity(db,options.oidcTransport,options.oidcSecretResolver);
+  const commands=new DomainCommands(db),workspaces=new Workspaces(db),featurePolicy=new FeaturePolicy(db),aiGovernance=new AiGovernance(db),webhooks=new Webhooks(db,options.webhooks??configuredWebhookConfig()),cms=new Cms(db,webhooks),cmsCommands=new CmsCommands(db,cms),design=new Design(db,commands),localization=new Localization(db),reviews=new Collaboration(db),domains=new Domains(db,options.resolveTxt),analytics=new Analytics(db,options.analyticsSecret??process.env.STUDIO_ANALYTICS_SECRET),commerce=new Commerce(db,options.commerce??configuredCommerce()),permissions=new Permissions(db),releases=new Releases(db,configuredExternalPublishingProvider()??undefined,webhooks),ai=new AiOrchestrator(db,commands,options.aiProvider===undefined?databaseConfiguredProvider(db,'COPY'):options.aiProvider,options.aiProvider===undefined?databaseConfiguredProvider(db,'EDITOR'):options.aiProvider,options.aiProvider===undefined?databaseConfiguredProvider(db,'PLANNER'):options.aiProvider,options.aiProvider===undefined?databaseConfiguredProvider(db,'EDITOR'):options.aiProvider,cmsCommands,featurePolicy,aiGovernance),seoAi=new AiSeo(db,options.aiProvider===undefined?databaseConfiguredProvider(db,'COPY'):options.aiProvider,featurePolicy,aiGovernance),agentTools=new AgentTools(db,commands,cmsCommands,releases,featurePolicy),assets=new Assets(db,featurePolicy,aiGovernance,options.imageProvider===undefined?undefined:options.imageProvider),codeComponents=new CodeComponents(db,options.aiProvider===undefined?databaseConfiguredProvider(db,'CODE'):options.aiProvider,options.codeSandbox===undefined?configuredCodeSandboxProvider():options.codeSandbox,featurePolicy,aiGovernance),enterprise=new EnterpriseIdentity(db,options.oidcTransport,options.oidcSecretResolver),blog=new Blog(db),personalization=new Personalization(db,featurePolicy);
   router.use(observeStudioRequests,(_req,res,next)=>{res.setHeader('Cache-Control','no-store');next();});
   type Run=(req:Request,actor:Actor)=>Promise<Record<string,unknown>>;
   const route=(run:Run,status=200):RequestHandler=>async(req,res,next)=>{try{res.status(status).json({success:true,...await run(req,res.locals.actor)});}catch(e){next(e);}};
@@ -87,6 +89,13 @@ export function createStudioNextRouter(db:Database,options:RouterOptions={}){
   publicRouter.get('/sites/:siteId/analytics',route(req=>analytics.publicConfig(p(req,'siteId'))));
   publicRouter.post('/sites/:siteId/assignment',route(req=>analytics.assignment(p(req,'siteId'),req.body)));
   publicRouter.post('/sites/:siteId/events',route(req=>analytics.track(p(req,'siteId'),req.body),202));
+  publicRouter.post('/sites/:siteId/personalization',route(req=>personalization.evaluate(p(req,'siteId'),req.body)));
+  publicRouter.get('/sites/:siteId/blog/search',route(req=>blog.search(p(req,'siteId'),req.query)));
+  publicRouter.get('/sites/:siteId/blog/posts/:slug',route(req=>blog.post(p(req,'siteId'),p(req,'slug'),parse(localeCode,req.query.locale??'en'))));
+  publicRouter.get('/sites/:siteId/blog/authors/:slug',route(req=>blog.author(p(req,'siteId'),p(req,'slug'),parse(localeCode,req.query.locale??'en'))));
+  publicRouter.get('/sites/:siteId/blog/categories/:slug',route(req=>blog.category(p(req,'siteId'),p(req,'slug'),parse(localeCode,req.query.locale??'en'))));
+  publicRouter.get('/sites/:siteId/blog/rss.xml',async(req,res,next)=>{try{res.type('application/rss+xml').send(await blog.feed(p(req,'siteId'),parse(localeCode,req.query.locale??'en')));}catch(error){next(error);}});
+  publicRouter.get('/sites/:siteId/blog/sitemap.xml',async(req,res,next)=>{try{res.type('application/xml').send(await blog.sitemap(p(req,'siteId'),parse(localeCode,req.query.locale??'en')));}catch(error){next(error);}});
   router.use('/public',publicRouter);
   router.use(db.auth(),originGuard,rateLimit({windowMs:60000,limit:options.requestLimit??360,keyGenerator:(_req:Request,res:Response)=>res.locals.actor.id,standardHeaders:true,legacyHeaders:false}));
   router.get('/workspaces/:workspaceId/enterprise-identity',route((req,a)=>enterprise.get(a,p(req,'workspaceId'))));
@@ -118,6 +127,14 @@ export function createStudioNextRouter(db:Database,options:RouterOptions={}){
   router.post('/sites/:siteId/ai/seo/propose',route((req,a)=>seoAi.propose(a,p(req,'siteId'),req.body),201));
   router.post('/sites/:siteId/ai/changes/:changeSetId/apply',route((req,a)=>ai.apply(a,p(req,'siteId'),p(req,'changeSetId'))));
   router.post('/sites/:siteId/ai/changes/:changeSetId/reject',route((req,a)=>ai.reject(a,p(req,'siteId'),p(req,'changeSetId'))));
+  router.get('/sites/:siteId/blog',route((req,a)=>blog.status(a,p(req,'siteId'))));
+  router.post('/sites/:siteId/blog/setup',route((req,a)=>blog.setup(a,p(req,'siteId')),201));
+  router.get('/sites/:siteId/blog/preview/:slug',route((req,a)=>blog.preview(a,p(req,'siteId'),p(req,'slug'),parse(localeCode,req.query.locale??'en'))));
+  router.get('/sites/:siteId/personalization',route((req,a)=>personalization.list(a,p(req,'siteId'))));
+  router.post('/sites/:siteId/personalization',route((req,a)=>personalization.create(a,p(req,'siteId'),req.body),201));
+  router.put('/sites/:siteId/personalization/:ruleId',route((req,a)=>personalization.update(a,p(req,'siteId'),p(req,'ruleId'),req.body)));
+  router.patch('/sites/:siteId/personalization/:ruleId/state',route((req,a)=>personalization.state(a,p(req,'siteId'),p(req,'ruleId'),req.body)));
+  router.delete('/sites/:siteId/personalization/:ruleId',route((req,a)=>personalization.remove(a,p(req,'siteId'),p(req,'ruleId'))));
   router.get('/sites/:siteId/collections',route((req,a)=>cms.collections(a,p(req,'siteId'))));
   router.post('/sites/:siteId/collections',route((req,a)=>cmsCommands.createCollection(a,p(req,'siteId'),req.body,{source:'HUMAN'}),201));
   router.put('/sites/:siteId/collections/:collectionId',route((req,a)=>cms.saveCollection(a,p(req,'siteId'),req.body,p(req,'collectionId'))));
