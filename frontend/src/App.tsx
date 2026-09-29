@@ -30,6 +30,7 @@ const WorkspacePeople = lazy(() => import("./features/studio-next/WorkspacePeopl
 const InvitationsPage = lazy(() => import("./features/studio-next/WorkspacePeople").then(m => ({ default: m.InvitationsPage })));
 const PublicContent = lazy(() => import("./features/studio-next/PublicContent"));
 const PublicShop = lazy(() => import("./features/studio-next/PublicShop"));
+const PublicBlog = lazy(() => import("./features/studio-next/PublicBlog"));
 
 interface RoleRouteProps {
   allowedRoles: UserRole[];
@@ -258,6 +259,8 @@ function App() {
           <Route path="/content/:siteId/:collectionSlug" element={<PublicContent />} />
           <Route path="/content/:siteId/:collectionSlug/:itemSlug" element={<PublicContent />} />
           <Route path="/shop/:siteId" element={<PublicShop />} />
+          <Route path="/blog/:siteId" element={<PublicBlog />} />
+          <Route path="/blog/:siteId/:postSlug" element={<PublicBlog />} />
 
           {/* ================= ROOT ================= */}
 
