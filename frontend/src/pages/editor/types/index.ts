@@ -34,7 +34,7 @@ export type ElementType =
   | "google-calendar" | "paypal" | "stripe" | "wordpress-shortcode"
   | "dynamic-data" | "lms-compat" | "crm-integration" | "webhook-integration"
   | "link-in-bio" | "image-box" | "icon-box" | "icon-list" | "query-builder" | "display-conditions"
-  | "nested-tabs" | "nested-accordion"
+  | "nested-tabs" | "nested-accordion" | "code-component"
   | "acf-integration" | "toolset-integration" | "pods-integration" | "gutenberg-blocks" | "multisite-support";
 
 export interface SiteProduct {
@@ -796,6 +796,9 @@ export interface EditorElement {
   type: ElementType;
   content: string;
   cmsBinding?: { collectionId: string; field: string; target: "content" | "src" | "alt" | "href"; itemSlug?: string };
+  sandboxUrl?: string;
+  sandboxArtifactId?: string;
+  codeSourceHash?: string;
   isProtected?: boolean;
   src?: string;
   alt?: string;
