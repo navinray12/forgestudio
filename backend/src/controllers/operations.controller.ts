@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import { getAIInfrastructure,setAIInfrastructureRoute } from "../modules/studio-next/ai-control.js";
+import { studioMetricsSnapshot } from "../modules/studio-next/observability.js";
 import {
   getSystemHealth,
   getOperationalAlerts,
@@ -291,4 +292,10 @@ export async function updateAdminAIRouteHandler(req: Request, res: Response, nex
     const data = await setAIInfrastructureRoute(adminUser.id, req.body);
     return res.status(200).json({ success: true, data, message: "AI routing policy updated" });
   } catch (err) { next(err); }
+}
+
+
+export async function getAdminStudioObservabilityHandler(_req: Request, res: Response, next: NextFunction) {
+  try { return res.status(200).json({ success: true, data: studioMetricsSnapshot() }); }
+  catch (err) { next(err); }
 }
