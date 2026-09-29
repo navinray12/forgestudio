@@ -10,6 +10,10 @@ export interface MediaAssetItem {
   width?: number | null;
   height?: number | null;
   altText?: string | null;
+  provenance?: "UPLOADED" | "GENERATED" | "IMPORTED";
+  providerName?: string | null;
+  modelId?: string | null;
+  generatedAt?: string | null;
   createdAt: string;
 }
 
@@ -33,12 +37,25 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [altTextInput, setAltTextInput] = useState("");
   const [savingAlt, setSavingAlt] = useState(false);
-  const [activeTab, setActiveTab] = useState<"library" | "upload">("library");
+  const [activeTab, setActiveTab] = useState<"library" | "upload" | "generate">("library");
+  const [generationStatus, setGenerationStatus] = useState<{enabled:boolean;configured:boolean;route?:{provider:string;model:string}|null}|null>(null);
+  const [generating, setGenerating] = useState(false);
+  const [generationError, setGenerationError] = useState("");
+  const [generationPrompt, setGenerationPrompt] = useState("");
+  const [generationAlt, setGenerationAlt] = useState("");
+  const [generationSize, setGenerationSize] = useState("1024x1024");
+  const [generationQuality, setGenerationQuality] = useState("auto");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isOpen) {
       fetchMediaAssets();
+      if (websiteId) {
+        fetch(`/api/v1/studio-next/sites/${websiteId}/assets/generation-status`, { credentials: "include" })
+          .then(async res => res.ok ? res.json() : null)
+          .then(data => setGenerationStatus(data))
+          .catch(() => setGenerationStatus(null));
+      }
     }
   }, [isOpen, websiteId]);
 
@@ -102,6 +119,38 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
       console.error("Upload error:", err);
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleGenerateImage = async () => {
+    if (!websiteId || !generationPrompt.trim()) return;
+    setGenerating(true);
+    setGenerationError("");
+    try {
+      const res = await fetch(`/api/v1/studio-next/sites/${websiteId}/assets/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Studio-Request": "1" },
+        credentials: "include",
+        body: JSON.stringify({
+          prompt: generationPrompt.trim(),
+          altText: generationAlt.trim() || undefined,
+          size: generationSize,
+          quality: generationQuality,
+          outputFormat: "png",
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error?.message || "Image generation failed.");
+      if (!data.asset) throw new Error("Image provider returned no persisted asset.");
+      setAssets(prev => [data.asset, ...prev.filter(a => a.id !== data.asset.id)]);
+      setSelectedAsset(data.asset);
+      setGenerationPrompt("");
+      setGenerationAlt("");
+      setActiveTab("library");
+    } catch (err) {
+      setGenerationError(err instanceof Error ? err.message : "Image generation failed.");
+    } finally {
+      setGenerating(false);
     }
   };
 
@@ -243,6 +292,23 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
               >
                 Upload New
               </button>
+              <button
+                style={{
+                  padding: "6px 14px",
+                  borderRadius: "4px",
+                  border: "none",
+                  fontSize: "13px",
+                  cursor: websiteId ? "pointer" : "not-allowed",
+                  backgroundColor: activeTab === "generate" ? "#7c3aed" : "transparent",
+                  color: activeTab === "generate" ? "#fff" : "#a1a1aa",
+                  fontWeight: 500,
+                  opacity: websiteId ? 1 : 0.5,
+                }}
+                disabled={!websiteId}
+                onClick={() => setActiveTab("generate")}
+              >
+                Generate with AI
+              </button>
             </div>
           </div>
           <button
@@ -261,7 +327,43 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
         </div>
 
         {/* Content Body */}
-        {activeTab === "upload" ? (
+        {activeTab === "generate" ? (
+          <div style={{ flex: 1, padding: "40px", overflowY: "auto" }}>
+            <div style={{ maxWidth: "680px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "18px" }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: "18px" }}>Generate an image</h3>
+                <p style={{ margin: "6px 0 0", color: "#a1a1aa", fontSize: "13px" }}>
+                  Generated images are saved into this site's asset library with provider/model provenance.
+                </p>
+              </div>
+              {generationStatus && !generationStatus.configured && (
+                <div style={{ padding: "12px", border: "1px solid #7f1d1d", background: "#450a0a66", borderRadius: "8px", color: "#fecaca", fontSize: "12px" }}>
+                  {generationStatus.enabled ? "AI image generation is not configured by the platform administrator." : "AI image generation is disabled for this site."}
+                </div>
+              )}
+              <label style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "12px", color: "#d4d4d8" }}>
+                Image prompt
+                <textarea rows={6} maxLength={4000} value={generationPrompt} onChange={e=>setGenerationPrompt(e.target.value)}
+                  placeholder="Describe the image you want to generate..." style={{ padding: "12px", background: "#18181b", border: "1px solid #3f3f46", borderRadius: "8px", color: "white", resize: "vertical" }}/>
+              </label>
+              <label style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "12px", color: "#d4d4d8" }}>
+                Alt text
+                <input maxLength={500} value={generationAlt} onChange={e=>setGenerationAlt(e.target.value)} placeholder="Accessible description for the generated image"
+                  style={{ padding: "10px 12px", background: "#18181b", border: "1px solid #3f3f46", borderRadius: "8px", color: "white" }}/>
+              </label>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                <label style={{ fontSize: "12px", color: "#d4d4d8" }}>Size<select value={generationSize} onChange={e=>setGenerationSize(e.target.value)} style={{ width:"100%", marginTop:6, padding:10, background:"#18181b", border:"1px solid #3f3f46", borderRadius:8, color:"white" }}><option value="1024x1024">Square · 1024×1024</option><option value="1024x1536">Portrait · 1024×1536</option><option value="1536x1024">Landscape · 1536×1024</option><option value="auto">Auto</option></select></label>
+                <label style={{ fontSize: "12px", color: "#d4d4d8" }}>Quality<select value={generationQuality} onChange={e=>setGenerationQuality(e.target.value)} style={{ width:"100%", marginTop:6, padding:10, background:"#18181b", border:"1px solid #3f3f46", borderRadius:8, color:"white" }}><option value="auto">Auto</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select></label>
+              </div>
+              {generationError && <div role="alert" style={{ color:"#fecaca", background:"#450a0a66", border:"1px solid #7f1d1d", borderRadius:8, padding:12, fontSize:12 }}>{generationError}</div>}
+              <button type="button" onClick={handleGenerateImage} disabled={generating||!generationPrompt.trim()||generationStatus?.configured===false}
+                style={{ padding:"12px 18px", border:0, borderRadius:8, background:"#7c3aed", color:"white", fontWeight:700, cursor:"pointer", opacity:(generating||!generationPrompt.trim()||generationStatus?.configured===false)?0.5:1 }}>
+                {generating ? "Generating and saving..." : "Generate image"}
+              </button>
+              {generationStatus?.route && <p style={{ margin:0, fontSize:11, color:"#71717a" }}>Route: {generationStatus.route.provider} · {generationStatus.route.model}</p>}
+            </div>
+          </div>
+        ) : activeTab === "upload" ? (
           <div
             style={{
               flex: 1,
@@ -496,6 +598,10 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
                     </div>
                     <div style={{ color: "#a1a1aa", fontSize: "11px" }}>
                       Type: {selectedAsset.mimeType}
+                    </div>
+                    <div style={{ color: "#a1a1aa", fontSize: "11px" }}>
+                      Provenance: {selectedAsset.provenance || "UPLOADED"}
+                      {selectedAsset.provenance === "GENERATED" && selectedAsset.providerName ? ` · ${selectedAsset.providerName}${selectedAsset.modelId ? " / " + selectedAsset.modelId : ""}` : ""}
                     </div>
                   </div>
 
