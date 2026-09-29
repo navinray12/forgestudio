@@ -41,7 +41,7 @@ else {
     d=await send('GET',`/sites/${s}/design`);assert.deepEqual(d.website.editorData.elements[0].cmsBinding,{collectionId:collection.id,field:'title',target:'content'});
     await send('POST',`/sites/${s}/design/commands`,{baseHash:d.hash,operationId:randomUUID(),commands:[{type:'SET_CMS_BINDING',elementId:'bound-heading',binding:{collectionId:collection.id,field:'image',target:'content'}}]},400);
     const other=await site(pool,user,{version:1,elements:[]},'DRAFT'),foreign=await send('POST',`/sites/${other}/collections`,{name:'Foreign',slug:'foreign',fields:[{key:'title',name:'Title',type:'TEXT',required:true}]},201);
-    await send('POST',`/sites/${s}/design/commands`,{baseHash:d.hash,operationId:randomUUID(),commands:[{type:'SET_CMS_BINDING',elementId:'bound-heading',binding:{collectionId:foreign.id,field:'title',target:'content'}}]},404);
+    await send('POST',`/sites/${s}/design/commands`,{baseHash:d.hash,operationId:randomUUID(),commands:[{type:'SET_CMS_BINDING',elementId:'bound-heading',binding:{collectionId:foreign.id,field:'title',target:'content'}}]},400);
   });
   test('structured interaction rules are validated and stored through the shared Designer command path',async()=>{
     const s=await site(pool,user,{version:1,elements:[{id:'interactive-button',type:'button',content:'Open'}]},'DRAFT');let d=await send('GET',`/sites/${s}/design`);
