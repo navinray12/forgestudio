@@ -31,6 +31,7 @@ const designCommand=z.discriminatedUnion('type',[
   z.object({type:z.literal('REORDER_PAGES'),pageIds:z.array(stableId).min(1).max(200)}).strict(),
   z.object({type:z.literal('SET_HOME_PAGE'),pageId:stableId}).strict(),
   z.object({type:z.literal('SET_DESIGN_SYSTEM'),variables:z.array(z.record(z.string(),z.unknown())).max(250),classes:z.array(z.record(z.string(),z.unknown())).max(250)}).strict(),
+  z.object({type:z.literal('SET_CMS_BINDING'),elementId:stableId,binding:z.object({collectionId:uuid,field:z.string().regex(/^[a-z][a-z0-9_]{0,79}$/),target:z.enum(['content','src','alt','href']),itemSlug:z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(160).optional()}).strict().nullable()}).strict(),
 ]);
 const commandBatch=z.object({
   baseHash:z.string().regex(/^[a-f0-9]{64}$/),
@@ -178,9 +179,34 @@ function applyDesignCommands(design:Record<string,unknown>,commands:DesignComman
     } else if(command.type==='SET_DESIGN_SYSTEM'){
       if(command.variables.some(v=>typeof v.id!=='string')||command.classes.some(v=>typeof v.id!=='string'))throw new StudioError('Design-system entries require stable IDs',400,'INVALID_DESIGN_SYSTEM');
       next.globalVariables=validateVariables(command.variables);next.globalClasses=validateClasses(command.classes);
+    } else if(command.type==='SET_CMS_BINDING'){
+      const matches=findNodes(next,command.elementId);if(matches.length!==1)throw new StudioError('Element target is missing or ambiguous',409,'ELEMENT_NOT_UNIQUE');
+      if(command.binding===null)delete matches[0].cmsBinding;else matches[0].cmsBinding=cloneJson(command.binding);
     }
   }
   collectIds(next);return next;
+}
+
+const cmsBindingSchema=z.object({collectionId:uuid,field:z.string().regex(/^[a-z][a-z0-9_]{0,79}$/),target:z.enum(['content','src','alt','href']),itemSlug:z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(160).optional()}).strict();
+function collectCmsBindings(value:any,result:Array<{elementId:string;binding:z.infer<typeof cmsBindingSchema>}>=[]){
+  if(!value||typeof value!=='object')return result;
+  if(typeof value.id==='string'&&value.cmsBinding!==undefined)result.push({elementId:value.id,binding:parse(cmsBindingSchema,value.cmsBinding)});
+  for(const child of Object.values(value))collectCmsBindings(child,result);
+  if(result.length>500)throw new StudioError('Design exceeds CMS binding limit',400,'CMS_BINDING_LIMIT');
+  return result;
+}
+async function validateCmsBindings(c:any,siteId:string,design:any){
+  const bindings=collectCmsBindings(design);if(!bindings.length)return;
+  const ids=[...new Set(bindings.map(x=>x.binding.collectionId))];
+  const rows=await c.query('SELECT id,fields FROM studio.collections WHERE site_id=$1 AND id=ANY($2::uuid[])',[siteId,ids]);
+  if(rows.rowCount!==ids.length)throw new StudioError('CMS binding references a collection outside this site or a missing collection',400,'INVALID_CMS_BINDING');
+  const map=new Map(rows.rows.map((row:any)=>[row.id,Array.isArray(row.fields)?row.fields:[]]));
+  for(const entry of bindings){
+    const field=(map.get(entry.binding.collectionId)||[]).find((f:any)=>f?.key===entry.binding.field);
+    if(!field)throw new StudioError(`CMS binding field ${entry.binding.field} does not exist`,400,'INVALID_CMS_BINDING');
+    const allowed=entry.binding.target==='src'?['IMAGE','URL']:entry.binding.target==='href'?['URL','TEXT','EMAIL']:entry.binding.target==='alt'?['TEXT']:['TEXT','RICH_TEXT','NUMBER','BOOLEAN','DATE','EMAIL','URL','COLOR','OPTION'];
+    if(!allowed.includes(String(field.type)))throw new StudioError('CMS field type is incompatible with the selected element property',400,'INVALID_CMS_BINDING');
+  }
 }
 
 export class DomainCommands {
@@ -231,6 +257,7 @@ export class DomainCommands {
       }
       if(incoming.elements!==undefined&&!Array.isArray(incoming.elements))throw new StudioError('Elements must be an array');
       if(incoming.pages!==undefined&&(!Array.isArray(incoming.pages)||incoming.pages.some((p:any)=>!p||typeof p.id!=='string'||!Array.isArray(p.elements))))throw new StudioError('Each page needs an ID and an elements array');
+      await validateCmsBindings(c,siteId,incoming);
       const updated={...site.editorData,...incoming},result={hash:digest(incoming)};
       await c.query('UPDATE public.websites SET "editorData"=$2::jsonb,"updatedAt"=now() WHERE id=$1',[siteId,JSON.stringify(updated)]);
       await c.query(`INSERT INTO studio.command_receipts(id,actor_id,site_id,command,source,idempotency_key,correlation_id,payload_hash,result)
