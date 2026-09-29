@@ -37,6 +37,8 @@ export async function install(pool:pg.Pool){
   if(!governance.rows[0].name)await pool.query(await readFile(new URL('../../prisma/migrations/20260928250000_studio_governance/migration.sql',import.meta.url),'utf8'));
   const analyticsEvents=await pool.query("SELECT column_name FROM information_schema.columns WHERE table_schema='studio' AND table_name='analytics_events' AND column_name='attributes'");
   if(!analyticsEvents.rowCount)await pool.query(await readFile(new URL('../../prisma/migrations/20260928260000_studio_analytics_events/migration.sql',import.meta.url),'utf8'));
+  const aiRoutes=await pool.query("SELECT to_regclass('studio.ai_model_routes') AS name");
+  if(!aiRoutes.rows[0].name)await pool.query(await readFile(new URL('../../prisma/migrations/20260928270000_studio_ai_control_plane/migration.sql',import.meta.url),'utf8'));
 }
 export type TestActor=Actor&{token:string};
 export async function actor(pool:pg.Pool,overrides:Partial<Actor>={},status='ACTIVE'):Promise<TestActor>{
