@@ -199,6 +199,32 @@ export class Cms {
       await this.db.audit(c,actor,site,'cms.revision_restored',item.name);return {revision:item.revision+1};
     });
   }
+  async resolveBindings(siteId:string,locale:string,input:unknown){
+    parse(uuid,siteId);parse(localeCode,locale);
+    const body=parse(z.object({bindings:z.array(z.object({elementId:z.string().min(1).max(150),collectionId:uuid,field:z.string().regex(/^[a-z][a-z0-9_]{0,79}$/),target:z.enum(['content','src','alt','href']),itemSlug:slug.optional()}).strict()).min(1).max(100)}).strict(),input);
+    const site=await this.db.pool.query(`SELECT 1 FROM public.websites w JOIN studio.site_locales l ON l.site_id=w.id AND l.code=$2 WHERE w.id=$1 AND w.status='PUBLISHED' AND l.enabled`,[siteId,locale]);
+    if(!site.rowCount)throw new StudioError('Site or locale not published',404,'NOT_FOUND');
+    const values:Record<string,Record<string,unknown>>={};
+    for(const binding of body.bindings){
+      const row=await this.db.pool.query(`SELECT c.fields AS schema,i.live FROM studio.collections c
+        LEFT JOIN LATERAL (
+          SELECT live FROM studio.content_items
+          WHERE site_id=$1 AND collection_id=c.id AND locale=$2 AND live IS NOT NULL AND NOT archived
+            AND ($4::text IS NULL OR live->>'slug'=$4)
+          ORDER BY published_at DESC,id LIMIT 1
+        ) i ON true
+        WHERE c.site_id=$1 AND c.id=$3`,[siteId,locale,binding.collectionId,binding.itemSlug||null]);
+      if(!row.rows[0])throw new StudioError('CMS binding collection not found',404,'NOT_FOUND');
+      const field=(Array.isArray(row.rows[0].schema)?row.rows[0].schema:[]).find((f:any)=>f?.key===binding.field);
+      if(!field)throw new StudioError('CMS binding field not found',404,'NOT_FOUND');
+      const live=row.rows[0].live,value=live?.fields?.[binding.field];
+      if(value===undefined||value===null)continue;
+      if(!values[binding.elementId])values[binding.elementId]={};
+      values[binding.elementId][binding.target]=value;
+    }
+    return {values};
+  }
+
   async publicItems(siteId:string,collectionSlug:string,locale='en',itemSlug?:string){
     parse(uuid,siteId);parse(slug,collectionSlug);parse(localeCode,locale);
     const r=await this.db.pool.query(`SELECT i.live,c.name AS "collectionName",c.fields AS schema FROM studio.content_items i JOIN studio.collections c ON c.id=i.collection_id
