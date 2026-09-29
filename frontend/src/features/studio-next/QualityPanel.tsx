@@ -1,10 +1,11 @@
+import {useState} from 'react';
 import {useData,useMutation,Feedback} from './api';
 import type {PanelProps} from './types';
 
 export default function QualityPanel({site,refresh}:PanelProps){
-  const base=`/sites/${site.id}/quality`,state=useData(base,refresh),visual=useMutation(()=>{});
-  async function runVisual(){await visual.send(`${base}?visual=true`,'GET',undefined,'Visual validation completed');}
-  const findings=[...(state.data?.deterministic??[]),...(visual.data?.visual?.findings??[])];
+  const base=`/sites/${site.id}/quality`,state=useData(base,refresh),visual=useMutation(()=>{}),[visualResult,setVisualResult]=useState<any>(null);
+  async function runVisual(){const result=await visual.send(`${base}?visual=true`,'GET',undefined,'Visual validation completed');if(result)setVisualResult(result);}
+  const findings=[...(state.data?.deterministic??[]),...(visualResult?.visual?.findings??[])];
   return <section><div className="sn-section-heading"><div><h2>Quality</h2><p>Release checks against the canonical design, with optional isolated browser validation at desktop, tablet and phone widths.</p></div><button className="sn-button sn-primary" onClick={runVisual} disabled={visual.busy||state.data?.visual?.configured===false}>Run visual validation</button></div>
     <Feedback state={state}/><Feedback state={visual}/>
     {state.data?.visual?.configured===false&&<div className="sn-banner">Isolated screenshot validation is not configured. Set the backend visual-QA provider to enable 1440, 1024, 768, 390 and 360px browser checks. Deterministic release checks still run.</div>}
