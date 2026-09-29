@@ -200,7 +200,7 @@ async function validateCmsBindings(c:any,siteId:string,design:any){
   const ids=[...new Set(bindings.map(x=>x.binding.collectionId))];
   const rows=await c.query('SELECT id,fields FROM studio.collections WHERE site_id=$1 AND id=ANY($2::uuid[])',[siteId,ids]);
   if(rows.rowCount!==ids.length)throw new StudioError('CMS binding references a collection outside this site or a missing collection',400,'INVALID_CMS_BINDING');
-  const map=new Map(rows.rows.map((row:any)=>[row.id,Array.isArray(row.fields)?row.fields:[]]));
+  const map=new Map<string,any[]>(rows.rows.map((row:any)=>[String(row.id),Array.isArray(row.fields)?row.fields:[]]));
   for(const entry of bindings){
     const field=(map.get(entry.binding.collectionId)||[]).find((f:any)=>f?.key===entry.binding.field);
     if(!field)throw new StudioError(`CMS binding field ${entry.binding.field} does not exist`,400,'INVALID_CMS_BINDING');
