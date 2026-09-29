@@ -21,6 +21,7 @@ import { AgentTools } from './agent-tools.js';
 import { Assets,type ImageGenerationProvider } from './assets.js';
 import { CodeComponents,configuredCodeSandboxProvider,type CodeSandboxProvider } from './code-components.js';
 import { observeStudioRequests } from './observability.js';
+import { EnterpriseIdentity } from './enterprise.js';
 import { StudioError,parse,localeCode } from './validation.js';
 import { trustedOrigin } from '../studio/domain.js';
 export interface RouterOptions { commerce?:CommerceConfig;analyticsSecret?:string;resolveTxt?:TxtResolver;requestLimit?:number;aiProvider?:AIProvider|null;imageProvider?:ImageGenerationProvider|null;codeSandbox?:CodeSandboxProvider|null;webhooks?:WebhookConfig }
@@ -33,7 +34,7 @@ export function configuredCommerce():CommerceConfig{
 }
 export function createStudioNextRouter(db:Database,options:RouterOptions={}){
   const router=express.Router();
-  const commands=new DomainCommands(db),workspaces=new Workspaces(db),featurePolicy=new FeaturePolicy(db),aiGovernance=new AiGovernance(db),webhooks=new Webhooks(db,options.webhooks??configuredWebhookConfig()),cms=new Cms(db,webhooks),cmsCommands=new CmsCommands(db,cms),design=new Design(db,commands),localization=new Localization(db),reviews=new Collaboration(db),domains=new Domains(db,options.resolveTxt),analytics=new Analytics(db,options.analyticsSecret??process.env.STUDIO_ANALYTICS_SECRET),commerce=new Commerce(db,options.commerce??configuredCommerce()),permissions=new Permissions(db),releases=new Releases(db,undefined,webhooks),ai=new AiOrchestrator(db,commands,options.aiProvider===undefined?databaseConfiguredProvider(db,'COPY'):options.aiProvider,options.aiProvider===undefined?databaseConfiguredProvider(db,'EDITOR'):options.aiProvider,options.aiProvider===undefined?databaseConfiguredProvider(db,'PLANNER'):options.aiProvider,options.aiProvider===undefined?databaseConfiguredProvider(db,'EDITOR'):options.aiProvider,cmsCommands,featurePolicy,aiGovernance),seoAi=new AiSeo(db,options.aiProvider===undefined?databaseConfiguredProvider(db,'COPY'):options.aiProvider,featurePolicy,aiGovernance),agentTools=new AgentTools(db,commands,cmsCommands,releases,featurePolicy),assets=new Assets(db,featurePolicy,aiGovernance,options.imageProvider===undefined?undefined:options.imageProvider),codeComponents=new CodeComponents(db,options.aiProvider===undefined?databaseConfiguredProvider(db,'CODE'):options.aiProvider,options.codeSandbox===undefined?configuredCodeSandboxProvider():options.codeSandbox,featurePolicy,aiGovernance);
+  const commands=new DomainCommands(db),workspaces=new Workspaces(db),featurePolicy=new FeaturePolicy(db),aiGovernance=new AiGovernance(db),webhooks=new Webhooks(db,options.webhooks??configuredWebhookConfig()),cms=new Cms(db,webhooks),cmsCommands=new CmsCommands(db,cms),design=new Design(db,commands),localization=new Localization(db),reviews=new Collaboration(db),domains=new Domains(db,options.resolveTxt),analytics=new Analytics(db,options.analyticsSecret??process.env.STUDIO_ANALYTICS_SECRET),commerce=new Commerce(db,options.commerce??configuredCommerce()),permissions=new Permissions(db),releases=new Releases(db,undefined,webhooks),ai=new AiOrchestrator(db,commands,options.aiProvider===undefined?databaseConfiguredProvider(db,'COPY'):options.aiProvider,options.aiProvider===undefined?databaseConfiguredProvider(db,'EDITOR'):options.aiProvider,options.aiProvider===undefined?databaseConfiguredProvider(db,'PLANNER'):options.aiProvider,options.aiProvider===undefined?databaseConfiguredProvider(db,'EDITOR'):options.aiProvider,cmsCommands,featurePolicy,aiGovernance),seoAi=new AiSeo(db,options.aiProvider===undefined?databaseConfiguredProvider(db,'COPY'):options.aiProvider,featurePolicy,aiGovernance),agentTools=new AgentTools(db,commands,cmsCommands,releases,featurePolicy),assets=new Assets(db,featurePolicy,aiGovernance,options.imageProvider===undefined?undefined:options.imageProvider),codeComponents=new CodeComponents(db,options.aiProvider===undefined?databaseConfiguredProvider(db,'CODE'):options.aiProvider,options.codeSandbox===undefined?configuredCodeSandboxProvider():options.codeSandbox,featurePolicy,aiGovernance),enterprise=new EnterpriseIdentity(db);
   router.use(observeStudioRequests,(_req,res,next)=>{res.setHeader('Cache-Control','no-store');next();});
   type Run=(req:Request,actor:Actor)=>Promise<Record<string,unknown>>;
   const route=(run:Run,status=200):RequestHandler=>async(req,res,next)=>{try{res.status(status).json({success:true,...await run(req,res.locals.actor)});}catch(e){next(e);}};
@@ -41,6 +42,12 @@ export function createStudioNextRouter(db:Database,options:RouterOptions={}){
   // Must also precede the parent app's JSON parser. Never reconstruct bytes from parsed JSON.
   router.post('/payments/webhook',express.raw({type:'application/json',limit:'256kb'}),route(req=>commerce.webhook(req.body,req.get('Stripe-Signature'))));
   router.use(express.json({limit:'2mb'}));
+  const scim=express.Router();
+  scim.use(rateLimit({windowMs:60000,limit:120,standardHeaders:true,legacyHeaders:false}));
+  scim.get('/:workspaceId/Users',async(req,res,next)=>{try{res.json(await enterprise.listScim(String(req.params.workspaceId),req.get('Authorization'),typeof req.query.filter==='string'?req.query.filter:undefined));}catch(error){next(error);}});
+  scim.post('/:workspaceId/Users',async(req,res,next)=>{try{res.status(201).json(await enterprise.createScim(String(req.params.workspaceId),req.get('Authorization'),req.body));}catch(error){next(error);}});
+  scim.patch('/:workspaceId/Users/:externalId',async(req,res,next)=>{try{res.json(await enterprise.patchScim(String(req.params.workspaceId),String(req.params.externalId),req.get('Authorization'),req.body));}catch(error){next(error);}});
+  router.use('/scim/v2',scim);
   const originGuard:RequestHandler=(req,res,next)=>{
     if(!['GET','HEAD','OPTIONS'].includes(req.method)&&(!trustedOrigin(req.get('Origin'),process.env.FRONTEND_URL,process.env.NODE_ENV==='production')||req.get('X-Studio-Request')!=='1'))return res.status(403).json({success:false,error:{code:'ORIGIN_REJECTED',message:'Request origin or request marker rejected'}});
     next();
@@ -61,6 +68,9 @@ export function createStudioNextRouter(db:Database,options:RouterOptions={}){
   publicRouter.post('/sites/:siteId/events',route(req=>analytics.track(p(req,'siteId'),req.body),202));
   router.use('/public',publicRouter);
   router.use(db.auth(),originGuard,rateLimit({windowMs:60000,limit:options.requestLimit??360,keyGenerator:(_req:Request,res:Response)=>res.locals.actor.id,standardHeaders:true,legacyHeaders:false}));
+  router.get('/workspaces/:workspaceId/enterprise-identity',route((req,a)=>enterprise.get(a,p(req,'workspaceId'))));
+  router.put('/workspaces/:workspaceId/enterprise-identity',route((req,a)=>enterprise.configure(a,p(req,'workspaceId'),req.body)));
+  router.post('/workspaces/:workspaceId/enterprise-identity/scim-token',route((req,a)=>enterprise.rotateScimToken(a,p(req,'workspaceId'))));
   router.get('/invitations',route((_req,a)=>workspaces.inbox(a)));
   router.post('/invitations/:invitationId/accept',route((req,a)=>workspaces.accept(a,p(req,'invitationId'))));
   router.get('/workspaces/:workspaceId/people',route((req,a)=>workspaces.list(a,p(req,'workspaceId'))));
