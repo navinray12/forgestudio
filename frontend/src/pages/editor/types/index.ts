@@ -795,6 +795,7 @@ export interface EditorElement {
   id: string;
   type: ElementType;
   content: string;
+  cmsBinding?: { collectionId: string; field: string; target: "content" | "src" | "alt" | "href"; itemSlug?: string };
   isProtected?: boolean;
   src?: string;
   alt?: string;
