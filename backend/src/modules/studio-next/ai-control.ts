@@ -12,8 +12,6 @@ const routeInput=z.object({
   timeoutMs:z.number().int().min(1000).max(180000).default(30000),
   maxOutputTokens:z.number().int().min(64).max(100000).default(2000),
   enabled:z.boolean().default(true),
-  dailyBudgetUnits:z.number().int().min(1000).max(1_000_000_000).nullable().default(null),
-  workspaceRestrictions:z.array(z.string().uuid()).max(500).default([]),
 }).strict();
 
 function envProvider(feature:AIFeature){return (process.env[`AI_PROVIDER_${feature}`]||process.env.AI_PROVIDER_DEFAULT||'').toLowerCase();}
@@ -43,11 +41,11 @@ export async function resolveAIRoute(db:Database,feature:AIFeature):Promise<Reso
   const row=result.rows[0];
   if(row){
     if(!row.enabled)return null;
-    return {feature,provider:row.provider,model:row.model,fallbackModels:Array.isArray(row.fallbackModels)?row.fallbackModels:[],timeoutMs:Number(row.timeoutMs),maxOutputTokens:Number(row.maxOutputTokens),enabled:true,dailyBudgetUnits:row.dailyBudgetUnits===null?null:Number(row.dailyBudgetUnits),workspaceRestrictions:Array.isArray(row.workspaceRestrictions)?row.workspaceRestrictions:[],source:'DATABASE'};
+    return {feature,provider:row.provider,model:row.model,fallbackModels:Array.isArray(row.fallbackModels)?row.fallbackModels:[],timeoutMs:Number(row.timeoutMs),maxOutputTokens:Number(row.maxOutputTokens),enabled:true,source:'DATABASE'};
   }
   const provider=envProvider(feature),model=envModel(feature);
   if(!model||!['openai','anthropic'].includes(provider))return null;
-  return {feature,provider:provider as 'openai'|'anthropic',model,fallbackModels:envFallbacks(feature),timeoutMs:30000,maxOutputTokens:2000,enabled:true,dailyBudgetUnits:null,workspaceRestrictions:[],source:'ENVIRONMENT'};
+  return {feature,provider:provider as 'openai'|'anthropic',model,fallbackModels:envFallbacks(feature),timeoutMs:30000,maxOutputTokens:2000,enabled:true,source:'ENVIRONMENT'};
 }
 
 export class DatabaseRoutedProvider implements AIProvider{
@@ -123,8 +121,6 @@ export async function getAIInfrastructure(){
         fallbackModels:row?.fallbackModels??envFallbacks(feature),
         timeoutMs:Number(row?.timeoutMs??30000),
         maxOutputTokens:Number(row?.maxOutputTokens??2000),
-        dailyBudgetUnits:row?.dailyBudgetUnits===null||row?.dailyBudgetUnits===undefined?null:Number(row.dailyBudgetUnits),
-        workspaceRestrictions:Array.isArray(row?.workspaceRestrictions)?row.workspaceRestrictions:[],
         source:row?'DATABASE':'ENVIRONMENT',
         credentialConfigured:provider?credentialConfigured(provider):false,
       };
@@ -162,7 +158,7 @@ export async function setAIInfrastructureRoute(actorId:string,input:unknown){
       ON CONFLICT(feature) DO UPDATE SET provider=EXCLUDED.provider,model=EXCLUDED.model,fallback_models=EXCLUDED.fallback_models,timeout_ms=EXCLUDED.timeout_ms,max_output_tokens=EXCLUDED.max_output_tokens,enabled=EXCLUDED.enabled,daily_budget_units=EXCLUDED.daily_budget_units,workspace_restrictions=EXCLUDED.workspace_restrictions,updated_by=EXCLUDED.updated_by,updated_at=now()`,
       b.feature,b.provider,b.model,JSON.stringify(b.fallbackModels),b.timeoutMs,b.maxOutputTokens,b.enabled,b.dailyBudgetUnits,JSON.stringify(b.workspaceRestrictions),actorId);
     await tx.$executeRawUnsafe(`INSERT INTO studio.ai_control_audit(id,actor_id,action,target,details) VALUES(gen_random_uuid(),$1::uuid,'AI_ROUTE_UPDATED',$2,$3::jsonb)`,
-      actorId,b.feature,JSON.stringify({provider:b.provider,model:b.model,fallbackModels:b.fallbackModels,timeoutMs:b.timeoutMs,maxOutputTokens:b.maxOutputTokens,enabled:b.enabled,dailyBudgetUnits:b.dailyBudgetUnits,workspaceRestrictionCount:b.workspaceRestrictions.length}));
+      actorId,b.feature,JSON.stringify({provider:b.provider,model:b.model,fallbackModels:b.fallbackModels,timeoutMs:b.timeoutMs,maxOutputTokens:b.maxOutputTokens,enabled:b.enabled}));
   });
   return {route:b,credentialConfigured:credentialConfigured(b.provider)};
 }
