@@ -7,7 +7,7 @@ const MAX_ROUTES=250,MAX_SAMPLES=256;
 function normalize(path:string){
   return path.split('?')[0]
     .replace(/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/ig,':id')
-    .replace(/\\d+(?=\\/|$)/g,'/:n')
+    .replace(/\d+(?=\/|$)/g,'/:n')
     .slice(0,240);
 }
 function percentile(values:number[],p:number){
