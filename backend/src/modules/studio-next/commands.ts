@@ -18,6 +18,28 @@ const pagePatch=z.object({
   name:z.string().trim().min(1).max(120).optional(),slug:pageSlug.optional(),
   pageSettings:z.record(z.string(),z.unknown()).optional(),customCss:z.string().max(50000).optional(),
 }).strict().refine(v=>Object.keys(v).length>0,'At least one page field is required');
+const interactionRuleSchema=z.object({
+  id:stableId,
+  trigger:z.enum(['none','click','hover','dblclick','focus','blur']),
+  action:z.enum(['none','toggle-class','show','hide','toggle-visibility','scroll-to','open-url','copy-text']),
+  targetSelector:z.string().trim().max(200).optional(),
+  toggleClass:z.string().regex(/^[A-Za-z_-][A-Za-z0-9_-]{0,79}$/).optional(),
+  actionValue:z.string().max(2000).optional(),
+}).strict().superRefine((rule,ctx)=>{
+  if(rule.action==='toggle-class'&&!rule.toggleClass)ctx.addIssue({code:'custom',path:['toggleClass'],message:'toggleClass is required'});
+  if(rule.action==='open-url'&&rule.actionValue&&!/^(https?:\/\/|\/)/.test(rule.actionValue))ctx.addIssue({code:'custom',path:['actionValue'],message:'URL must be HTTPS, HTTP, or a relative path'});
+});
+const numericString=(min:number,max:number)=>z.string().regex(/^-?\d+(?:\.\d+)?$/).refine(v=>{const n=Number(v);return Number.isFinite(n)&&n>=min&&n<=max;});
+const motionConfigSchema=z.object({
+  entranceAnimation:z.enum(['none','fade-in','fade-in-up','fade-in-down','zoom-in','slide-up','slide-down','bounce-in']).optional(),
+  entranceDurationMs:numericString(100,5000).optional(),entranceDelayMs:numericString(0,5000).optional(),entranceReplay:z.boolean().optional(),
+  hover:z.object({scale:numericString(.1,5).optional(),rotate:numericString(-360,360).optional(),translateY:numericString(-2000,2000).optional(),opacity:numericString(0,1).optional(),durationMs:numericString(50,5000).optional()}).strict().optional(),
+  scroll:z.object({enabled:z.boolean(),speedX:numericString(-2,2).optional(),speedY:numericString(-2,2).optional(),transparency:z.enum(['none','fade-in','fade-out','fade-in-out']).optional(),rotateDeg:numericString(-360,360).optional(),blurPx:numericString(0,100).optional(),scaleTarget:numericString(.1,5).optional()}).strict().optional(),
+  mouseTrack:z.object({enabled:z.boolean(),speed:numericString(.01,1).optional()}).strict().optional(),
+  tilt:z.object({enabled:z.boolean(),maxDeg:numericString(0,60).optional()}).strict().optional(),
+  stickyPosition:z.enum(['none','top','bottom']).optional(),stickyOffset:z.string().regex(/^-?\d+(?:\.\d+)?(?:px|rem|em|%)?$/).max(40).optional(),
+}).strict();
+
 const designCommand=z.discriminatedUnion('type',[
   z.object({type:z.literal('SET_ELEMENT_TEXT'),elementId:stableId,field:z.enum(['content','text','alt']),value:z.string().max(20000)}).strict(),
   z.object({type:z.literal('SET_STYLE'),elementId:stableId,property:z.string().regex(/^[a-zA-Z][a-zA-Z0-9-]{0,79}$/),value:z.union([z.string().max(500),z.number(),z.null()])}).strict(),
@@ -37,6 +59,8 @@ const designCommand=z.discriminatedUnion('type',[
   z.object({type:z.literal('INSTANTIATE_COMPONENT'),componentId:stableId,variantId:stableId.optional(),instanceId:stableId,parentId:stableId.nullable().default(null),afterId:stableId.nullable().default(null)}).strict(),
   z.object({type:z.literal('DETACH_COMPONENT'),elementId:stableId}).strict(),
   z.object({type:z.literal('SET_COMPONENT_SLOT'),elementId:stableId,slotName:z.string().regex(/^[A-Za-z0-9_-]{1,80}$/).nullable()}).strict(),
+  z.object({type:z.literal('SET_MOTION_CONFIG'),elementId:stableId,motion:motionConfigSchema.nullable()}).strict(),
+  z.object({type:z.literal('SET_INTERACTIONS'),elementId:stableId,rules:z.array(interactionRuleSchema).max(20).refine(rules=>new Set(rules.map(r=>r.id)).size===rules.length,'Interaction IDs must be unique')}).strict(),
 ]);
 const commandBatch=z.object({
   baseHash:z.string().regex(/^[a-f0-9]{64}$/),
@@ -227,6 +251,10 @@ function applyDesignCommands(design:Record<string,unknown>,commands:DesignComman
       const matches=findNodes(next,command.elementId);if(matches.length!==1)throw new StudioError('Component instance not found',404,'ELEMENT_NOT_FOUND');const detached=detachComponentMetadata(matches[0]);Object.keys(matches[0]).forEach(k=>delete matches[0][k]);Object.assign(matches[0],detached);
     } else if(command.type==='SET_COMPONENT_SLOT'){
       const matches=findNodes(next,command.elementId);if(matches.length!==1)throw new StudioError('Element target is missing or ambiguous',409,'ELEMENT_NOT_UNIQUE');if(command.slotName===null)delete matches[0].componentSlotName;else matches[0].componentSlotName=command.slotName;
+    } else if(command.type==='SET_MOTION_CONFIG'){
+      const matches=findNodes(next,command.elementId);if(matches.length!==1)throw new StudioError('Element target is missing or ambiguous',409,'ELEMENT_NOT_UNIQUE');if(command.motion===null)delete matches[0].motionConfig;else matches[0].motionConfig=cloneJson(command.motion);
+    } else if(command.type==='SET_INTERACTIONS'){
+      const matches=findNodes(next,command.elementId);if(matches.length!==1)throw new StudioError('Element target is missing or ambiguous',409,'ELEMENT_NOT_UNIQUE');matches[0].interactions=cloneJson(command.rules);
     }
   }
   collectIds(next);return next;
@@ -240,6 +268,18 @@ function collectCmsBindings(value:any,result:Array<{elementId:string;binding:z.i
   if(result.length>500)throw new StudioError('Design exceeds CMS binding limit',400,'CMS_BINDING_LIMIT');
   return result;
 }
+function validateInteractionData(value:any){
+  const visit=(node:any)=>{
+    if(!node||typeof node!=='object')return;
+    if(node.motionConfig!==undefined)parse(motionConfigSchema,node.motionConfig);
+    if(node.interactions!==undefined)parse(z.array(interactionRuleSchema).max(20).refine(rules=>new Set(rules.map(r=>r.id)).size===rules.length,'Interaction IDs must be unique'),node.interactions);
+    if(Array.isArray(node.children))node.children.forEach(visit);
+  };
+  if(Array.isArray(value.elements))value.elements.forEach(visit);
+  if(Array.isArray(value.pages))for(const page of value.pages)if(Array.isArray(page.elements))page.elements.forEach(visit);
+  if(value.siteParts&&typeof value.siteParts==='object')for(const part of Object.values(value.siteParts) as any[])if(Array.isArray(part?.elements))part.elements.forEach(visit);
+}
+
 async function validateCmsBindings(c:any,siteId:string,design:any){
   const bindings=collectCmsBindings(design);if(!bindings.length)return;
   const ids=[...new Set(bindings.map(x=>x.binding.collectionId))];
@@ -304,6 +344,7 @@ export class DomainCommands {
       if(incoming.pages!==undefined&&(!Array.isArray(incoming.pages)||incoming.pages.some((p:any)=>!p||typeof p.id!=='string'||!Array.isArray(p.elements))))throw new StudioError('Each page needs an ID and an elements array');
       await validateCmsBindings(c,siteId,incoming);
       validateComponentLibrary(incoming);
+      validateInteractionData(incoming);
       const updated={...site.editorData,...incoming},result={hash:digest(incoming)};
       await c.query('UPDATE public.websites SET "editorData"=$2::jsonb,"updatedAt"=now() WHERE id=$1',[siteId,JSON.stringify(updated)]);
       await c.query(`INSERT INTO studio.command_receipts(id,actor_id,site_id,command,source,idempotency_key,correlation_id,payload_hash,result)
