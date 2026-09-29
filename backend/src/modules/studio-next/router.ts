@@ -19,9 +19,10 @@ import { DomainCommands } from './commands.js';
 import { AiOrchestrator,databaseConfiguredProvider,type AIProvider } from './ai.js';
 import { AiSeo } from './ai-seo.js';
 import { AgentTools } from './agent-tools.js';
+import { Assets,type ImageGenerationProvider } from './assets.js';
 import { StudioError,parse,localeCode } from './validation.js';
 import { trustedOrigin } from '../studio/domain.js';
-export interface RouterOptions { commerce?:CommerceConfig;analyticsSecret?:string;resolveTxt?:TxtResolver;requestLimit?:number;aiProvider?:AIProvider|null;webhooks?:WebhookConfig }
+export interface RouterOptions { commerce?:CommerceConfig;analyticsSecret?:string;resolveTxt?:TxtResolver;requestLimit?:number;aiProvider?:AIProvider|null;imageProvider?:ImageGenerationProvider|null;webhooks?:WebhookConfig }
 export function configuredCommerce():CommerceConfig{
   let accounts:Record<string,string>={};
   if(process.env.STUDIO_STRIPE_ACCOUNTS){
@@ -31,7 +32,7 @@ export function configuredCommerce():CommerceConfig{
 }
 export function createStudioNextRouter(db:Database,options:RouterOptions={}){
   const router=express.Router();
-  const commands=new DomainCommands(db),workspaces=new Workspaces(db),featurePolicy=new FeaturePolicy(db),aiGovernance=new AiGovernance(db),webhooks=new Webhooks(db,options.webhooks??configuredWebhookConfig()),cms=new Cms(db,webhooks),cmsCommands=new CmsCommands(db,cms),design=new Design(db,commands),localization=new Localization(db),reviews=new Collaboration(db),domains=new Domains(db,options.resolveTxt),analytics=new Analytics(db,options.analyticsSecret??process.env.STUDIO_ANALYTICS_SECRET),commerce=new Commerce(db,options.commerce??configuredCommerce()),permissions=new Permissions(db),releases=new Releases(db,undefined,webhooks),ai=new AiOrchestrator(db,commands,options.aiProvider===undefined?databaseConfiguredProvider(db,'COPY'):options.aiProvider,options.aiProvider===undefined?databaseConfiguredProvider(db,'EDITOR'):options.aiProvider,options.aiProvider===undefined?databaseConfiguredProvider(db,'PLANNER'):options.aiProvider,options.aiProvider===undefined?databaseConfiguredProvider(db,'EDITOR'):options.aiProvider,cmsCommands,featurePolicy,aiGovernance),seoAi=new AiSeo(db,options.aiProvider===undefined?databaseConfiguredProvider(db,'COPY'):options.aiProvider,featurePolicy,aiGovernance),agentTools=new AgentTools(db,commands,cmsCommands,releases,featurePolicy);
+  const commands=new DomainCommands(db),workspaces=new Workspaces(db),featurePolicy=new FeaturePolicy(db),aiGovernance=new AiGovernance(db),webhooks=new Webhooks(db,options.webhooks??configuredWebhookConfig()),cms=new Cms(db,webhooks),cmsCommands=new CmsCommands(db,cms),design=new Design(db,commands),localization=new Localization(db),reviews=new Collaboration(db),domains=new Domains(db,options.resolveTxt),analytics=new Analytics(db,options.analyticsSecret??process.env.STUDIO_ANALYTICS_SECRET),commerce=new Commerce(db,options.commerce??configuredCommerce()),permissions=new Permissions(db),releases=new Releases(db,undefined,webhooks),ai=new AiOrchestrator(db,commands,options.aiProvider===undefined?databaseConfiguredProvider(db,'COPY'):options.aiProvider,options.aiProvider===undefined?databaseConfiguredProvider(db,'EDITOR'):options.aiProvider,options.aiProvider===undefined?databaseConfiguredProvider(db,'PLANNER'):options.aiProvider,options.aiProvider===undefined?databaseConfiguredProvider(db,'EDITOR'):options.aiProvider,cmsCommands,featurePolicy,aiGovernance),seoAi=new AiSeo(db,options.aiProvider===undefined?databaseConfiguredProvider(db,'COPY'):options.aiProvider,featurePolicy,aiGovernance),agentTools=new AgentTools(db,commands,cmsCommands,releases,featurePolicy),assets=new Assets(db,featurePolicy,aiGovernance,options.imageProvider===undefined?undefined:options.imageProvider);
   router.use((_req,res,next)=>{res.setHeader('Cache-Control','no-store');res.setHeader('X-Request-Id',randomUUID());next();});
   type Run=(req:Request,actor:Actor)=>Promise<Record<string,unknown>>;
   const route=(run:Run,status=200):RequestHandler=>async(req,res,next)=>{try{res.status(status).json({success:true,...await run(req,res.locals.actor)});}catch(e){next(e);}};
@@ -70,6 +71,8 @@ export function createStudioNextRouter(db:Database,options:RouterOptions={}){
   router.put('/sites/:siteId/governance/features',route((req,a)=>featurePolicy.set(a,p(req,'siteId'),req.body)));
   router.get('/sites/:siteId/governance/ai-budget',route((req,a)=>aiGovernance.report(a,p(req,'siteId'))));
   router.put('/sites/:siteId/governance/ai-budget',route((req,a)=>aiGovernance.setBudget(a,p(req,'siteId'),req.body)));
+  router.get('/sites/:siteId/assets/generation-status',route((req,a)=>assets.generationStatus(a,p(req,'siteId'))));
+  router.post('/sites/:siteId/assets/generate',route((req,a)=>assets.generate(a,p(req,'siteId'),req.body),201));
   router.get('/sites/:siteId/ai/changes',route((req,a)=>ai.listChanges(a,p(req,'siteId'))));
   router.post('/sites/:siteId/ai/copy/propose',route((req,a)=>ai.proposeCopy(a,p(req,'siteId'),req.body),201));
   router.post('/sites/:siteId/ai/sections/propose',route((req,a)=>ai.proposeSection(a,p(req,'siteId'),req.body),201));
