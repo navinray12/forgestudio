@@ -47,6 +47,8 @@ export async function install(pool:pg.Pool){
   if(!presence.rows[0].name)await pool.query(await readFile(new URL('../../prisma/migrations/20260928300000_distributed_presence/migration.sql',import.meta.url),'utf8'));
   const commerceExpansion=await pool.query("SELECT column_name FROM information_schema.columns WHERE table_schema='studio' AND table_name='products' AND column_name='billing_type'");
   if(!commerceExpansion.rowCount)await pool.query(await readFile(new URL('../../prisma/migrations/20260928310000_commerce_expansion/migration.sql',import.meta.url),'utf8'));
+  const enterprise=await pool.query("SELECT to_regclass('studio.enterprise_identity_configs') AS name");
+  if(!enterprise.rows[0].name)await pool.query(await readFile(new URL('../../prisma/migrations/20260928320000_enterprise_identity/migration.sql',import.meta.url),'utf8'));
   const aiRoutes=await pool.query("SELECT to_regclass('studio.ai_model_routes') AS name");
   if(!aiRoutes.rows[0].name)await pool.query(await readFile(new URL('../../prisma/migrations/20260928270000_studio_ai_control_plane/migration.sql',import.meta.url),'utf8'));
   const assetProvenance=await pool.query("SELECT column_name FROM information_schema.columns WHERE table_schema='public' AND table_name='media_assets' AND column_name='provenance'");
