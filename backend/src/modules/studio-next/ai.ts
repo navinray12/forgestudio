@@ -5,6 +5,7 @@ import { DomainCommands } from './commands.js';
 import { CmsCommands } from './cms-commands.js';
 import { FeaturePolicy,AiGovernance,type Feature,type UsageReservation } from './governance.js';
 import { parse,uuid,digest,designOnly,StudioError,fieldsSchema } from './validation.js';
+import { DatabaseRoutedProvider } from './ai-control.js';
 import { COPY_EDIT_PROMPT,SECTION_PROMPT,PAGE_PROMPT,SITE_PLAN_PROMPT,SITE_BUILD_PROMPT,CMS_PROMPT } from './ai-prompts.js';
 
 export interface AIUsage { inputUnits?:number; outputUnits?:number; }
@@ -90,6 +91,9 @@ export function configuredProvider(feature:AIFeature,registry=new AIModelRegistr
   const fallbacks=config.fallbackModels.map(spec=>{const [provider,model]=spec.includes(':')?spec.split(':',2):[config.provider,spec];return providerFor(provider,model);}).filter((x):x is AIProvider=>!!x);
   return new FallbackStructuredProvider([primary,...fallbacks]);
 }
+export function databaseConfiguredProvider(db:Database,feature:AIFeature):AIProvider{
+  return new DatabaseRoutedProvider(db,feature,providerFor);
+}
 export function configuredCopyProvider():AIProvider|null{return configuredProvider('COPY');}
 const proposalInput=z.object({
   elementId:z.string().min(1).max(150),
@@ -166,7 +170,9 @@ export class AiOrchestrator{
   async status(siteId:string){
     const flags=this.featurePolicy?await this.featurePolicy.snapshot(siteId):{} as any;
     const enabled=(feature:Feature)=>flags[feature]??true;
-    return {configured:(!!this.provider&&enabled('AI_COPY'))||(!!this.sectionProvider&&enabled('AI_SECTION_GENERATION'))||(!!this.pageProvider&&enabled('AI_PAGE_GENERATION'))||(!!this.plannerProvider&&!!this.pageProvider&&enabled('AI_SITE_GENERATION'))||(!!this.plannerProvider&&!!this.cmsCommands&&enabled('AI_CMS'))||(!!this.provider&&enabled('AI_SEO')),features:{copy:{configured:!!this.provider&&enabled('AI_COPY'),provider:this.provider?.name??null,model:this.provider?.model??null},section:{configured:!!this.sectionProvider&&enabled('AI_SECTION_GENERATION'),provider:this.sectionProvider?.name??null,model:this.sectionProvider?.model??null},page:{configured:!!this.pageProvider&&enabled('AI_PAGE_GENERATION'),provider:this.pageProvider?.name??null,model:this.pageProvider?.model??null},site:{configured:!!this.plannerProvider&&!!this.pageProvider&&enabled('AI_SITE_GENERATION'),planner:this.plannerProvider?.model??null,editor:this.pageProvider?.model??null},cms:{configured:!!this.plannerProvider&&!!this.cmsCommands&&enabled('AI_CMS'),provider:this.plannerProvider?.name??null,model:this.plannerProvider?.model??null},seo:{configured:!!this.provider&&enabled('AI_SEO'),provider:this.provider?.name??null,model:this.provider?.model??null}},registry:new AIModelRegistry().publicStatus(),flags};
+    const configured=async(provider:AIProvider|null)=>provider?typeof (provider as any).configured==='function'?await (provider as any).configured():true:false;
+    const [copyOk,sectionOk,pageOk,plannerOk]=await Promise.all([configured(this.provider),configured(this.sectionProvider),configured(this.pageProvider),configured(this.plannerProvider)]);
+    return {configured:(copyOk&&enabled('AI_COPY'))||(sectionOk&&enabled('AI_SECTION_GENERATION'))||(pageOk&&enabled('AI_PAGE_GENERATION'))||(plannerOk&&pageOk&&enabled('AI_SITE_GENERATION'))||(plannerOk&&!!this.cmsCommands&&enabled('AI_CMS'))||(copyOk&&enabled('AI_SEO')),features:{copy:{configured:copyOk&&enabled('AI_COPY'),provider:this.provider?.name??null,model:this.provider?.model??null},section:{configured:sectionOk&&enabled('AI_SECTION_GENERATION'),provider:this.sectionProvider?.name??null,model:this.sectionProvider?.model??null},page:{configured:pageOk&&enabled('AI_PAGE_GENERATION'),provider:this.pageProvider?.name??null,model:this.pageProvider?.model??null},site:{configured:plannerOk&&pageOk&&enabled('AI_SITE_GENERATION'),planner:this.plannerProvider?.model??null,editor:this.pageProvider?.model??null},cms:{configured:plannerOk&&!!this.cmsCommands&&enabled('AI_CMS'),provider:this.plannerProvider?.name??null,model:this.plannerProvider?.model??null},seo:{configured:copyOk&&enabled('AI_SEO'),provider:this.provider?.name??null,model:this.provider?.model??null}},registry:new AIModelRegistry().publicStatus(),flags};
   }
   async listChanges(actor:Actor,siteId:string){
     return this.db.tx(async c=>{await this.db.site(c,actor,siteId,'VIEW');const r=await c.query(`SELECT id,name,status,base_hash AS "baseHash",result_hash AS "resultHash",created_at AS "createdAt",applied_at AS "appliedAt" FROM studio.change_sets WHERE site_id=$1 ORDER BY created_at DESC LIMIT 50`,[siteId]);return {changes:r.rows};});
