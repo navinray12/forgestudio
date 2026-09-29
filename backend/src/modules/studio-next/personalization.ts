@@ -4,7 +4,7 @@ import {Database,type Actor} from './database.js';
 import {FeaturePolicy} from './governance.js';
 import {parse,uuid,title,revision,checkRevision,StudioError} from './validation.js';
 
-const pathValue=z.string().min(1).max(300).regex(/^/(?!/)[^?#\s]*$/);
+const pathValue=z.string().min(1).max(300).regex(/^\/(?!\/)[^?#\s]*$/);
 const condition=z.discriminatedUnion('attribute',[
   z.object({attribute:z.literal('path'),operator:z.enum(['EQ','PREFIX']),value:pathValue}).strict(),
   z.object({attribute:z.literal('country'),operator:z.literal('EQ'),value:z.string().regex(/^[A-Z]{2}$/)}).strict(),
