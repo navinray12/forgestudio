@@ -1,5 +1,4 @@
 import {z} from 'zod';
-import {prisma} from '../../config/prisma.js';
 import type {Database} from './database.js';
 import {parse,StudioError} from './validation.js';
 import type {AIFeature,AIProvider,AIResult} from './ai.js';
@@ -71,6 +70,7 @@ export class DatabaseRoutedProvider implements AIProvider{
 }
 
 export async function getAIInfrastructure(){
+  const {prisma}=await import('../../config/prisma.js');
   const rows=await prisma.$queryRawUnsafe<any[]>(`SELECT feature,provider,model,fallback_models AS "fallbackModels",timeout_ms AS "timeoutMs",max_output_tokens AS "maxOutputTokens",enabled,updated_at AS "updatedAt" FROM studio.ai_model_routes ORDER BY feature`);
   const map=new Map(rows.map(row=>[row.feature,row]));
   return {
@@ -94,7 +94,7 @@ export async function getAIInfrastructure(){
   };
 }
 export async function setAIInfrastructureRoute(actorId:string,input:unknown){
-  const b=parse(routeInput,input);
+  const b=parse(routeInput,input);const {prisma}=await import('../../config/prisma.js');
   await prisma.$transaction(async tx=>{
     await tx.$executeRawUnsafe(`INSERT INTO studio.ai_model_routes(feature,provider,model,fallback_models,timeout_ms,max_output_tokens,enabled,updated_by)
       VALUES($1,$2,$3,$4::jsonb,$5,$6,$7,$8::uuid)
