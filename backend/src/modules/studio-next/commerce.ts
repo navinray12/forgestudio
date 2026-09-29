@@ -156,7 +156,7 @@ export class Commerce {
     });
     if(state.replayed)return {refundId:state.refund.id,state:state.refund.state,providerRef:state.refund.provider_ref,replayed:true};
     try{
-      const body=new URLSearchParams({payment_intent:state.order.provider_payment_intent,amount:String(b.amountMinor),metadata:{toString:()=>''} as any});body.delete('metadata');
+      const body=new URLSearchParams({payment_intent:state.order.provider_payment_intent,amount:String(b.amountMinor)});
       body.set('metadata[studio_order_id]',b.orderId);body.set('metadata[studio_refund_id]',state.refund.id);
       const result=await this.config.transport!(account,'refunds','POST',body,`studio-refund-${b.operationId}`);
       if(typeof result.id!=='string'||!/^re_[A-Za-z0-9_]+$/.test(result.id))throw new StudioError('Invalid refund response from provider',502,'PAYMENT_PROVIDER_ERROR');
