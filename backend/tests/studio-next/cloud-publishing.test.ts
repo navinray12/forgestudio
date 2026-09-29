@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {S3CompatiblePublishingProvider,type ObjectTransport} from '../../src/modules/studio-next/cloud-publishing.js';
 
 test('S3-compatible publishing uploads compiled files and verifies the activation manifest',async()=>{
+  process.env.DATABASE_URL=process.env.DATABASE_URL||process.env.STUDIO_TEST_DATABASE_URL;
   const objects=new Map<string,string|Buffer>(),requests:Array<{url:string;method:string;authorization:string}>=[];
   const transport:ObjectTransport=async(url,init)=>{
     const method=String(init.method||'GET'),headers=new Headers(init.headers),path=new URL(url).pathname;
