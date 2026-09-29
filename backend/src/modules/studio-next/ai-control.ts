@@ -82,6 +82,12 @@ export async function getAIInfrastructure(){
   const {prisma}=await import('../../config/prisma.js');
   const rows=await prisma.$queryRawUnsafe<any[]>(`SELECT feature,provider,model,fallback_models AS "fallbackModels",timeout_ms AS "timeoutMs",max_output_tokens AS "maxOutputTokens",enabled,daily_budget_units AS "dailyBudgetUnits",workspace_restrictions AS "workspaceRestrictions",updated_at AS "updatedAt" FROM studio.ai_model_routes ORDER BY feature`);
   const healthRows=await prisma.$queryRawUnsafe<any[]>(`SELECT provider,status,latency_ms AS "latencyMs",error_code AS "errorCode",checked_at AS "checkedAt" FROM studio.ai_provider_health`);
+  const usage24h=await prisma.$queryRawUnsafe<any[]>(`SELECT provider,model_resolved AS model,count(*)::int AS requests,
+    COALESCE(sum(COALESCE(input_units,0)+COALESCE(output_units,0)),0)::bigint AS units,
+    round(avg(latency_ms))::int AS "avgLatencyMs",
+    count(*) FILTER(WHERE status='SUCCEEDED')::int AS succeeded,
+    count(*) FILTER(WHERE status='FAILED')::int AS failed
+    FROM studio.ai_runs WHERE created_at>=now()-interval '24 hours' GROUP BY provider,model_resolved ORDER BY requests DESC LIMIT 100`);
   const health=new Map(healthRows.map(row=>[row.provider,row]));
   const map=new Map(rows.map(row=>[row.feature,row]));
   return {
@@ -89,6 +95,7 @@ export async function getAIInfrastructure(){
       {provider:'openai',credentialConfigured:!!process.env.OPENAI_API_KEY,approvedModels:approvedModels('openai'),health:health.get('openai')??{status:process.env.OPENAI_API_KEY?'UNKNOWN':'UNCONFIGURED',latencyMs:null,errorCode:null,checkedAt:null}},
       {provider:'anthropic',credentialConfigured:!!process.env.ANTHROPIC_API_KEY,approvedModels:approvedModels('anthropic'),health:health.get('anthropic')??{status:process.env.ANTHROPIC_API_KEY?'UNKNOWN':'UNCONFIGURED',latencyMs:null,errorCode:null,checkedAt:null}},
     ],
+    usage24h:usage24h.map(row=>({...row,units:Number(row.units)})),
     routes:AI_FEATURES.map(feature=>{
       const row=map.get(feature),provider=(row?.provider??envProvider(feature))||null,model=(row?.model??envModel(feature))||null;
       return {
