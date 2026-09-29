@@ -1,5 +1,4 @@
 import {createHash,createHmac} from 'node:crypto';
-import {compileCanonicalToStaticBundle} from '../../services/destinations/staticCompiler.js';
 import type {PublishingProvider,ProviderDeployment,ProviderStatus,ReleaseArtifact} from './releases.js';
 import {StudioError} from './validation.js';
 
@@ -49,6 +48,7 @@ export class S3CompatiblePublishingProvider implements PublishingProvider{
     return response;
   }
   async deploy(input:{siteId:string;releaseId:string;artifact:ReleaseArtifact;checksum:string}):Promise<ProviderDeployment>{
+    const {compileCanonicalToStaticBundle}=await import('../../services/destinations/staticCompiler.js');
     const bundle=compileCanonicalToStaticBundle(input.siteId,Number((input.artifact as any).version||1),input.artifact),releasePrefix=`releases/${input.releaseId}`;
     for(const file of bundle.files)await this.request('PUT',`${releasePrefix}/${file.path}`,Buffer.isBuffer(file.content)?file.content:Buffer.from(file.content,'utf8'),file.contentType);
     const manifest=JSON.stringify({releaseId:input.releaseId,siteId:input.siteId,artifactChecksum:input.checksum,files:bundle.files.map(f=>({path:f.path,sha256:sha(Buffer.isBuffer(f.content)?f.content:Buffer.from(f.content,'utf8')),size:f.size})),generatedAt:new Date().toISOString()});
