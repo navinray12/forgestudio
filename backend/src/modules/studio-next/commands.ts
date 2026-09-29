@@ -46,6 +46,13 @@ const designCommand=z.discriminatedUnion('type',[
   z.object({type:z.literal('UNSET_STYLE'),elementId:stableId,property:z.string().regex(/^[a-zA-Z][a-zA-Z0-9-]{0,79}$/)}).strict(),
   z.object({type:z.literal('ADD_ELEMENT'),parentId:stableId.nullable().default(null),afterId:stableId.nullable().default(null),element:z.record(z.string(),z.unknown())}).strict(),
   z.object({type:z.literal('REMOVE_ELEMENT'),elementId:stableId}).strict(),
+  z.object({type:z.literal('MOVE_ELEMENT'),elementId:stableId,parentId:stableId.nullable().default(null),afterId:stableId.nullable().default(null)}).strict(),
+  z.object({type:z.literal('DUPLICATE_ELEMENT'),elementId:stableId,newRootId:stableId,parentId:stableId.nullable().default(null),afterId:stableId.nullable().default(null)}).strict(),
+  z.object({type:z.literal('ATTACH_CLASS'),elementId:stableId,className:z.string().regex(/^[A-Za-z_-][A-Za-z0-9_-]{0,79}$/)}).strict(),
+  z.object({type:z.literal('DETACH_CLASS'),elementId:stableId,className:z.string().regex(/^[A-Za-z_-][A-Za-z0-9_-]{0,79}$/)}).strict(),
+  z.object({type:z.literal('SET_ATTRIBUTE'),elementId:stableId,name:z.string().regex(/^[A-Za-z_:][A-Za-z0-9_:.-]{0,99}$/),value:z.string().max(2000).nullable()}).strict(),
+  z.object({type:z.literal('SET_VISIBILITY'),elementId:stableId,visible:z.boolean()}).strict(),
+  z.object({type:z.literal('SET_RESPONSIVE_STYLE'),elementId:stableId,breakpoint:z.enum(['desktop','tablet','mobileLandscape','mobile']),property:z.string().regex(/^[a-zA-Z][a-zA-Z0-9-]{0,79}$/),value:z.union([z.string().max(500),z.number(),z.null()])}).strict(),
   z.object({type:z.literal('CREATE_PAGE'),page:pageDefinition}).strict(),
   z.object({type:z.literal('UPDATE_PAGE'),pageId:stableId,patch:pagePatch}).strict(),
   z.object({type:z.literal('UPDATE_PAGE_SETTINGS'),pageId:stableId,settings:z.record(z.string(),z.unknown())}).strict(),
@@ -117,6 +124,40 @@ function removeNode(container:any,id:string):boolean{
   return false;
 }
 function rootElements(design:any):any[]{if(!Array.isArray(design.elements))design.elements=[];return design.elements;}
+
+function takeNode(container:any,id:string):any|null{
+  if(!container||typeof container!=='object')return null;
+  for(const key of ['elements','children']){
+    const list=container[key];
+    if(Array.isArray(list)){
+      const index=list.findIndex((x:any)=>x?.id===id);
+      if(index>=0)return list.splice(index,1)[0];
+      for(const child of list){const found=takeNode(child,id);if(found)return found;}
+    }
+  }
+  if(Array.isArray(container.pages))for(const page of container.pages){const found=takeNode(page,id);if(found)return found;}
+  return null;
+}
+function insertNode(design:any,node:any,parentId:string|null,afterId:string|null){
+  let list:any[];
+  if(parentId===null)list=rootElements(design);
+  else{const parents=findNodes(design,parentId);if(parents.length!==1)throw new StudioError('Parent element is missing or ambiguous',409,'ELEMENT_NOT_UNIQUE');if(!Array.isArray(parents[0].children))parents[0].children=[];list=parents[0].children;}
+  if(afterId===null)list.push(node);
+  else{const index=list.findIndex((x:any)=>x?.id===afterId);if(index<0)throw new StudioError('Insertion anchor is not a child of the selected parent',409,'INSERTION_ANCHOR_MISSING');list.splice(index+1,0,node);}
+}
+function cloneWithIds(node:any,newRootId:string){
+  let index=0;
+  const visit=(value:any,isRoot=false):any=>{
+    if(Array.isArray(value))return value.map(v=>visit(v,false));
+    if(!value||typeof value!=='object')return value;
+    const copy:any={};
+    for(const [k,v] of Object.entries(value))copy[k]=visit(v,false);
+    if(typeof value.id==='string'){copy.id=isRoot?newRootId:`${newRootId}-${++index}`.slice(0,150);}
+    return copy;
+  };
+  return visit(node,true);
+}
+
 const RESERVED_PAGE_PATHS=new Set(['/api','/admin','/super-admin','/login','/signup','/editor','/dashboard','/subscriptions']);
 function pagesOf(design:any):any[]{if(!Array.isArray(design.pages))design.pages=[];return design.pages;}
 function pageSlugFromName(name:string,pages:any[],excludeId?:string):string{
@@ -193,6 +234,29 @@ function applyDesignCommands(design:Record<string,unknown>,commands:DesignComman
       if(command.type==='UNSET_STYLE')delete matches[0].styles[command.property];else if(command.value===null)delete matches[0].styles[command.property];else matches[0].styles[command.property]=command.value;
     } else if(command.type==='REMOVE_ELEMENT'){
       if(!removeNode(next,command.elementId))throw new StudioError('Element not found',404,'ELEMENT_NOT_FOUND');
+    } else if(command.type==='MOVE_ELEMENT'){
+      if(command.parentId===command.elementId||command.afterId===command.elementId)throw new StudioError('An element cannot be moved relative to itself',409,'INVALID_MOVE');
+      const node=takeNode(next,command.elementId);if(!node)throw new StudioError('Element not found',404,'ELEMENT_NOT_FOUND');
+      insertNode(next,node,command.parentId,command.afterId);
+    } else if(command.type==='DUPLICATE_ELEMENT'){
+      if(findNodes(next,command.newRootId).length)throw new StudioError('Duplicate root ID already exists',409,'DUPLICATE_ELEMENT_ID');
+      const matches=findNodes(next,command.elementId);if(matches.length!==1)throw new StudioError('Element target is missing or ambiguous',409,'ELEMENT_NOT_UNIQUE');
+      const copy=cloneWithIds(matches[0],command.newRootId);ensureStableElementTree([copy]);insertNode(next,copy,command.parentId,command.afterId);
+    } else if(command.type==='ATTACH_CLASS'||command.type==='DETACH_CLASS'){
+      const matches=findNodes(next,command.elementId);if(matches.length!==1)throw new StudioError('Element target is missing or ambiguous',409,'ELEMENT_NOT_UNIQUE');
+      const classes=Array.isArray(matches[0].classes)?matches[0].classes.filter((x:any)=>typeof x==='string'):[];
+      if(command.type==='ATTACH_CLASS'){if(!classes.includes(command.className))classes.push(command.className);}else matches[0].classes=classes.filter((x:string)=>x!==command.className);
+      if(command.type==='ATTACH_CLASS')matches[0].classes=classes;
+    } else if(command.type==='SET_ATTRIBUTE'){
+      const matches=findNodes(next,command.elementId);if(matches.length!==1)throw new StudioError('Element target is missing or ambiguous',409,'ELEMENT_NOT_UNIQUE');
+      const attrs=matches[0].attributes&&typeof matches[0].attributes==='object'&&!Array.isArray(matches[0].attributes)?matches[0].attributes:{};
+      if(command.value===null)delete attrs[command.name];else attrs[command.name]=command.value;matches[0].attributes=attrs;
+    } else if(command.type==='SET_VISIBILITY'){
+      const matches=findNodes(next,command.elementId);if(matches.length!==1)throw new StudioError('Element target is missing or ambiguous',409,'ELEMENT_NOT_UNIQUE');matches[0].visibility={...(matches[0].visibility||{}),visible:command.visible};
+    } else if(command.type==='SET_RESPONSIVE_STYLE'){
+      const matches=findNodes(next,command.elementId);if(matches.length!==1)throw new StudioError('Element target is missing or ambiguous',409,'ELEMENT_NOT_UNIQUE');
+      const responsive=matches[0].responsiveOverrides&&typeof matches[0].responsiveOverrides==='object'&&!Array.isArray(matches[0].responsiveOverrides)?matches[0].responsiveOverrides:{},styles=responsive[command.breakpoint]&&typeof responsive[command.breakpoint]==='object'?responsive[command.breakpoint]:{};
+      if(command.value===null)delete styles[command.property];else styles[command.property]=command.value;responsive[command.breakpoint]=styles;matches[0].responsiveOverrides=responsive;
     } else if(command.type==='ADD_ELEMENT'){
       const element=cloneJson(command.element) as any;
       if(typeof element.id!=='string'||!stableId.safeParse(element.id).success||typeof element.type!=='string')throw new StudioError('New elements require a stable id and type',400,'INVALID_ELEMENT');
