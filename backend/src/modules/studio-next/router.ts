@@ -47,6 +47,7 @@ export function createStudioNextRouter(db:Database,options:RouterOptions={}){
   const publicRouter=express.Router();
   publicRouter.use(rateLimit({windowMs:60000,limit:options.requestLimit??120,standardHeaders:true,legacyHeaders:false}));
   publicRouter.use(originGuard);
+  publicRouter.post('/sites/:siteId/bindings/resolve',route(req=>cms.resolveBindings(p(req,'siteId'),parse(localeCode,req.query.locale??'en'),req.body)));
   publicRouter.get('/sites/:siteId/collections/:slug',route(req=>cms.publicItems(p(req,'siteId'),p(req,'slug'),parse(localeCode,req.query.locale??'en'))));
   publicRouter.get('/sites/:siteId/collections/:slug/:itemSlug',route(req=>cms.publicItems(p(req,'siteId'),p(req,'slug'),parse(localeCode,req.query.locale??'en'),p(req,'itemSlug'))));
   publicRouter.get('/sites/:siteId/localization',route(req=>localization.publicData(p(req,'siteId'),parse(localeCode,req.query.locale??'en'))));
