@@ -14,19 +14,6 @@ const pageDefinition=z.object({
   id:stableId,name:z.string().trim().min(1).max(120),slug:pageSlug,elements:z.array(z.record(z.string(),z.unknown())).max(500),
   pageSettings:z.record(z.string(),z.unknown()).optional(),customCss:z.string().max(50000).optional(),isHome:z.boolean().optional(),
 }).strict();
-const cmsBinding=z.object({
-  collectionId:z.string().uuid(),
-  field:z.string().regex(/^[a-z][a-z0-9_]{0,79}$/),
-  target:z.enum(['content','src','alt','href']),
-  itemSlug:z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).optional(),
-}).strict();
-const interactionRule=z.object({
-  id:stableId,
-  trigger:z.enum(['click','hover','dblclick','focus','blur']),
-  action:z.enum(['toggle-class','show','hide','toggle-visibility','scroll-to','open-url','copy-text']),
-  targetSelector:z.string().max(200).optional(),
-  actionValue:z.string().max(500).optional(),
-}).strict();
 const pagePatch=z.object({
   name:z.string().trim().min(1).max(120).optional(),slug:pageSlug.optional(),
   pageSettings:z.record(z.string(),z.unknown()).optional(),customCss:z.string().max(50000).optional(),
@@ -59,8 +46,6 @@ const designCommand=z.discriminatedUnion('type',[
   z.object({type:z.literal('UNSET_STYLE'),elementId:stableId,property:z.string().regex(/^[a-zA-Z][a-zA-Z0-9-]{0,79}$/)}).strict(),
   z.object({type:z.literal('ADD_ELEMENT'),parentId:stableId.nullable().default(null),afterId:stableId.nullable().default(null),element:z.record(z.string(),z.unknown())}).strict(),
   z.object({type:z.literal('REMOVE_ELEMENT'),elementId:stableId}).strict(),
-  z.object({type:z.literal('SET_CMS_BINDING'),elementId:stableId,binding:cmsBinding.nullable()}).strict(),
-  z.object({type:z.literal('SET_INTERACTIONS'),elementId:stableId,interactions:z.array(interactionRule).max(20)}).strict(),
   z.object({type:z.literal('CREATE_PAGE'),page:pageDefinition}).strict(),
   z.object({type:z.literal('UPDATE_PAGE'),pageId:stableId,patch:pagePatch}).strict(),
   z.object({type:z.literal('UPDATE_PAGE_SETTINGS'),pageId:stableId,settings:z.record(z.string(),z.unknown())}).strict(),
@@ -208,12 +193,6 @@ function applyDesignCommands(design:Record<string,unknown>,commands:DesignComman
       if(command.type==='UNSET_STYLE')delete matches[0].styles[command.property];else if(command.value===null)delete matches[0].styles[command.property];else matches[0].styles[command.property]=command.value;
     } else if(command.type==='REMOVE_ELEMENT'){
       if(!removeNode(next,command.elementId))throw new StudioError('Element not found',404,'ELEMENT_NOT_FOUND');
-    } else if(command.type==='SET_CMS_BINDING'){
-      const matches=findNodes(next,command.elementId);if(matches.length!==1)throw new StudioError('Element target is missing or ambiguous',409,'ELEMENT_NOT_UNIQUE');
-      if(command.binding===null)delete matches[0].cmsBinding;else matches[0].cmsBinding=cloneJson(command.binding);
-    } else if(command.type==='SET_INTERACTIONS'){
-      const matches=findNodes(next,command.elementId);if(matches.length!==1)throw new StudioError('Element target is missing or ambiguous',409,'ELEMENT_NOT_UNIQUE');
-      matches[0].interactions=cloneJson(command.interactions);
     } else if(command.type==='ADD_ELEMENT'){
       const element=cloneJson(command.element) as any;
       if(typeof element.id!=='string'||!stableId.safeParse(element.id).success||typeof element.type!=='string')throw new StudioError('New elements require a stable id and type',400,'INVALID_ELEMENT');
@@ -330,19 +309,7 @@ export class DomainCommands {
     });
     if(replay)return replay;
     const contentSafe=b.commands.every(command=>['SET_ELEMENT_TEXT','UPDATE_PAGE_SETTINGS'].includes(command.type));
-    const current=await this.db.tx(async c=>{
-      const site=await this.db.site(c,actor,siteId,contentSafe?'EDIT_CONTENT':'EDIT_DESIGN');
-      for(const command of b.commands){
-        if(command.type!=='SET_CMS_BINDING'||command.binding===null)continue;
-        const row=await c.query('SELECT fields FROM studio.collections WHERE id=$1 AND site_id=$2',[command.binding.collectionId,siteId]);
-        if(!row.rows[0])throw new StudioError('CMS collection not found for this site',404,'CMS_BINDING_COLLECTION_NOT_FOUND');
-        const fields=Array.isArray(row.rows[0].fields)?row.rows[0].fields:[],field=fields.find((x:any)=>x?.key===command.binding!.field);
-        if(!field)throw new StudioError('CMS binding field does not exist',400,'CMS_BINDING_FIELD_NOT_FOUND');
-        const allowed=command.binding.target==='src'?['IMAGE','URL']:command.binding.target==='href'?['URL','TEXT','EMAIL']:command.binding.target==='alt'?['TEXT']:['TEXT','RICH_TEXT','NUMBER','BOOLEAN','DATE','EMAIL','URL','COLOR','OPTION'];
-        if(!allowed.includes(String(field.type)))throw new StudioError('CMS field type is incompatible with the selected element property',400,'CMS_BINDING_TYPE_MISMATCH');
-      }
-      return designOnly(site.editorData);
-    });
+    const current=await this.db.tx(async c=>{const site=await this.db.site(c,actor,siteId,contentSafe?'EDIT_CONTENT':'EDIT_DESIGN');return designOnly(site.editorData);});
     if(digest(current)!==b.baseHash)throw new StudioError('Another session changed this design. Reload and reconcile before applying commands.',409,'DESIGN_CONFLICT');
     const next=applyDesignCommands(current,b.commands);
     const applied=await this.saveDesign(actor,siteId,{baseHash:b.baseHash,editorData:next,operationId:b.operationId,correlationId:b.correlationId,timestamp:b.timestamp},{...metadata,operationId:b.operationId,correlationId:b.correlationId,timestamp:b.timestamp,validatedContentCommand:contentSafe});
