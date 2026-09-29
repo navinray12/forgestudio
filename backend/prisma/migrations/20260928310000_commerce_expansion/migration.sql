@@ -16,7 +16,8 @@ ALTER TABLE studio.checkout_orders
   ADD COLUMN checkout_mode varchar(20) NOT NULL DEFAULT 'payment',
   ADD COLUMN provider_subscription varchar(180),
   ADD COLUMN provider_payment_intent varchar(180),
-  ADD COLUMN provider_customer varchar(180);
+  ADD COLUMN provider_customer varchar(180),
+  ADD COLUMN inventory_reserved boolean NOT NULL DEFAULT false;
 ALTER TABLE studio.checkout_orders ADD CONSTRAINT studio_checkout_mode CHECK(checkout_mode IN ('payment','subscription'));
 
 CREATE TABLE studio.checkout_order_items (
@@ -36,13 +37,14 @@ CREATE INDEX studio_checkout_items_order ON studio.checkout_order_items(order_id
 CREATE TABLE studio.entitlements (
   id uuid PRIMARY KEY,
   site_id uuid NOT NULL REFERENCES public.websites(id) ON DELETE CASCADE,
-  order_id uuid NOT NULL UNIQUE REFERENCES studio.checkout_orders(id) ON DELETE CASCADE,
+  order_id uuid NOT NULL REFERENCES studio.checkout_orders(id) ON DELETE CASCADE,
   product_id uuid NOT NULL REFERENCES studio.products(id),
   provider_subscription varchar(180),
   state varchar(30) NOT NULL CHECK(state IN ('ACTIVE','PAST_DUE','CANCELED')),
   current_period_end timestamptz,
   created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now()
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE(order_id,product_id)
 );
 CREATE INDEX studio_entitlements_site_state ON studio.entitlements(site_id,state);
 
