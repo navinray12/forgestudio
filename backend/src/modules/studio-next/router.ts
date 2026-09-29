@@ -21,10 +21,11 @@ import { AgentTools } from './agent-tools.js';
 import { Assets,type ImageGenerationProvider } from './assets.js';
 import { CodeComponents,configuredCodeSandboxProvider,type CodeSandboxProvider } from './code-components.js';
 import { observeStudioRequests } from './observability.js';
-import { EnterpriseIdentity } from './enterprise.js';
+import { EnterpriseIdentity,type OidcTransport,type SecretResolver } from './enterprise.js';
 import { configuredExternalPublishingProvider } from './cloud-publishing.js';
 import { StudioError,parse,localeCode } from './validation.js';
 import { trustedOrigin } from '../studio/domain.js';
+import { AUTH_COOKIE_NAME,AUTH_COOKIE_OPTIONS } from '../../config/auth.js';
 export interface RouterOptions { commerce?:CommerceConfig;analyticsSecret?:string;resolveTxt?:TxtResolver;requestLimit?:number;aiProvider?:AIProvider|null;imageProvider?:ImageGenerationProvider|null;codeSandbox?:CodeSandboxProvider|null;webhooks?:WebhookConfig }
 export function configuredCommerce():CommerceConfig{
   let accounts:Record<string,string>={};
@@ -35,7 +36,7 @@ export function configuredCommerce():CommerceConfig{
 }
 export function createStudioNextRouter(db:Database,options:RouterOptions={}){
   const router=express.Router();
-  const commands=new DomainCommands(db),workspaces=new Workspaces(db),featurePolicy=new FeaturePolicy(db),aiGovernance=new AiGovernance(db),webhooks=new Webhooks(db,options.webhooks??configuredWebhookConfig()),cms=new Cms(db,webhooks),cmsCommands=new CmsCommands(db,cms),design=new Design(db,commands),localization=new Localization(db),reviews=new Collaboration(db),domains=new Domains(db,options.resolveTxt),analytics=new Analytics(db,options.analyticsSecret??process.env.STUDIO_ANALYTICS_SECRET),commerce=new Commerce(db,options.commerce??configuredCommerce()),permissions=new Permissions(db),releases=new Releases(db,configuredExternalPublishingProvider()??undefined,webhooks),ai=new AiOrchestrator(db,commands,options.aiProvider===undefined?databaseConfiguredProvider(db,'COPY'):options.aiProvider,options.aiProvider===undefined?databaseConfiguredProvider(db,'EDITOR'):options.aiProvider,options.aiProvider===undefined?databaseConfiguredProvider(db,'PLANNER'):options.aiProvider,options.aiProvider===undefined?databaseConfiguredProvider(db,'EDITOR'):options.aiProvider,cmsCommands,featurePolicy,aiGovernance),seoAi=new AiSeo(db,options.aiProvider===undefined?databaseConfiguredProvider(db,'COPY'):options.aiProvider,featurePolicy,aiGovernance),agentTools=new AgentTools(db,commands,cmsCommands,releases,featurePolicy),assets=new Assets(db,featurePolicy,aiGovernance,options.imageProvider===undefined?undefined:options.imageProvider),codeComponents=new CodeComponents(db,options.aiProvider===undefined?databaseConfiguredProvider(db,'CODE'):options.aiProvider,options.codeSandbox===undefined?configuredCodeSandboxProvider():options.codeSandbox,featurePolicy,aiGovernance),enterprise=new EnterpriseIdentity(db);
+  const commands=new DomainCommands(db),workspaces=new Workspaces(db),featurePolicy=new FeaturePolicy(db),aiGovernance=new AiGovernance(db),webhooks=new Webhooks(db,options.webhooks??configuredWebhookConfig()),cms=new Cms(db,webhooks),cmsCommands=new CmsCommands(db,cms),design=new Design(db,commands),localization=new Localization(db),reviews=new Collaboration(db),domains=new Domains(db,options.resolveTxt),analytics=new Analytics(db,options.analyticsSecret??process.env.STUDIO_ANALYTICS_SECRET),commerce=new Commerce(db,options.commerce??configuredCommerce()),permissions=new Permissions(db),releases=new Releases(db,configuredExternalPublishingProvider()??undefined,webhooks),ai=new AiOrchestrator(db,commands,options.aiProvider===undefined?databaseConfiguredProvider(db,'COPY'):options.aiProvider,options.aiProvider===undefined?databaseConfiguredProvider(db,'EDITOR'):options.aiProvider,options.aiProvider===undefined?databaseConfiguredProvider(db,'PLANNER'):options.aiProvider,options.aiProvider===undefined?databaseConfiguredProvider(db,'EDITOR'):options.aiProvider,cmsCommands,featurePolicy,aiGovernance),seoAi=new AiSeo(db,options.aiProvider===undefined?databaseConfiguredProvider(db,'COPY'):options.aiProvider,featurePolicy,aiGovernance),agentTools=new AgentTools(db,commands,cmsCommands,releases,featurePolicy),assets=new Assets(db,featurePolicy,aiGovernance,options.imageProvider===undefined?undefined:options.imageProvider),codeComponents=new CodeComponents(db,options.aiProvider===undefined?databaseConfiguredProvider(db,'CODE'):options.aiProvider,options.codeSandbox===undefined?configuredCodeSandboxProvider():options.codeSandbox,featurePolicy,aiGovernance),enterprise=new EnterpriseIdentity(db,options.oidcTransport,options.oidcSecretResolver);
   router.use(observeStudioRequests,(_req,res,next)=>{res.setHeader('Cache-Control','no-store');next();});
   type Run=(req:Request,actor:Actor)=>Promise<Record<string,unknown>>;
   const route=(run:Run,status=200):RequestHandler=>async(req,res,next)=>{try{res.status(status).json({success:true,...await run(req,res.locals.actor)});}catch(e){next(e);}};
@@ -43,6 +44,25 @@ export function createStudioNextRouter(db:Database,options:RouterOptions={}){
   // Must also precede the parent app's JSON parser. Never reconstruct bytes from parsed JSON.
   router.post('/payments/webhook',express.raw({type:'application/json',limit:'256kb'}),route(req=>commerce.webhook(req.body,req.get('Stripe-Signature'))));
   router.use(express.json({limit:'2mb'}));
+  const oidcRate=rateLimit({windowMs:60000,limit:30,standardHeaders:true,legacyHeaders:false});
+  const readCookie=(req:Request,name:string)=>req.headers.cookie?.split(';').map(v=>v.trim()).find(v=>v.startsWith(name+'='))?.slice(name.length+1);
+  router.get('/oidc/:workspaceId/start',oidcRate,async(req,res,next)=>{
+    try{
+      const started=await enterprise.startOidc(p(req,'workspaceId'),req.query.returnTo);
+      res.cookie('forge_oidc_pkce',`${started.stateId}.${started.verifier}`,{httpOnly:true,secure:process.env.NODE_ENV==='production',sameSite:'lax',path:`/api/v1/studio-next/oidc/${p(req,'workspaceId')}/callback`,maxAge:10*60*1000});
+      res.redirect(302,started.authorizationUrl);
+    }catch(error){next(error);}
+  });
+  router.get('/oidc/:workspaceId/callback',oidcRate,async(req,res,next)=>{
+    try{
+      const state=String(req.query.state||''),code=String(req.query.code||''),workspaceId=p(req,'workspaceId');
+      const result=await enterprise.finishOidc(workspaceId,state,code,readCookie(req,'forge_oidc_pkce'));
+      res.clearCookie('forge_oidc_pkce',{httpOnly:true,secure:process.env.NODE_ENV==='production',sameSite:'lax',path:`/api/v1/studio-next/oidc/${workspaceId}/callback`});
+      res.cookie(AUTH_COOKIE_NAME,result.sessionToken,AUTH_COOKIE_OPTIONS);
+      const origin=(process.env.FRONTEND_URL||'').replace(/\/$/,'');if(!origin)throw new StudioError('FRONTEND_URL is required after OIDC login',503,'OIDC_ORIGIN');
+      res.redirect(302,origin+result.returnTo);
+    }catch(error){next(error);}
+  });
   const scim=express.Router();
   scim.use(rateLimit({windowMs:60000,limit:120,standardHeaders:true,legacyHeaders:false}));
   scim.get('/:workspaceId/Users',async(req,res,next)=>{try{res.json(await enterprise.listScim(String(req.params.workspaceId),req.get('Authorization'),typeof req.query.filter==='string'?req.query.filter:undefined));}catch(error){next(error);}});
