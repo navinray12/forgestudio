@@ -32,6 +32,11 @@ const designCommand=z.discriminatedUnion('type',[
   z.object({type:z.literal('SET_HOME_PAGE'),pageId:stableId}).strict(),
   z.object({type:z.literal('SET_DESIGN_SYSTEM'),variables:z.array(z.record(z.string(),z.unknown())).max(250),classes:z.array(z.record(z.string(),z.unknown())).max(250)}).strict(),
   z.object({type:z.literal('SET_CMS_BINDING'),elementId:stableId,binding:z.object({collectionId:uuid,field:z.string().regex(/^[a-z][a-z0-9_]{0,79}$/),target:z.enum(['content','src','alt','href']),itemSlug:z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(160).optional()}).strict().nullable()}).strict(),
+  z.object({type:z.literal('UPSERT_COMPONENT'),componentId:stableId,name:z.string().trim().min(1).max(120),element:z.record(z.string(),z.unknown()),slots:z.array(z.string().regex(/^[A-Za-z0-9_-]{1,80}$/)).max(50).default([])}).strict(),
+  z.object({type:z.literal('CREATE_COMPONENT_VARIANT'),componentId:stableId,variant:z.object({id:stableId,name:z.string().trim().min(1).max(120),element:z.record(z.string(),z.unknown())}).strict()}).strict(),
+  z.object({type:z.literal('INSTANTIATE_COMPONENT'),componentId:stableId,variantId:stableId.optional(),instanceId:stableId,parentId:stableId.nullable().default(null),afterId:stableId.nullable().default(null)}).strict(),
+  z.object({type:z.literal('DETACH_COMPONENT'),elementId:stableId}).strict(),
+  z.object({type:z.literal('SET_COMPONENT_SLOT'),elementId:stableId,slotName:z.string().regex(/^[A-Za-z0-9_-]{1,80}$/).nullable()}).strict(),
 ]);
 const commandBatch=z.object({
   baseHash:z.string().regex(/^[a-f0-9]{64}$/),
@@ -67,7 +72,7 @@ function cloneJson<T>(value:T):T{return JSON.parse(JSON.stringify(value));}
 function collectIds(value:any,result=new Set<string>()):Set<string>{
   if(!value||typeof value!=='object')return result;
   if(typeof value.id==='string'){if(result.has(value.id))throw new StudioError('Design contains duplicate element IDs',409,'DUPLICATE_ELEMENT_ID');result.add(value.id);}
-  for(const child of Object.values(value))collectIds(child,result);return result;
+  for(const [key,child] of Object.entries(value))if(key!=='components')collectIds(child,result);return result;
 }
 function findNodes(value:any,id:string,result:any[]=[]):any[]{
   if(!value||typeof value!=='object')return result;
@@ -123,11 +128,34 @@ function normalizeHome(pages:any[],homePageId:string|undefined){
   }
   return {pages,homePageId:target.id};
 }
-function ensureStableElementTree(elements:any[],pageId?:string){
+function ensureStableElementTree(elements:any[],pageId?:string,ids=new Set<string>()){
   for(const element of elements){
     if(!element||typeof element!=='object'||typeof element.id!=='string'||!stableId.safeParse(element.id).success||typeof element.type!=='string'||element.type.length>80)throw new StudioError('Generated page elements require stable IDs and types',400,'INVALID_ELEMENT');
-    if(Array.isArray(element.children))ensureStableElementTree(element.children,pageId);
+    if(ids.has(element.id))throw new StudioError('Element tree contains duplicate stable IDs',409,'DUPLICATE_ELEMENT_ID');ids.add(element.id);
+    if(Array.isArray(element.children))ensureStableElementTree(element.children,pageId,ids);
   }
+}
+function componentsOf(design:any):Record<string,any>{if(!design.components||typeof design.components!=='object'||Array.isArray(design.components))design.components={};return design.components;}
+function validateComponentLibrary(design:any){
+  const components=design.components;if(components===undefined)return;
+  if(!components||typeof components!=='object'||Array.isArray(components)||Object.keys(components).length>250)throw new StudioError('Component library is invalid or exceeds 250 definitions',400,'INVALID_COMPONENT_LIBRARY');
+  for(const [id,definition] of Object.entries(components) as [string,any][]){
+    if(!stableId.safeParse(id).success||!definition||typeof definition!=='object'||typeof definition.name!=='string'||definition.name.length<1||definition.name.length>120||!definition.element)throw new StudioError('Component definition is invalid',400,'INVALID_COMPONENT_LIBRARY');
+    ensureStableElementTree([definition.element]);
+    const slots=definition.slots??[];if(!Array.isArray(slots)||slots.length>50||new Set(slots).size!==slots.length||slots.some((x:any)=>typeof x!=='string'||!/^[A-Za-z0-9_-]{1,80}$/.test(x)))throw new StudioError('Component slots are invalid',400,'INVALID_COMPONENT_LIBRARY');
+    const variants=definition.variants??{};if(!variants||typeof variants!=='object'||Array.isArray(variants)||Object.keys(variants).length>50)throw new StudioError('Component variants are invalid',400,'INVALID_COMPONENT_LIBRARY');
+    for(const [variantId,variant] of Object.entries(variants) as [string,any][]){if(!stableId.safeParse(variantId).success||variant?.id!==variantId||typeof variant?.name!=='string'||!variant?.element)throw new StudioError('Component variant is invalid',400,'INVALID_COMPONENT_LIBRARY');ensureStableElementTree([variant.element]);}
+  }
+}
+function cloneComponentInstance(node:any,componentId:string,instanceId:string,root=true):any{
+  const copy=cloneJson(node),sourceId=String(copy.id||'node'),nextId=root?instanceId:`${instanceId}:${sourceId}`.slice(0,150);
+  copy.id=nextId;copy.componentId=componentId;copy.isComponent=true;
+  if(Array.isArray(copy.children))copy.children=copy.children.map((child:any)=>cloneComponentInstance(child,componentId,instanceId,false));
+  return copy;
+}
+function detachComponentMetadata(node:any):any{
+  const copy=cloneJson(node);delete copy.componentId;delete copy.componentName;delete copy.componentVariantId;delete copy.isComponent;
+  if(Array.isArray(copy.children))copy.children=copy.children.map(detachComponentMetadata);return copy;
 }
 function applyDesignCommands(design:Record<string,unknown>,commands:DesignCommand[]):Record<string,unknown>{
   const next=cloneJson(design);collectIds(next);
@@ -182,6 +210,23 @@ function applyDesignCommands(design:Record<string,unknown>,commands:DesignComman
     } else if(command.type==='SET_CMS_BINDING'){
       const matches=findNodes(next,command.elementId);if(matches.length!==1)throw new StudioError('Element target is missing or ambiguous',409,'ELEMENT_NOT_UNIQUE');
       if(command.binding===null)delete matches[0].cmsBinding;else matches[0].cmsBinding=cloneJson(command.binding);
+    } else if(command.type==='UPSERT_COMPONENT'){
+      const library=componentsOf(next),existing=library[command.componentId];ensureStableElementTree([command.element]);
+      library[command.componentId]={name:command.name,element:cloneJson(command.element),slots:[...new Set(command.slots)],variants:existing?.variants||{},version:Number(existing?.version||0)+1};
+    } else if(command.type==='CREATE_COMPONENT_VARIANT'){
+      const library=componentsOf(next),definition=library[command.componentId];if(!definition)throw new StudioError('Component definition not found',404,'COMPONENT_NOT_FOUND');
+      ensureStableElementTree([command.variant.element]);definition.variants={...(definition.variants||{}),[command.variant.id]:cloneJson(command.variant)};definition.version=Number(definition.version||1)+1;
+    } else if(command.type==='INSTANTIATE_COMPONENT'){
+      const library=componentsOf(next),definition=library[command.componentId];if(!definition)throw new StudioError('Component definition not found',404,'COMPONENT_NOT_FOUND');
+      const variant=command.variantId?definition.variants?.[command.variantId]:undefined;if(command.variantId&&!variant)throw new StudioError('Component variant not found',404,'COMPONENT_VARIANT_NOT_FOUND');
+      const instance=cloneComponentInstance(variant?.element||definition.element,command.componentId,command.instanceId);instance.componentName=definition.name;if(command.variantId)instance.componentVariantId=command.variantId;
+      if(findNodes(next,command.instanceId).length)throw new StudioError('Instance ID already exists',409,'DUPLICATE_ELEMENT_ID');
+      let list:any[];if(command.parentId===null)list=rootElements(next);else{const parents=findNodes(next,command.parentId);if(parents.length!==1)throw new StudioError('Parent element is missing or ambiguous',409,'ELEMENT_NOT_UNIQUE');if(!Array.isArray(parents[0].children))parents[0].children=[];list=parents[0].children;}
+      if(command.afterId===null)list.push(instance);else{const index=list.findIndex((x:any)=>x?.id===command.afterId);if(index<0)throw new StudioError('Insertion anchor is not a child of the selected parent',409,'INSERTION_ANCHOR_MISSING');list.splice(index+1,0,instance);}
+    } else if(command.type==='DETACH_COMPONENT'){
+      const matches=findNodes(next,command.elementId);if(matches.length!==1)throw new StudioError('Component instance not found',404,'ELEMENT_NOT_FOUND');const detached=detachComponentMetadata(matches[0]);Object.keys(matches[0]).forEach(k=>delete matches[0][k]);Object.assign(matches[0],detached);
+    } else if(command.type==='SET_COMPONENT_SLOT'){
+      const matches=findNodes(next,command.elementId);if(matches.length!==1)throw new StudioError('Element target is missing or ambiguous',409,'ELEMENT_NOT_UNIQUE');if(command.slotName===null)delete matches[0].componentSlotName;else matches[0].componentSlotName=command.slotName;
     }
   }
   collectIds(next);return next;
@@ -258,6 +303,7 @@ export class DomainCommands {
       if(incoming.elements!==undefined&&!Array.isArray(incoming.elements))throw new StudioError('Elements must be an array');
       if(incoming.pages!==undefined&&(!Array.isArray(incoming.pages)||incoming.pages.some((p:any)=>!p||typeof p.id!=='string'||!Array.isArray(p.elements))))throw new StudioError('Each page needs an ID and an elements array');
       await validateCmsBindings(c,siteId,incoming);
+      validateComponentLibrary(incoming);
       const updated={...site.editorData,...incoming},result={hash:digest(incoming)};
       await c.query('UPDATE public.websites SET "editorData"=$2::jsonb,"updatedAt"=now() WHERE id=$1',[siteId,JSON.stringify(updated)]);
       await c.query(`INSERT INTO studio.command_receipts(id,actor_id,site_id,command,source,idempotency_key,correlation_id,payload_hash,result)
