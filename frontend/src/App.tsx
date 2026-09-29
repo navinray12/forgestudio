@@ -247,6 +247,10 @@ function App() {
             path="/site/:websiteId/:pageSlug"
             element={<PublishedSite />}
           />
+          <Route
+            path="/site/:websiteId/*"
+            element={<PublishedSite />}
+          />
 
           <Route path="/studio/:siteId" element={<RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}><SiteStudio /></RoleRoute>} />
           <Route path="/workspaces/:workspaceId/people" element={<RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}><WorkspacePeople /></RoleRoute>} />
