@@ -100,8 +100,9 @@ export class AiGovernance{
           if(routeConsumed+units>routeLimit)throw new StudioError('The configured daily AI route budget has been reached',429,'AI_ROUTE_BUDGET_EXCEEDED');
         }
       }
-      if(!budget.rows[0])return null;
-      await c.query("UPDATE studio.ai_usage_reservations SET state='RELEASED' WHERE site_id=$1 AND state='RESERVED' AND expires_at<=now()",[siteId]);
+      await c.query("UPDATE studio.ai_usage_reservations SET state='RELEASED' WHERE state='RESERVED' AND expires_at<=now()");
+      if(!budget.rows[0]&&!routeLimit)return null;
+      if(!budget.rows[0]&&routeLimit){const id=randomUUID();await c.query(`INSERT INTO studio.ai_usage_reservations(id,site_id,user_id,feature,reserved_units,expires_at) VALUES($1,$2,$3,$4,$5,now()+interval '10 minutes')`,[id,siteId,actor.id,feature.slice(0,80),units]);return {id,reservedUnits:units};}
       const used=await c.query(`SELECT COALESCE(sum(COALESCE(input_units,0)+COALESCE(output_units,0)),0)::bigint AS units FROM studio.ai_runs WHERE site_id=$1 AND created_at>=date_trunc('month',now())`,[siteId]);
       const reserved=await c.query(`SELECT COALESCE(sum(reserved_units),0)::bigint AS units FROM studio.ai_usage_reservations WHERE site_id=$1 AND state='RESERVED' AND expires_at>now()`,[siteId]);
       const limit=Number(budget.rows[0].monthly_unit_limit),consumed=Number(used.rows[0].units)+Number(reserved.rows[0].units);
