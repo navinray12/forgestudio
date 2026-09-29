@@ -49,6 +49,23 @@ else {
     d=await send('GET',`/sites/${s}/design`);assert.deepEqual(d.website.editorData.elements[0].interactions,[{id:'open-details',trigger:'click',action:'toggle-visibility',targetSelector:'#details'}]);
     await send('POST',`/sites/${s}/design/commands`,{baseHash:d.hash,operationId:randomUUID(),commands:[{type:'SET_INTERACTIONS',elementId:'interactive-button',rules:[{id:'bad-rule',trigger:'timer',action:'execute-script'}]}]},400);
   });
+  test('Designer structural, class, attribute and responsive commands preserve stable IDs',async()=>{
+    const s=await site(pool,user,{version:1,elements:[{id:'row',type:'section',children:[{id:'card',type:'div',content:'Card',children:[{id:'card-title',type:'heading',content:'Title'}]},{id:'target',type:'section',children:[]}]}]},'DRAFT');
+    let d=await send('GET',`/sites/${s}/design`);
+    await send('POST',`/sites/${s}/design/commands`,{baseHash:d.hash,operationId:randomUUID(),commands:[
+      {type:'DUPLICATE_ELEMENT',elementId:'card',newRootId:'card-copy',parentId:'target',afterId:null},
+      {type:'MOVE_ELEMENT',elementId:'card',parentId:'target',afterId:'card-copy'},
+      {type:'ATTACH_CLASS',elementId:'card',className:'featured-card'},
+      {type:'SET_ATTRIBUTE',elementId:'card',name:'aria-label',value:'Featured card'},
+      {type:'SET_VISIBILITY',elementId:'card',visible:false},
+      {type:'SET_RESPONSIVE_STYLE',elementId:'card',breakpoint:'mobile',property:'display',value:'block'}
+    ]});
+    d=await send('GET',`/sites/${s}/design`);const target=d.website.editorData.elements[0].children.find((x:any)=>x.id==='target');
+    assert.deepEqual(target.children.map((x:any)=>x.id),['card-copy','card']);
+    assert.equal(target.children[0].children[0].id,'card-copy-1');assert.ok(target.children[1].classes.includes('featured-card'));assert.equal(target.children[1].attributes['aria-label'],'Featured card');assert.equal(target.children[1].visibility.visible,false);assert.equal(target.children[1].responsiveOverrides.mobile.display,'block');
+    await send('POST',`/sites/${s}/design/commands`,{baseHash:d.hash,operationId:randomUUID(),commands:[{type:'DETACH_CLASS',elementId:'card',className:'featured-card'},{type:'SET_ATTRIBUTE',elementId:'card',name:'aria-label',value:null}]});
+    d=await send('GET',`/sites/${s}/design`);const card=d.website.editorData.elements[0].children.find((x:any)=>x.id==='target').children.find((x:any)=>x.id==='card');assert.equal(card.classes.includes('featured-card'),false);assert.equal(card.attributes['aria-label'],undefined);
+  });
   test('typed command retries are idempotent and stale commands fail',async()=>{const d=await send('GET',`/sites/${siteId}/design`),operationId=randomUUID(),body={baseHash:d.hash,operationId,commands:[{type:'SET_ELEMENT_TEXT',elementId:'heading',field:'content',value:'Retry once'}]};const first=await send('POST',`/sites/${siteId}/design/commands`,body);const second=await send('POST',`/sites/${siteId}/design/commands`,body);assert.equal(first.hash,second.hash);assert.equal(second.replayed,true);await send('POST',`/sites/${siteId}/design/commands`,{...body,operationId:randomUUID()},409);});
   test('structural commands require stable unique IDs',async()=>{const d=await send('GET',`/sites/${siteId}/design`);await send('POST',`/sites/${siteId}/design/commands`,{baseHash:d.hash,operationId:randomUUID(),commands:[{type:'ADD_ELEMENT',parentId:null,afterId:'heading',element:{id:'cta-section',type:'section',children:[]}}]});const next=await send('GET',`/sites/${siteId}/design`);assert.equal(next.website.editorData.elements.at(-1).id,'cta-section');await send('POST',`/sites/${siteId}/design/commands`,{baseHash:next.hash,operationId:randomUUID(),commands:[{type:'ADD_ELEMENT',parentId:null,afterId:null,element:{id:'cta-section',type:'section'}}]},409);});
   test('page lifecycle commands preserve home and slug invariants',async()=>{
