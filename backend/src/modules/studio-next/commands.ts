@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { Database,type Actor } from './database.js';
-import { parse,designOnly,digest,jsonObject,StudioError } from './validation.js';
+import { parse,designOnly,digest,jsonObject,uuid,StudioError } from './validation.js';
 import { contentOnly } from './design-policy.js';
 import { validateVariables,validateClasses } from '../../services/tokens/designToken.service.js';
 
