@@ -6,7 +6,23 @@ import {Database,type Actor} from './database.js';
 import {FeaturePolicy,AiGovernance} from './governance.js';
 import {resolveAIRoute} from './ai-control.js';
 import {parse,StudioError} from './validation.js';
-import {extractImageDimensions} from '../../services/media.service.js';
+
+function imageDimensions(buffer:Buffer,mimeType:string):{width?:number;height?:number}{
+  try{
+    if(buffer.length<24)return {};
+    if(mimeType==='image/png'&&buffer[0]===0x89&&buffer[1]===0x50)return {width:buffer.readUInt32BE(16),height:buffer.readUInt32BE(20)};
+    if(mimeType==='image/webp'&&buffer.toString('ascii',0,4)==='RIFF'&&buffer.toString('ascii',8,12)==='WEBP'){
+      const kind=buffer.toString('ascii',12,16);
+      if(kind==='VP8 '&&buffer.length>=30)return {width:buffer.readUInt16LE(26)&0x3fff,height:buffer.readUInt16LE(28)&0x3fff};
+      if(kind==='VP8L'&&buffer.length>=25){const b1=buffer[21],b2=buffer[22],b3=buffer[23],b4=buffer[24];return {width:1+(((b2&0x3f)<<8)|b1),height:1+(((b4&0x0f)<<10)|(b3<<2)|((b2&0xc0)>>6))};}
+      if(kind==='VP8X'&&buffer.length>=30)return {width:1+buffer.readUIntLE(24,3),height:1+buffer.readUIntLE(27,3)};
+    }
+    if(mimeType==='image/jpeg'&&buffer[0]===0xff&&buffer[1]===0xd8){
+      let offset=2;while(offset<buffer.length-8){if(buffer[offset]!==0xff){offset++;continue;}const marker=buffer[offset+1];if([0xc0,0xc1,0xc2].includes(marker))return {height:buffer.readUInt16BE(offset+5),width:buffer.readUInt16BE(offset+7)};const length=buffer.readUInt16BE(offset+2);if(length<2)break;offset+=2+length;}
+    }
+  }catch{return {};}
+  return {};
+}
 
 const inputSchema=z.object({
   prompt:z.string().trim().min(3).max(4000),
@@ -55,7 +71,7 @@ export class Assets{
   async generationStatus(actor:Actor,siteId:string){
     await this.db.tx(async c=>{await this.db.site(c,actor,siteId,'VIEW');});
     const route=await resolveAIRoute(this.db,'IMAGE'),enabled=await this.features.effective(siteId,'AI_IMAGES');
-    return {enabled,configured:enabled&&!!route&&!!this.provider,route:route?{provider:route.provider,model:route.model,source:route.source}:null};
+    return {enabled,configured:enabled&&!!route&&route.provider==='openai'&&!!this.provider,route:route?{provider:route.provider,model:route.model,source:route.source}:null};
   }
   async generate(actor:Actor,siteId:string,input:unknown){
     const body=parse(inputSchema,input);
@@ -70,7 +86,7 @@ export class Assets{
       const extension=generated.mimeType==='image/jpeg'?'jpg':generated.mimeType==='image/webp'?'webp':'png';
       const filename=`ai_${Date.now()}_${randomBytes(6).toString('hex')}.${extension}`,dir=path.join(process.cwd(),'uploads','images');
       await fs.mkdir(dir,{recursive:true});await fs.writeFile(path.join(dir,filename),generated.bytes,{flag:'wx'});
-      const dimensions=extractImageDimensions(generated.bytes,generated.mimeType),assetId=randomUUID(),publicUrl=`/uploads/images/${filename}`;
+      const dimensions=imageDimensions(generated.bytes,generated.mimeType),assetId=randomUUID(),publicUrl=`/uploads/images/${filename}`;
       const inserted=await this.db.pool.query(`INSERT INTO public.media_assets(id,"userId","websiteId",filename,"originalName","mimeType","sizeBytes",url,width,height,"altText",format,provenance,"providerName","modelId","promptHash","generatedAt",metadata)
         VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,'ORIGINAL','GENERATED',$12,$13,$14,now(),$15::jsonb)
         RETURNING id,"userId","websiteId",filename,"originalName","mimeType","sizeBytes",url,width,height,"altText",format,provenance,"providerName","modelId","promptHash","generatedAt",metadata,"createdAt","updatedAt"`,
