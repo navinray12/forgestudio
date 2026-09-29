@@ -28,7 +28,6 @@ export function createPresenceServer(server:Server,db:Database){
   const wss=new WebSocketServer({noServer:true,maxPayload:8192}),instanceId=randomUUID();
   let listener:any=null,closed=false;
   const fanout=(siteId:string,event:unknown)=>{
-    localBroadcast(siteId,event);
     const payload=JSON.stringify({source:instanceId,siteId,event});
     if(Buffer.byteLength(payload)<=7500)void db.pool.query("SELECT pg_notify('studio_presence',$1)",[payload]).catch(()=>undefined);
   };
