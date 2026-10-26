@@ -1401,6 +1401,8 @@ export interface PublicWebsiteDTO {
     elements: any[];
     siteParts?: any;
     globalStyles?: any;
+    globalVariables?: any[];
+    globalClasses?: any[];
     breakpoints?: any[];
     popups?: any[];
     pageCss?: string;
@@ -1774,6 +1776,8 @@ export async function getPublicWebsiteById(websiteId: string): Promise<PublicWeb
     elements: resolvedElements,
     siteParts: resolvedSiteParts,
     globalStyles: sourceData.globalStyles || undefined,
+    globalVariables: Array.isArray(sourceData.globalVariables) ? sourceData.globalVariables : undefined,
+    globalClasses: Array.isArray(sourceData.globalClasses) ? sourceData.globalClasses : undefined,
     breakpoints: sourceData.breakpoints || undefined,
     popups: sourceData.popups || undefined,
     pageCss: sourceData.pageCss || undefined,

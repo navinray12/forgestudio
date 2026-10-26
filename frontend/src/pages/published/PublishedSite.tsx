@@ -829,7 +829,8 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
 });
 
 function PublishedSite() {
-    const { websiteId, pageSlug } = useParams<{ websiteId: string; pageSlug?: string }>();
+    const { websiteId, pageSlug, "*": nestedPageSlug } = useParams<{ websiteId: string; pageSlug?: string; "*"?: string }>();
+    const resolvedPageSlug = nestedPageSlug || pageSlug;
     const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
     const [loading, setLoading] = useState(true);
@@ -846,7 +847,6 @@ function PublishedSite() {
     const [globalVariables, setGlobalVariables] = useState<any[]>([]);
     const [globalClasses, setGlobalClasses] = useState<any[]>([]);
     const [cookieConsentConfig, setCookieConsentConfig] = useState<any>(null);
-    const [sitePartsState, setSitePartsState] = useState<any>(null);
     const [siteStatus, setSiteStatus] = useState<string>("DRAFT");
     const [_themeRules, _setThemeRules] = useState<any[]>([]);
     const [statementOpen, setStatementOpen] = useState<boolean>(false);
@@ -945,7 +945,7 @@ function PublishedSite() {
                     setPages(pagesList);
                     const urlParams = new URLSearchParams(window.location.search);
                     const queryPage = urlParams.get("page");
-                    const initialSlug = pageSlug || queryPage;
+                    const initialSlug = resolvedPageSlug || queryPage;
                     const cleanSlug = initialSlug ? initialSlug.replace(/^\//, "") : "";
                     const isPostRoute = cleanSlug.startsWith("post/") || cleanSlug.startsWith("blog/");
                     const isTermRoute = cleanSlug.startsWith("category/") || cleanSlug.startsWith("tag/");
@@ -1004,7 +1004,7 @@ function PublishedSite() {
             }
         };
         fetchWebsite();
-    }, [websiteId, apiUrl, pageSlug]);
+    }, [websiteId, apiUrl, resolvedPageSlug]);
 
     // Phase 3 Subsystem 2: A/B Split Testing & Impression Telemetry
     useEffect(() => {
@@ -1322,7 +1322,7 @@ function PublishedSite() {
             )}
 
             {/* Configured Global Header */}
-            {sitePartsState?.header?.elements && sitePartsState.header.elements.length > 0 && (sitePartsState.header.isEnabled ?? true) && (
+            {sitePartsState?.header?.elements && sitePartsState.header.elements.length > 0 && (sitePartsState.header.isEnabled ?? sitePartsState.header.enabled ?? true) && (
                 <header className="site-global-header w-full">
                     {sitePartsState.header.elements.map((el: EditorElement, index: number) => (
                         <RenderNode
@@ -1453,7 +1453,7 @@ function PublishedSite() {
             />
 
             {/* Configured Global Footer */}
-            {sitePartsState?.footer?.elements && sitePartsState.footer.elements.length > 0 && (sitePartsState.footer.isEnabled ?? true) && (
+            {sitePartsState?.footer?.elements && sitePartsState.footer.elements.length > 0 && (sitePartsState.footer.isEnabled ?? sitePartsState.footer.enabled ?? true) && (
                 <footer className="site-global-footer w-full">
                     {sitePartsState.footer.elements.map((el: EditorElement, index: number) => (
                         <RenderNode

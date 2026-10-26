@@ -338,8 +338,11 @@ export async function deleteMediaAsset(id: string, userId: string) {
 
   // Attempt to delete physical file from disk if under local uploads
   try {
-    const uploadsDir = path.resolve(process.cwd(), "public/uploads");
-    const filePath = path.join(uploadsDir, asset.filename);
+    const uploadsDir = path.resolve(process.cwd(), "uploads", "images");
+    const filePath = path.resolve(uploadsDir, asset.filename);
+    if (!filePath.startsWith(`${uploadsDir}${path.sep}`)) {
+      throw new Error("Resolved media path is outside the upload directory");
+    }
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
     }

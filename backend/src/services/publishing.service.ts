@@ -645,6 +645,33 @@ export async function publishWebsite(
       warnings: validation.warnings,
     };
   } catch (error: any) {
+    // INTERNAL publishing changes the live database record before revision linkage.
+    // If any later gate fails, restore the exact pre-publish record so a reported
+    // failure can never expose a partially published release to anonymous users.
+    if (destinationType === "INTERNAL") {
+      try {
+        const current = await db.website.findUnique({ where: { id: websiteId } });
+        const currentData = typeof current?.editorData === "string"
+          ? JSON.parse(current.editorData)
+          : (current?.editorData || {});
+        const exposedVersion = currentData?.publishedData?.version ?? currentData?.publishedData?.publishing?.version;
+        if (exposedVersion === nextVersion) {
+          await db.website.update({
+            where: { id: websiteId },
+            data: {
+              status: website.status,
+              editorData: rawEditorData,
+            },
+          });
+        }
+      } catch (restoreError) {
+        console.error("CRITICAL: failed to restore the previous internal release after publish failure", {
+          websiteId,
+          deploymentId: deployment?.id,
+        });
+      }
+    }
+
     // If deployment has not entered a terminal failure state yet, mark DEPLOY_FAILED
     if (
       deployment?.status !== "VALIDATION_FAILED" &&

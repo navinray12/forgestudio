@@ -17,6 +17,7 @@ interface UseAutosaveParams {
   breakpoints?: any[];
   popups?: any[];
   pageCss?: string;
+  publishedData?: any;
   apiUrl: string;
   isLoadingWebsite: boolean;
   debounceMs?: number;
@@ -36,6 +37,7 @@ interface SavePayload {
   breakpoints?: any[];
   popups?: any[];
   pageCss?: string;
+  publishedData?: any;
 }
 
 export function useAutosave({
@@ -52,6 +54,7 @@ export function useAutosave({
   breakpoints,
   popups,
   pageCss,
+  publishedData,
   apiUrl,
   isLoadingWebsite,
   debounceMs = 1500,
@@ -82,6 +85,7 @@ export function useAutosave({
     breakpoints,
     popups,
     pageCss,
+    publishedData,
     apiUrl,
   });
 
@@ -100,6 +104,7 @@ export function useAutosave({
       breakpoints,
       popups,
       pageCss,
+      publishedData,
       apiUrl,
     };
   }, [
@@ -116,6 +121,7 @@ export function useAutosave({
     breakpoints,
     popups,
     pageCss,
+    publishedData,
     apiUrl,
   ]);
 
@@ -238,6 +244,7 @@ export function useAutosave({
             breakpoints: payload.breakpoints,
             popups: payload.popups,
             pageCss: payload.pageCss,
+            ...(payload.publishedData ? { publishedData: payload.publishedData } : {}),
           },
         };
 
@@ -261,10 +268,10 @@ export function useAutosave({
 
           if (!res.ok) {
             const data = await res.json().catch(() => ({}));
-            console.warn("Backend save endpoint returned non-OK status, saved locally:", data);
+            throw new Error(data?.error?.message || data?.message || `Server save failed (${res.status})`);
           }
         } catch (netErr) {
-          console.warn("Backend save network request failed, saved locally:", netErr);
+          throw netErr;
         }
 
         // Update baseline to the snapshot that was persisted
@@ -305,7 +312,8 @@ export function useAutosave({
         isSavingRef.current = false;
         queuedPayloadRef.current = null;
         console.error("Autosave error:", err);
-        setStatus("saved"); // Local save succeeded
+        setStatus("error");
+        setErrorMessage(err?.message || "Changes are stored only in this browser; server save failed.");
       }
     },
     [serializeState]
@@ -445,6 +453,9 @@ export function useAutosave({
           ? JSON.parse(JSON.stringify(latestPropsRef.current.popups))
           : undefined,
         pageCss: latestPropsRef.current.pageCss,
+        publishedData: latestPropsRef.current.publishedData
+          ? JSON.parse(JSON.stringify(latestPropsRef.current.publishedData))
+          : undefined,
       };
 
       if (isSavingRef.current) {

@@ -26,6 +26,8 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
   onSelect,
   websiteId,
 }) => {
+  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const resolveAssetUrl = (url: string) => /^https?:\/\//i.test(url) ? url : `${apiUrl}${url.startsWith("/") ? url : `/${url}`}`;
   const [assets, setAssets] = useState<MediaAssetItem[]>([]);
   const [selectedAsset, setSelectedAsset] = useState<MediaAssetItem | null>(null);
   const [loading, setLoading] = useState(false);
@@ -55,7 +57,7 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
       if (websiteId) params.append("websiteId", websiteId);
       if (searchQuery) params.append("search", searchQuery);
 
-      const res = await fetch(`/api/media?${params.toString()}`, {
+      const res = await fetch(`${apiUrl}/api/media?${params.toString()}`, {
         credentials: "include",
       });
       if (res.ok) {
@@ -82,7 +84,7 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
         const formData = new FormData();
         formData.append("image", file);
 
-        const res = await fetch("/api/uploads/image", {
+        const res = await fetch(`${apiUrl}/api/uploads/image`, {
           method: "POST",
           body: formData,
           credentials: "include",
@@ -109,7 +111,7 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
     if (!selectedAsset) return;
     setSavingAlt(true);
     try {
-      const res = await fetch(`/api/media/${selectedAsset.id}`, {
+      const res = await fetch(`${apiUrl}/api/media/${selectedAsset.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ altText: altTextInput }),
@@ -133,7 +135,7 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
   const handleDeleteAsset = async (id: string) => {
     if (!window.confirm("Are you sure you want to delete this media asset?")) return;
     try {
-      const res = await fetch(`/api/media/${id}`, {
+      const res = await fetch(`${apiUrl}/api/media/${id}`, {
         method: "DELETE",
         credentials: "include",
       });
@@ -416,7 +418,7 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
                         }}
                       >
                         <img
-                          src={asset.url}
+                          src={resolveAssetUrl(asset.url)}
                           alt={asset.altText || asset.originalName}
                           style={{
                             maxWidth: "100%",
@@ -474,7 +476,7 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
                     }}
                   >
                     <img
-                      src={selectedAsset.url}
+                      src={resolveAssetUrl(selectedAsset.url)}
                       alt={selectedAsset.altText || ""}
                       style={{
                         maxWidth: "100%",
@@ -533,7 +535,7 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
                       <input
                         type="text"
                         readOnly
-                        value={selectedAsset.url}
+                        value={resolveAssetUrl(selectedAsset.url)}
                         style={{
                           flex: 1,
                           padding: "6px 10px",
@@ -545,7 +547,7 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
                         }}
                       />
                       <button
-                        onClick={() => navigator.clipboard.writeText(selectedAsset.url)}
+                        onClick={() => navigator.clipboard.writeText(resolveAssetUrl(selectedAsset.url))}
                         style={{
                           padding: "6px 10px",
                           backgroundColor: "#27272a",
@@ -565,7 +567,7 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
                   <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: "10px" }}>
                     <button
                       onClick={() => {
-                        onSelect(selectedAsset.url, selectedAsset.altText || altTextInput);
+                        onSelect(resolveAssetUrl(selectedAsset.url), selectedAsset.altText || altTextInput);
                         onClose();
                       }}
                       style={{

@@ -5,6 +5,8 @@ import {
   deleteWebsiteSubmission,
   getSubmissionPdf,
 } from "../services/form/form.service.js";
+import { getPublicWebsiteById } from "../services/website.service.js";
+import { findPublishedFormNode } from "../utils/published-form.js";
 
 /**
  * POST /api/forms/submit
@@ -34,16 +36,27 @@ export async function submitFormHandler(
       referer: req.headers["referer"] || "",
     };
 
+    // Public submissions must target a form contained in the active published snapshot.
+    // Never trust client-supplied delivery actions or integration credentials.
+    const publicWebsite = await getPublicWebsiteById(websiteId);
+    const publishedForm = findPublishedFormNode(publicWebsite.editorData, formId);
+    if (!publishedForm) {
+      return res.status(404).json({
+        success: false,
+        message: "Published form not found",
+      });
+    }
+
     const result = await processFormSubmission({
       websiteId,
       formId,
-      formName,
+      formName: publishedForm.formName || publishedForm.formTitle || formName,
       fields,
-      actions,
-      spamProtection,
+      actions: publishedForm.actions,
+      spamProtection: publishedForm.spamProtection,
       honeypotValue,
-      conditionalLogic,
-      fieldConfigs,
+      conditionalLogic: publishedForm.conditionalLogic,
+      fieldConfigs: publishedForm.fields,
       metadata,
     });
 

@@ -2003,6 +2003,7 @@ export default function WebsiteEditor() {
     breakpoints,
     popups,
     pageCss,
+    publishedData: publishedDataRef.current,
     apiUrl,
     isLoadingWebsite: loading,
   });
@@ -2455,7 +2456,8 @@ export default function WebsiteEditor() {
         });
 
         if (!res.ok) {
-          console.warn("Backend save returned non-OK status, saved locally.");
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data?.error?.message || data?.message || `Server save failed (${res.status})`);
         }
       } catch (netErr) {
         console.warn("Backend save request failed, saved locally:", netErr);
@@ -2480,7 +2482,7 @@ export default function WebsiteEditor() {
       setSaveMessage("Saved successfully!");
       setTimeout(() => setSaveMessage(""), 3000);
     } catch (err: any) {
-      setSaveMessage("Saved locally!");
+      setSaveMessage(err?.message ? `Server save failed: ${err.message}. Local recovery copy kept.` : "Server save failed. Local recovery copy kept.");
       setTimeout(() => setSaveMessage(""), 3000);
     } finally {
       setSaving(false);
