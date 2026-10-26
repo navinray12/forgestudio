@@ -58,7 +58,6 @@ export async function measureSitePerformance(
   userId: string,
   targetUrl?: string
 ): Promise<PerformanceAuditResult> {
-  await initPerformanceTables();
   const site = await getWebsiteById(websiteId, userId);
 
   // Determine target URL: provided, or WP connected URL, or published slug fallback
@@ -188,7 +187,6 @@ export async function measureSitePerformance(
  * Retrieve recent performance metrics and summary statistics
  */
 export async function getPerformanceSummary(websiteId: string, userId: string) {
-  await initPerformanceTables();
   await getWebsiteById(websiteId, userId);
 
   let metrics: any[] = [];

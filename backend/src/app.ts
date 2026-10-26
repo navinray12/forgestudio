@@ -1,4 +1,3 @@
-import path from "path";
 import express, { type Request, type Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
@@ -54,6 +53,11 @@ import mailerRoutes from "./routes/mailer.routes.js";
 import clientBillingRoutes from "./routes/clientBilling.routes.js";
 import experimentRoutes from "./routes/experiment.routes.js";
 import { rateLimit } from "express-rate-limit";
+import { validateEnvironment } from "./config/environment.js";
+import { getUploadRoot } from "./config/storage.js";
+import { enforceTrustedOrigin } from "./middlewares/csrf.middleware.js";
+
+const runtimeEnvironment = validateEnvironment();
 
 const authRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -77,11 +81,15 @@ app.use(
   })
 );
 
-app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+app.use("/uploads", express.static(getUploadRoot(), {
+  fallthrough: false,
+  immutable: true,
+  maxAge: "7d",
+}));
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL,
+    origin: runtimeEnvironment.frontendUrl,
     credentials: true,
   })
 );
@@ -89,6 +97,7 @@ app.use(
 app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true, limit: "2mb" }));
 app.use(cookieParser());
+app.use(enforceTrustedOrigin);
 app.use(passport.initialize());
 
 

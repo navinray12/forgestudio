@@ -331,6 +331,7 @@ export default function WebsiteEditor() {
 
   // State Management
   const [website, setWebsite] = useState<WebsiteData | null>(null);
+  const [draftVersion, setDraftVersion] = useState(0);
 
   const [globalSettings, setGlobalSettings] = useState<any>({
     siteIdentity: { name: "My Website" },
@@ -1822,6 +1823,7 @@ export default function WebsiteEditor() {
 
         if (loadedSite) {
           setWebsite(loadedSite);
+          setDraftVersion(Number.isInteger(loadedSite.draftVersion) ? loadedSite.draftVersion : 0);
 
           // Fetch component accesses
           try {
@@ -2004,6 +2006,8 @@ export default function WebsiteEditor() {
     popups,
     pageCss,
     publishedData: publishedDataRef.current,
+    draftVersion,
+    onDraftVersionChange: setDraftVersion,
     apiUrl,
     isLoadingWebsite: loading,
   });
@@ -2388,6 +2392,7 @@ export default function WebsiteEditor() {
       const canonicalPageElements = canvasMode === "page" ? elements : (pages.find(p => p.id === activePageId)?.elements || []);
 
       const payload = {
+        expectedVersion: draftVersion,
         editorData: {
           version: 1,
           elements: canonicalPageElements,
@@ -2455,12 +2460,15 @@ export default function WebsiteEditor() {
           body: JSON.stringify(payload),
         });
 
+        const data = await res.json().catch(() => ({}));
         if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
           throw new Error(data?.error?.message || data?.message || `Server save failed (${res.status})`);
         }
+        if (Number.isInteger(data?.website?.draftVersion)) {
+          setDraftVersion(data.website.draftVersion);
+        }
       } catch (netErr) {
-        console.warn("Backend save request failed, saved locally:", netErr);
+        throw netErr;
       }
 
       // Update F-321 Autosave baseline on successful save

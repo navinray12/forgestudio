@@ -90,7 +90,6 @@ export async function optimizeImage(
     originalBytes?: number;
   }
 ): Promise<OptimizeImageResult> {
-  await initOptimizationTables();
   await getWebsiteById(websiteId, userId);
 
   // 1. Check user credit balance
@@ -262,7 +261,6 @@ export async function optimizeImage(
  * Get optimization stats, savings breakdown, and remaining credits
  */
 export async function getOptimizationStats(websiteId: string, userId: string) {
-  await initOptimizationTables();
   await getWebsiteById(websiteId, userId);
 
   // 1. Fetch user credit balance

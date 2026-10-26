@@ -144,6 +144,7 @@ exports.Prisma.WebsiteScalarFieldEnum = {
   slug: 'slug',
   status: 'status',
   editorData: 'editorData',
+  draftVersion: 'draftVersion',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   teamId: 'teamId',
@@ -270,7 +271,9 @@ exports.Prisma.FormSubmissionScalarFieldEnum = {
   id: 'id',
   websiteId: 'websiteId',
   formId: 'formId',
+  formName: 'formName',
   data: 'data',
+  metadata: 'metadata',
   ipAddress: 'ipAddress',
   status: 'status',
   createdAt: 'createdAt'

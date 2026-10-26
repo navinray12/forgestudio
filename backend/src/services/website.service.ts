@@ -394,9 +394,6 @@ export async function initWebsiteTable() {
   }
 }
 
-// Auto-run initialization
-initWebsiteTable();
-
 function generateSlug(name: string): string {
   const baseSlug = name
     .toLowerCase()
@@ -864,7 +861,8 @@ export async function updateWebsiteEditorData(
   websiteId: string,
   userId: string,
   editorData: any,
-  performanceSettings?: any
+  performanceSettings?: any,
+  expectedVersion?: number
 ) {
   validateCanonicalEditorData(editorData);
 
@@ -1025,11 +1023,25 @@ export async function updateWebsiteEditorData(
       if (performanceSettings !== undefined) {
         updateData.performanceSettings = performanceSettings;
       }
-      const updated = await db.website.update({
+      if (Number.isInteger(expectedVersion) && expectedVersion! >= 0) {
+        const result = await db.website.updateMany({
+          where: { id: websiteId, draftVersion: expectedVersion },
+          data: { ...updateData, draftVersion: { increment: 1 } },
+        });
+        if (result.count !== 1) {
+          throw new AppError(
+            "This website was changed in another tab or session. Reload before saving to avoid overwriting newer work.",
+            409,
+            "STALE_DRAFT"
+          );
+        }
+        return await db.website.findUnique({ where: { id: websiteId } });
+      }
+
+      return await db.website.update({
         where: { id: websiteId },
-        data: updateData,
+        data: { ...updateData, draftVersion: { increment: 1 } },
       });
-      return updated;
     }
 
     const jsonStr = JSON.stringify(editorData);
@@ -1072,6 +1084,7 @@ export async function updateWebsiteEditorData(
 
     return updated[0];
   } catch (error) {
+    if (error instanceof AppError) throw error;
     console.error("Error updating website editor data:", error);
     throw new AppError("Failed to save website changes", 500, "SAVE_FAILED");
   }

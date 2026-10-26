@@ -161,9 +161,15 @@ export async function updateWebsiteHandler(
   try {
     const user = res.locals.user;
     const websiteId = req.params.id as string;
-    const { editorData, performanceSettings } = req.body;
+    const { editorData, performanceSettings, expectedVersion } = req.body;
 
-    const website = await updateWebsiteEditorData(websiteId, user.id, editorData, performanceSettings);
+    const website = await updateWebsiteEditorData(
+      websiteId,
+      user.id,
+      editorData,
+      performanceSettings,
+      expectedVersion
+    );
 
     return res.status(200).json({
       success: true,

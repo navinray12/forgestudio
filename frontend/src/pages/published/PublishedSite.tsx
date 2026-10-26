@@ -835,6 +835,7 @@ function PublishedSite() {
 
     const [loading, setLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState("");
+    const [pageNotFound, setPageNotFound] = useState(false);
     const [elements, setElements] = useState<EditorElement[]>([]);
     const [pages, setPages] = useState<PageConfig[]>([]);
     const [activePageId, setActivePageId] = useState<string>("home");
@@ -917,6 +918,7 @@ function PublishedSite() {
         const fetchWebsite = async () => {
             try {
                 setLoading(true);
+                setPageNotFound(false);
                 let res = await fetch(`${apiUrl}/api/v1/websites/public/${websiteId}`);
                 if (!res.ok && res.status !== 404) {
                     const fallback = await fetch(`${apiUrl}/api/websites/public/${websiteId}`);
@@ -971,6 +973,9 @@ function PublishedSite() {
                         // F-239: 404 Template Fallback for unmatched route
                         setActivePageId("404-template");
                         setElements(loadedSiteParts.notFound404.elements);
+                    } else if (initialSlug) {
+                        setPageNotFound(true);
+                        setElements([]);
                     } else {
                         const activePage = pagesList.find((p: any) => p.isHome || p.slug === "/") || pagesList[0];
                         setActivePageId(activePage.id || "home");
@@ -1289,6 +1294,31 @@ function PublishedSite() {
                 <p className="text-slate-500 max-w-md text-sm">
                     The requested page cannot be found or is not currently published.
                 </p>
+            </div>
+        );
+    }
+
+    if (pageNotFound) {
+        return (
+            <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col items-center justify-center p-6 text-center">
+                <div className="text-6xl font-black text-slate-300 mb-4">404</div>
+                <h1 className="text-2xl font-bold mb-2">Page not found</h1>
+                <p className="text-slate-500 max-w-md text-sm mb-6">
+                    The requested page does not exist on this published website.
+                </p>
+                <button
+                    type="button"
+                    onClick={() => {
+                        const home = pages.find((page) => page.isHome || page.slug === "/" || page.id === "home") || pages[0];
+                        if (home) {
+                            setPageNotFound(false);
+                            handleSwitchPage(home);
+                        }
+                    }}
+                    className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+                >
+                    Go to homepage
+                </button>
             </div>
         );
     }

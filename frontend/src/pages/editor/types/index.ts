@@ -1857,6 +1857,7 @@ export interface WebsiteData {
   name: string;
   slug: string;
   status: string;
+  draftVersion?: number;
   userPermission?: string;
   editorData?: CanonicalWebsiteData | any;
 }

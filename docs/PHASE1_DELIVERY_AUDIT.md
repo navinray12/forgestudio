@@ -2,15 +2,15 @@
 
 Audit date: 2026-10-26  
 Base: `origin/backup-devnew` at `4944d6e556cb6063dfca619cbfef677a999922c1`  
-Working branch: `audit/phase1-delivery-20261026`
+Implementation branch: `feature/phase1-readiness-20261026` (continued from audit commit `3cedd01a1371bcc6b61c4f1477a995ec129c30e1`)
 
 ## Executive verdict
 
-**Not ready for production Phase 1 sign-off yet.**
+**Ready with explicit infrastructure and acceptance limitations; not yet production-signed-off.**
 
 The application contains a substantial manual website builder and the principal draft/publish/public-render pipeline. During this audit, confirmed code blockers were fixed: the frontend compile failure, false save-success states, loss of the published snapshot during autosave, broken cross-origin media calls, missing nested public routes, missing published design variables/classes, unsafe public form action trust, internal publish failure exposure, generated Prisma runtime packaging, incomplete Phase 1 migration ordering, and automatic creation/reset of known privileged accounts.
 
-The resulting branch is a credible Phase 1 release candidate, but production sign-off still requires (1) a fresh PostgreSQL migration rehearsal on a disposable database, (2) a full authenticated browser journey with real email OTP and durable media storage, and (3) a deployed reverse-proxy/static-host check proving SPA fallback for direct nested public URLs. Those environments were not available in this workspace, so they are not marked passed.
+The implementation branch closes the confirmed code blockers, including fresh-database migrations, request-time schema mutation, stale-save overwrites and unknown public-route handling. Production sign-off still requires a full authenticated browser journey with real email OTP and durable media storage, plus a deployed HTTPS/SPA-fallback check. Those external environments were not available, so they are not marked passed.
 
 ## Supported Phase 1 scope
 
@@ -310,3 +310,34 @@ npm.cmd run dev
 ```
 
 Required configuration starts with `backend/.env.example` and `frontend/.env.example`. Secrets must be supplied outside Git.
+
+## Implementation continuation — 2026-10-26
+
+This section supersedes the earlier status of P1-012 through P1-016 where stated.
+
+| Finding | Resolution and evidence | Current status |
+|---|---|---|
+| P1-012 fresh migration | Added and ran guarded disposable rehearsal. All 11 migrations applied, 51 public tables were present, critical form/API-key/WordPress columns were verified, and a representative pre-version website survived the additive upgrade with `draftVersion=0`. | Resolved and database-verified. |
+| P1-013 runtime DDL | Removed automatic schema initializers from Prisma startup, authentication and active website/form/media/template/licensing/mailer/optimization/performance/usage paths. Added `20261026020000_reconcile_runtime_schema` for structures previously created opportunistically. | Resolved for runtime paths. Legacy exported initializer helpers remain test-only. |
+| P1-014 stale saves | Added monotonic `Website.draftVersion`; editor/manual and autosave send `expectedVersion`; the service performs atomic compare-and-swap and returns `409 STALE_DRAFT` on conflict. Old documents and clients remain readable. | Code/build/migration verified; two-tab browser UX remains externally unverified. |
+| P1-015 unknown page | Public renderer now displays an explicit 404 state and homepage action rather than silently rendering home. | SPA behavior resolved; HTTP status remains a documented hosting/SSR limitation. |
+| P1-016 media durability | Added validated `UPLOAD_DIR` configuration used consistently for upload, delete and static serving. | Code resolved; deployment must mount shared persistent storage and prove restart/replacement durability. |
+| P1-018 production request trust | Added production configuration validation and same-origin enforcement for cookie-authenticated unsafe requests. | Resolved; focused regression tests pass 4/4. |
+| P1-019 full lint gate | `npm.cmd run lint` scans legacy `.agent`/utility files and the entire editor, producing thousands of pre-existing errors (unused imports, `any`, hook rules and parser failures). | Confirmed quality debt, not introduced by this implementation; build remains the compile gate. |
+
+### Updated verification evidence
+
+| Evidence category | Check | Result |
+|---|---|---|
+| Production build | Backend `npm.cmd run build` | Pass; TypeScript and generated Prisma runtime packaging completed. |
+| Production build | Frontend `npm.cmd run build` | Pass; 2,083 modules transformed. Large editor/widget chunk warnings remain. |
+| Database integration | `ALLOW_DISPOSABLE_DB_REHEARSAL=true; npm.cmd run db:rehearse` | Pass; 11 migrations, 51 tables and representative upgrade data preservation. Disposable database was dropped. |
+| Focused regression | Compiled `phase1-delivery-regressions` | Pass 4/4: published-form traversal/rejection, production HTTPS validation and untrusted cookie-origin rejection. |
+| Static/security | Runtime schema mutation search and call-site inspection | Active startup/request call sites removed; migrations own normal schema lifecycle. |
+| Repository lint | Frontend `npm.cmd run lint` | Fail on established repository-wide debt; not reported as passed. |
+| Browser E2E | Full authenticated manual journey | Blocked: no isolated controlled browser plus real SMTP/deployed host in this execution environment. |
+| Real-provider/hosted | SMTP, persistent volume, HTTPS proxy, SPA fallback | Blocked pending deployment credentials/infrastructure. |
+
+### Final delivery assessment
+
+The source is now a **Phase 1 release candidate with explicit limitations**, not an unconditional production-ready declaration. The supported boundary is manual blank-site creation, editor persistence, internal publishing/public rendering and basic forms. Production acceptance still requires the browser and hosted checks in `docs/PHASE1_PRODUCTION_RUNBOOK.md`. Advanced AI, commerce, billing, WordPress/SFTP and custom-domain provisioning remain outside this verdict.

@@ -66,9 +66,6 @@ export async function initFormSubmissionsTable() {
   }
 }
 
-// Auto-run table initialization
-initFormSubmissionsTable();
-
 /**
  * XSS & HTML string sanitization
  */

@@ -18,6 +18,8 @@ interface UseAutosaveParams {
   popups?: any[];
   pageCss?: string;
   publishedData?: any;
+  draftVersion: number;
+  onDraftVersionChange: (version: number) => void;
   apiUrl: string;
   isLoadingWebsite: boolean;
   debounceMs?: number;
@@ -55,6 +57,8 @@ export function useAutosave({
   popups,
   pageCss,
   publishedData,
+  draftVersion,
+  onDraftVersionChange,
   apiUrl,
   isLoadingWebsite,
   debounceMs = 1500,
@@ -86,6 +90,8 @@ export function useAutosave({
     popups,
     pageCss,
     publishedData,
+    draftVersion,
+    onDraftVersionChange,
     apiUrl,
   });
 
@@ -105,6 +111,8 @@ export function useAutosave({
       popups,
       pageCss,
       publishedData,
+      draftVersion,
+      onDraftVersionChange,
       apiUrl,
     };
   }, [
@@ -122,6 +130,8 @@ export function useAutosave({
     popups,
     pageCss,
     publishedData,
+    draftVersion,
+    onDraftVersionChange,
     apiUrl,
   ]);
 
@@ -230,6 +240,7 @@ export function useAutosave({
         setErrorMessage(null);
 
         const bodyPayload = {
+          expectedVersion: latestPropsRef.current.draftVersion,
           editorData: {
             version: 1,
             elements: payload.elements,
@@ -266,9 +277,14 @@ export function useAutosave({
             body: JSON.stringify(bodyPayload),
           });
 
+          const data = await res.json().catch(() => ({}));
           if (!res.ok) {
-            const data = await res.json().catch(() => ({}));
             throw new Error(data?.error?.message || data?.message || `Server save failed (${res.status})`);
+          }
+          const savedVersion = data?.website?.draftVersion;
+          if (Number.isInteger(savedVersion)) {
+            latestPropsRef.current.draftVersion = savedVersion;
+            latestPropsRef.current.onDraftVersionChange(savedVersion);
           }
         } catch (netErr) {
           throw netErr;

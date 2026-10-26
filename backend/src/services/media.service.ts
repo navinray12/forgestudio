@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { getImageUploadDirectory } from "../config/storage.js";
 import { prisma } from "../config/prisma.js";
 import { AppError } from "../utils/app-error.js";
 
@@ -53,9 +54,6 @@ export async function initMediaAssetTable() {
     console.error("Media assets table initialization log:", error);
   }
 }
-
-// Auto-run table initialization
-initMediaAssetTable();
 
 /**
  * Parse image dimensions from buffer headers without requiring native C++ binary dependencies
@@ -338,7 +336,7 @@ export async function deleteMediaAsset(id: string, userId: string) {
 
   // Attempt to delete physical file from disk if under local uploads
   try {
-    const uploadsDir = path.resolve(process.cwd(), "uploads", "images");
+    const uploadsDir = getImageUploadDirectory();
     const filePath = path.resolve(uploadsDir, asset.filename);
     if (!filePath.startsWith(`${uploadsDir}${path.sep}`)) {
       throw new Error("Resolved media path is outside the upload directory");

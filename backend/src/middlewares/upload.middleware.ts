@@ -1,9 +1,10 @@
 import type { Request, Response, NextFunction } from "express";
 import fs from "fs";
 import path from "path";
+import { getImageUploadDirectory } from "../config/storage.js";
 import crypto from "crypto";
 
-const UPLOAD_DIR = path.join(process.cwd(), "uploads", "images");
+const UPLOAD_DIR = getImageUploadDirectory();
 
 // Ensure upload directory exists
 if (!fs.existsSync(UPLOAD_DIR)) {
