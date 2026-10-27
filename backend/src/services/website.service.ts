@@ -4,6 +4,9 @@ import { checkWebsiteLimit } from "./subscription.service.js";
 import crypto from "crypto";
 import { canUserAccessResource } from "./permission.service.js";
 import { recordAuditLog } from "./audit.service.js";
+import {
+  matchesThemeCondition as evaluateThemeCondition,
+} from "./websites/theme-conditions.js";
 
 const db = prisma as any;
 
@@ -1495,63 +1498,7 @@ export function matchesThemeCondition(
   conditions: Array<string | { type?: string; condition?: string }> | undefined,
   pageContext: { pageId?: string; isHome?: boolean; slug?: string; isSearch?: boolean; is404?: boolean; isArchive?: boolean }
 ): boolean {
-  if (!conditions || !Array.isArray(conditions) || conditions.length === 0) {
-    return true; // Default: include everywhere
-  }
-
-  // Normalize conditions to standard strings e.g. "include:all", "exclude:page:123"
-  const normalized: string[] = [];
-  for (const item of conditions) {
-    if (typeof item === "string") {
-      normalized.push(item);
-    } else if (item && typeof item === "object") {
-      const type = (item.type || "INCLUDE").toLowerCase();
-      const rawCond = (item.condition || "").toLowerCase().replace(/_/g, ":");
-      if (rawCond === "search:results" || rawCond === "search") {
-        normalized.push(`${type}:search`);
-      } else if (rawCond === "404" || rawCond === "notfound") {
-        normalized.push(`${type}:404`);
-      } else if (rawCond === "archive") {
-        normalized.push(`${type}:archive`);
-      } else if (rawCond) {
-        normalized.push(`${type}:${rawCond}`);
-      }
-    }
-  }
-
-  // 1. Check exclusions first (exclusion takes priority)
-  for (const cond of normalized) {
-    if (cond === "exclude:all") return false;
-    if (cond === "exclude:singular:home" && pageContext.isHome) return false;
-    if (cond === "exclude:search" && pageContext.isSearch) return false;
-    if (cond === "exclude:404" && pageContext.is404) return false;
-    if (cond === "exclude:archive" && pageContext.isArchive) return false;
-    if (cond.startsWith("exclude:page:")) {
-      const target = cond.replace("exclude:page:", "").trim();
-      if (target === pageContext.pageId || target === pageContext.slug) return false;
-    }
-  }
-
-  // 2. Check inclusions
-  let explicitlyIncluded = false;
-  let hasInclusionRule = false;
-
-  for (const cond of normalized) {
-    if (cond.startsWith("include:")) {
-      hasInclusionRule = true;
-      if (cond === "include:all") explicitlyIncluded = true;
-      if (cond === "include:singular:home" && pageContext.isHome) explicitlyIncluded = true;
-      if (cond === "include:search" && pageContext.isSearch) explicitlyIncluded = true;
-      if (cond === "include:404" && pageContext.is404) explicitlyIncluded = true;
-      if (cond === "include:archive" && pageContext.isArchive) explicitlyIncluded = true;
-      if (cond.startsWith("include:page:")) {
-        const target = cond.replace("include:page:", "").trim();
-        if (target === pageContext.pageId || target === pageContext.slug) explicitlyIncluded = true;
-      }
-    }
-  }
-
-  return hasInclusionRule ? explicitlyIncluded : true;
+  return evaluateThemeCondition(conditions, pageContext);
 }
 
 /**

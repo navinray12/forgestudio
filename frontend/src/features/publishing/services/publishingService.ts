@@ -1,112 +1,11 @@
-import type { DeploymentRecord, DeploymentStatus } from "../../../pages/editor/types";
+import { corePublishingService } from "./corePublishingService";
+import { getPublishingBaseUrl } from "./publishingHttp";
+export type { PublishApiResponse, ValidationApiResponse } from "./publishing.types";
 
-export interface PublishApiResponse {
-  success: boolean;
-  deploymentId: string;
-  status: DeploymentStatus;
-  version: number;
-  environment: string;
-  destinationType: string;
-  publishedAt: string;
-  liveUrl: string;
-  sourceRevisionId?: string;
-  warnings?: Array<{ field: string; message: string; severity: "ERROR" | "WARNING" }>;
-}
-
-export interface ValidationApiResponse {
-  success: boolean;
-  validation: {
-    valid: boolean;
-    errors: Array<{ field: string; message: string; severity: "ERROR" | "WARNING" }>;
-    warnings: Array<{ field: string; message: string; severity: "ERROR" | "WARNING" }>;
-  };
-}
-
-const getBaseUrl = (override?: string) => override || (import.meta.env.VITE_API_URL || "");
+const getBaseUrl = getPublishingBaseUrl;
 
 export const publishingService = {
-  /**
-   * Run pre-publish validation on current draft
-   */
-  async validateWebsite(websiteId: string, editorData?: any, apiUrl?: string): Promise<ValidationApiResponse> {
-    const base = getBaseUrl(apiUrl);
-    const res = await fetch(`${base}/api/websites/${websiteId}/validate-publish`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ editorData }),
-    });
-
-    const data = await res.json();
-    if (!res.ok) {
-      throw new Error(data?.message || "Failed to validate website before publishing");
-    }
-    return data;
-  },
-
-  /**
-   * Trigger production publish pipeline
-   */
-  async publishWebsite(
-    websiteId: string,
-    options: {
-      editorData?: any;
-      environment?: "PRODUCTION" | "STAGING" | "DEVELOPMENT";
-      destinationType?: "INTERNAL" | "WORDPRESS" | "STATIC";
-      metadata?: Record<string, any>;
-    } = {},
-    apiUrl?: string
-  ): Promise<PublishApiResponse> {
-    const base = getBaseUrl(apiUrl);
-    const res = await fetch(`${base}/api/websites/${websiteId}/publish`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify(options),
-    });
-
-    const data = await res.json();
-    if (!res.ok) {
-      throw new Error(data?.message || "Failed to execute website publishing");
-    }
-    return data;
-  },
-
-  /**
-   * Fetch deployment history
-   */
-  async getDeployments(websiteId: string, apiUrl?: string): Promise<DeploymentRecord[]> {
-    const base = getBaseUrl(apiUrl);
-    const res = await fetch(`${base}/api/websites/${websiteId}/deployments`, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-    });
-
-    const data = await res.json();
-    if (!res.ok) {
-      throw new Error(data?.message || "Failed to fetch deployment history");
-    }
-    return data.deployments || [];
-  },
-
-  /**
-   * Rollback to a previous successful deployment
-   */
-  async rollbackDeployment(websiteId: string, deploymentId: string, apiUrl?: string): Promise<PublishApiResponse> {
-    const base = getBaseUrl(apiUrl);
-    const res = await fetch(`${base}/api/websites/${websiteId}/deployments/${deploymentId}/rollback`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-    });
-
-    const data = await res.json();
-    if (!res.ok) {
-      throw new Error(data?.message || "Failed to initiate deployment rollback");
-    }
-    return data;
-  },
+  ...corePublishingService,
 
   /**
    * Connect to a WordPress destination site

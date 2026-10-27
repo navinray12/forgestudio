@@ -8,57 +8,22 @@ import { publishToWordPress } from "./wordpress/connector.service.js";
 import { destinationRegistry } from "./destinations/registry.js";
 import { enqueueJob, cancelJob, getJobById } from "./jobs/jobRunner.js";
 import { recordAuditLog } from "./audit.service.js";
+import type {
+  DeploymentRelease,
+  PublishOptions,
+  PublishResult,
+  ValidationIssue,
+  ValidationResult,
+} from "./publishing/types.js";
+export type {
+  DeploymentRelease,
+  PublishOptions,
+  PublishResult,
+  ValidationIssue,
+  ValidationResult,
+} from "./publishing/types.js";
 
 const db = prisma as any;
-
-export interface DeploymentRelease {
-  releaseId: string;       // e.g., rel_1727092352
-  websiteId: string;
-  deployHash: string;      // sha256 of compiled output
-  environment: 'PRODUCTION' | 'STAGING';
-  snapshotDataUrl?: string; // Path or JSON pointer to compiled build artifact
-  snapshotData?: any;       // Full immutable snapshot of pages & styles
-  createdAt: string;
-  createdBy: string;
-  notes?: string;
-  isActive: boolean;
-  deploymentId?: string;
-  version?: number;
-}
-
-export interface ValidationIssue {
-  field: string;
-  message: string;
-  severity: "ERROR" | "WARNING";
-}
-
-export interface ValidationResult {
-  valid: boolean;
-  errors: ValidationIssue[];
-  warnings: ValidationIssue[];
-}
-
-export interface PublishOptions {
-  editorData?: any;
-  environment?: "PRODUCTION" | "STAGING" | "DEVELOPMENT";
-  destinationType?: "INTERNAL" | "WORDPRESS" | "SFTP" | "STATIC";
-  metadata?: Record<string, any>;
-}
-
-export interface PublishResult {
-  success: boolean;
-  deploymentId: string;
-  status: string;
-  version: number;
-  environment: string;
-  destinationType: string;
-  publishedAt: string;
-  liveUrl: string;
-  sourceRevisionId?: string;
-  filesTransferred?: number;
-  warnings?: ValidationIssue[];
-  releaseId?: string;
-}
 
 /**
  * Validate website readiness prior to deployment/publish.

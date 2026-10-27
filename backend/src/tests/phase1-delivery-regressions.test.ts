@@ -9,6 +9,7 @@ import { createBackupRecord, restoreFromBackup } from "../services/backups/websi
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { matchesThemeCondition } from "../services/website.service.js";
 
 test("published form lookup finds forms nested in pages and containers", () => {
   const snapshot = {
@@ -117,4 +118,11 @@ test("website backup archive uses UPLOAD_DIR and restores from its durable copy"
     else process.env.UPLOAD_DIR = previousUploadDir;
     fs.rmSync(uploadDir, { recursive: true, force: true });
   }
+});
+
+test("theme condition compatibility keeps exclusion precedence and page matching", () => {
+  assert.equal(matchesThemeCondition(undefined, { isHome: true }), true);
+  assert.equal(matchesThemeCondition(["include:all", "exclude:page:about"], { pageId: "about" }), false);
+  assert.equal(matchesThemeCondition([{ type: "INCLUDE", condition: "SEARCH_RESULTS" }], { isSearch: true }), true);
+  assert.equal(matchesThemeCondition(["include:page:contact"], { slug: "about" }), false);
 });
