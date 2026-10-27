@@ -394,9 +394,6 @@ export async function initWebsiteTable() {
   }
 }
 
-// Auto-run initialization
-initWebsiteTable();
-
 function generateSlug(name: string): string {
   const baseSlug = name
     .toLowerCase()

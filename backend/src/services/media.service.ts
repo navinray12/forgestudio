@@ -54,9 +54,6 @@ export async function initMediaAssetTable() {
   }
 }
 
-// Auto-run table initialization
-initMediaAssetTable();
-
 /**
  * Parse image dimensions from buffer headers without requiring native C++ binary dependencies
  */

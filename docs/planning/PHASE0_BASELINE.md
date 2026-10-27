@@ -64,18 +64,23 @@
 
 ---
 
-## 5. File Modifications in Phase 0 Stabilization
+## 5. File Modifications in Phase 0 Stabilization & Security
 
 1. `frontend/src/pages/published/PublishedSite.tsx` — Removed duplicate `sitePartsState` declaration; restored production build.
-2. `backend/src/config/prisma.ts` & `backend/src/server.ts` — Separated DB instantiation from bootstrap routines; prevented unintended DB mutations on import.
-3. `frontend/src/pages/editor/defaults/index.ts` — Removed dead duplicate `price-table` switch case.
-4. `frontend/src/components/CustomCodeModal.tsx` — Fixed hoisted function access before declaration in React effect.
-5. `frontend/src/components/CookieConsentBanner.tsx` — Removed unused import, avoided synchronous effect state dispatch, cleaned empty catch blocks.
-6. `frontend/src/plugins/components/PluginSettingsPanel.tsx` — Initialized state via lazy initializer to fix cascading effect re-renders.
-7. `frontend/src/plugins/PluginManager.ts` — Replaced unsafe `Function` type annotations with concrete function signatures.
-8. `frontend/src/pages/editor/widgets/renderers.tsx` — Scoped switch case blocks to fix `no-case-declarations` and updated `prefer-const`.
-9. `frontend/src/services/` & `frontend/src/utils/` — Added strict types for custom code snippets, font managers, and multilingual exports.
-10. `docs/planning/PHASE0_BASELINE.md` — Updated Phase 0 baseline and stabilization verification log.
+2. `backend/src/config/prisma.ts` & `backend/src/server.ts` — 
+   - Removed automatic creation/resetting of privileged admin credentials.
+   - Removed tampering/direct mutations of `_prisma_migrations`.
+   - Removed hardcoded credentials fallback; requires `DATABASE_URL` (or `TEST_DATABASE_URL` in test mode).
+   - Ensured `server.ts` verifies DB connectivity and exits fatally (code 1) on failure before reporting readiness.
+3. `backend/src/services/` (`website`, `license`, `media`, `template`, `siteMailer`, `form`) — Removed module-import eager DDL auto-runs.
+4. `frontend/src/pages/editor/defaults/index.ts` — Removed dead duplicate `price-table` switch case.
+5. `frontend/src/components/CustomCodeModal.tsx` — Fixed hoisted function access before declaration in React effect.
+6. `frontend/src/components/CookieConsentBanner.tsx` — Removed unused import, avoided synchronous effect state dispatch, cleaned empty catch blocks.
+7. `frontend/src/plugins/components/PluginSettingsPanel.tsx` — Initialized state via lazy initializer to fix cascading effect re-renders.
+8. `frontend/src/plugins/PluginManager.ts` — Replaced unsafe `Function` type annotations with concrete function signatures.
+9. `frontend/src/pages/editor/widgets/renderers.tsx` — Scoped switch case blocks to fix `no-case-declarations` and updated `prefer-const`.
+10. `frontend/src/services/` & `frontend/src/utils/` — Added strict types for custom code snippets, font managers, and multilingual exports.
+11. `docs/planning/PHASE0_BASELINE.md` — Updated Phase 0 baseline, security verification, and stabilization log.
 
 ---
 
@@ -83,5 +88,5 @@
 
 - **Frontend Production Build:** STABILIZED (0 build errors).
 - **Backend Production Build & Validation:** STABILIZED (0 build errors, valid schema).
-- **Test Isolation:** STABILIZED (Importing backend modules does not trigger unintended PostgreSQL queries).
-- **Remaining Technical Debt:** 1687 legacy ESLint warnings/errors (mainly `@typescript-eslint/no-explicit-any`) to be incrementally typed in Phase 1 modules.
+- **Database & Startup Security:** STABILIZED (No credential resets, no migration table tampering, fail-fast startup on DB disconnection).
+- **Remaining Technical Debt:** 1,687 legacy ESLint warnings/errors (mainly `@typescript-eslint/no-explicit-any`) accurately tracked for Phase 1.

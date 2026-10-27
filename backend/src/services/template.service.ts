@@ -71,9 +71,6 @@ export async function initTemplateTable() {
   }
 }
 
-// Auto-run initialization
-initTemplateTable();
-
 export interface CreateTemplateParams {
   name: string;
   description?: string;
