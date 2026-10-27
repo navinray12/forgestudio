@@ -395,6 +395,15 @@ export async function publishWebsite(
     await updateDeploymentStatus(deployment.id, "PROCESSING");
     delete (candidateSnapshot as any).publishedData;
 
+    // Release history and backups are server-owned operational metadata. A
+    // client may publish an older draft document that does not contain them;
+    // never let that payload erase rollback history.
+    const preservedOperationalState = {
+      releases: Array.isArray(rawEditorData.releases) ? rawEditorData.releases : [],
+      currentReleaseId: rawEditorData.currentReleaseId,
+      backups: Array.isArray(rawEditorData.backups) ? rawEditorData.backups : [],
+    };
+
     // 7. State Machine: DEPLOYING (Execute destination deployment)
     await updateDeploymentStatus(deployment.id, "DEPLOYING");
     let destinationRef = `/site/${websiteId}`;
@@ -406,6 +415,7 @@ export async function publishWebsite(
       const updatedEditorData = {
         ...candidateData,
         ...candidateSnapshot,
+        ...preservedOperationalState,
         publishedData: candidateSnapshot,
         publishing: publishingMeta,
       };
@@ -442,6 +452,7 @@ export async function publishWebsite(
       const updatedEditorData = {
         ...candidateData,
         ...candidateSnapshot,
+        ...preservedOperationalState,
         publishedData: candidateSnapshot,
         publishing: publishingMeta,
       };
@@ -472,6 +483,7 @@ export async function publishWebsite(
       const updatedEditorData = {
         ...candidateData,
         ...candidateSnapshot,
+        ...preservedOperationalState,
         publishedData: candidateSnapshot,
         publishing: publishingMeta,
       };
@@ -502,6 +514,7 @@ export async function publishWebsite(
       const updatedEditorData = {
         ...candidateData,
         ...candidateSnapshot,
+        ...preservedOperationalState,
         publishedData: candidateSnapshot,
         publishing: publishingMeta,
       };

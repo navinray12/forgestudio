@@ -341,3 +341,49 @@ This section supersedes the earlier status of P1-012 through P1-016 where stated
 ### Final delivery assessment
 
 The source is now a **Phase 1 release candidate with explicit limitations**, not an unconditional production-ready declaration. The supported boundary is manual blank-site creation, editor persistence, internal publishing/public rendering and basic forms. Production acceptance still requires the browser and hosted checks in `docs/PHASE1_PRODUCTION_RUNBOOK.md`. Advanced AI, commerce, billing, WordPress/SFTP and custom-domain provisioning remain outside this verdict.
+
+## Acceptance continuation — 2026-10-27
+
+The local acceptance gap is now closed with a repeatable Playwright/Chrome run against a newly created disposable PostgreSQL database, a real local SMTP protocol sink, and an isolated persistent upload directory. The test database and upload directory are deleted after the run.
+
+### New confirmed findings and fixes
+
+| ID | Finding | Severity / impact | Resolution | Evidence |
+|---|---|---|---|---|
+| P1-020 | A second publish using client-supplied draft JSON could erase server-owned release history, making an earlier release unavailable for rollback. | Blocker: rollback reliability | Publishing now preserves stored releases, active release pointer and backups across INTERNAL, WordPress, SFTP and STATIC candidate writes. | Browser/API acceptance reproduced the 404 rollback failure before the fix, then passed rollback and draft-preservation after the fix. |
+| P1-021 | Public operational routes exposed host process diagnostics and migration-recovery behavior; migration status also rewrote migration history during a GET. | Blocker: security and migration integrity | Removed GET recovery, made migration status read-only, and restricted status/diagnostics/sign-off/recovery to authenticated admin roles. | Route/static inspection and backend build. |
+| P1-022 | Upload validation trusted extensions and accepted SVG, permitting mismatched content and active SVG payloads. | High: stored content/XSS risk | Phase 1 uploads now accept only raster JPG/PNG/WebP/GIF signatures and require extension/content agreement. | Valid PNG passed browser integration; focused signature regression rejects SVG/text. |
+| P1-023 | Liveness did not prove database/migration readiness. | High: unhealthy instances could receive traffic | Added `/api/v1/ready` and `/api/ready`, which query critical tables, `draftVersion`, database connectivity and unfinished migrations; returns 503 without details when not ready. | Disposable-database acceptance returned `{status:"ready"}` before browser traffic. |
+
+### Executed local acceptance matrix
+
+| Workflow | Result | Evidence category |
+|---|---|---|
+| Register, receive OTP and verify | Pass | Browser UI + real local SMTP protocol delivery + disposable PostgreSQL |
+| Logout and password/OTP login | Pass | Browser UI + local SMTP |
+| Create blank website | Pass | Browser UI |
+| Add heading, text, image and button | Pass | Browser UI widget controls |
+| Responsive desktop/tablet/mobile controls | Pass | Browser UI |
+| Two-page nested site, header/footer and responsive styles | Pass | Authenticated API persistence plus anonymous browser rendering; page/site-part canonical document verified |
+| Save/version increment | Pass | Database-backed API |
+| Simultaneous same-version saves | Pass | Concurrent requests returned exactly one 200 and one 409 |
+| Stale save recovery | Pass | Browser stale save showed recovery message and retained the edited heading in `forgestudio_editor_<websiteId>` local storage |
+| Publish and anonymous visit | Pass | Internal publish API + separate anonymous browser context |
+| Nested direct URL and refresh | Pass | Browser navigation and reload on `/site/:id/about/team` |
+| Unknown route | Pass | Browser displayed explicit Page not found state |
+| Draft privacy | Pass | Saved draft text remained absent from anonymous public response/page |
+| Failed republish | Pass | Invalid candidate failed; prior release remained public |
+| Republish and rollback | Pass | Two releases published; rollback restored release one and preserved release-two working draft |
+| Cross-user isolation | Pass | Independently registered/verified user received 403/404 for another user's website |
+| Upload persistence | Pass | Asset returned 200 before and after API process restart using the same isolated `UPLOAD_DIR` |
+| Database readiness | Pass | Readiness queried the disposable migrated database before traffic |
+| Production dependency audit | Pass after compatible upgrades | Backend audit reported 0 vulnerabilities after Nodemailer/request/Sharp/Zod updates. Frontend install reported 0 after Monaco upgrade and a pinned safe nested DOMPurify override; a later registry re-query was intermittently unavailable. |
+
+### Evidence boundaries and verdict
+
+- **Ready for controlled demo/UAT:** yes. The complete local controlled journey and recovery matrix passes.
+- **Ready for production deployment:** code is ready to enter production-like staging, but deployment approval still requires an HTTPS reverse proxy, secure-cookie/CORS validation, a mounted shared/backup-enabled `UPLOAD_DIR`, real-provider SMTP, and host SPA fallback verification.
+- **Verified in a deployed production-like environment:** no. No authorized staging URL or deployment credentials were available in this workspace.
+- Local SMTP proves the application performs real SMTP delivery; it does not prove deliverability through the intended external provider.
+- Trusted-Origin enforcement applies only to unsafe methods with the Forge session cookie in production. Safe methods, unauthenticated requests and non-production local HTTP are intentionally exempt; authorization and input validation still apply.
+- No frontend source files were changed in this continuation, so it introduced no new frontend lint violations. The previously documented repository-wide lint backlog remains unchanged and is not reported as passing.

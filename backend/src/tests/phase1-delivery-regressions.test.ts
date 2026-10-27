@@ -4,6 +4,7 @@ import { findPublishedFormNode } from "../utils/published-form.js";
 import { validateEnvironment } from "../config/environment.js";
 import { enforceTrustedOrigin } from "../middlewares/csrf.middleware.js";
 import { AUTH_COOKIE_NAME } from "../config/auth.js";
+import { detectRasterImageType } from "../middlewares/upload.middleware.js";
 
 test("published form lookup finds forms nested in pages and containers", () => {
   const snapshot = {
@@ -73,4 +74,11 @@ test("cookie-authenticated production mutations reject untrusted origins", () =>
     process.env.NODE_ENV = previousNodeEnv;
     process.env.FRONTEND_URL = previousFrontendUrl;
   }
+});
+
+test("upload validation uses file signatures and rejects executable SVG/text payloads", () => {
+  const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB", "base64");
+  assert.equal(detectRasterImageType(png), "png");
+  assert.equal(detectRasterImageType(Buffer.from('<svg onload="alert(1)"></svg>')), null);
+  assert.equal(detectRasterImageType(Buffer.from("not really an image")), null);
 });

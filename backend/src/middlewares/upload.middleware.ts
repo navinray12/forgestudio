@@ -11,8 +11,16 @@ if (!fs.existsSync(UPLOAD_DIR)) {
   fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 }
 
-const ALLOWED_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp", "gif", "svg"]);
+const ALLOWED_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp", "gif"]);
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+
+export function detectRasterImageType(buffer: Buffer): "jpg" | "png" | "webp" | "gif" | null {
+  if (buffer.length >= 3 && buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) return "jpg";
+  if (buffer.length >= 8 && buffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return "png";
+  if (buffer.length >= 12 && buffer.subarray(0, 4).toString("ascii") === "RIFF" && buffer.subarray(8, 12).toString("ascii") === "WEBP") return "webp";
+  if (buffer.length >= 6 && ["GIF87a", "GIF89a"].includes(buffer.subarray(0, 6).toString("ascii"))) return "gif";
+  return null;
+}
 
 /**
  * Handle multipart or raw image upload parsing safely without external native dependencies
@@ -112,7 +120,16 @@ export async function handleImageUpload(
     if (!ALLOWED_EXTENSIONS.has(fileExt)) {
       return res.status(400).json({
         success: false,
-        error: { message: "Invalid file type. Allowed: JPG, PNG, WEBP, GIF, SVG" },
+        error: { message: "Invalid file type. Allowed: JPG, PNG, WEBP, GIF" },
+      });
+    }
+
+    const detectedType = detectRasterImageType(fileBuffer);
+    const normalizedExtension = fileExt === "jpeg" ? "jpg" : fileExt;
+    if (!detectedType || detectedType !== normalizedExtension) {
+      return res.status(400).json({
+        success: false,
+        error: { message: "File content does not match a supported image type" },
       });
     }
 
@@ -125,7 +142,7 @@ export async function handleImageUpload(
 
     // Public URL relative path
     const publicUrl = `/uploads/images/${uniqueFilename}`;
-    const mimeType = fileExt === "svg" ? "image/svg+xml" : `image/${fileExt}`;
+    const mimeType = detectedType === "jpg" ? "image/jpeg" : `image/${detectedType}`;
 
     const { extractImageDimensions, createMediaAsset } = await import("../services/media.service.js");
     const dimensions = extractImageDimensions(fileBuffer, mimeType);

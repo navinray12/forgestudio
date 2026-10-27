@@ -13,6 +13,31 @@ import {
 
 import { prisma, pgPool } from "../config/prisma.js";
 
+/** GET /api/ready — traffic readiness, including database and migration state. */
+export async function readinessCheck(_req: Request, res: Response) {
+  try {
+    const result = await pgPool.query(`
+      SELECT
+        to_regclass('public.users') IS NOT NULL AS users,
+        to_regclass('public.websites') IS NOT NULL AS websites,
+        to_regclass('public.deployments') IS NOT NULL AS deployments,
+        EXISTS (
+          SELECT 1 FROM information_schema.columns
+          WHERE table_schema = 'public' AND table_name = 'websites' AND column_name = 'draftVersion'
+        ) AS draft_version,
+        NOT EXISTS (
+          SELECT 1 FROM _prisma_migrations
+          WHERE finished_at IS NULL AND rolled_back_at IS NULL
+        ) AS migrations_complete
+    `);
+    const checks = result.rows[0] || {};
+    const ready = Object.values(checks).every(Boolean);
+    return res.status(ready ? 200 : 503).json({ success: ready, status: ready ? "ready" : "not_ready" });
+  } catch {
+    return res.status(503).json({ success: false, status: "not_ready" });
+  }
+}
+
 /** GET /api/diagnose-ports — inspect host ports 3306 and 3307 and docker container status */
 export async function diagnosePorts(req: Request, res: Response) {
   const output: Record<string, any> = {};
@@ -78,17 +103,6 @@ export async function healthCheck(req: Request, res: Response) {
 /** GET /api/v1/prisma-migration-status — inspect migration history and database schema status */
 export async function prismaMigrationStatus(req: Request, res: Response) {
   try {
-    let autoHealError: string | null = null;
-    try {
-      await pgPool.query(`
-        UPDATE _prisma_migrations 
-        SET finished_at = NOW(), logs = NULL, rolled_back_at = NULL, applied_steps_count = 1 
-        WHERE id = 'f13611c8-32df-4e65-8c35-9a488b01ccf0';
-      `);
-    } catch (err: any) {
-      autoHealError = err?.message || String(err);
-    }
-
     const { rows: migrations } = await pgPool.query(`
       SELECT id, migration_name, checksum, finished_at, logs, rolled_back_at, started_at, applied_steps_count
       FROM _prisma_migrations
@@ -135,7 +149,6 @@ export async function prismaMigrationStatus(req: Request, res: Response) {
 
     return res.status(200).json({
       success: true,
-      autoHealError,
       migrationCount: migrations.length,
       failedMigrationsCount: failedMigrations.length,
       failedMigrations,

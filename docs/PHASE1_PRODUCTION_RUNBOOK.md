@@ -43,7 +43,7 @@ The rehearsal creates only a random `forgestudio_rehearsal_<hex>` database, vali
 - Serve the frontend build with SPA fallback to `index.html` for `/site/*`, including nested paths and refreshes.
 - Route the API origin to Express and expose `/uploads` from persistent `UPLOAD_DIR`.
 - Run `node dist/server.js`; do not run seed scripts during normal startup.
-- Probe `/api/v1/health`; require database readiness before traffic is admitted.
+- Probe `/api/v1/health` for liveness and `/api/v1/ready` for traffic readiness. Only readiness checks database connectivity, critical schema and unfinished migrations.
 - Back up PostgreSQL and the upload volume together and test restoration.
 
 ## Release acceptance
@@ -51,6 +51,21 @@ The rehearsal creates only a random `forgestudio_rehearsal_<hex>` database, vali
 With non-production data, verify signup/OTP/login/logout, blank site, required widgets, two pages and homepage choice, shared header/footer, media upload, save/reload, two-tab stale-save rejection, responsive preview, publish, anonymous nested refresh, draft privacy, republish and rollback. A failed publish must leave the prior successful public release available.
 
 Do not approve production if SMTP is unverified, uploads disappear after replacement, direct nested refresh fails, cookie mutations accept a foreign Origin, or migrations fail.
+
+Repeat the isolated local acceptance suite before staging:
+
+```powershell
+cd backend
+npm.cmd run build
+$env:ALLOW_DISPOSABLE_DB_REHEARSAL='true'
+npm.cmd run test:phase1:browser
+```
+
+The suite requires local PostgreSQL privileges to create/drop its guarded random rehearsal database and an installed Chrome binary. Its SMTP sink is local and disposable.
+
+## Trusted-Origin behavior
+
+In production, unsafe cookie-authenticated requests (`POST`, `PUT`, `PATCH`, `DELETE`) must carry an `Origin` exactly matching `FRONTEND_URL`; missing or foreign origins receive `403 UNTRUSTED_ORIGIN`. `GET`/`HEAD`/`OPTIONS`, requests without the Forge session cookie, and non-production local development are intentionally exempt. This is defense in depth and does not replace authorization.
 
 ## Rollback and known limitations
 

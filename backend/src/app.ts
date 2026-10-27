@@ -245,6 +245,7 @@ app.get("/api/health", (_req, res) => {
 
 // Phase 20: Production Health & Canary
 app.use("/api", healthRoutes);
+app.use("/api/v1", healthRoutes);
 
 app.use(errorMiddleware);
 

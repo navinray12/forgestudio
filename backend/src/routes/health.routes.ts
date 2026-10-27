@@ -6,7 +6,7 @@
  * /sign-off — requires auth (admin access intended but auth check is advisory)
  */
 import { Router } from "express";
-import { requireAuth } from "../middlewares/auth.middleware.js";
+import { requireAuth, requireRole } from "../middlewares/auth.middleware.js";
 import {
   healthCheck,
   canaryManifest,
@@ -15,20 +15,21 @@ import {
   prismaMigrationStatus,
   prismaMigrationRecover,
   diagnosePorts,
+  readinessCheck,
 } from "../controllers/health.controller.js";
 
 const router = Router();
 
 // Public monitoring endpoints
 router.get("/health", healthCheck);
+router.get("/ready", readinessCheck);
 router.get("/canary", canaryManifest);
-router.get("/prisma-migration-status", prismaMigrationStatus);
-router.get("/prisma-migration-recover-get", prismaMigrationRecover);
-router.post("/prisma-migration-recover", prismaMigrationRecover);
-router.get("/diagnose-ports", diagnosePorts);
+router.get("/prisma-migration-status", requireAuth, requireRole(["ADMIN", "SUPER_ADMIN"]), prismaMigrationStatus);
+router.post("/prisma-migration-recover", requireAuth, requireRole(["SUPER_ADMIN"]), prismaMigrationRecover);
+router.get("/diagnose-ports", requireAuth, requireRole(["SUPER_ADMIN"]), diagnosePorts);
 
 // Admin sign-off and utilities (auth recommended but not blocking for ops teams)
-router.get("/sign-off", signOffReport);
-router.post("/dev/sanitize-demo", requireAuth, sanitizeDemo);
+router.get("/sign-off", requireAuth, requireRole(["ADMIN", "SUPER_ADMIN"]), signOffReport);
+router.post("/dev/sanitize-demo", requireAuth, requireRole(["ADMIN", "SUPER_ADMIN"]), sanitizeDemo);
 
 export default router;
