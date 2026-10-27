@@ -6,7 +6,7 @@ Baseline: `7a672c7f9215754e7bedf5ac1f7f5f6be6628a93` on `feature/phase1-readines
 
 | Rank | File | Approx. lines | Combined responsibilities / coupling | Boundary and verification | Status |
 |---:|---|---:|---|---|---|
-| 1 | `frontend/src/pages/editor/WebsiteEditor.tsx` | 18,940 | document ownership, selection, history, DnD, keyboard, save/autosave, pages, dialogs and full shell | Extract feature hooks and stable UI sections incrementally; browser editor/save/publish suite required | Pending; highest regression risk |
+| 1 | `frontend/src/pages/editor/WebsiteEditor.tsx` | 18,940 | document ownership, selection, history, DnD, keyboard, save/autosave, pages, dialogs and full shell | Extract feature hooks and stable UI sections incrementally; browser editor/save/publish suite required | In progress: pure tree queries extracted |
 | 2 | `frontend/src/pages/editor/widgets/renderers.tsx` | 9,283 | dozens of unrelated widget renderers, navigation and runtime behavior | Feature-local renderer families with unchanged registry exports; visual/browser comparison | Pending |
 | 3 | `frontend/src/pages/editor/inspector/DynamicWidgetInspectors.tsx` | 9,155 | inspector forms for unrelated widget families | Split by widget domain while preserving stable component identity | Pending |
 | 4 | `frontend/src/pages/dashboard/components/ManagedSiteModal.tsx` | 4,555 | 100+ state values; mail, backups, domains, staging, security, hosting and billing API/UI | Extract domain tabs with feature hooks; API and modal browser tests | Pending |
@@ -18,7 +18,7 @@ Baseline: `7a672c7f9215754e7bedf5ac1f7f5f6be6628a93` on `feature/phase1-readines
 | 10 | `backend/src/services/website.service.ts` | 1,688+ | legacy initialization, CRUD, concurrency, collaboration, public serialization and dynamic content | Feature-local website modules, keeping service exports stable | In progress: theme-condition evaluator extracted |
 | 11 | `frontend/src/features/publishing/services/publishingService.ts` | 1,513 | internal deployment and every external destination API client | Shared typed transport plus destination clients, facade retained | In progress: types and core transport extracted |
 | 12 | `backend/src/controllers/wordpress.controller.ts` | 1,550+ | handlers for all WordPress domains | Domain controller modules re-exported for route compatibility | Pending |
-| 13 | `frontend/src/pages/published/PublishedSite.tsx` | 1,423 | public data loading, routing, rendering, CSS/code injection and errors | Separate loader/router/runtime renderer; anonymous browser suite | Pending |
+| 13 | `frontend/src/pages/published/PublishedSite.tsx` | 1,423 | public data loading, routing, rendering, CSS/code injection and errors | Separate loader/router/runtime renderer; anonymous browser suite | In progress: routing model/defaults extracted |
 | 14 | `backend/src/services/publishing.service.ts` | 1,163 | validation, transactions, destinations, releases, scheduling and rollback | Validation/release/scheduling modules with transaction invariants | Pending |
 | 15 | `frontend/src/pages/auth/LoginPage.tsx` | 927 | four-step authentication state machine and presentation | Auth-flow hook plus stable views; real OTP/browser tests | Pending |
 
@@ -31,6 +31,8 @@ Line count supports prioritization but is not an acceptance target. The editor, 
 - `frontend/src/features/publishing/services/publishingHttp.ts`: credentialed JSON transport used by validate, publish, deployment history and rollback. URLs, methods, bodies, response shapes and fallback errors remain unchanged.
 - `frontend/src/pages/editor/utils/codeFormatting.ts`: stable naming and CSS/JSX style serialization; `codeExporter.ts` retains compatibility re-exports.
 - `frontend/src/pages/editor/types/themeConditions.ts`: pure editor/public theme-condition matching, re-exported from the existing types entry point.
+- `frontend/src/pages/editor/state/editorTree.ts`: ordered ID traversal used by range selection; existing shared lookup remains in editor utilities and canonical state ownership remains in `WebsiteEditor`.
+- `frontend/src/pages/published/publicSiteRouting.ts`: public page model, default breakpoints and target resolution; renderer behavior and compatibility type export remain stable.
 
 ## Critical invariants
 

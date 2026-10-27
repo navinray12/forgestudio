@@ -48,6 +48,7 @@ import {
 // Extracted Modular Imports
 export type { EditorElement, ElementStyles, ContainerLayout, Breakpoint, ElementType } from "./types";
 import { type SiteProduct } from "./types";
+import { getAllElementIds } from "./state/editorTree";
 import { IconRenderer } from "./widgets/icons";
 import {
   triggerImagePicker,
@@ -428,16 +429,6 @@ export default function WebsiteEditor() {
   );
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const findTreeElement = (tree: EditorElement[], targetId: string): EditorElement | null => {
-    for (const item of tree) {
-      if (item.id === targetId) return item;
-      if (item.children && item.children.length > 0) {
-        const found = findTreeElement(item.children, targetId);
-        if (found) return found;
-      }
-    }
-    return null;
-  };
   const selectedElement = selectedId ? findTreeElement(elements, selectedId) : null;
   const selectedElementAny = selectedElement as any;
   const [allowedComponentIds, setAllowedComponentIds] = useState<Set<string>>(new Set());
@@ -761,17 +752,6 @@ export default function WebsiteEditor() {
       setHistoryIndex(newIndex);
       setElements(JSON.parse(JSON.stringify(history[newIndex])));
     }
-  };
-
-  const getAllElementIds = (list: EditorElement[]): string[] => {
-    let ids: string[] = [];
-    for (const item of list) {
-      ids.push(item.id);
-      if (item.children && item.children.length > 0) {
-        ids = ids.concat(getAllElementIds(item.children));
-      }
-    }
-    return ids;
   };
 
   const handleSelectElement = (id: string | null, e?: React.MouseEvent) => {

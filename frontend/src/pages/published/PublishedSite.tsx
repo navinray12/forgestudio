@@ -11,6 +11,8 @@ import {
 import type { EditorElement, Breakpoint } from "../editor/types";
 import { resolveDynamicTokens } from "../editor/types";
 import type { PopupConfig } from "../../types/popup.types";
+import { DEFAULT_PUBLIC_BREAKPOINTS, findTargetPage, type PageConfig } from "./publicSiteRouting";
+export type { PageConfig } from "./publicSiteRouting";
 
 const BackgroundSlideshow: React.FC<{ urls: string[]; interval?: number }> = ({ urls, interval }) => {
     const [index, setIndex] = useState(0);
@@ -37,15 +39,6 @@ const BackgroundSlideshow: React.FC<{ urls: string[]; interval?: number }> = ({ 
         </div>
     );
 };
-
-export interface PageConfig {
-    id: string;
-    name: string;
-    slug: string;
-    customCss: string;
-    elements: EditorElement[];
-    isHome?: boolean;
-}
 
 export function f352_getMediaOptimizationProps(src: string, _apiUrl: string, _styles: any) {
     return { src };
@@ -196,34 +189,9 @@ import {
 import { IconRenderer } from "../editor/widgets/icons";
 
 // Default breakpoints (mirror core for stability)
-const DEFAULT_BREAKPOINTS: Breakpoint[] = [
-    { id: "widescreen", name: "Widescreen", width: 1440, active: false },
-    { id: "laptop", name: "Laptop", width: 1200, active: false },
-    { id: "desktop", name: "Desktop (Base)", width: 1024, active: true },
-    { id: "tabletExtra", name: "Tablet Extra", width: 880, active: false },
-    { id: "tablet", name: "Tablet", width: 768, active: true },
-    { id: "mobileExtra", name: "Mobile Extra", width: 480, active: false },
-    { id: "mobile", name: "Mobile", width: 360, active: true },
-];
-
 const renderSvgIcon = (_name: string, size: string, color: string) => (
     <svg width={size} height={size} fill={color} viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" /></svg>
 );
-
-const findTargetPage = (pagesList: PageConfig[] | undefined, target: string): PageConfig | undefined => {
-    if (!target || !pagesList || pagesList.length === 0) return undefined;
-    const clean = target.replace(/^\//, "").split("?")[0].split("#")[0];
-    return pagesList.find(
-        (p) =>
-            p.id === target ||
-            p.slug === target ||
-            p.slug === `/${clean}` ||
-            p.slug.replace(/^\//, "") === clean ||
-            p.name.toLowerCase() === target.toLowerCase() ||
-            p.name.toLowerCase() === clean.toLowerCase() ||
-            (clean === "" && (p.isHome || p.id === "home"))
-    );
-};
 
 export function renderPublicElement(el: EditorElement, isPreview: boolean = true): React.ReactNode | null {
     switch (el.type) {
@@ -842,7 +810,7 @@ function PublishedSite() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
     const [popups, setPopups] = useState<PopupConfig[]>([]);
     const [globalSettings, setGlobalSettings] = useState<any>({});
-    const [breakpoints, setBreakpoints] = useState<Breakpoint[]>(DEFAULT_BREAKPOINTS);
+    const [breakpoints, setBreakpoints] = useState<Breakpoint[]>(DEFAULT_PUBLIC_BREAKPOINTS);
     const [activeBreakpointId, setActiveBreakpointId] = useState<string>("desktop");
     const [customCodeSnippets, setCustomCodeSnippets] = useState<any[]>([]);
     const [globalVariables, setGlobalVariables] = useState<any[]>([]);
