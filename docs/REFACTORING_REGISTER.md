@@ -14,7 +14,7 @@ Baseline: `7a672c7f9215754e7bedf5ac1f7f5f6be6628a93` on `feature/phase1-readines
 | 6 | `frontend/src/pages/editor/components/PublishModal.tsx` | 3,365 | internal, WordPress, SFTP and static publishing plus provider management | Destination-specific panels/hooks; publishing E2E | Pending |
 | 7 | `frontend/src/pages/editor/utils/codeExporter.ts` | 2,750+ | serializers and embedded generators for many widget families | Generator registry by widget family; golden export tests | In progress: formatting/naming extracted |
 | 8 | `frontend/src/pages/editor/defaults/index.ts` | 2,277 | section templates and defaults for every widget | Split immutable presets from factory groups | Pending |
-| 9 | `frontend/src/pages/editor/types/index.ts` | 1,763 | editor model, registry, dynamic content helpers and conditions | Split types/registry/pure dynamic utilities with compatibility exports | Pending |
+| 9 | `frontend/src/pages/editor/types/index.ts` | 1,763 | editor model, registry, dynamic content helpers and conditions | Split types/registry/pure dynamic utilities with compatibility exports | In progress: theme conditions extracted |
 | 10 | `backend/src/services/website.service.ts` | 1,688+ | legacy initialization, CRUD, concurrency, collaboration, public serialization and dynamic content | Feature-local website modules, keeping service exports stable | In progress: theme-condition evaluator extracted |
 | 11 | `frontend/src/features/publishing/services/publishingService.ts` | 1,513 | internal deployment and every external destination API client | Shared typed transport plus destination clients, facade retained | In progress: types and core transport extracted |
 | 12 | `backend/src/controllers/wordpress.controller.ts` | 1,550+ | handlers for all WordPress domains | Domain controller modules re-exported for route compatibility | Pending |
@@ -30,6 +30,7 @@ Line count supports prioritization but is not an acceptance target. The editor, 
 - `frontend/src/features/publishing/services/publishing.types.ts`: API response contracts without runtime dependencies.
 - `frontend/src/features/publishing/services/publishingHttp.ts`: credentialed JSON transport used by validate, publish, deployment history and rollback. URLs, methods, bodies, response shapes and fallback errors remain unchanged.
 - `frontend/src/pages/editor/utils/codeFormatting.ts`: stable naming and CSS/JSX style serialization; `codeExporter.ts` retains compatibility re-exports.
+- `frontend/src/pages/editor/types/themeConditions.ts`: pure editor/public theme-condition matching, re-exported from the existing types entry point.
 
 ## Critical invariants
 
