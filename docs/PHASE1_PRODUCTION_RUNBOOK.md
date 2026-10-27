@@ -7,6 +7,7 @@ This runbook covers account access, blank-site creation, manual editing, media, 
 - `DATABASE_URL`: dedicated PostgreSQL database.
 - `FRONTEND_URL`: exact public HTTPS origin. Production startup rejects missing, invalid or HTTP values.
 - `UPLOAD_DIR`: absolute path on a backed-up persistent volume shared by backend instances. The local fallback is development-only.
+- `TRUST_PROXY`: explicit Express proxy trust matching the real topology (for example `1` for exactly one proxy hop). Production startup rejects a missing value; do not use a broad value unless the network boundary guarantees it.
 - SMTP variables from `backend/.env.example` for real verification and form email delivery.
 - `VITE_API_URL`: browser-visible HTTPS API origin when frontend and API differ.
 
@@ -51,6 +52,18 @@ The rehearsal creates only a random `forgestudio_rehearsal_<hex>` database, vali
 With non-production data, verify signup/OTP/login/logout, blank site, required widgets, two pages and homepage choice, shared header/footer, media upload, save/reload, two-tab stale-save rejection, responsive preview, publish, anonymous nested refresh, draft privacy, republish and rollback. A failed publish must leave the prior successful public release available.
 
 Do not approve production if SMTP is unverified, uploads disappear after replacement, direct nested refresh fails, cookie mutations accept a foreign Origin, or migrations fail.
+
+### Hosted staging smoke gate
+
+Run `npm.cmd run test:staging:smoke` from `backend` only against an authorized non-production host. Required inputs are `STAGING_APP_URL`, `STAGING_API_URL`, `STAGING_WEBSITE_ID`, and `STAGING_NESTED_SLUG`. For authenticated security checks also provide a disposable test account's `STAGING_SESSION_COOKIE` and the complete `STAGING_LOGIN_SET_COOKIE` response header captured from its real OTP login. Never commit these values.
+
+The probe checks valid HTTPS, database readiness, credentialed CORS, foreign/missing Origin rejection, cookie flags, anonymous nested refresh, and the rendered missing-page state. A SPA host commonly returns HTTP 200 for an unknown client route; the script reports that transport status separately from the React 404 screen. An HTTP 404 requires edge/SSR route awareness and is not implied by the client view.
+
+To test replacement persistence, also provide `STAGING_PERSISTED_ASSET_URL` and `STAGING_REPLACEMENT_EVIDENCE_FILE`. Run with `STAGING_REPLACEMENT_PHASE=before`, perform the authorized replacement, then run with `STAGING_REPLACEMENT_PHASE=after`. The latter compares the exact URL and SHA-256 bytes.
+
+Real SMTP passes only when the configured provider delivers to an external test mailbox and that OTP completes signup/login. Record provider message ID, recipient, send/receive times, and successful verification response. The local SMTP sink is not equivalent evidence.
+
+Database/media recovery is an infrastructure exercise: take a coordinated `pg_dump` and upload-volume snapshot; restore both into an isolated recovery environment; run `/api/v1/ready`; compare website/media row counts and representative hashes; then load the same nested page and asset. Application website backups are stored under `UPLOAD_DIR/backups`, but do not replace PostgreSQL and volume backups.
 
 Repeat the isolated local acceptance suite before staging:
 

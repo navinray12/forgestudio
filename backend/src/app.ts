@@ -74,6 +74,7 @@ const authRateLimiter = rateLimit({
 });
 
 const app = express();
+app.set("trust proxy", runtimeEnvironment.trustProxy);
 
 app.use(
   helmet({

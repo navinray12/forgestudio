@@ -387,3 +387,17 @@ The local acceptance gap is now closed with a repeatable Playwright/Chrome run a
 - Local SMTP proves the application performs real SMTP delivery; it does not prove deliverability through the intended external provider.
 - Trusted-Origin enforcement applies only to unsafe methods with the Forge session cookie in production. Safe methods, unauthenticated requests and non-production local HTTP are intentionally exempt; authorization and input validation still apply.
 - No frontend source files were changed in this continuation, so it introduced no new frontend lint violations. The previously documented repository-wide lint backlog remains unchanged and is not reported as passing.
+
+## Hosted staging preparation — 2026-10-27
+
+No staging URL, test account/session, external SMTP mailbox access, replacement hook, or recovery environment is configured in the workspace or process environment. Consequently, no hosted or real-provider check is marked passed.
+
+| ID | Finding | Resolution / evidence | Status |
+|---|---|---|---|
+| P1-024 | Durable website backup files were written beneath the process working directory instead of the configured persistent media root. | Backup archives now resolve to `UPLOAD_DIR/backups`; regression coverage proves the file is created below that root and restore reads the durable copy. | Resolved locally; replacement-volume restore remains a staging gate. |
+| P1-025 | Hosted checks were manual prose and could not consistently distinguish transport status from the rendered SPA state. | Added `test:staging:smoke` for HTTPS/readiness, CORS, authenticated trusted-Origin checks, cookie flags, anonymous nested refresh, rendered 404, and before/after asset hashing. | Tooling complete; execution blocked by the specific staging inputs above. |
+| P1-026 | Production expected TLS termination at a reverse proxy but Express had no explicit trusted-proxy configuration. | Added required production `TRUST_PROXY` validation and applies the scoped value to Express; environment regression covers missing and numeric-hop configuration. | Resolved locally; actual hop count and forwarded headers require hosted verification. |
+
+The unknown-page local evidence proves a **client-rendered 404 screen**. It does not prove an **HTTP 404 response**: with normal SPA fallback the hosting layer returns the application shell with HTTP 200, after which React displays the not-found state. The hosted smoke output records both facts separately.
+
+Release decision remains: controlled demo/UAT is ready; production deployment approval and production-like hosted verification are blocked until the runbook's real SMTP, authenticated HTTPS smoke, deployment replacement, and coordinated PostgreSQL/media restore exercises pass on an authorized environment.

@@ -2,6 +2,7 @@ export interface RuntimeEnvironment {
   nodeEnv: string;
   frontendUrl?: string;
   uploadDir?: string;
+  trustProxy: string | number | false;
 }
 
 export function validateEnvironment(env: NodeJS.ProcessEnv = process.env): RuntimeEnvironment {
@@ -29,11 +30,22 @@ export function validateEnvironment(env: NodeJS.ProcessEnv = process.env): Runti
     if (!frontendUrl.startsWith("https://")) {
       throw new Error("FRONTEND_URL must use HTTPS in production");
     }
+    if (!env.TRUST_PROXY?.trim()) {
+      throw new Error("TRUST_PROXY is required in production behind the HTTPS reverse proxy");
+    }
   }
+
+  const rawTrustProxy = env.TRUST_PROXY?.trim();
+  const trustProxy = !rawTrustProxy
+    ? false
+    : /^\d+$/.test(rawTrustProxy)
+      ? Number(rawTrustProxy)
+      : rawTrustProxy;
 
   return {
     nodeEnv,
     frontendUrl,
     uploadDir: env.UPLOAD_DIR?.trim() || undefined,
+    trustProxy,
   };
 }

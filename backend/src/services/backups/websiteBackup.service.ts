@@ -10,6 +10,7 @@
  */
 import fs from "fs";
 import path from "path";
+import { getUploadRoot } from "../../config/storage.js";
 
 export type BackupTrigger = "manual" | "scheduled" | "pre-publish" | "pre-restore";
 export type BackupStatus = "creating" | "ready" | "restoring" | "failed" | "expired";
@@ -46,10 +47,9 @@ export interface WebsiteBackup {
 /** Maximum number of backups retained per website (oldest pruned beyond limit) */
 export const MAX_BACKUPS_PER_WEBSITE = 25;
 
-const BACKUPS_STORAGE_DIR = path.join(process.cwd(), "uploads", "backups");
-
 function ensureBackupDir(websiteId: string): string {
-  const dir = path.join(BACKUPS_STORAGE_DIR, websiteId.replace(/[^a-zA-Z0-9_-]/g, "_"));
+  // Resolve at write time so deployment replacements use the mounted media volume.
+  const dir = path.join(getUploadRoot(), "backups", websiteId.replace(/[^a-zA-Z0-9_-]/g, "_"));
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
