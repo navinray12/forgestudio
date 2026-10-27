@@ -56,3 +56,16 @@ npm.cmd run build
 The disposable Phase 1 browser suite remains the release-critical behavioral check for editor/save/publish changes. Repository-wide frontend lint has documented pre-existing debt; changed-file diagnostics must be compared separately rather than describing the full lint backlog as new.
 
 Changed-file lint baseline for this increment: the pre-existing `publishingService.ts` and `codeExporter.ts` report extensive `no-explicit-any`/unused-symbol debt. Newly extracted modules are required to lint clean; the legacy findings are neither disabled nor attributed to this refactor.
+
+## Current evidence
+
+| Check | Result |
+|---|---|
+| Backend production build | Pass |
+| Frontend production build | Pass; 2,092 modules transformed |
+| Focused Phase 1 regressions | Pass, 7/7 |
+| New-module ESLint | Pass for publishing transport/types/core, formatting, theme conditions, editor tree and public routing |
+| Full disposable browser journey | Pass: OTP auth, blank site, widgets, responsive controls, atomic saves/409 recovery, publish, anonymous nested refresh, 404 view, draft isolation, failed republish, rollback, cross-user denial and upload restart |
+| Bundle evidence | No material improvement claimed: editor bundle remains about 5.3 MB minified; this work is structural |
+
+Supporting before → current line counts: `WebsiteEditor` 18,940 → 18,921; `codeExporter` 2,750+ → 2,667; editor types 1,763 → 1,729; publishing client 1,513 → 1,421; `PublishedSite` 1,423 → 1,394; website service 1,688+ → 1,640; publishing service 1,163 → 1,133. Extracted module cohesion and compatibility are the objective; these counts are supporting evidence only.
