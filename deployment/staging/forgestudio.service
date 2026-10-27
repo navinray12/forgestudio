@@ -1,0 +1,35 @@
+[Unit]
+Description=ForgeStudio staging API
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=forgestudio
+Group=forgestudio
+WorkingDirectory=/opt/forgestudio/current/backend
+EnvironmentFile=/etc/forgestudio/staging.env
+ExecStart=/usr/bin/node dist/server.js
+Restart=on-failure
+RestartSec=5
+TimeoutStartSec=60
+TimeoutStopSec=30
+KillSignal=SIGTERM
+
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+RestrictRealtime=true
+SystemCallArchitectures=native
+ReadWritePaths=/var/lib/forgestudio/uploads
+UMask=0027
+
+[Install]
+WantedBy=multi-user.target

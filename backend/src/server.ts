@@ -5,11 +5,12 @@ import { startScheduler } from "./services/scheduleWorker.js";
 import { initPresenceWebSocketServer } from "./services/collaboration/presence.service.js";
 
 const PORT = process.env.PORT || 5000;
+const HOST = process.env.HOST || "0.0.0.0";
 
 const server = http.createServer(app);
 initPresenceWebSocketServer(server);
 
-server.listen(PORT, () => {
+server.listen(Number(PORT), HOST, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   startScheduler();
 });

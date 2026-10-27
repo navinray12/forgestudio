@@ -41,6 +41,8 @@ The rehearsal creates only a random `forgestudio_rehearsal_<hex>` database, vali
 
 ## Hosting contract
 
+The concrete single-host staging bundle is in `deployment/staging/`. Its Caddy-to-API connection is loopback-only, so the supplied environment uses `TRUST_PROXY=loopback`; do not copy that value to a different proxy topology without validating the actual immediate peer addresses.
+
 - Serve the frontend build with SPA fallback to `index.html` for `/site/*`, including nested paths and refreshes.
 - Route the API origin to Express and expose `/uploads` from persistent `UPLOAD_DIR`.
 - Run `node dist/server.js`; do not run seed scripts during normal startup.

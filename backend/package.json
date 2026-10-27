@@ -13,7 +13,8 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:rehearse": "node scripts/rehearse-migrations.mjs",
     "test:phase1:browser": "node scripts/phase1-browser-acceptance.mjs",
-    "test:staging:smoke": "node scripts/staging-release-smoke.mjs"
+    "test:staging:smoke": "node scripts/staging-release-smoke.mjs",
+    "diagnose:staging:smtp": "node scripts/staging-smtp-diagnostic.mjs"
   },
   "keywords": [],
   "author": "",

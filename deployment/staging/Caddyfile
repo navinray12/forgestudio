@@ -1,0 +1,26 @@
+{
+	email {$ACME_EMAIL}
+}
+
+{$STAGING_HOST} {
+	encode zstd gzip
+
+	handle /api/* {
+		reverse_proxy 127.0.0.1:5000
+	}
+	handle /uploads/* {
+		reverse_proxy 127.0.0.1:5000
+	}
+
+	handle {
+		root * {$FORGESTUDIO_ROOT}/current/frontend/dist
+		try_files {path} /index.html
+		file_server
+	}
+
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		-Server
+	}
+}

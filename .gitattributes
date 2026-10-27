@@ -1,0 +1,3 @@
+deployment/staging/*.sh text eol=lf
+deployment/staging/Caddyfile text eol=lf
+deployment/staging/*.service text eol=lf
