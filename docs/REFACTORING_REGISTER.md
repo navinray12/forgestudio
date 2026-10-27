@@ -12,7 +12,7 @@ Baseline: `7a672c7f9215754e7bedf5ac1f7f5f6be6628a93` on `feature/phase1-readines
 | 4 | `frontend/src/pages/dashboard/components/ManagedSiteModal.tsx` | 4,555 | 100+ state values; mail, backups, domains, staging, security, hosting and billing API/UI | Extract domain tabs with feature hooks; API and modal browser tests | Pending |
 | 5 | `backend/src/services/wordpress/connector.service.ts` | 4,342 | connection, pages, media, publishing, rollback, jobs and provider adapters | Split domain services behind compatibility exports; WordPress contract suites | Pending; external-provider risk |
 | 6 | `frontend/src/pages/editor/components/PublishModal.tsx` | 3,365 | internal, WordPress, SFTP and static publishing plus provider management | Destination-specific panels/hooks; publishing E2E | Pending |
-| 7 | `frontend/src/pages/editor/utils/codeExporter.ts` | 2,750+ | serializers and embedded generators for many widget families | Generator registry by widget family; golden export tests | Pending |
+| 7 | `frontend/src/pages/editor/utils/codeExporter.ts` | 2,750+ | serializers and embedded generators for many widget families | Generator registry by widget family; golden export tests | In progress: formatting/naming extracted |
 | 8 | `frontend/src/pages/editor/defaults/index.ts` | 2,277 | section templates and defaults for every widget | Split immutable presets from factory groups | Pending |
 | 9 | `frontend/src/pages/editor/types/index.ts` | 1,763 | editor model, registry, dynamic content helpers and conditions | Split types/registry/pure dynamic utilities with compatibility exports | Pending |
 | 10 | `backend/src/services/website.service.ts` | 1,688+ | legacy initialization, CRUD, concurrency, collaboration, public serialization and dynamic content | Feature-local website modules, keeping service exports stable | In progress: theme-condition evaluator extracted |
@@ -29,6 +29,7 @@ Line count supports prioritization but is not an acceptance target. The editor, 
 - `backend/src/services/websites/theme-conditions.ts`: pure theme-condition evaluation. `website.service.ts` keeps its public `matchesThemeCondition` export as a compatibility delegate.
 - `frontend/src/features/publishing/services/publishing.types.ts`: API response contracts without runtime dependencies.
 - `frontend/src/features/publishing/services/publishingHttp.ts`: credentialed JSON transport used by validate, publish, deployment history and rollback. URLs, methods, bodies, response shapes and fallback errors remain unchanged.
+- `frontend/src/pages/editor/utils/codeFormatting.ts`: stable naming and CSS/JSX style serialization; `codeExporter.ts` retains compatibility re-exports.
 
 ## Critical invariants
 
@@ -50,3 +51,5 @@ npm.cmd run build
 ```
 
 The disposable Phase 1 browser suite remains the release-critical behavioral check for editor/save/publish changes. Repository-wide frontend lint has documented pre-existing debt; changed-file diagnostics must be compared separately rather than describing the full lint backlog as new.
+
+Changed-file lint baseline for this increment: the pre-existing `publishingService.ts` and `codeExporter.ts` report extensive `no-explicit-any`/unused-symbol debt. Newly extracted modules are required to lint clean; the legacy findings are neither disabled nor attributed to this refactor.

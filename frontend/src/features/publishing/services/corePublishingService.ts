@@ -3,7 +3,7 @@ import type { PublishApiResponse, ValidationApiResponse } from "./publishing.typ
 import { requestPublishingJson } from "./publishingHttp";
 
 export const corePublishingService = {
-  validateWebsite(websiteId: string, editorData?: any, apiUrl?: string): Promise<ValidationApiResponse> {
+  validateWebsite(websiteId: string, editorData?: unknown, apiUrl?: string): Promise<ValidationApiResponse> {
     return requestPublishingJson(`/api/websites/${websiteId}/validate-publish`, {
       method: "POST",
       body: JSON.stringify({ editorData }),
@@ -13,10 +13,10 @@ export const corePublishingService = {
   publishWebsite(
     websiteId: string,
     options: {
-      editorData?: any;
+      editorData?: unknown;
       environment?: "PRODUCTION" | "STAGING" | "DEVELOPMENT";
       destinationType?: "INTERNAL" | "WORDPRESS" | "STATIC";
-      metadata?: Record<string, any>;
+      metadata?: Record<string, unknown>;
     } = {},
     apiUrl?: string,
   ): Promise<PublishApiResponse> {
