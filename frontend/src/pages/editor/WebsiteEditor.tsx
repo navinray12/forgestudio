@@ -48,7 +48,8 @@ import {
 // Extracted Modular Imports
 export type { EditorElement, ElementStyles, ContainerLayout, Breakpoint, ElementType } from "./types";
 import { type SiteProduct } from "./types";
-import { getAllElementIds } from "./state/editorTree";
+import { useEditorHistory } from "./hooks/useEditorHistory";
+import { useEditorSelection } from "./hooks/useEditorSelection";
 import { IconRenderer } from "./widgets/icons";
 import {
   triggerImagePicker,
@@ -428,9 +429,6 @@ export default function WebsiteEditor() {
     </details>
   );
 
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const selectedElement = selectedId ? findTreeElement(elements, selectedId) : null;
-  const selectedElementAny = selectedElement as any;
   const [allowedComponentIds, setAllowedComponentIds] = useState<Set<string>>(new Set());
   const userAccess = useComponentAccess(website, allowedComponentIds);
   const isRestrictedMode = userAccess.isRestrictedMode;
@@ -454,13 +452,21 @@ export default function WebsiteEditor() {
     broadcastSelection,
   } = useCanvasPresence(websiteId || (website as any)?.id, currentLoggedInUser);
 
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [activeElementState, setActiveElementState] = useState<ElementState>("normal");
+  const {
+    selectedId,
+    setSelectedId,
+    selectedIds,
+    setSelectedIds,
+    selectElement: handleSelectElement,
+  } = useEditorSelection({ elements, setActiveElementState });
+  const selectedElement = selectedId ? findTreeElement(elements, selectedId) : null;
+  const selectedElementAny = selectedElement as any;
+
   useEffect(() => {
     broadcastSelection(selectedId || null);
   }, [selectedId, broadcastSelection]);
-
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
-  const [activeElementState, setActiveElementState] = useState<ElementState>("normal");
 
   // Reusable Components State (F-005)
   const [components, setComponents] = useState<Record<string, { name: string; element: EditorElement; isFavorite?: boolean }>>(() => {
@@ -716,80 +722,13 @@ export default function WebsiteEditor() {
   };
 
   // Revision & History State (F-013)
-  const [history, setHistory] = useState<EditorElement[][]>([]);
-  const [historyIndex, setHistoryIndex] = useState<number>(-1);
-  const isUndoRedoAction = useRef(false);
-
-  useEffect(() => {
-    if (isUndoRedoAction.current) {
-      isUndoRedoAction.current = false;
-      return;
-    }
-
-    setHistory((prev) => {
-      const sliced = historyIndex >= 0 ? prev.slice(0, historyIndex + 1) : prev;
-      const updated = [...sliced, JSON.parse(JSON.stringify(elements))];
-      if (updated.length > 50) updated.shift();
-      return updated;
-    });
-
-    setHistoryIndex(historyIndex >= 0 ? Math.min(historyIndex + 1, 49) : 0);
-  }, [elements]);
-
-  const handleUndo = () => {
-    if (historyIndex > 0 && history[historyIndex - 1]) {
-      isUndoRedoAction.current = true;
-      const newIndex = historyIndex - 1;
-      setHistoryIndex(newIndex);
-      setElements(JSON.parse(JSON.stringify(history[newIndex])));
-    }
-  };
-
-  const handleRedo = () => {
-    if (historyIndex < history.length - 1 && history[historyIndex + 1]) {
-      isUndoRedoAction.current = true;
-      const newIndex = historyIndex + 1;
-      setHistoryIndex(newIndex);
-      setElements(JSON.parse(JSON.stringify(history[newIndex])));
-    }
-  };
-
-  const handleSelectElement = (id: string | null, e?: React.MouseEvent) => {
-    setActiveElementState("normal");
-    if (!id) {
-      setSelectedId(null);
-      setSelectedIds([]);
-      return;
-    }
-
-    if (e && (e.ctrlKey || e.metaKey)) {
-      setSelectedIds((prev) => {
-        const isAlreadySelected = prev.includes(id);
-        const updated = isAlreadySelected
-          ? prev.filter((item) => item !== id)
-          : [...prev, id];
-        setSelectedId(updated.length > 0 ? updated[updated.length - 1] : null);
-        return updated;
-      });
-    } else if (e && e.shiftKey && selectedId && elements.length > 0) {
-      const allIds = getAllElementIds(elements);
-      const startIdx = allIds.indexOf(selectedId);
-      const endIdx = allIds.indexOf(id);
-      if (startIdx !== -1 && endIdx !== -1) {
-        const minIdx = Math.min(startIdx, endIdx);
-        const maxIdx = Math.max(startIdx, endIdx);
-        const rangeIds = allIds.slice(minIdx, maxIdx + 1);
-        setSelectedIds((prev) => Array.from(new Set([...prev, ...rangeIds])));
-        setSelectedId(id);
-      } else {
-        setSelectedId(id);
-        setSelectedIds([id]);
-      }
-    } else {
-      setSelectedId(id);
-      setSelectedIds([id]);
-    }
-  };
+  const {
+    history,
+    historyIndex,
+    undo: handleUndo,
+    redo: handleRedo,
+    resetHistory,
+  } = useEditorHistory({ elements, setElements });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
@@ -1259,8 +1198,7 @@ export default function WebsiteEditor() {
     setCanvasMode("page");
 
     // 3. Reset undo/redo history to isolate active page history (Comment 6)
-    setHistory([target.elements || []]);
-    setHistoryIndex(0);
+    resetHistory(target.elements || []);
 
     setActivePageId(target.id);
     setElements(target.elements || []);
@@ -1325,8 +1263,7 @@ export default function WebsiteEditor() {
       const activePage = pages.find((p) => p.id === activePageId);
       const targetEls = activePage?.elements || [];
       setElements(targetEls);
-      setHistory([targetEls]);
-      setHistoryIndex(0);
+      resetHistory(targetEls);
     } else if (mode === "header") {
       let targetEls = siteParts.header?.elements || [];
       if (targetEls.length === 0) {
@@ -1340,13 +1277,11 @@ export default function WebsiteEditor() {
         }));
       }
       setElements(targetEls);
-      setHistory([targetEls]);
-      setHistoryIndex(0);
+      resetHistory(targetEls);
     } else if (mode === "footer") {
       const targetEls = siteParts.footer?.elements || [];
       setElements(targetEls);
-      setHistory([targetEls]);
-      setHistoryIndex(0);
+      resetHistory(targetEls);
     } else if (mode === "single") {
       let targetEls = siteParts.single?.elements || [];
       if (targetEls.length === 0) {
@@ -1357,8 +1292,7 @@ export default function WebsiteEditor() {
         }));
       }
       setElements(targetEls);
-      setHistory([targetEls]);
-      setHistoryIndex(0);
+      resetHistory(targetEls);
     } else if (mode === "archive") {
       let targetEls = siteParts.archive?.elements || [];
       if (targetEls.length === 0) {
@@ -1369,8 +1303,7 @@ export default function WebsiteEditor() {
         }));
       }
       setElements(targetEls);
-      setHistory([targetEls]);
-      setHistoryIndex(0);
+      resetHistory(targetEls);
     } else if (mode === "404") {
       let targetEls = siteParts.notFound404?.elements || [];
       if (targetEls.length === 0) {
@@ -1381,8 +1314,7 @@ export default function WebsiteEditor() {
         }));
       }
       setElements(targetEls);
-      setHistory([targetEls]);
-      setHistoryIndex(0);
+      resetHistory(targetEls);
     } else if (mode === "search-results") {
       let targetEls = siteParts.searchResults?.elements || [];
       if (targetEls.length === 0) {
@@ -1393,8 +1325,7 @@ export default function WebsiteEditor() {
         }));
       }
       setElements(targetEls);
-      setHistory([targetEls]);
-      setHistoryIndex(0);
+      resetHistory(targetEls);
     }
 
     setCanvasMode(mode);
