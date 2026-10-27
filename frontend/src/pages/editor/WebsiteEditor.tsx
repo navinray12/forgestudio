@@ -919,7 +919,7 @@ export default function WebsiteEditor() {
             },
           };
         }
-        let updated = { ...el };
+        const updated = { ...el };
         if (Array.isArray(el.children)) {
           updated.children = updateInTree(el.children);
         }
@@ -3736,7 +3736,7 @@ export default function WebsiteEditor() {
         const formData = new FormData();
         formData.append("image", file);
 
-        let uploadRes = await fetch(`${apiUrl}/api/v1/uploads/image`, {
+        const uploadRes = await fetch(`${apiUrl}/api/v1/uploads/image`, {
           method: "POST",
           credentials: "include",
           body: formData,

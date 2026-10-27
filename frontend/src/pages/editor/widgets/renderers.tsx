@@ -2355,7 +2355,7 @@ export const FlipBoxWidgetRenderer = ({
   const showBack = isFlippedManual || isFlippedState;
 
   // Compute rotation styles based on flip direction
-  let frontRotate = "rotateY(0deg)";
+  const frontRotate = "rotateY(0deg)";
   let backRotate = "rotateY(180deg)";
   let flippedTransform = "rotateY(180deg)";
 
@@ -6253,9 +6253,9 @@ export const MegaMenuWidgetRenderer = ({
 
   const resolveMegaLink = (link: MegaMenuColumnLink) => {
     let displayLabel = link.label;
-    let displayDesc = link.description;
-    let displayBadge = link.badge;
-    let displayImage = link.image;
+    const displayDesc = link.description;
+    const displayBadge = link.badge;
+    const displayImage = link.image;
 
     const { resolvedUrl, targetPage } = resolveForgeLink(link.href, link.pageId, link.destinationType || link.linkType, { pages });
 
@@ -7555,32 +7555,38 @@ export const getSocialShareUrl = (
   }
 
   switch (network) {
-    case "facebook":
+    case "facebook": {
       let fb = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
       if (textVal) fb += `&quote=${title}`;
       return fb;
-    case "twitter":
+    }
+    case "twitter": {
       let tw = `https://twitter.com/intent/tweet?url=${url}`;
       if (textVal) tw += `&text=${title}`;
       if (tagsVal) tw += `&hashtags=${encodedTags}`;
       return tw;
+    }
     case "linkedin":
       return `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
-    case "whatsapp":
+    case "whatsapp": {
       const whatsappMsg = encodeURIComponent(textVal ? `${textVal}\n${safeTarget}` : safeTarget);
       return `https://api.whatsapp.com/send?text=${whatsappMsg}`;
-    case "pinterest":
+    }
+    case "pinterest": {
       let pin = `https://pinterest.com/pin/create/button/?url=${url}`;
       if (textVal) pin += `&description=${title}`;
       return pin;
-    case "reddit":
+    }
+    case "reddit": {
       let rd = `https://www.reddit.com/submit?url=${url}`;
       if (textVal) rd += `&title=${title}`;
       return rd;
-    case "email":
+    }
+    case "email": {
       const subject = textVal ? title : encodeURIComponent("Check out this page!");
       const body = encodeURIComponent(textVal ? `${textVal}\n\n${safeTarget}` : safeTarget);
       return `mailto:?subject=${subject}&body=${body}`;
+    }
     case "copy":
       return safeTarget;
     default:
@@ -7615,7 +7621,7 @@ export const resolveShareAction = (
   const targetUrl = resolveShareDestinationUrl(el, netItem, pages, activePageId);
 
   let isPageNavigation = false;
-  let pageId = netItem?.pageId;
+  const pageId = netItem?.pageId;
   if (netItem?.destinationType === "page" && netItem.pageId) {
     isPageNavigation = true;
   }

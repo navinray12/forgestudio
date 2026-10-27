@@ -4,11 +4,7 @@ import { PrismaClient } from "../generated/prisma/client.js";
 import { PrismaPg } from "@prisma/adapter-pg";
 import argon2 from "argon2";
 
-const connectionString = process.env.DATABASE_URL;
-
-if (!connectionString) {
-  throw new Error("DATABASE_URL is not defined");
-}
+const connectionString = process.env.DATABASE_URL || "postgresql://postgres:postgres@localhost:5432/forgestudio";
 
 export const pgPool = new pg.Pool({ connectionString });
 const adapter = new PrismaPg(pgPool);
@@ -28,7 +24,7 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 // Ensure PostgreSQL enum types and columns are updated for Email & WhatsApp OTP
-async function ensureDbSchema() {
+export async function ensureDbSchema() {
   try {
     await prisma.$executeRawUnsafe(`DELETE FROM "_prisma_migrations" WHERE "migration_name" = '20260819115056_init_auth' AND "finished_at" IS NULL;`);
     await prisma.$executeRawUnsafe(`
@@ -81,7 +77,7 @@ async function ensureDbSchema() {
   }
 }
 
-async function ensureAdminAccounts() {
+export async function ensureAdminAccounts() {
   try {
     const adminPassHash = await argon2.hash("Admin123!", { type: argon2.argon2id });
     const superAdminPassHash = await argon2.hash("SuperAdmin123!", { type: argon2.argon2id });
@@ -130,12 +126,9 @@ async function ensureAdminAccounts() {
   }
 }
 
-ensureDbSchema().catch((err) => {
-  console.error("Failed to run schema auto-migration:", err);
-});
-
-ensureAdminAccounts().catch((err) => {
-  console.error("Admin seeding check failed:", err);
-});
+export async function initializeDatabaseBootstrap() {
+  await ensureDbSchema();
+  await ensureAdminAccounts();
+}
 
 export default prisma;

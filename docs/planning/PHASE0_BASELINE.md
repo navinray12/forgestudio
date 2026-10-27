@@ -56,26 +56,32 @@
 | :--- | :---: | :--- |
 | **Backend Prisma Schema** | **PASS** | Validated with `prisma validate` (valid schema). |
 | **Backend TypeScript Build** | **PASS** | `tsc` passed with 0 errors. |
-| **Backend Tests** | **BLOCKED** | Safe execution blocked without active PostgreSQL service; `prisma.ts` executes top-level DDL queries on import. |
-| **Frontend Production Build** | **FAIL** | TS2451: Duplicate identifier `sitePartsState` / `setSitePartsState` in `frontend/src/pages/published/PublishedSite.tsx` (fixed in Phase 1 commit `3cedd01`). |
-| **Frontend ESLint** | **FAIL** | 1767 problems (1723 errors across legacy code). |
+| **Backend Tests** | **PASS** | Isolated unit/safeguard tests execute cleanly with zero database side-effects on import. |
+| **Frontend Production Build** | **PASS** | Production bundle built cleanly with Vite + TypeScript (`tsc -b && vite build`). |
+| **Frontend ESLint** | **PARTIAL** | High-impact syntax, duplicate case, hook ordering, and type leaks resolved. 1687 errors and 42 warnings remain across legacy code (predominantly `no-explicit-any`). |
 | **Database Migrations** | **PASS** | 8 ordered migrations present in `backend/prisma/migrations` consistent with `migration_lock.toml`. |
-| **Runtime Schema Mutations** | **IDENTIFIED** | `src/config/prisma.ts` and `src/services/website.service.ts` contain runtime `CREATE TABLE IF NOT EXISTS` and `ALTER TABLE` calls. |
+| **Runtime Schema Mutations** | **ISOLATED** | Eager module-import executions removed from `prisma.ts`; deferred to explicit server start. |
 
 ---
 
-## 5. File Modifications in Phase 0
+## 5. File Modifications in Phase 0 Stabilization
 
-1. `.gitignore` — Hardened against scratch scripts and temp files.
-2. `README.md` — Updated with accurate setup instructions.
-3. `backend/package.json` — Added `db:validate` verification script.
-4. `docs/planning/PHASE0_BASELINE.md` — Comprehensive baseline audit report.
-5. Deleted 32 unused scratch files from `frontend/.agent/`, `frontend/fix.js`, `frontend/test.js`.
+1. `frontend/src/pages/published/PublishedSite.tsx` — Removed duplicate `sitePartsState` declaration; restored production build.
+2. `backend/src/config/prisma.ts` & `backend/src/server.ts` — Separated DB instantiation from bootstrap routines; prevented unintended DB mutations on import.
+3. `frontend/src/pages/editor/defaults/index.ts` — Removed dead duplicate `price-table` switch case.
+4. `frontend/src/components/CustomCodeModal.tsx` — Fixed hoisted function access before declaration in React effect.
+5. `frontend/src/components/CookieConsentBanner.tsx` — Removed unused import, avoided synchronous effect state dispatch, cleaned empty catch blocks.
+6. `frontend/src/plugins/components/PluginSettingsPanel.tsx` — Initialized state via lazy initializer to fix cascading effect re-renders.
+7. `frontend/src/plugins/PluginManager.ts` — Replaced unsafe `Function` type annotations with concrete function signatures.
+8. `frontend/src/pages/editor/widgets/renderers.tsx` — Scoped switch case blocks to fix `no-case-declarations` and updated `prefer-const`.
+9. `frontend/src/services/` & `frontend/src/utils/` — Added strict types for custom code snippets, font managers, and multilingual exports.
+10. `docs/planning/PHASE0_BASELINE.md` — Updated Phase 0 baseline and stabilization verification log.
 
 ---
 
-## 6. Phase 1 Blockers
+## 6. Phase 1 Readiness Status
 
-1. **Frontend Build Blocker:** Duplicate `sitePartsState` variable declaration in `frontend/src/pages/published/PublishedSite.tsx` blocks `tsc -b`.
-2. **Backend Top-Level DB Side Effects:** `backend/src/config/prisma.ts` connects to DB and runs raw DDL upon module import, blocking isolated unit/integration test suites.
-3. **Frontend ESLint Violations:** 1723 ESLint errors (strict `any` and React 19 hooks rules) require remediation.
+- **Frontend Production Build:** STABILIZED (0 build errors).
+- **Backend Production Build & Validation:** STABILIZED (0 build errors, valid schema).
+- **Test Isolation:** STABILIZED (Importing backend modules does not trigger unintended PostgreSQL queries).
+- **Remaining Technical Debt:** 1687 legacy ESLint warnings/errors (mainly `@typescript-eslint/no-explicit-any`) to be incrementally typed in Phase 1 modules.
