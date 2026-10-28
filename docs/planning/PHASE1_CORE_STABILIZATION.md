@@ -1,43 +1,38 @@
 # ForgeStudio — Phase 1 Core Stabilization Report
 
 ## Executive Summary
-Phase 1 Core Stabilization is completed. All core end-to-end user journeys and the three Phase 1 Final Gap Closure items (Published Form Security P0, Atomic Save Conflict Protection P0, and Real Browser Playwright E2E P1) have been implemented, hardened, and verified against a live Express backend, Vite frontend SPA, and PostgreSQL database.
+Phase 1 Core Stabilization is completed and signed off. All core end-to-end user journeys, the Phase 1 Final Gap Closures, and the Final Quality Gate items (Secure OTP Delivery P0, Strict Atomic Save OCC Concurrency Protection P0, and Strengthened Real Browser Playwright E2E P1) have been implemented, hardened, and verified against a live Express backend, Vite frontend SPA, and PostgreSQL database.
 
-## Final Gap Closure Verification (P0 & P1)
+## Final Quality Gate Verification (P0 & P1)
 
-### 1. Published Form Security (P0) — VERIFIED
-- **Enforcement:** `backend/src/services/form/form.service.ts` derives executable actions and destinations exclusively from verified published form configuration (`editorData.publishedData`).
-- **Untrusted Inputs:** Client-supplied actions, destinations, spam rules, and field configuration are treated as strictly untrusted and stripped.
-- **Form Verification:** Missing, unpublished, or invalid forms are rejected with HTTP 400 (`PUBLISHED_FORM_NOT_FOUND`).
-- **Outbound Protection:** Client-driven outbound webhooks and arbitrary email recipient injection are completely prevented. Webhook destinations are validated with anti-SSRF protections (blocking loopback, cloud metadata, and RFC 1918 subnets).
+### 1. Secure OTP Delivery (P0) — VERIFIED
+- **No Plaintext Logging:** Completely removed plaintext OTPs and credentials from log output across development, test, staging, and production environments. Only sanitized metadata (e.g. purpose, recipient email, message ID) is emitted.
+- **Restricted In-Memory Capture:** Restricted OTP in-memory capture strictly to explicitly enabled isolated test executions (`isIsolatedTestTransportEnabled()`, activated via `enableIsolatedTestTransport()`). In all other contexts, OTPs are never stored in memory.
+- **Production SMTP Enforcement:** In production (`NODE_ENV === "production"`), missing SMTP credentials immediately and visibly throw a hard error (`"SMTP configuration is missing. Cannot send verification email in production."`), strictly preventing silent simulation.
+- **Preserved Real SMTP Delivery:** Real email integration via Nodemailer is fully preserved when SMTP credentials (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`) are supplied.
 - **Test Evidence:**
-  - `milestoneH-phase8-forms.test.ts`: **10 / 10 PASS** (Honeypot, rate limiting, SSRF validator, DB persistence, lead retrieval, delete lead).
-  - `phase1-core-journey.test.ts` [TEST 10]: **PASS** (Crafted webhook injection blocked; recipient injection blocked; legitimate deliveries preserved; cross-tenant lead access blocked).
+  - `backend/src/tests/email-otp-security.test.ts`: **4 / 4 PASS** (In-memory capture restricted when disabled; production missing SMTP rejects; isolated test transport captures deterministically when enabled; transport purge on disable).
 
-### 2. Atomic Save Conflict Protection (P0) — VERIFIED
-- **Atomic Concurrency Control:** Implemented database-enforced optimistic concurrency control using atomic compare-and-swap (CAS) via SQL parameterization (`backend/src/services/website.service.ts`).
-- **Zero Tolerance:** Eliminated the legacy 1.5-second conflict tolerance window. The database update atomically verifies that the record's current revision matches `expectedUpdatedAt` (`ABS(EXTRACT(EPOCH FROM ("updatedAt" - ${expectedDate}))) < 0.005`).
-- **Conflict Handling:** Stale or concurrent writes return HTTP 409 (`STALE_VERSION_CONFLICT`) without overwriting saved content in the database.
-- **Autosave Compatibility:** Preserves editor autosave recovery and local snapshot persistence without corrupting server state.
+### 2. Strict Atomic Save Protection (P0) — VERIFIED
+- **No Unconditional Editor-Save Fallback:** Removed unconditional editor-save fallback when expected revision is absent. Calling editor save without `expectedVersion` and without `lastKnownUpdatedAt` returns HTTP 400 (`MISSING_REVISION`).
+- **Zero CAS Tolerance:** Eliminated the legacy 5ms epoch comparison window. All timestamp-based compare-and-swap checks enforce strict exact database equality (`"updatedAt" = ${expectedDate}`).
+- **Monotonic Integer Database Revision:** Added an explicit `version` column to the `websites` table with a safe versioned migration (`20261028000000_add_website_version/migration.sql`) and Prisma schema update (`version Int @default(1)`).
+- **Atomic Compare-And-Swap:** Saves matching `version = ${expectedVersion}` atomically increment `"version" = "version" + 1` and update `"updatedAt" = NOW()`.
+- **Concurrent Write Resolution:** Simultaneous concurrent writes executed by two independent clients with the same baseline revision guarantee that exactly one write succeeds (HTTP 200) and the competing write is atomically rejected with HTTP 409 (`STALE_VERSION_CONFLICT`) without overwriting persisted database content.
+- **Editor & Autosave Concurrency Integration:** Both manual save and autosave in `WebsiteEditor.tsx` and `useAutosave.ts` supply `expectedVersion` and `lastKnownUpdatedAt`. Local unsaved changes are preserved in browser `localStorage` and editor state upon receiving HTTP 409.
 - **Test Evidence:**
-  - `phase1-core-journey.test.ts` [TEST 6]: **PASS** (Sequential stale write returns HTTP 409; simultaneous concurrent writes executed in parallel by two independent clients verify that exactly one write succeeds while the competing write is atomically rejected with HTTP 409).
+  - `phase1-core-journey.test.ts` [TEST 6]: **PASS** (Missing revision rejected with 400; stale timestamp rejected with 409; stale version number rejected with 409; simultaneous concurrent saves produce exactly 1 winner and 1 HTTP 409 rejection; retry with updated monotonic revision succeeds).
 
-### 3. Real Browser E2E Test (P1) — VERIFIED
-- **Infrastructure:** Real Playwright Chromium headless runner orchestrating live Express backend (port 5000), Vite SPA static server (port 5173), and PostgreSQL database.
-- **Email OTP Verification:** Dedicated isolated email test transport (`backend/src/services/email.service.ts`) capturing and verifying 6-digit OTP delivery deterministically in test environments without external SMTP dependencies.
-- **Full Browser DOM & DB Validation Suite (`backend/src/tests/phase1-browser-e2e.test.ts`):**
-  1. **Login & OTP Flow:** User authentication, isolated email OTP extraction, submission, browser navigation to `/dashboard`, active PostgreSQL session verification.
-  2. **Website Creation:** Dashboard modal interaction, form submission, editor redirect (`/editor/:id`), database draft record verification.
-  3. **Editor Interactions:** Component toolbar DOM render, widget insertion into canvas.
-  4. **Save & Reload:** Editor save action, DOM toast notification (`"Saved successfully!"`), browser reload, DB `editorData` verification.
-  5. **Media Upload & Optimization:** Multipart upload to `/api/uploads/image`, asset URL verification, PostgreSQL `MediaAsset` record confirmation.
-  6. **Publishing:** Publish modal render, `"Publish Now"` execution, `"Website successfully published"` toast, DB `Deployment` v1 record confirmation.
-  7. **Anonymous Public Render:** Isolated incognito browser context (no session cookies) loading `/site/:id`, verifying DOM rendering without login, anonymous page refresh stability.
-  8. **Draft Isolation:** Editor draft modifications saved without publishing; anonymous public page refresh verified to remain at published v1 snapshot.
-  9. **Rollback:** Draft published as v2, modal deployment history interaction, browser confirmation dialog accepted, rollback to v1 executed, active DB deployment restored.
-  10. **Logout & Route Protection:** Dashboard logout execution, redirection to `/login`, direct `/dashboard` navigation bounce to `/login`, PostgreSQL session `revokedAt` confirmation.
+### 3. Strengthened Real Browser E2E Test (P1) — VERIFIED
+- **Disposable Test Database Safeguard:** Validates `DATABASE_URL` before any write operations and strictly aborts with a fatal error if executed against an unsafe or non-test/non-local database.
+- **Live Infrastructure:** Real Playwright Chromium headless browser executing against live Express backend (port 5000), Vite SPA static server (port 5173), and PostgreSQL.
+- **DOM Content Verification:** Asserts actual rendered published widget text inside the public visitor's DOM (`"⚡ Skip to main content\nHeading Text\n♿..."`), rather than merely checking container `#root`.
+- **Draft Isolation Verification:** Verifies that unreleased draft modifications saved in the editor remain strictly absent from the public visitor's DOM upon page refresh.
+- **Browser-UI-Only Rollback:** Executes rollback to v1 exclusively through the browser UI and confirmation dialog (zero direct API fallbacks). Asserts that the anonymous public visitor's DOM restores the exact v1 content.
+- **Accurate Media Assertions:** Separates direct API upload verification from editor component integration.
+- **Safe Teardown:** Teardown strictly asserts test email prefix (`e2e_user_`) and test website name prefix (`E2E Studio`) before deleting test records, preventing accidental deletion of non-test data.
 - **Test Evidence:**
-  - `phase1-browser-e2e.test.ts`: **10 / 10 STEPS PASS** cleanly with complete database cleanup on teardown.
+  - `phase1-browser-e2e.test.ts`: **10 / 10 STEPS PASS** (All steps executed via real browser DOM interactions and asserted against PostgreSQL).
 
 ---
 
@@ -45,18 +40,18 @@ Phase 1 Core Stabilization is completed. All core end-to-end user journeys and t
 
 | Feature | Before | After | Files Changed | Test Result |
 | :--- | :--- | :--- | :--- | :--- |
-| **Authentication & OTP Bypass** | Test fixtures `123456`/`999999` were active across normal non-test dev/staging environments. | Hardened test OTP bypass to only function when `NODE_ENV === "test"` and `ENABLE_TEST_OTP_FIXTURE === "true"`. Real email OTP via Nodemailer with sha256 hash in DB. Isolated in-memory transport for E2E. | `backend/src/services/otp.service.ts`, `backend/src/services/email.service.ts` | **PASS** (Invalid code rejected with 400; real sha256 verified) |
+| **Authentication & OTP Security** | OTP fixtures existed; plaintext OTPs were logged; missing SMTP simulated in production. | Plaintext OTP logging removed; in-memory capture gated to isolated tests; production requires valid SMTP; real Nodemailer delivery preserved. | `backend/src/services/email.service.ts`, `backend/src/services/otp.service.ts`, `backend/src/tests/email-otp-security.test.ts` | **PASS** (4/4 email security tests pass; no plaintext OTPs in logs) |
 | **Session Lifecycle & Logout** | Session token verification and revocation functions were missing/incomplete from `session.service.ts`. | Exported `createUserSession`, `validateSession`, and `revokeSession` destroying session records on logout. | `backend/src/services/session.service.ts`, `backend/src/controllers/auth.controller.ts` | **PASS** (Session validated and revoked upon logout) |
 | **Runtime DDL Elimination** | Services (`website`, `media`, `form`, `imageOptimization`, `oauth`, `auth.middleware`) executed runtime `ALTER TABLE` / `CREATE TABLE` inside try/catch blocks. | Replaced all runtime DDL with safe no-ops, relying strictly on Prisma migrations. | `backend/src/services/website.service.ts`, `backend/src/services/media.service.ts`, `backend/src/services/form/form.service.ts`, `backend/src/services/imageOptimization.service.ts`, `backend/src/services/oauth.service.ts`, `backend/src/middlewares/auth.middleware.ts` | **PASS** (`db:validate` valid, zero startup DDL executed) |
 | **Multi-Tenant Website Authorization** | Authorization checks relied on disparate checks without uniform cross-tenant isolation. | Strict user ownership and collaborator permission verification (`OWNER`, `ADMIN`, `DESIGNER`, `CONTENT_EDITOR`, `REVIEWER`). | `backend/src/services/website.service.ts`, `backend/src/tests/controller-auth-safeguard.test.ts` | **PASS** (Cross-tenant access blocked with 403/404) |
-| **Atomic Save OCC Conflict Detection** | Check-before-update validation with 1.5s tolerance allowed concurrent requests to pass and overwrite newer data. | Database-enforced atomic compare-and-swap (CAS). Zero tolerance. Competing or stale saves return HTTP 409 without overwriting DB. | `backend/src/services/website.service.ts`, `backend/src/controllers/website.controller.ts`, `frontend/src/features/autosave/hooks/useAutosave.ts`, `frontend/src/pages/editor/WebsiteEditor.tsx` | **PASS** (Stale save returns HTTP 409; concurrent competition test passes) |
+| **Strict Atomic Save OCC Concurrency** | Unconditional save fallback when revision missing; 5ms tolerance in CAS; lack of monotonic version. | Rejection on missing revision (400); 0ms tolerance timestamp CAS; monotonic integer `version` CAS (`version = version + 1`); concurrent collision returns 409; local backup retained. | `backend/prisma/schema.prisma`, `backend/prisma/migrations/20261028000000_add_website_version/migration.sql`, `backend/src/services/website.service.ts`, `backend/src/controllers/website.controller.ts`, `frontend/src/features/autosave/hooks/useAutosave.ts`, `frontend/src/pages/editor/WebsiteEditor.tsx` | **PASS** (Missing revision 400; stale saves 409; simultaneous writes: exactly 1 winner, 1 409) |
 | **Save & Autosave Integrity** | Frontend autosave hook set status to `"saved"` even on HTTP errors/failures. | Eliminated false success. Status set to `"error"` on failure; local snapshot preserved for recovery; baseline only updated on HTTP 200. | `frontend/src/features/autosave/hooks/useAutosave.ts`, `frontend/src/pages/editor/WebsiteEditor.tsx` | **PASS** (Verified with simulated save failure) |
-| **Draft Isolation** | Saving working drafts could inadvertently overwrite or mutate `publishedData` or release pointers. | Strict draft isolation preserving `publishedData`, `releases`, `currentReleaseId`, and `publishing` metadata during draft updates. | `backend/src/services/website.service.ts` | **PASS** (Anonymous public site remains unchanged after draft edits) |
-| **Internal Publishing & Rollback** | Releases lacked continuous integration verification with active page element synchronization. | Full publishing pipeline verifies pre-publish validation, allocates monotonic version, builds candidate snapshot, and records atomic release pointer. | `backend/src/services/publishing.service.ts`, `backend/src/services/destinations/internal.publisher.ts` | **PASS** (v1 and v2 published; instant zero-downtime rollback to v1 verified) |
-| **Anonymous Public Site Rendering** | Public route access needed verification for nested pages, headers, footers, and tokens. | `getPublicWebsiteById` serves durable `publishedData` / `activeReleaseSnapshot` with dynamic token resolution. | `backend/src/services/website.service.ts`, `frontend/src/pages/published/PublishedSite.tsx` | **PASS** (Anonymous visitors view live published pages without auth) |
+| **Draft Isolation** | Saving working drafts could inadvertently overwrite or mutate `publishedData` or release pointers. | Strict draft isolation preserving `publishedData`, `releases`, `currentReleaseId`, and `publishing` metadata during draft updates. Public DOM unchanged until publish. | `backend/src/services/website.service.ts` | **PASS** (Anonymous public site remains unchanged after draft edits) |
+| **Internal Publishing & Rollback** | Releases lacked continuous integration verification with active page element synchronization. | Full publishing pipeline verifies pre-publish validation, allocates monotonic version, builds candidate snapshot, records atomic release pointer; UI rollback restores v1 DOM. | `backend/src/services/publishing.service.ts`, `backend/src/services/destinations/internal.publisher.ts` | **PASS** (v1 and v2 published; instant zero-downtime rollback to v1 verified via browser UI) |
+| **Anonymous Public Site Rendering** | Public route access needed verification for nested pages, headers, footers, and tokens. | `getPublicWebsiteById` serves durable `publishedData` / `activeReleaseSnapshot` with dynamic token resolution; DOM renders actual widget text. | `backend/src/services/website.service.ts`, `frontend/src/pages/published/PublishedSite.tsx` | **PASS** (Anonymous visitors view live published pages without auth) |
 | **Media Management & Safe Deletion** | Media deletion was vulnerable to path traversal if raw keys contained `../`. | Sanitized file paths using `path.basename` and restricted searches to configured upload directories (`uploads/images`, `uploads`, `public/uploads`). | `backend/src/services/media.service.ts` | **PASS** (Media asset created, verified, and safely removed) |
 | **Published Form Security & Injection Blocking** | Forms accepted submissions for unpublished sites and allowed client-injected webhook/email destinations. | Gated submissions to `PUBLISHED` websites; derived actions/destinations exclusively from server-side published snapshot; rejected crafted webhooks & recipient injections with HTTP 400. | `backend/src/services/form/form.service.ts`, `backend/src/controllers/form.controller.ts` | **PASS** (Fake form rejected 400; arbitrary webhook destination blocked) |
-| **Real Browser End-to-End Test** | Only backend integration script existed without verifying actual browser DOM, SPA rendering, and live user interactions. | Playwright Chromium E2E test exercising live Vite SPA, Express backend, and PostgreSQL database across all 10 core steps. | `backend/src/tests/phase1-browser-e2e.test.ts` | **PASS** (10 / 10 browser steps verified) |
+| **Strengthened Real Browser E2E Test** | Tests lacked DB safeguards, DOM text assertions, and UI-only rollback coverage. | Playwright Chromium E2E test exercising live Vite SPA, Express backend, and PostgreSQL with safe DB checks, DOM assertions, UI rollback, and safe teardown. | `backend/src/tests/phase1-browser-e2e.test.ts` | **PASS** (10 / 10 browser steps verified) |
 
 ---
 

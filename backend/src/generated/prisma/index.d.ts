@@ -8325,8 +8325,18 @@ export namespace Prisma {
 
   export type AggregateWebsite = {
     _count: WebsiteCountAggregateOutputType | null
+    _avg: WebsiteAvgAggregateOutputType | null
+    _sum: WebsiteSumAggregateOutputType | null
     _min: WebsiteMinAggregateOutputType | null
     _max: WebsiteMaxAggregateOutputType | null
+  }
+
+  export type WebsiteAvgAggregateOutputType = {
+    version: number | null
+  }
+
+  export type WebsiteSumAggregateOutputType = {
+    version: number | null
   }
 
   export type WebsiteMinAggregateOutputType = {
@@ -8335,6 +8345,7 @@ export namespace Prisma {
     name: string | null
     slug: string | null
     status: string | null
+    version: number | null
     createdAt: Date | null
     updatedAt: Date | null
     teamId: string | null
@@ -8349,6 +8360,7 @@ export namespace Prisma {
     name: string | null
     slug: string | null
     status: string | null
+    version: number | null
     createdAt: Date | null
     updatedAt: Date | null
     teamId: string | null
@@ -8363,6 +8375,7 @@ export namespace Prisma {
     name: number
     slug: number
     status: number
+    version: number
     editorData: number
     createdAt: number
     updatedAt: number
@@ -8374,12 +8387,21 @@ export namespace Prisma {
   }
 
 
+  export type WebsiteAvgAggregateInputType = {
+    version?: true
+  }
+
+  export type WebsiteSumAggregateInputType = {
+    version?: true
+  }
+
   export type WebsiteMinAggregateInputType = {
     id?: true
     userId?: true
     name?: true
     slug?: true
     status?: true
+    version?: true
     createdAt?: true
     updatedAt?: true
     teamId?: true
@@ -8394,6 +8416,7 @@ export namespace Prisma {
     name?: true
     slug?: true
     status?: true
+    version?: true
     createdAt?: true
     updatedAt?: true
     teamId?: true
@@ -8408,6 +8431,7 @@ export namespace Prisma {
     name?: true
     slug?: true
     status?: true
+    version?: true
     editorData?: true
     createdAt?: true
     updatedAt?: true
@@ -8456,6 +8480,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: WebsiteAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: WebsiteSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: WebsiteMinAggregateInputType
@@ -8486,6 +8522,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: WebsiteCountAggregateInputType | true
+    _avg?: WebsiteAvgAggregateInputType
+    _sum?: WebsiteSumAggregateInputType
     _min?: WebsiteMinAggregateInputType
     _max?: WebsiteMaxAggregateInputType
   }
@@ -8496,6 +8534,7 @@ export namespace Prisma {
     name: string
     slug: string
     status: string
+    version: number
     editorData: JsonValue
     createdAt: Date
     updatedAt: Date
@@ -8504,6 +8543,8 @@ export namespace Prisma {
     organizationId: string | null
     approvalWorkflowEnabled: boolean
     _count: WebsiteCountAggregateOutputType | null
+    _avg: WebsiteAvgAggregateOutputType | null
+    _sum: WebsiteSumAggregateOutputType | null
     _min: WebsiteMinAggregateOutputType | null
     _max: WebsiteMaxAggregateOutputType | null
   }
@@ -8528,6 +8569,7 @@ export namespace Prisma {
     name?: boolean
     slug?: boolean
     status?: boolean
+    version?: boolean
     editorData?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -8569,6 +8611,7 @@ export namespace Prisma {
     name?: boolean
     slug?: boolean
     status?: boolean
+    version?: boolean
     editorData?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -8588,6 +8631,7 @@ export namespace Prisma {
     name?: boolean
     slug?: boolean
     status?: boolean
+    version?: boolean
     editorData?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -8607,6 +8651,7 @@ export namespace Prisma {
     name?: boolean
     slug?: boolean
     status?: boolean
+    version?: boolean
     editorData?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -8616,7 +8661,7 @@ export namespace Prisma {
     approvalWorkflowEnabled?: boolean
   }
 
-  export type WebsiteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "name" | "slug" | "status" | "editorData" | "createdAt" | "updatedAt" | "teamId" | "workspaceId" | "organizationId" | "approvalWorkflowEnabled", ExtArgs["result"]["website"]>
+  export type WebsiteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "name" | "slug" | "status" | "version" | "editorData" | "createdAt" | "updatedAt" | "teamId" | "workspaceId" | "organizationId" | "approvalWorkflowEnabled", ExtArgs["result"]["website"]>
   export type WebsiteInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     customCodeSnippets?: boolean | Website$customCodeSnippetsArgs<ExtArgs>
@@ -8693,6 +8738,7 @@ export namespace Prisma {
       name: string
       slug: string
       status: string
+      version: number
       editorData: Prisma.JsonValue
       createdAt: Date
       updatedAt: Date
@@ -9153,6 +9199,7 @@ export namespace Prisma {
     readonly name: FieldRef<"Website", 'String'>
     readonly slug: FieldRef<"Website", 'String'>
     readonly status: FieldRef<"Website", 'String'>
+    readonly version: FieldRef<"Website", 'Int'>
     readonly editorData: FieldRef<"Website", 'Json'>
     readonly createdAt: FieldRef<"Website", 'DateTime'>
     readonly updatedAt: FieldRef<"Website", 'DateTime'>
@@ -64724,6 +64771,7 @@ export namespace Prisma {
     name: 'name',
     slug: 'slug',
     status: 'status',
+    version: 'version',
     editorData: 'editorData',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
@@ -65879,6 +65927,7 @@ export namespace Prisma {
     name?: StringFilter<"Website"> | string
     slug?: StringFilter<"Website"> | string
     status?: StringFilter<"Website"> | string
+    version?: IntFilter<"Website"> | number
     editorData?: JsonFilter<"Website">
     createdAt?: DateTimeFilter<"Website"> | Date | string
     updatedAt?: DateTimeFilter<"Website"> | Date | string
@@ -65919,6 +65968,7 @@ export namespace Prisma {
     name?: SortOrder
     slug?: SortOrder
     status?: SortOrder
+    version?: SortOrder
     editorData?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -65962,6 +66012,7 @@ export namespace Prisma {
     name?: StringFilter<"Website"> | string
     slug?: StringFilter<"Website"> | string
     status?: StringFilter<"Website"> | string
+    version?: IntFilter<"Website"> | number
     editorData?: JsonFilter<"Website">
     createdAt?: DateTimeFilter<"Website"> | Date | string
     updatedAt?: DateTimeFilter<"Website"> | Date | string
@@ -66002,6 +66053,7 @@ export namespace Prisma {
     name?: SortOrder
     slug?: SortOrder
     status?: SortOrder
+    version?: SortOrder
     editorData?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -66010,8 +66062,10 @@ export namespace Prisma {
     organizationId?: SortOrderInput | SortOrder
     approvalWorkflowEnabled?: SortOrder
     _count?: WebsiteCountOrderByAggregateInput
+    _avg?: WebsiteAvgOrderByAggregateInput
     _max?: WebsiteMaxOrderByAggregateInput
     _min?: WebsiteMinOrderByAggregateInput
+    _sum?: WebsiteSumOrderByAggregateInput
   }
 
   export type WebsiteScalarWhereWithAggregatesInput = {
@@ -66023,6 +66077,7 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"Website"> | string
     slug?: StringWithAggregatesFilter<"Website"> | string
     status?: StringWithAggregatesFilter<"Website"> | string
+    version?: IntWithAggregatesFilter<"Website"> | number
     editorData?: JsonWithAggregatesFilter<"Website">
     createdAt?: DateTimeWithAggregatesFilter<"Website"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Website"> | Date | string
@@ -70013,6 +70068,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -70050,6 +70106,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -70085,6 +70142,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -70122,6 +70180,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -70158,6 +70217,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -70172,6 +70232,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -70184,6 +70245,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -74968,6 +75030,7 @@ export namespace Prisma {
     name?: SortOrder
     slug?: SortOrder
     status?: SortOrder
+    version?: SortOrder
     editorData?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -74977,12 +75040,17 @@ export namespace Prisma {
     approvalWorkflowEnabled?: SortOrder
   }
 
+  export type WebsiteAvgOrderByAggregateInput = {
+    version?: SortOrder
+  }
+
   export type WebsiteMaxOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
     name?: SortOrder
     slug?: SortOrder
     status?: SortOrder
+    version?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     teamId?: SortOrder
@@ -74997,12 +75065,17 @@ export namespace Prisma {
     name?: SortOrder
     slug?: SortOrder
     status?: SortOrder
+    version?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     teamId?: SortOrder
     workspaceId?: SortOrder
     organizationId?: SortOrder
     approvalWorkflowEnabled?: SortOrder
+  }
+
+  export type WebsiteSumOrderByAggregateInput = {
+    version?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -81602,6 +81675,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -81637,6 +81711,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -82721,6 +82796,7 @@ export namespace Prisma {
     name?: StringFilter<"Website"> | string
     slug?: StringFilter<"Website"> | string
     status?: StringFilter<"Website"> | string
+    version?: IntFilter<"Website"> | number
     editorData?: JsonFilter<"Website">
     createdAt?: DateTimeFilter<"Website"> | Date | string
     updatedAt?: DateTimeFilter<"Website"> | Date | string
@@ -86594,6 +86670,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -86630,6 +86707,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -86704,6 +86782,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -86740,6 +86819,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -87110,6 +87190,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -87146,6 +87227,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -87196,6 +87278,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -87232,6 +87315,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -87266,6 +87350,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -87302,6 +87387,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -87416,6 +87502,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -87452,6 +87539,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -87533,6 +87621,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -87569,6 +87658,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -87619,6 +87709,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -87655,6 +87746,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -87901,6 +87993,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -87937,6 +88030,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -87987,6 +88081,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -88023,6 +88118,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -88057,6 +88153,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -88093,6 +88190,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -88143,6 +88241,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -88179,6 +88278,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -88553,6 +88653,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -88589,6 +88690,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -88742,6 +88844,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -88778,6 +88881,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -89133,6 +89237,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -89169,6 +89274,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -89322,6 +89428,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -89358,6 +89465,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -89501,6 +89609,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -89537,6 +89646,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -89690,6 +89800,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -89726,6 +89837,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -89869,6 +89981,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -89905,6 +90018,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -90058,6 +90172,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -90094,6 +90209,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -90237,6 +90353,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -90273,6 +90390,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -90426,6 +90544,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -90462,6 +90581,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -90605,6 +90725,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -90641,6 +90762,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -90794,6 +90916,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -90830,6 +90953,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -90973,6 +91097,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -91009,6 +91134,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -91059,6 +91185,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -91095,6 +91222,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -91129,6 +91257,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -91165,6 +91294,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -91318,6 +91448,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -91354,6 +91485,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -91626,6 +91758,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -91662,6 +91795,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -92441,6 +92575,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -92477,6 +92612,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -92630,6 +92766,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -92666,6 +92803,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -92967,6 +93105,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -93003,6 +93142,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -93386,6 +93526,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -93422,6 +93563,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -94175,6 +94317,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -94211,6 +94354,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -94467,6 +94611,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -94503,6 +94648,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -94858,6 +95004,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -94894,6 +95041,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -95053,6 +95201,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95089,6 +95238,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95123,6 +95273,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -95159,6 +95310,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -95209,6 +95361,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95245,6 +95398,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95279,6 +95433,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -95315,6 +95470,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -95365,6 +95521,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95401,6 +95558,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95435,6 +95593,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -95471,6 +95630,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -95521,6 +95681,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95557,6 +95718,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95591,6 +95753,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -95627,6 +95790,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -95677,6 +95841,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95713,6 +95878,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -96770,6 +96936,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -97208,6 +97375,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -97243,6 +97411,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -97278,6 +97447,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99182,6 +99352,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -99231,6 +99402,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99267,6 +99439,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99302,6 +99475,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99360,6 +99534,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -99397,6 +99572,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99433,6 +99609,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99468,6 +99645,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99500,6 +99678,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -99571,6 +99750,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99607,6 +99787,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99642,6 +99823,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string

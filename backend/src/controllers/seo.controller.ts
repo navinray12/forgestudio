@@ -282,7 +282,7 @@ export async function saveWebsiteSeoHandler(
       });
     }
 
-    const updatedWebsite = await updateWebsiteEditorData(websiteId, user.id, editorData);
+    const updatedWebsite = await updateWebsiteEditorData(websiteId, user.id, editorData, undefined, undefined, undefined, true);
 
     return res.status(200).json({
       success: true,

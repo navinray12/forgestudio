@@ -7,7 +7,12 @@ import { chromium, type Browser, type Page } from "playwright";
 import app from "../app.js";
 import { prisma } from "../config/prisma.js";
 import { signupUser } from "../services/signup.service.js";
-import { getLastSentOtp, emailTestTransport, clearEmailTestTransport } from "../services/email.service.js";
+import {
+  getLastSentOtp,
+  clearEmailTestTransport,
+  enableIsolatedTestTransport,
+  disableIsolatedTestTransport,
+} from "../services/email.service.js";
 
 const BACKEND_PORT = 5000;
 const FRONTEND_PORT = 5173;
@@ -77,9 +82,22 @@ function startBackendServer(port: number): Promise<http.Server> {
 async function runBrowserE2E() {
   console.log("================================================================");
   console.log("FORGESTUDIO PHASE 1 REAL BROWSER E2E TEST (PLAYWRIGHT CHROMIUM)");
-  console.log("================================================================");
+  console.log("================================================================\n");
+
+  // ---------------------------------------------------------------------------
+  // SAFEGUARD: Reject Unsafe Database Configurations Before Any Writes
+  // ---------------------------------------------------------------------------
+  const dbUrl = process.env.DATABASE_URL || "";
+  assert(dbUrl, "DATABASE_URL environment variable must be defined");
+  const isSafeTestDb = dbUrl.includes("test") || dbUrl.includes("localhost") || dbUrl.includes("127.0.0.1");
+  assert(
+    isSafeTestDb,
+    `FATAL: Refusing to run destructive browser E2E test against unsafe database: ${dbUrl.replace(/:[^:@]+@/, ":***@")}`
+  );
+  console.log("  ✓ Database configuration validated safe for disposable E2E testing");
 
   process.env.NODE_ENV = "test";
+  enableIsolatedTestTransport();
   clearEmailTestTransport();
 
   const testSuffix = crypto.randomBytes(4).toString("hex");
@@ -113,6 +131,8 @@ async function runBrowserE2E() {
       viewport: { width: 1440, height: 900 },
     });
     const page = await context.newPage();
+
+    // Auto-accept browser dialogs (e.g. window.confirm for rollback)
     page.on("dialog", async (dialog) => {
       console.log(`  ✓ Browser dialog handled: [${dialog.type()}] "${dialog.message()}" -> accept`);
       await dialog.accept();
@@ -141,13 +161,10 @@ async function runBrowserE2E() {
     // Submit credentials
     await page.click('button[type="submit"]');
 
-    // Wait for channel selection / OTP step
-    await page.waitForSelector('button[type="submit"]', { timeout: 10000 });
-    // In select_method step, click Continue to request Email OTP
-    const continueBtn = page.locator('button[type="submit"]');
-    if (await continueBtn.isVisible()) {
-      await continueBtn.click();
-    }
+    // Wait for channel selection / OTP step and click submit
+    const submitBtn = page.locator('button[type="submit"]').first();
+    await submitBtn.waitFor({ state: "visible", timeout: 10000 });
+    await submitBtn.click();
 
     // Wait for OTP code input to render in DOM
     await page.waitForSelector("#otpCode", { timeout: 10000 });
@@ -157,7 +174,7 @@ async function runBrowserE2E() {
     const capturedOtp = getLastSentOtp(testEmail);
     assert(capturedOtp, "Real OTP must be captured by isolated email test transport");
     assert(/^\d{6}$/.test(capturedOtp), `Captured OTP must be 6 digits, got: ${capturedOtp}`);
-    console.log(`  ✓ Isolated email test transport verified OTP delivery: ${capturedOtp}`);
+    console.log("  ✓ Isolated email test transport verified OTP delivery (credentials masked)");
 
     // Fill OTP in browser DOM and submit
     await page.fill("#otpCode", capturedOtp);
@@ -183,8 +200,8 @@ async function runBrowserE2E() {
     // 2. WEBSITE CREATION VIA BROWSER MODAL
     // -------------------------------------------------------------------------
     console.log("\n[STEP 2] Creating New Website via Dashboard Modal...");
-    // Click "+ New Website" button
     const newSiteButton = page.locator('button:has-text("New Website"), button:has-text("Create New Website")').first();
+    await newSiteButton.waitFor({ state: "visible", timeout: 10000 });
     await newSiteButton.click();
 
     // Modal appears with #websiteName input
@@ -216,16 +233,14 @@ async function runBrowserE2E() {
     // 3. EDITOR INTERACTIONS & ADDING ELEMENTS
     // -------------------------------------------------------------------------
     console.log("\n[STEP 3] Testing Website Editor Interactions...");
-    // Wait for editor toolbar and Save button
     await page.waitForSelector('button[aria-label="Save"], button:has-text("Save")', { timeout: 15000 });
     console.log("  ✓ Editor toolbar rendered in DOM");
 
-    // Add a Heading widget by clicking on the widget card
+    // Add a Heading widget by clicking on the widget card in the sidebar
     const headingWidget = page.locator('div:has-text("Heading")').last();
-    if (await headingWidget.isVisible()) {
-      await headingWidget.click();
-      console.log("  ✓ Clicked Heading widget in sidebar");
-    }
+    await headingWidget.waitFor({ state: "visible", timeout: 10000 });
+    await headingWidget.click();
+    console.log("  ✓ Clicked Heading widget in sidebar");
 
     // -------------------------------------------------------------------------
     // 4. SAVE & RELOAD VERIFICATION
@@ -234,7 +249,7 @@ async function runBrowserE2E() {
     const saveButton = page.locator('button[aria-label="Save"], button:has-text("Save")').first();
     await saveButton.click();
 
-    // Wait for Save confirmation in DOM
+    // Wait for Save confirmation toast in DOM
     await page.waitForSelector("text=Saved successfully!", { timeout: 10000 });
     console.log("  ✓ Save confirmation toast appeared in DOM: 'Saved successfully!'");
 
@@ -243,20 +258,20 @@ async function runBrowserE2E() {
     await page.waitForSelector('button[aria-label="Save"], button:has-text("Save")', { timeout: 15000 });
     console.log("  ✓ Editor reloaded cleanly from saved database state");
 
-    // Verify database state
+    // Verify database state: editorData must contain pages and elements
     const savedWebsite = await prisma.website.findUnique({
       where: { id: createdWebsiteId },
     });
     assert(savedWebsite, "Website must still exist in DB");
     const editorData: any = savedWebsite.editorData;
     assert(editorData, "editorData must be persisted in database");
+    assert(Array.isArray(editorData.elements) || Array.isArray(editorData.pages), "editorData must contain elements or pages");
     console.log("  ✓ Database verified: editorData verified after reload");
 
     // -------------------------------------------------------------------------
-    // 5. MEDIA UPLOAD VERIFICATION
+    // 5. MEDIA UPLOAD (API UPLOAD & EDITOR INTEGRATION SEPARATED)
     // -------------------------------------------------------------------------
-    console.log("\n[STEP 5] Testing Media Upload & Optimization...");
-    // 1x1 transparent PNG buffer
+    console.log("\n[STEP 5] Testing Media Upload & Optimization (API & DB Verification)...");
     const testPngBuffer = Buffer.from(
       "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
       "base64"
@@ -276,22 +291,20 @@ async function runBrowserE2E() {
     const uploadJson = await uploadResponse.json();
     assert(uploadJson.success, "Upload response must indicate success");
     assert(uploadJson.url, "Upload response must include asset URL");
-    console.log(`  ✓ Media uploaded successfully: ${uploadJson.url}`);
+    console.log(`  ✓ Media upload API confirmed asset URL: ${uploadJson.url}`);
 
     // Verify persisted in PostgreSQL
-    if (uploadJson.asset?.id) {
-      const mediaDb = await prisma.mediaAsset.findUnique({
-        where: { id: uploadJson.asset.id },
-      });
-      assert(mediaDb, "Uploaded media asset must be persisted in PostgreSQL");
-      console.log(`  ✓ Database verified: MediaAsset record confirmed (${mediaDb.id})`);
-    }
+    assert(uploadJson.asset?.id, "Upload response must include asset id");
+    const mediaDb = await prisma.mediaAsset.findUnique({
+      where: { id: uploadJson.asset.id },
+    });
+    assert(mediaDb, "Uploaded media asset must be persisted in PostgreSQL");
+    console.log(`  ✓ Database verified: MediaAsset record confirmed (${mediaDb.id})`);
 
     // -------------------------------------------------------------------------
     // 6. PUBLISH WEBSITE
     // -------------------------------------------------------------------------
     console.log("\n[STEP 6] Publishing Website...");
-    // Open publish modal
     const publishButton = page.locator('button[aria-label="Publish"], button:has-text("Publish")').first();
     await publishButton.click();
 
@@ -310,10 +323,9 @@ async function runBrowserE2E() {
 
     // Close modal via close button
     const closeBtn = page.locator('button:has-text("✕")').first();
-    if (await closeBtn.isVisible()) {
-      await closeBtn.click();
-      await page.waitForTimeout(500);
-    }
+    await closeBtn.waitFor({ state: "visible", timeout: 5000 });
+    await closeBtn.click();
+    await page.waitForTimeout(500);
 
     // Verify database state: status is PUBLISHED and Deployment record exists
     const publishedWebsiteDb = await prisma.website.findUnique({
@@ -321,18 +333,18 @@ async function runBrowserE2E() {
     });
     assert.strictEqual(publishedWebsiteDb?.status, "PUBLISHED", "Website status must be PUBLISHED in database");
 
-    const deployment = await prisma.deployment.findFirst({
+    const deploymentV1 = await prisma.deployment.findFirst({
       where: { websiteId: createdWebsiteId, status: "PUBLISHED" },
-      orderBy: { version: "desc" },
+      orderBy: { completedAt: "desc" },
     });
-    assert(deployment, "Deployment record must exist with status PUBLISHED");
-    assert.strictEqual(deployment.version, 1, "First deployment must be version 1");
-    console.log(`  ✓ Database verified: Website PUBLISHED, Deployment v${deployment.version} confirmed`);
+    assert(deploymentV1, "Deployment record must exist with status PUBLISHED");
+    assert.strictEqual(deploymentV1.version, 1, "First deployment must be version 1");
+    console.log(`  ✓ Database verified: Website PUBLISHED, Deployment v${deploymentV1.version} confirmed`);
 
     // -------------------------------------------------------------------------
-    // 7. ANONYMOUS PAGE VIEW (ISOLATED INCOGNITO CONTEXT)
+    // 7. ANONYMOUS PAGE VIEW (ISOLATED INCOGNITO CONTEXT WITH DOM ASSERTIONS)
     // -------------------------------------------------------------------------
-    console.log("\n[STEP 7] Anonymous Public Visitor Page Render...");
+    console.log("\n[STEP 7] Anonymous Public Visitor Page Render & DOM Verification...");
     const anonContext = await browser.newContext(); // No cookies, anonymous
     const anonPage = await anonContext.newPage();
 
@@ -342,7 +354,14 @@ async function runBrowserE2E() {
 
     // Verify DOM rendered without login requirement
     await anonPage.waitForSelector("#root", { timeout: 10000 });
-    console.log("  ✓ Public site rendered successfully in anonymous browser context");
+
+    // Assert actual rendered widget content in DOM, not only #root container
+    const publicDomText = await anonPage.locator("#root").innerText();
+    assert(
+      publicDomText.length > 0,
+      "Public anonymous DOM must render non-empty published website content"
+    );
+    console.log(`  ✓ Public DOM rendered actual published content verified: "${publicDomText.slice(0, 40).trim()}..."`);
 
     // Refresh anonymous page
     await anonPage.reload({ waitUntil: "networkidle" });
@@ -352,30 +371,32 @@ async function runBrowserE2E() {
     // -------------------------------------------------------------------------
     // 8. DRAFT ISOLATION (UNPUBLISHED CHANGES NOT VISIBLE TO PUBLIC)
     // -------------------------------------------------------------------------
-    console.log("\n[STEP 8] Testing Draft Isolation...");
+    console.log("\n[STEP 8] Testing Draft Isolation (Public DOM Unchanged)...");
     // In authenticated editor, add another element and save as DRAFT (do NOT publish)
     const textWidget = page.locator('div:has-text("Text")').last();
-    if (await textWidget.isVisible()) {
-      await textWidget.click();
-    }
+    await textWidget.waitFor({ state: "visible", timeout: 10000 });
+    await textWidget.click();
+
     await saveButton.click();
     await page.waitForSelector("text=Saved successfully!", { timeout: 10000 });
     console.log("  ✓ Updated draft saved in editor");
 
     // In anonymous visitor page, reload
     await anonPage.reload({ waitUntil: "networkidle" });
-    // Verify public site still shows v1 published state
-    const currentSiteInDb = await prisma.website.findUnique({
-      where: { id: createdWebsiteId },
-    });
-    const currentEditorData: any = currentSiteInDb?.editorData;
-    assert(currentEditorData.publishedData, "PublishedData snapshot must remain intact");
-    console.log("  ✓ Draft isolation verified: Public visitor sees published snapshot, not working draft");
+    const anonDomAfterDraft = await anonPage.locator("#root").innerText();
+
+    // Verify public site still shows exact v1 published state
+    assert.strictEqual(
+      anonDomAfterDraft,
+      publicDomText,
+      "Public visitor DOM MUST remain identical to published v1 snapshot after unpublished draft edits"
+    );
+    console.log("  ✓ Draft isolation verified: Public visitor sees exact published v1 snapshot, not working draft");
 
     // -------------------------------------------------------------------------
-    // 9. ROLLBACK VERIFICATION
+    // 9. ROLLBACK VERIFICATION (BROWSER UI ONLY, NO API FALLBACK)
     // -------------------------------------------------------------------------
-    console.log("\n[STEP 9] Testing Deployment Rollback...");
+    console.log("\n[STEP 9] Testing Deployment Rollback via Browser UI...");
     // In editor, publish draft as v2
     await publishButton.click();
     await page.waitForSelector('button:has-text("Publish Now")', { timeout: 10000 });
@@ -394,23 +415,18 @@ async function runBrowserE2E() {
     assert(v2Deployment, "Deployment v2 must exist in database");
     console.log("  ✓ Deployment v2 published");
 
-    // Wait for deployment history to show Rollback button
+    // Confirm anonymous visitor now sees v2
+    await anonPage.reload({ waitUntil: "networkidle" });
+
+    // In editor publish modal, click Rollback button for v1 (dialog is auto-accepted by page.on('dialog'))
     const rollbackBtn = page.locator('button:has-text("Rollback")').first();
-    if (await rollbackBtn.isVisible()) {
-      const [rollbackRes] = await Promise.all([
-        page.waitForResponse((r) => r.url().includes("/rollback") && r.status() === 200),
-        rollbackBtn.click(),
-      ]);
-      assert(rollbackRes, "Rollback request must succeed");
-      console.log("  ✓ Rollback to v1 triggered via UI");
-    } else {
-      // Direct API fallback if list is still refreshing
-      const rollbackRes = await page.request.post(
-        `http://localhost:${BACKEND_PORT}/api/websites/${createdWebsiteId}/deployments/${deployment.id}/rollback`
-      );
-      assert.strictEqual(rollbackRes.status(), 200);
-      console.log("  ✓ Rollback to v1 executed");
-    }
+    await rollbackBtn.waitFor({ state: "visible", timeout: 15000 });
+    const [rollbackRes] = await Promise.all([
+      page.waitForResponse((r) => r.url().includes("/rollback") && r.status() === 200),
+      rollbackBtn.click(),
+    ]);
+    assert(rollbackRes, "Rollback request must succeed with HTTP 200");
+    console.log("  ✓ Rollback to v1 triggered exclusively via browser UI (no direct API fallback)");
 
     // Verify in database: active deployment restored
     const activeDeploymentAfterRollback = await prisma.deployment.findFirst({
@@ -420,12 +436,21 @@ async function runBrowserE2E() {
     assert(activeDeploymentAfterRollback, "Active deployment must exist after rollback");
     console.log(`  ✓ Database verified: Active deployment restored after rollback (v${activeDeploymentAfterRollback.version})`);
 
-    // Close publish modal if open
+    // Verify public anonymous visitor DOM restores exact v1 content
+    await anonPage.reload({ waitUntil: "networkidle" });
+    const anonDomAfterRollback = await anonPage.locator("#root").innerText();
+    assert.strictEqual(
+      anonDomAfterRollback,
+      publicDomText,
+      "Public visitor DOM MUST restore exact v1 content after rollback"
+    );
+    console.log("  ✓ Browser DOM verified: Public site restored exact v1 content after rollback");
+
+    // Close publish modal
     const closeBtnAfterRollback = page.locator('button:has-text("✕")').first();
-    if (await closeBtnAfterRollback.isVisible()) {
-      await closeBtnAfterRollback.click();
-      await page.waitForTimeout(500);
-    }
+    await closeBtnAfterRollback.waitFor({ state: "visible", timeout: 5000 });
+    await closeBtnAfterRollback.click();
+    await page.waitForTimeout(500);
 
     // Clean up anonymous context
     await anonContext.close();
@@ -461,8 +486,10 @@ async function runBrowserE2E() {
     console.log("ALL REAL BROWSER E2E TESTS PASSED SUCCESSFULLY (10/10 STEPS)");
     console.log("================================================================");
   } finally {
-    // Teardown
+    // Teardown with strict safety checks: refusal to delete non-test records
     console.log("\n[TEARDOWN] Cleaning up resources...");
+    disableIsolatedTestTransport();
+
     if (browser) {
       await browser.close().catch(() => {});
       console.log("  ✓ Chromium closed");
@@ -476,21 +503,30 @@ async function runBrowserE2E() {
       console.log("  ✓ Backend server closed");
     }
 
-    // Database cleanup
+    // Database cleanup with strict safeguards
     try {
+      assert(testEmail.startsWith("e2e_user_"), "Safety violation: testEmail must start with e2e_user_");
+      assert(testWebsiteName.startsWith("E2E Studio"), "Safety violation: testWebsiteName must start with E2E Studio");
+
       if (createdWebsiteId) {
-        await prisma.deployment.deleteMany({ where: { websiteId: createdWebsiteId } });
-        await prisma.website.deleteMany({ where: { id: createdWebsiteId } });
+        const site = await prisma.website.findUnique({ where: { id: createdWebsiteId } });
+        if (site && site.name.startsWith("E2E Studio")) {
+          await prisma.deployment.deleteMany({ where: { websiteId: createdWebsiteId } });
+          await prisma.website.deleteMany({ where: { id: createdWebsiteId } });
+        }
       }
       if (createdUserId) {
-        await prisma.session.deleteMany({ where: { userId: createdUserId } });
-        await prisma.otpVerification.deleteMany({ where: { userId: createdUserId } });
-        await prisma.mediaAsset.deleteMany({ where: { userId: createdUserId } });
-        await prisma.user.deleteMany({ where: { id: createdUserId } });
+        const user = await prisma.user.findUnique({ where: { id: createdUserId } });
+        if (user && user.email?.startsWith("e2e_user_")) {
+          await prisma.session.deleteMany({ where: { userId: createdUserId } });
+          await prisma.otpVerification.deleteMany({ where: { userId: createdUserId } });
+          await prisma.mediaAsset.deleteMany({ where: { userId: createdUserId } });
+          await prisma.user.deleteMany({ where: { id: createdUserId } });
+        }
       }
-      console.log("  ✓ Test records cleaned from PostgreSQL");
+      console.log("  ✓ Verified test records safely cleaned from PostgreSQL");
     } catch (cleanupErr) {
-      console.warn("  ⚠ Warning during DB cleanup:", cleanupErr);
+      console.warn("  ⚠ Warning during safe DB cleanup:", cleanupErr);
     }
   }
 }

@@ -20,6 +20,7 @@ interface UseAutosaveParams {
   apiUrl: string;
   isLoadingWebsite: boolean;
   debounceMs?: number;
+  expectedVersion?: number | null;
   lastKnownUpdatedAt?: string | number | null;
   onServerSaveSuccess?: (updatedWebsite: any) => void;
 }
@@ -57,6 +58,7 @@ export function useAutosave({
   apiUrl,
   isLoadingWebsite,
   debounceMs = 1500,
+  expectedVersion,
   lastKnownUpdatedAt,
   onServerSaveSuccess,
 }: UseAutosaveParams) {
@@ -87,6 +89,7 @@ export function useAutosave({
     popups,
     pageCss,
     apiUrl,
+    expectedVersion,
     lastKnownUpdatedAt,
     onServerSaveSuccess,
   });
@@ -107,6 +110,7 @@ export function useAutosave({
       popups,
       pageCss,
       apiUrl,
+      expectedVersion,
       lastKnownUpdatedAt,
       onServerSaveSuccess,
     };
@@ -125,6 +129,7 @@ export function useAutosave({
     popups,
     pageCss,
     apiUrl,
+    expectedVersion,
     lastKnownUpdatedAt,
     onServerSaveSuccess,
   ]);
@@ -249,6 +254,7 @@ export function useAutosave({
             popups: payload.popups,
             pageCss: payload.pageCss,
           },
+          expectedVersion: latestPropsRef.current.expectedVersion,
           lastKnownUpdatedAt: latestPropsRef.current.lastKnownUpdatedAt,
         };
 

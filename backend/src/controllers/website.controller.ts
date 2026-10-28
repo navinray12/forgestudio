@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
+import { AppError } from "../utils/app-error.js";
 import {
   getUserWebsites,
   getWebsiteById,
@@ -161,16 +162,22 @@ export async function updateWebsiteHandler(
   try {
     const user = res.locals.user;
     const websiteId = req.params.id as string;
-    const { editorData, performanceSettings, lastKnownUpdatedAt } = req.body;
+    const { editorData, performanceSettings, lastKnownUpdatedAt, expectedVersion } = req.body;
     const headerTimestamp = req.headers["if-unmodified-since"];
     const effectiveTimestamp = lastKnownUpdatedAt || headerTimestamp;
+    const effectiveVersion = expectedVersion !== undefined && expectedVersion !== null ? Number(expectedVersion) : undefined;
+
+    if (effectiveVersion === undefined && !effectiveTimestamp) {
+      throw new AppError("Expected revision (expectedVersion or lastKnownUpdatedAt) is required for editor save", 400, "MISSING_REVISION");
+    }
 
     const website = await updateWebsiteEditorData(
       websiteId,
       user.id,
       editorData,
       performanceSettings,
-      effectiveTimestamp
+      effectiveTimestamp,
+      effectiveVersion
     );
 
     return res.status(200).json({

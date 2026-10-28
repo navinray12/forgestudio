@@ -272,7 +272,7 @@ export async function updateWordPressPageSeo(
   }
 
   editorData.pages = updatedPages;
-  await updateWebsiteEditorData(websiteId, userId, editorData);
+  await updateWebsiteEditorData(websiteId, userId, editorData, undefined, undefined, undefined, true);
 
   return validation.sanitized;
 }

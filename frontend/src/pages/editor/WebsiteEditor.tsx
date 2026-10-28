@@ -2005,10 +2005,15 @@ export default function WebsiteEditor() {
     pageCss,
     apiUrl,
     isLoadingWebsite: loading,
+    expectedVersion: website?.version,
     lastKnownUpdatedAt: website?.updatedAt,
     onServerSaveSuccess: (updatedWebsite) => {
-      if (updatedWebsite?.updatedAt) {
-        setWebsite((prev) => prev ? { ...prev, updatedAt: updatedWebsite.updatedAt } : updatedWebsite);
+      if (updatedWebsite?.updatedAt || updatedWebsite?.version !== undefined) {
+        setWebsite((prev) => prev ? {
+          ...prev,
+          updatedAt: updatedWebsite.updatedAt || prev.updatedAt,
+          version: updatedWebsite.version !== undefined ? updatedWebsite.version : prev.version,
+        } : updatedWebsite);
       }
     },
   });
@@ -2447,6 +2452,7 @@ export default function WebsiteEditor() {
           pageSettings,
           ...(publishedDataRef.current ? { publishedData: publishedDataRef.current } : {}),
         },
+        expectedVersion: website?.version,
         lastKnownUpdatedAt: website?.updatedAt,
       };
 
@@ -2479,8 +2485,12 @@ export default function WebsiteEditor() {
         } else {
           const data = await res.json().catch(() => ({}));
           serverSucceeded = true;
-          if (data?.website?.updatedAt) {
-            setWebsite((prev) => prev ? { ...prev, updatedAt: data.website.updatedAt } : data.website);
+          if (data?.website?.updatedAt || data?.website?.version !== undefined) {
+            setWebsite((prev) => prev ? {
+              ...prev,
+              updatedAt: data.website.updatedAt || prev.updatedAt,
+              version: data.website.version !== undefined ? data.website.version : prev.version,
+            } : data.website);
           }
         }
       } catch (netErr) {

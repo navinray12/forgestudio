@@ -67,6 +67,7 @@ model Website {
   name               String                @db.VarChar(255)
   slug               String                @db.VarChar(255)
   status             String                @default("DRAFT") @db.VarChar(50)
+  version            Int                   @default(1)
   editorData         Json                  @default("{\"version\": 1, \"elements\": []}")
   createdAt          DateTime              @default(now()) @db.Timestamptz(6)
   updatedAt          DateTime              @default(now()) @updatedAt @db.Timestamptz(6)

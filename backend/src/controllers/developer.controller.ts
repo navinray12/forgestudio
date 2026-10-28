@@ -87,7 +87,7 @@ export async function updateDeveloperWebsiteHandler(req: Request, res: Response,
 
         // Implicit ownership verification and validation exists right inside updateWebsiteEditorData!
         // It validates priority integers structurally against floats/overflows globally.
-        const website = await updateWebsiteEditorData(websiteId, user.id, editorData);
+        const website = await updateWebsiteEditorData(websiteId, user.id, editorData, undefined, undefined, undefined, true);
 
         return res.status(200).json({
             data: serializeWebsite(website)
@@ -129,7 +129,7 @@ export async function publishDeveloperWebsiteHandler(req: Request, res: Response
         }
 
         // Then, rewrite this mutated blob into DB exactly mirroring standard user flows utilizing the unified service 
-        const updated = await updateWebsiteEditorData(websiteId, user.id, editorData);
+        const updated = await updateWebsiteEditorData(websiteId, user.id, editorData, undefined, undefined, undefined, true);
 
         return res.status(200).json({
             message: "Website strictly published securely.",

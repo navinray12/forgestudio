@@ -231,7 +231,15 @@ async function runPhase1CoreJourneyTest() {
       },
     };
 
-    const savedSite = await updateWebsiteEditorData(websiteId, primaryUserId, initialEditorData);
+    const currentSiteForInitialSave = await getWebsiteById(websiteId, primaryUserId);
+    const savedSite = await updateWebsiteEditorData(
+      websiteId,
+      primaryUserId,
+      initialEditorData,
+      undefined,
+      undefined,
+      currentSiteForInitialSave.version
+    );
     assert(savedSite, "Website save must return updated website");
     const reloadedSite = await getWebsiteById(websiteId, primaryUserId);
     const parsedData = typeof reloadedSite.editorData === "string" ? JSON.parse(reloadedSite.editorData) : reloadedSite.editorData;
@@ -275,7 +283,21 @@ async function runPhase1CoreJourneyTest() {
     // -------------------------------------------------------------------------
     // 6. MULTI-TAB & CONCURRENT OCC SAVE CONFLICT (HTTP 409)
     // -------------------------------------------------------------------------
-    console.log("\n[TEST 6] Testing Multi-Tab Version Conflict & Atomic OCC (HTTP 409)...");
+    console.log("\n[TEST 6] Testing Revision Validation, Multi-Tab Version Conflict & Atomic OCC (HTTP 409)...");
+    
+    // 6a. Missing expected revision must be rejected with HTTP 400
+    let missingRevisionThrown = false;
+    try {
+      await updateWebsiteEditorData(websiteId, primaryUserId, initialEditorData);
+    } catch (err: any) {
+      missingRevisionThrown = true;
+      assert.strictEqual(err.statusCode, 400, "Missing revision must return HTTP 400");
+      assert.strictEqual(err.code, "MISSING_REVISION");
+    }
+    assert(missingRevisionThrown, "Missing expected revision must be rejected with HTTP 400");
+    console.log("  ✓ Missing expected revision correctly rejected with HTTP 400");
+
+    // 6b. Stale timestamp save rejection
     const staleTimestamp = new Date(Date.now() - 60000).toISOString();
     let conflictThrown = false;
     try {
@@ -292,18 +314,38 @@ async function runPhase1CoreJourneyTest() {
       assert.strictEqual(err.code, "STALE_VERSION_CONFLICT");
     }
     assert(conflictThrown, "Multi-tab stale save must be blocked with HTTP 409");
-    console.log("  ✓ Multi-tab stale version conflict correctly returned HTTP 409");
+    console.log("  ✓ Multi-tab stale timestamp conflict correctly returned HTTP 409");
 
-    // Test simultaneous saves using two independent concurrent clients with the same baseline revision
+    // 6c. Stale version number rejection
+    let staleVersionThrown = false;
+    try {
+      await updateWebsiteEditorData(
+        websiteId,
+        primaryUserId,
+        initialEditorData,
+        undefined,
+        undefined,
+        999999
+      );
+    } catch (err: any) {
+      staleVersionThrown = true;
+      assert.strictEqual(err.statusCode, 409, "Stale version number must return 409 Conflict");
+      assert.strictEqual(err.code, "STALE_VERSION_CONFLICT");
+    }
+    assert(staleVersionThrown, "Stale version number must be blocked with HTTP 409");
+    console.log("  ✓ Stale version number conflict correctly returned HTTP 409");
+
+    // 6d. Simultaneous saves using two independent concurrent clients with the same baseline version
     const currentSiteState = await getWebsiteById(websiteId, primaryUserId);
-    const sharedRevision = currentSiteState.updatedAt;
+    const sharedVersion = currentSiteState.version;
 
     const client1Promise = updateWebsiteEditorData(
       websiteId,
       primaryUserId,
       { ...initialEditorData, clientLabel: "Client 1 Edit" },
       undefined,
-      sharedRevision
+      undefined,
+      sharedVersion
     );
 
     const client2Promise = updateWebsiteEditorData(
@@ -311,7 +353,8 @@ async function runPhase1CoreJourneyTest() {
       primaryUserId,
       { ...initialEditorData, clientLabel: "Client 2 Edit" },
       undefined,
-      sharedRevision
+      undefined,
+      sharedVersion
     );
 
     const concurrentResults = await Promise.allSettled([client1Promise, client2Promise]);
@@ -324,6 +367,20 @@ async function runPhase1CoreJourneyTest() {
     assert.strictEqual(rejectedError.statusCode, 409, "Concurrent write collision must return HTTP 409");
     assert.strictEqual(rejectedError.code, "STALE_VERSION_CONFLICT");
     console.log("  ✓ Simultaneous concurrent saves verified: exactly one winner, competing write returned HTTP 409");
+
+    // 6e. Client retry after 409 using the newly updated version
+    const freshSiteState = await getWebsiteById(websiteId, primaryUserId);
+    assert(freshSiteState.version > sharedVersion, "Database version must have monotonically incremented");
+    const retryResult = await updateWebsiteEditorData(
+      websiteId,
+      primaryUserId,
+      { ...initialEditorData, clientLabel: "Client 2 Retry Edit" },
+      undefined,
+      undefined,
+      freshSiteState.version
+    );
+    assert(retryResult, "Retry with fresh revision must succeed");
+    console.log("  ✓ Retry after 409 with updated monotonic revision succeeded");
 
     // -------------------------------------------------------------------------
     // 7. INTERNAL PUBLISHING & ANONYMOUS PUBLIC ACCESS
@@ -367,7 +424,15 @@ async function runPhase1CoreJourneyTest() {
     };
 
     // Save as draft
-    await updateWebsiteEditorData(websiteId, primaryUserId, updatedDraftData);
+    const currentSiteBeforeDraft = await getWebsiteById(websiteId, primaryUserId);
+    await updateWebsiteEditorData(
+      websiteId,
+      primaryUserId,
+      updatedDraftData,
+      undefined,
+      undefined,
+      currentSiteBeforeDraft.version
+    );
 
     // Re-fetch public website anonymously
     const publicSiteAfterDraft = await getPublicWebsiteById(websiteId);

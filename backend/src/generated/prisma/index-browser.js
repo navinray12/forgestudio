@@ -143,6 +143,7 @@ exports.Prisma.WebsiteScalarFieldEnum = {
   name: 'name',
   slug: 'slug',
   status: 'status',
+  version: 'version',
   editorData: 'editorData',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
