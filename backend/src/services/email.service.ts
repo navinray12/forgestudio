@@ -1,19 +1,48 @@
 import nodemailer from "nodemailer";
 
+export interface SentTestEmail {
+  toEmail: string;
+  otp: string;
+  purpose: "SIGNUP" | "LOGIN";
+  sentAt: Date;
+}
+
+export const emailTestTransport: SentTestEmail[] = [];
+
+export function clearEmailTestTransport(): void {
+  emailTestTransport.length = 0;
+}
+
+export function getLastSentOtp(email?: string): string | undefined {
+  if (email) {
+    const matching = emailTestTransport.filter((e) => e.toEmail.toLowerCase() === email.toLowerCase());
+    return matching[matching.length - 1]?.otp;
+  }
+  return emailTestTransport[emailTestTransport.length - 1]?.otp;
+}
+
 export async function sendOtpEmail(
   toEmail: string,
   otp: string,
   purpose: "SIGNUP" | "LOGIN"
 ): Promise<void> {
+  // Always capture into isolated test transport for test inspection and verification
+  emailTestTransport.push({
+    toEmail,
+    otp,
+    purpose,
+    sentAt: new Date(),
+  });
+
   const smtpHost = process.env.SMTP_HOST;
   const smtpPort = Number(process.env.SMTP_PORT || 587);
   const smtpUser = process.env.SMTP_USER;
   const smtpPassword = process.env.SMTP_PASSWORD;
   const smtpFrom = process.env.SMTP_FROM || smtpUser;
 
-  if (!smtpHost || !smtpUser || !smtpPassword || !smtpFrom) {
+  if (process.env.NODE_ENV === "test" || !smtpHost || !smtpUser || !smtpPassword || !smtpFrom) {
     console.log(`\n==================================================`);
-    console.log(`[EMAIL OTP] (SIMULATED - NO SMTP SETUP) Sent to: ${toEmail}`);
+    console.log(`[EMAIL OTP] (TEST/SIMULATED TRANSPORT) Sent to: ${toEmail}`);
     console.log(`[EMAIL OTP] Purpose: ${purpose}`);
     console.log(`[EMAIL OTP] OTP Code: ${otp}`);
     console.log(`==================================================\n`);

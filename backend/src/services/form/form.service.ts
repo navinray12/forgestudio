@@ -263,7 +263,7 @@ export async function processFormSubmission(payload: FormSubmitPayload) {
     : (website?.editorData || {});
 
   const isPublished = website && (website.status === "PUBLISHED" || rawEditorData.publishing?.status === "PUBLISHED");
-  if (!website || (!isPublished && process.env.NODE_ENV !== "test")) {
+  if (!website || !isPublished) {
     throw new AppError("Form submissions are only accepted for active, published websites.", 404, "WEBSITE_NOT_PUBLISHED");
   }
 
@@ -302,42 +302,60 @@ export async function processFormSubmission(payload: FormSubmitPayload) {
 
   const publishedForm = findFormInList(allCandidateElements);
   if (!publishedForm) {
-    if (process.env.NODE_ENV !== "test" || allCandidateElements.length > 0) {
-      throw new AppError("The specified form was not found on this published website.", 400, "FORM_NOT_FOUND");
-    }
+    throw new AppError("The specified form was not found on this published website.", 400, "FORM_NOT_FOUND");
   }
 
-  // Authoritative server-side configurations (prevent arbitrary injection of webhook or email destinations)
-  const formSettings = publishedForm?.settings || {};
-  const formName = formSettings.formName || formSettings.name || publishedForm?.name || clientFormName || "Contact Form";
-  const spamProtection = formSettings.spamProtection || clientSpamProtection;
-  const conditionalLogic = formSettings.conditionalLogic || clientConditionalLogic;
-  const fieldConfigs = formSettings.fieldConfigs || publishedForm?.fieldConfigs || clientFieldConfigs;
+  // Authoritative server-side configurations:
+  // SECURITY REQUIREMENT: Client-supplied actions, destinations, spam rules and field configuration
+  // are treated as UNTRUSTED and NEVER executed. All behavior is derived EXCLUSIVELY from the published form.
+  const formSettings = publishedForm.settings || {};
+  const formName = formSettings.formName || formSettings.name || publishedForm.name || "Contact Form";
+  const spamProtection = formSettings.spamProtection || {};
+  const conditionalLogic = formSettings.conditionalLogic || [];
+  const fieldConfigs = formSettings.fieldConfigs || publishedForm.fieldConfigs || [];
 
-  // Authoritative action configuration: Server-configured email and webhook take absolute precedence
+  // Derive executable actions and destinations EXCLUSIVELY from verified published form configuration
   const serverActions = formSettings.actions || formSettings.submitActions || {};
-  const hasServerActionConfig = !!(serverActions.activeActions || serverActions.webhookConfig || serverActions.emailConfig);
+  const rawActiveActions = Array.isArray(serverActions.activeActions)
+    ? serverActions.activeActions
+    : Array.isArray(serverActions.submitActions)
+    ? serverActions.submitActions
+    : ["database"];
 
-  const activeActions = serverActions.activeActions || serverActions.submitActions || clientActions?.activeActions || ["database"];
+  // Filter to valid recognized actions configured on the server
+  const activeActions = rawActiveActions.filter((a: any) =>
+    typeof a === "string" && ["database", "email", "webhook", "redirect", "popup", "google_sheets", "mailchimp", "zapier"].includes(a)
+  );
+  if (activeActions.length === 0) {
+    activeActions.push("database");
+  }
 
-  const actions = hasServerActionConfig
-    ? {
-        ...clientActions,
-        activeActions,
-        successMessage: formSettings.successMessage || serverActions.successMessage || clientActions?.successMessage || "Thank you! Your submission has been received.",
-        webhookConfig: {
-          endpointUrl: serverActions.webhookConfig?.endpointUrl || "",
-          secretKey: serverActions.webhookConfig?.secretKey || "",
-        },
-        emailConfig: {
-          toEmail: serverActions.emailConfig?.toEmail || "",
-          subject: serverActions.emailConfig?.subject || "New Lead Received",
-          fromName: serverActions.emailConfig?.fromName || "ForgeStudio Forms",
-        },
-        redirectConfig: serverActions.redirectConfig || clientActions?.redirectConfig,
-        popupConfig: serverActions.popupConfig || clientActions?.popupConfig,
-      }
-    : (clientActions || { activeActions: ["database"], successMessage: "Thank you! Your submission has been received." });
+  // Webhook and Email destinations MUST come strictly from server configuration
+  const webhookEndpoint = typeof serverActions.webhookConfig?.endpointUrl === "string" ? serverActions.webhookConfig.endpointUrl.trim() : "";
+  const webhookSecret = typeof serverActions.webhookConfig?.secretKey === "string" ? serverActions.webhookConfig.secretKey : "";
+
+  const emailTo = typeof serverActions.emailConfig?.toEmail === "string" ? serverActions.emailConfig.toEmail.trim() : "";
+  const emailSubject = typeof serverActions.emailConfig?.subject === "string" ? serverActions.emailConfig.subject : "New Lead Received";
+  const emailFromName = typeof serverActions.emailConfig?.fromName === "string" ? serverActions.emailConfig.fromName : "ForgeStudio Forms";
+
+  const actions: any = {
+    activeActions,
+    successMessage: formSettings.successMessage || serverActions.successMessage || "Thank you! Your submission has been received.",
+    webhookConfig: {
+      endpointUrl: webhookEndpoint,
+      secretKey: webhookSecret,
+    },
+    emailConfig: {
+      toEmail: emailTo,
+      subject: emailSubject,
+      fromName: emailFromName,
+    },
+    googleSheetsConfig: serverActions.googleSheetsConfig,
+    mailchimpConfig: serverActions.mailchimpConfig,
+    zapierConfig: serverActions.zapierConfig,
+    redirectConfig: serverActions.redirectConfig,
+    popupConfig: serverActions.popupConfig,
+  };
 
   // 1. Honeypot Spam Check
   if (spamProtection?.enableHoneypot !== false && honeypotValue && honeypotValue.trim().length > 0) {

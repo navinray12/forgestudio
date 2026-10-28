@@ -2332,6 +2332,10 @@ export default function WebsiteEditor() {
       throw new Error("Publishing failed on server.");
     }
 
+    if ((result as any).updatedAt) {
+      setWebsite((prev) => prev ? { ...prev, updatedAt: (result as any).updatedAt } : prev);
+    }
+
     const updatedPub: PublishingState = {
       ...publishing,
       status: "PUBLISHED",
@@ -2362,6 +2366,9 @@ export default function WebsiteEditor() {
     if (!websiteId) return;
     const result = await publishingService.rollbackDeployment(websiteId, deploymentId, apiUrl);
     if (result.success) {
+      if ((result as any).updatedAt) {
+        setWebsite((prev) => prev ? { ...prev, updatedAt: (result as any).updatedAt } : prev);
+      }
       setPublishing((prev) => ({
         ...prev,
         status: "PUBLISHED",

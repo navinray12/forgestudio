@@ -58,6 +58,7 @@ export interface PublishResult {
   filesTransferred?: number;
   warnings?: ValidationIssue[];
   releaseId?: string;
+  updatedAt?: string;
 }
 
 /**
@@ -630,6 +631,11 @@ export async function publishWebsite(
       }
     } catch (auditErr) {}
 
+    const finalWebsite = await prisma.website.findUnique({
+      where: { id: websiteId },
+      select: { updatedAt: true },
+    });
+
     return {
       success: true,
       deploymentId: deployment.id,
@@ -643,6 +649,7 @@ export async function publishWebsite(
       sourceRevisionId: publishRevision?.id,
       filesTransferred,
       warnings: validation.warnings,
+      updatedAt: finalWebsite?.updatedAt ? finalWebsite.updatedAt.toISOString() : verifiedWebsite.updatedAt,
     };
   } catch (error: any) {
     // If deployment has not entered a terminal failure state yet, mark DEPLOY_FAILED

@@ -60,6 +60,7 @@ const authRateLimiter = rateLimit({
   max: 15,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: () => process.env.NODE_ENV === "test",
   message: {
     success: false,
     error: {

@@ -53,9 +53,56 @@ async function runMilestoneHTests() {
       "Phase 8 Form Site"
     );
 
+    const testFormElements = [
+      {
+        id: "contact-form-1",
+        type: "form",
+        name: "Contact Us",
+        settings: {
+          formId: "contact-form-1",
+          formName: "Contact Us",
+          actions: {
+            activeActions: ["database", "webhook", "email"],
+            webhookConfig: {
+              endpointUrl: "http://127.0.0.1/evil-webhook",
+            },
+            emailConfig: {
+              toEmail: "sales@forgestudio.io",
+              subject: "New Enterprise Lead",
+            },
+          },
+        },
+      },
+      {
+        id: "lead-form-2",
+        type: "form",
+        name: "Lead Capture",
+        settings: {
+          formId: "lead-form-2",
+          formName: "Lead Capture",
+          actions: {
+            activeActions: ["webhook"],
+            webhookConfig: {
+              endpointUrl: "https://example.com:81/webhook-fail",
+            },
+          },
+        },
+      },
+    ];
+
     await db.website.update({
       where: { id: testWebsite.id },
-      data: { status: "PUBLISHED" },
+      data: {
+        status: "PUBLISHED",
+        editorData: {
+          version: 1,
+          elements: testFormElements,
+          publishedData: {
+            version: 1,
+            elements: testFormElements,
+          },
+        },
+      },
     });
 
     // 1. Table Initialization

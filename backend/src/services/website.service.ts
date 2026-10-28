@@ -490,18 +490,7 @@ export async function updateWebsiteEditorData(
   // Ensure website exists and fetch permission boundaries
   const website = await getWebsiteById(websiteId, userId);
 
-  // Multi-tab stale version conflict detection (HTTP 409)
-  if (lastKnownUpdatedAt) {
-    const clientTime = new Date(lastKnownUpdatedAt).getTime();
-    const serverTime = new Date(website.updatedAt).getTime();
-    if (!isNaN(clientTime) && serverTime - clientTime > 1500) {
-      throw new AppError(
-        "This website was modified in another session or browser tab. Please reload or review changes before saving.",
-        409,
-        "STALE_VERSION_CONFLICT"
-      );
-    }
-  }
+  // Multi-tab stale version conflict is enforced atomically at the database level (CAS)
 
   const canEditDesign = await canUserAccessResource(userId, websiteId, "*", "EDIT_DESIGN");
   const canEditContent = await canUserAccessResource(userId, websiteId, "*", "EDIT_CONTENT");
@@ -652,63 +641,89 @@ export async function updateWebsiteEditorData(
   };
 
   try {
-    if (db?.website?.update) {
-      const updateData: any = {
-        editorData,
-        updatedAt: new Date(),
-        status: website.status === "PUBLISHED" ? "PUBLISHED" : "DRAFT",
-      };
-      if (performanceSettings !== undefined) {
-        updateData.performanceSettings = performanceSettings;
-      }
-      const updated = await db.website.update({
-        where: { id: websiteId },
-        data: updateData,
-      });
-      return updated;
-    }
-
     const jsonStr = JSON.stringify(editorData);
-    let updated: any[];
     const isPublished = website.status === "PUBLISHED";
+    const statusVal = isPublished ? "PUBLISHED" : "DRAFT";
+    const perfStr = performanceSettings !== undefined ? JSON.stringify(performanceSettings) : null;
 
-    if (performanceSettings !== undefined) {
-      const perfStr = JSON.stringify(performanceSettings);
-      if (isPublished) {
+    let updated: any[];
+
+    if (lastKnownUpdatedAt) {
+      const expectedDate = new Date(lastKnownUpdatedAt);
+      if (isNaN(expectedDate.getTime())) {
+        throw new AppError("Invalid lastKnownUpdatedAt revision timestamp", 400, "INVALID_REVISION");
+      }
+
+      // ATOMIC OPTIMISTIC CONCURRENCY CONTROL (Compare-And-Swap)
+      // Database-enforced atomic version check on updatedAt.
+      // Eliminates race conditions between simultaneous saves: only the first writer succeeds,
+      // subsequent concurrent or stale writes match 0 rows and return HTTP 409 immediately without overwriting saved content.
+      if (perfStr !== null) {
         updated = await prisma.$queryRaw`
-           UPDATE websites
-           SET "editorData" = ${jsonStr}::jsonb, "performanceSettings" = ${perfStr}::jsonb, status = 'PUBLISHED', "updatedAt" = NOW()
-           WHERE id = ${websiteId}::uuid
-           RETURNING id, "userId", name, slug, status, "editorData", "performanceSettings", "createdAt", "updatedAt"
-         `;
+          UPDATE websites
+          SET "editorData" = ${jsonStr}::jsonb,
+              "performanceSettings" = ${perfStr}::jsonb,
+              status = ${statusVal},
+              "updatedAt" = NOW()
+          WHERE id = ${websiteId}::uuid
+            AND ("updatedAt" = ${expectedDate} OR ABS(EXTRACT(EPOCH FROM ("updatedAt" - ${expectedDate}))) < 0.005)
+          RETURNING id, "userId", name, slug, status, "editorData", "performanceSettings", "createdAt", "updatedAt"
+        `;
       } else {
         updated = await prisma.$queryRaw`
-           UPDATE websites
-           SET "editorData" = ${jsonStr}::jsonb, "performanceSettings" = ${perfStr}::jsonb, "updatedAt" = NOW()
-           WHERE id = ${websiteId}::uuid
-           RETURNING id, "userId", name, slug, status, "editorData", "performanceSettings", "createdAt", "updatedAt"
-         `;
+          UPDATE websites
+          SET "editorData" = ${jsonStr}::jsonb,
+              status = ${statusVal},
+              "updatedAt" = NOW()
+          WHERE id = ${websiteId}::uuid
+            AND ("updatedAt" = ${expectedDate} OR ABS(EXTRACT(EPOCH FROM ("updatedAt" - ${expectedDate}))) < 0.005)
+          RETURNING id, "userId", name, slug, status, "editorData", "performanceSettings", "createdAt", "updatedAt"
+        `;
+      }
+
+      if (!updated || updated.length === 0) {
+        const currentDb = await prisma.website.findUnique({
+          where: { id: websiteId },
+          select: { id: true, updatedAt: true },
+        });
+        if (!currentDb) {
+          throw new AppError("Website not found.", 404, "NOT_FOUND");
+        }
+        throw new AppError(
+          "This website was modified in another session or browser tab. Please reload or review changes before saving.",
+          409,
+          "STALE_VERSION_CONFLICT"
+        );
       }
     } else {
-      if (isPublished) {
+      // Unconditional update fallback for internal programmatic callers that do not supply an expected revision
+      if (perfStr !== null) {
         updated = await prisma.$queryRaw`
-           UPDATE websites
-           SET "editorData" = ${jsonStr}::jsonb, status = 'PUBLISHED', "updatedAt" = NOW()
-           WHERE id = ${websiteId}::uuid
-           RETURNING id, "userId", name, slug, status, "editorData", "performanceSettings", "createdAt", "updatedAt"
-         `;
+          UPDATE websites
+          SET "editorData" = ${jsonStr}::jsonb,
+              "performanceSettings" = ${perfStr}::jsonb,
+              status = ${statusVal},
+              "updatedAt" = NOW()
+          WHERE id = ${websiteId}::uuid
+          RETURNING id, "userId", name, slug, status, "editorData", "performanceSettings", "createdAt", "updatedAt"
+        `;
       } else {
         updated = await prisma.$queryRaw`
-           UPDATE websites
-           SET "editorData" = ${jsonStr}::jsonb, "updatedAt" = NOW()
-           WHERE id = ${websiteId}::uuid
-           RETURNING id, "userId", name, slug, status, "editorData", "performanceSettings", "createdAt", "updatedAt"
-         `;
+          UPDATE websites
+          SET "editorData" = ${jsonStr}::jsonb,
+              status = ${statusVal},
+              "updatedAt" = NOW()
+          WHERE id = ${websiteId}::uuid
+          RETURNING id, "userId", name, slug, status, "editorData", "performanceSettings", "createdAt", "updatedAt"
+        `;
       }
     }
 
     return updated[0];
   } catch (error) {
+    if (error instanceof AppError) {
+      throw error;
+    }
     console.error("Error updating website editor data:", error);
     throw new AppError("Failed to save website changes", 500, "SAVE_FAILED");
   }

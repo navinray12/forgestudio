@@ -273,9 +273,9 @@ async function runPhase1CoreJourneyTest() {
     console.log("  ✓ Media asset created, validated and safely deleted");
 
     // -------------------------------------------------------------------------
-    // 6. MULTI-TAB STALE SAVE CONFLICT (HTTP 409)
+    // 6. MULTI-TAB & CONCURRENT OCC SAVE CONFLICT (HTTP 409)
     // -------------------------------------------------------------------------
-    console.log("\n[TEST 6] Testing Multi-Tab Version Conflict (HTTP 409)...");
+    console.log("\n[TEST 6] Testing Multi-Tab Version Conflict & Atomic OCC (HTTP 409)...");
     const staleTimestamp = new Date(Date.now() - 60000).toISOString();
     let conflictThrown = false;
     try {
@@ -293,6 +293,37 @@ async function runPhase1CoreJourneyTest() {
     }
     assert(conflictThrown, "Multi-tab stale save must be blocked with HTTP 409");
     console.log("  ✓ Multi-tab stale version conflict correctly returned HTTP 409");
+
+    // Test simultaneous saves using two independent concurrent clients with the same baseline revision
+    const currentSiteState = await getWebsiteById(websiteId, primaryUserId);
+    const sharedRevision = currentSiteState.updatedAt;
+
+    const client1Promise = updateWebsiteEditorData(
+      websiteId,
+      primaryUserId,
+      { ...initialEditorData, clientLabel: "Client 1 Edit" },
+      undefined,
+      sharedRevision
+    );
+
+    const client2Promise = updateWebsiteEditorData(
+      websiteId,
+      primaryUserId,
+      { ...initialEditorData, clientLabel: "Client 2 Edit" },
+      undefined,
+      sharedRevision
+    );
+
+    const concurrentResults = await Promise.allSettled([client1Promise, client2Promise]);
+    const fulfilled = concurrentResults.filter((r) => r.status === "fulfilled");
+    const rejected = concurrentResults.filter((r) => r.status === "rejected");
+
+    assert.strictEqual(fulfilled.length, 1, "Exactly one concurrent save must succeed");
+    assert.strictEqual(rejected.length, 1, "The competing concurrent save must be rejected");
+    const rejectedError = (rejected[0] as PromiseRejectedResult).reason;
+    assert.strictEqual(rejectedError.statusCode, 409, "Concurrent write collision must return HTTP 409");
+    assert.strictEqual(rejectedError.code, "STALE_VERSION_CONFLICT");
+    console.log("  ✓ Simultaneous concurrent saves verified: exactly one winner, competing write returned HTTP 409");
 
     // -------------------------------------------------------------------------
     // 7. INTERNAL PUBLISHING & ANONYMOUS PUBLIC ACCESS
@@ -411,14 +442,17 @@ async function runPhase1CoreJourneyTest() {
         email: "alice@example.com",
         message: "Hello from Phase 1 test lead!",
       },
-      // Client attempting to inject arbitrary webhook destination
+      // Client attempting to inject crafted webhook and recipient
       actions: {
-        activeActions: ["database"],
-        webhookConfig: { endpointUrl: "http://attacker.com/steal" },
+        activeActions: ["database", "webhook", "email"],
+        webhookConfig: { endpointUrl: "https://attacker.example.com/exfiltrate" },
+        emailConfig: { toEmail: "injected-recipient@attacker.com" },
       },
     });
     assert.strictEqual(validSubmitResult.success, true);
-    console.log("  ✓ Valid published form submission processed successfully");
+    assert.strictEqual(validSubmitResult.actionsExecuted?.webhook, undefined, "Client-injected webhook MUST NOT execute");
+    assert.strictEqual(validSubmitResult.actionsExecuted?.email, undefined, "Client-injected email MUST NOT execute");
+    console.log("  ✓ Valid published form submission processed; crafted webhook/recipient injection blocked");
 
     // Verify submission is persisted in database
     const submissions = await getWebsiteSubmissions(websiteId, primaryUserId);
