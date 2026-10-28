@@ -28,43 +28,29 @@ if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = prisma;
 }
 
-// Ensure PostgreSQL enum types and columns are updated for Email & WhatsApp OTP if needed
-export async function ensureDbSchema() {
-  try {
-    await prisma.$executeRawUnsafe(`ALTER TYPE "OtpPurpose" ADD VALUE IF NOT EXISTS 'EMAIL_SIGNUP';`);
-  } catch {
-    // Value may already exist
-  }
-  try {
-    await prisma.$executeRawUnsafe(`ALTER TYPE "OtpPurpose" ADD VALUE IF NOT EXISTS 'EMAIL_LOGIN';`);
-  } catch {
-    // Value may already exist
-  }
-  try {
-    await prisma.$executeRawUnsafe(`ALTER TABLE "otp_verifications" ADD COLUMN IF NOT EXISTS "email" TEXT;`);
-  } catch {
-    // Column may already exist
-  }
-  try {
-    await prisma.$executeRawUnsafe(`
-      DO $$ BEGIN
-        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'OtpChannel') THEN
-          CREATE TYPE "OtpChannel" AS ENUM ('EMAIL', 'WHATSAPP');
-        END IF;
-      END $$;
-    `);
-  } catch {
-    // Type may already exist
-  }
-  try {
-    await prisma.$executeRawUnsafe(`ALTER TABLE "otp_verifications" ADD COLUMN IF NOT EXISTS "channel" "OtpChannel" DEFAULT 'EMAIL';`);
-  } catch {
-    // Column may already exist
+/**
+ * Validates that required database schema tables and columns are present.
+ * Production fails safely by throwing if migrations have not been applied.
+ */
+export async function validateDatabaseSchema(): Promise<void> {
+  const result = await prisma.$queryRaw<Array<{ exists: boolean }>>`
+    SELECT (
+      EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'users') AND
+      EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'websites') AND
+      EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'otp_verifications') AND
+      EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'otp_verifications' AND column_name = 'channel')
+    ) AS "exists";
+  `;
+
+  if (!result || !result[0]?.exists) {
+    throw new Error(
+      "Database schema validation failed: core tables or columns are missing. Please run 'prisma migrate deploy'."
+    );
   }
 }
 
-export async function initializeDatabaseBootstrap() {
-  await ensureDbSchema();
+export async function initializeDatabaseBootstrap(): Promise<void> {
+  await validateDatabaseSchema();
 }
 
 export default prisma;

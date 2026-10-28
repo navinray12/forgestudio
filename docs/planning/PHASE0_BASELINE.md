@@ -59,8 +59,10 @@
 | **Backend Tests** | **PASS** | Isolated unit/safeguard tests execute cleanly with zero database side-effects on import. |
 | **Frontend Production Build** | **PASS** | Production bundle built cleanly with Vite + TypeScript (`tsc -b && vite build`). |
 | **Frontend ESLint** | **PARTIAL** | High-impact syntax, duplicate case, hook ordering, and type leaks resolved. 1687 errors and 42 warnings remain across legacy code (predominantly `no-explicit-any`). |
-| **Database Migrations** | **PASS** | 8 ordered migrations present in `backend/prisma/migrations` consistent with `migration_lock.toml`. |
-| **Runtime Schema Mutations** | **ISOLATED** | Eager module-import executions removed from `prisma.ts`; deferred to explicit server start. |
+| **Database Migrations** | **PASS** | 10 ordered migrations present; core tables (`20260914000000_restore_missing_core_tables`) and auth OTP/roles (`20260921000000_auth_otp_channel_and_roles`) verified against `schema.prisma`. |
+| **Runtime Schema Mutations** | **ELIMINATED** | Runtime DDL removed from `prisma.ts`; replaced with strict `validateDatabaseSchema()` failing fast on incomplete schema. |
+| **Fresh DB Deployment** | **PASS** | Tested on fresh disposable DB (`forgestudio_disposable_fresh`); all 50 models and 51 tables deployed with zero errors. |
+| **Upgrade Compatibility** | **PASS** | Tested on disposable upgrade DB (`forgestudio_disposable_upgrade`); existing user, site, and auth records preserved. |
 
 ---
 
@@ -71,22 +73,27 @@
    - Removed automatic creation/resetting of privileged admin credentials.
    - Removed tampering/direct mutations of `_prisma_migrations`.
    - Removed hardcoded credentials fallback; requires `DATABASE_URL` (or `TEST_DATABASE_URL` in test mode).
-   - Ensured `server.ts` verifies DB connectivity and exits fatally (code 1) on failure before reporting readiness.
+   - Replaced runtime DDL execution with strict `validateDatabaseSchema()` validation.
+   - Ensured `server.ts` verifies DB connectivity & schema readiness and exits fatally (code 1) on failure before reporting readiness.
 3. `backend/src/services/` (`website`, `license`, `media`, `template`, `siteMailer`, `form`) — Removed module-import eager DDL auto-runs.
-4. `frontend/src/pages/editor/defaults/index.ts` — Removed dead duplicate `price-table` switch case.
-5. `frontend/src/components/CustomCodeModal.tsx` — Fixed hoisted function access before declaration in React effect.
-6. `frontend/src/components/CookieConsentBanner.tsx` — Removed unused import, avoided synchronous effect state dispatch, cleaned empty catch blocks.
-7. `frontend/src/plugins/components/PluginSettingsPanel.tsx` — Initialized state via lazy initializer to fix cascading effect re-renders.
-8. `frontend/src/plugins/PluginManager.ts` — Replaced unsafe `Function` type annotations with concrete function signatures.
-9. `frontend/src/pages/editor/widgets/renderers.tsx` — Scoped switch case blocks to fix `no-case-declarations` and updated `prefer-const`.
-10. `frontend/src/services/` & `frontend/src/utils/` — Added strict types for custom code snippets, font managers, and multilingual exports.
-11. `docs/planning/PHASE0_BASELINE.md` — Updated Phase 0 baseline, security verification, and stabilization log.
+4. `backend/prisma/migrations/20260914000000_restore_missing_core_tables` — Restored core tables migration matching deployed database checksum (`486918f18fdff801d788494bf92f65b8eb63968ca0124753fae07026695ee365`).
+5. `backend/prisma/migrations/20260921000000_auth_otp_channel_and_roles` — Safe versioned migration for OTP channels, purposes, and user roles.
+6. `frontend/src/pages/editor/defaults/index.ts` — Removed dead duplicate `price-table` switch case.
+7. `frontend/src/components/CustomCodeModal.tsx` — Fixed hoisted function access before declaration in React effect.
+8. `frontend/src/components/CookieConsentBanner.tsx` — Removed unused import, avoided synchronous effect state dispatch, cleaned empty catch blocks.
+9. `frontend/src/plugins/components/PluginSettingsPanel.tsx` — Initialized state via lazy initializer to fix cascading effect re-renders.
+10. `frontend/src/plugins/PluginManager.ts` — Replaced unsafe `Function` type annotations with concrete function signatures.
+11. `frontend/src/pages/editor/widgets/renderers.tsx` — Scoped switch case blocks to fix `no-case-declarations` and updated `prefer-const`.
+12. `frontend/src/services/` & `frontend/src/utils/` — Added strict types for custom code snippets, font managers, and multilingual exports.
+13. `docs/planning/PHASE0_BASELINE.md` — Updated Phase 0 baseline, migration audit, security verification, and stabilization log.
 
 ---
 
 ## 6. Phase 1 Readiness Status
 
-- **Frontend Production Build:** STABILIZED (0 build errors).
+- **Frontend Production Build:** STABILIZED (0 build errors, 10.16s).
 - **Backend Production Build & Validation:** STABILIZED (0 build errors, valid schema).
-- **Database & Startup Security:** STABILIZED (No credential resets, no migration table tampering, fail-fast startup on DB disconnection).
+- **Database Migrations:** STABILIZED (10 versioned migrations, 100% schema model coverage, verified fresh deploy & upgrade).
+- **Database & Startup Security:** STABILIZED (No credential resets, no migration table tampering, fail-fast startup on DB/schema failure).
 - **Remaining Technical Debt:** 1,687 legacy ESLint warnings/errors (mainly `@typescript-eslint/no-explicit-any`) accurately tracked for Phase 1.
+
