@@ -24,15 +24,21 @@ Phase 1 Core Stabilization is completed and signed off. All core end-to-end user
   - `phase1-core-journey.test.ts` [TEST 6]: **PASS** (Missing revision rejected with 400; stale timestamp rejected with 409; stale version number rejected with 409; simultaneous concurrent saves produce exactly 1 winner and 1 HTTP 409 rejection; retry with updated monotonic revision succeeds).
 
 ### 3. Strengthened Real Browser E2E Test (P1) — VERIFIED
-- **Disposable Test Database Safeguard:** Validates `DATABASE_URL` before any write operations and strictly aborts with a fatal error if executed against an unsafe or non-test/non-local database.
+- **Strict Disposable Database Verification:** Validates `DATABASE_URL` / `TEST_DATABASE_URL` before any write operations and strictly aborts with a fatal error if executed against production, remote hosts, or ordinary development databases (e.g. `elementor_saas`), requiring dedicated test naming conventions (`test`, `e2e`, `disposable`, `temp`) or explicit disposable authorization (`ALLOW_DISPOSABLE_TEST_DB=true`).
 - **Live Infrastructure:** Real Playwright Chromium headless browser executing against live Express backend (port 5000), Vite SPA static server (port 5173), and PostgreSQL.
-- **DOM Content Verification:** Asserts actual rendered published widget text inside the public visitor's DOM (`"⚡ Skip to main content\nHeading Text\n♿..."`), rather than merely checking container `#root`.
-- **Draft Isolation Verification:** Verifies that unreleased draft modifications saved in the editor remain strictly absent from the public visitor's DOM upon page refresh.
-- **Browser-UI-Only Rollback:** Executes rollback to v1 exclusively through the browser UI and confirmation dialog (zero direct API fallbacks). Asserts that the anonymous public visitor's DOM restores the exact v1 content.
+- **Specific Published Content & Hydration Assertions:** Waits for SPA API hydration (eliminating loading artifacts) and asserts actual rendered widget text inside public DOM (`Heading Text`), confirming draft-only text is absent.
+- **Draft Isolation Verification:** Verifies that unreleased draft modifications saved in the editor remain strictly absent from the public visitor's DOM upon page refresh (`Click here to edit this paragraph text` confirmed hidden).
+- **Republished Difference Verification:** Verifies published v2 content strictly differs from v1 and renders both updated widgets.
+- **Browser-UI-Only Rollback & Version Restoration:** Executes rollback to v1 exclusively through the browser UI and confirmation dialog (zero direct API fallbacks). Asserts that the anonymous public visitor's DOM restores the exact v1 content and that active deployment restores deployment version 1.
 - **Accurate Media Assertions:** Separates direct API upload verification from editor component integration.
 - **Safe Teardown:** Teardown strictly asserts test email prefix (`e2e_user_`) and test website name prefix (`E2E Studio`) before deleting test records, preventing accidental deletion of non-test data.
 - **Test Evidence:**
   - `phase1-browser-e2e.test.ts`: **10 / 10 STEPS PASS** (All steps executed via real browser DOM interactions and asserted against PostgreSQL).
+
+### 4. Controller CAS Audit & Concurrency Hardening — VERIFIED
+- **Eliminated `force: true` Bypasses:** Audited user-accessible controllers (`developer.controller.ts`, `api-v1.controller.ts`, `seo.controller.ts`) and internal services (`website.service.ts`, `seoConnector.service.ts`), completely removing `force: true`.
+- **Atomic Compare-And-Swap:** All endpoints accept client-provided `expectedVersion` / `lastKnownUpdatedAt` or bind to the fetched database version as the CAS baseline, preventing silent concurrent overwrites.
+- **Permission Enforcement:** Enforced strict capability checks (e.g., `PUBLISH` rights in `publishDeveloperWebsiteHandler`).
 
 ---
 

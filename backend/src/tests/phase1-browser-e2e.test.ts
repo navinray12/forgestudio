@@ -85,16 +85,47 @@ async function runBrowserE2E() {
   console.log("================================================================\n");
 
   // ---------------------------------------------------------------------------
-  // SAFEGUARD: Reject Unsafe Database Configurations Before Any Writes
+  // SAFEGUARD: Strict Disposable-Database Verification
+  // Rejects ordinary localhost development databases, production databases,
+  // and unsafe test targets before any data mutations.
   // ---------------------------------------------------------------------------
-  const dbUrl = process.env.DATABASE_URL || "";
-  assert(dbUrl, "DATABASE_URL environment variable must be defined");
-  const isSafeTestDb = dbUrl.includes("test") || dbUrl.includes("localhost") || dbUrl.includes("127.0.0.1");
+  const rawDbUrl = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || "";
+  assert(rawDbUrl, "DATABASE_URL or TEST_DATABASE_URL environment variable must be defined");
+
+  const parsedDbUrl = new URL(rawDbUrl);
+  const host = parsedDbUrl.hostname.toLowerCase();
+  const dbName = parsedDbUrl.pathname.replace(/^\//, "").toLowerCase();
+
+  // 1. Unconditionally reject non-local / production hosts
+  const isLocalHost = host === "localhost" || host === "127.0.0.1" || host === "::1";
   assert(
-    isSafeTestDb,
-    `FATAL: Refusing to run destructive browser E2E test against unsafe database: ${dbUrl.replace(/:[^:@]+@/, ":***@")}`
+    isLocalHost,
+    `FATAL: Refusing to run destructive browser E2E test against remote database host "${host}".`
   );
-  console.log("  ✓ Database configuration validated safe for disposable E2E testing");
+
+  // 2. Reject production environment
+  assert(
+    process.env.NODE_ENV !== "production",
+    "FATAL: Refusing to run destructive browser E2E test in production environment."
+  );
+
+  // 3. Strict Disposable-Database Verification:
+  // Reject ordinary development databases (e.g. elementor_saas, forgestudio, postgres)
+  // Target database must have a dedicated test/e2e/disposable designation or explicit disposable authorization
+  const hasDisposableDbName = /(?:test|e2e|disposable|temp)/i.test(dbName);
+  const hasDisposableAuth =
+    process.env.DISPOSABLE_TEST_DATABASE === "true" ||
+    process.env.ALLOW_DISPOSABLE_TEST_DB === "true" ||
+    process.env.ALLOW_DESTRUCTIVE_E2E === "true";
+
+  if (!hasDisposableDbName && !hasDisposableAuth) {
+    throw new Error(
+      `FATAL: Refusing to run destructive browser E2E test against ordinary development database "${dbName}". ` +
+      `Target database must be a dedicated disposable database (name must contain 'test', 'e2e', 'disposable', or 'temp') ` +
+      `or be explicitly verified as disposable via ALLOW_DISPOSABLE_TEST_DB=true.`
+    );
+  }
+  console.log(`  ✓ Database verified as disposable test target: ${dbName} (host: ${host})`);
 
   process.env.NODE_ENV = "test";
   enableIsolatedTestTransport();
@@ -237,9 +268,11 @@ async function runBrowserE2E() {
     console.log("  ✓ Editor toolbar rendered in DOM");
 
     // Add a Heading widget by clicking on the widget card in the sidebar
-    const headingWidget = page.locator('div:has-text("Heading")').last();
+    await page.locator('aside button:has-text("Elements")').click().catch(() => {});
+    const headingWidget = page.locator('aside').locator('span:text-is("Heading")').first();
     await headingWidget.waitFor({ state: "visible", timeout: 10000 });
     await headingWidget.click();
+    await page.waitForTimeout(500);
     console.log("  ✓ Clicked Heading widget in sidebar");
 
     // -------------------------------------------------------------------------
@@ -352,8 +385,20 @@ async function runBrowserE2E() {
       waitUntil: "networkidle",
     });
 
+    // Helper: wait until anonymous visitor page completes API hydration (not showing loading indicator)
+    const waitForAnonymousSiteLoaded = async (p: Page) => {
+      await p.waitForFunction(
+        () => {
+          const el = document.getElementById("root");
+          const text = (el?.innerText || "").trim();
+          return Boolean(el && text.length > 0 && !/^loading/i.test(text));
+        },
+        { timeout: 15000 }
+      );
+    };
+
     // Verify DOM rendered without login requirement
-    await anonPage.waitForSelector("#root", { timeout: 10000 });
+    await waitForAnonymousSiteLoaded(anonPage);
 
     // Assert actual rendered widget content in DOM, not only #root container
     const publicDomText = await anonPage.locator("#root").innerText();
@@ -361,11 +406,19 @@ async function runBrowserE2E() {
       publicDomText.length > 0,
       "Public anonymous DOM must render non-empty published website content"
     );
-    console.log(`  ✓ Public DOM rendered actual published content verified: "${publicDomText.slice(0, 40).trim()}..."`);
+    assert(
+      publicDomText.includes("Heading Text"),
+      `Public DOM must render specific published Heading widget content, got: "${publicDomText}"`
+    );
+    assert(
+      !publicDomText.includes("Click here to edit this paragraph text"),
+      "Draft-only Text widget content must NOT be present in v1 published DOM"
+    );
+    console.log(`  ✓ Public DOM rendered actual published Heading widget verified: "${publicDomText.slice(0, 40).trim()}..."`);
 
     // Refresh anonymous page
     await anonPage.reload({ waitUntil: "networkidle" });
-    await anonPage.waitForSelector("#root", { timeout: 10000 });
+    await waitForAnonymousSiteLoaded(anonPage);
     console.log("  ✓ Anonymous page refresh confirmed stable");
 
     // -------------------------------------------------------------------------
@@ -373,9 +426,11 @@ async function runBrowserE2E() {
     // -------------------------------------------------------------------------
     console.log("\n[STEP 8] Testing Draft Isolation (Public DOM Unchanged)...");
     // In authenticated editor, add another element and save as DRAFT (do NOT publish)
-    const textWidget = page.locator('div:has-text("Text")').last();
+    await page.locator('aside button:has-text("Elements")').click().catch(() => {});
+    const textWidget = page.locator('aside').locator('span:text-is("Text")').first();
     await textWidget.waitFor({ state: "visible", timeout: 10000 });
     await textWidget.click();
+    await page.waitForTimeout(500);
 
     await saveButton.click();
     await page.waitForSelector("text=Saved successfully!", { timeout: 10000 });
@@ -383,15 +438,20 @@ async function runBrowserE2E() {
 
     // In anonymous visitor page, reload
     await anonPage.reload({ waitUntil: "networkidle" });
+    await waitForAnonymousSiteLoaded(anonPage);
     const anonDomAfterDraft = await anonPage.locator("#root").innerText();
 
-    // Verify public site still shows exact v1 published state
+    // Verify public site still shows exact v1 published state and draft is hidden
     assert.strictEqual(
       anonDomAfterDraft,
       publicDomText,
       "Public visitor DOM MUST remain identical to published v1 snapshot after unpublished draft edits"
     );
-    console.log("  ✓ Draft isolation verified: Public visitor sees exact published v1 snapshot, not working draft");
+    assert(
+      !anonDomAfterDraft.includes("Click here to edit this paragraph text"),
+      "Draft-only content must stay strictly hidden from public visitor before publication"
+    );
+    console.log("  ✓ Draft isolation verified: Public visitor sees exact published v1 snapshot, draft-only content remains hidden");
 
     // -------------------------------------------------------------------------
     // 9. ROLLBACK VERIFICATION (BROWSER UI ONLY, NO API FALLBACK)
@@ -415,8 +475,24 @@ async function runBrowserE2E() {
     assert(v2Deployment, "Deployment v2 must exist in database");
     console.log("  ✓ Deployment v2 published");
 
-    // Confirm anonymous visitor now sees v2
+    // Confirm anonymous visitor now sees v2 and v2 differs from v1
     await anonPage.reload({ waitUntil: "networkidle" });
+    await waitForAnonymousSiteLoaded(anonPage);
+    const anonDomV2 = await anonPage.locator("#root").innerText();
+    assert.notStrictEqual(
+      anonDomV2,
+      publicDomText,
+      "Public visitor DOM for v2 MUST differ from v1 after republishing new content"
+    );
+    assert(
+      anonDomV2.includes("Heading Text"),
+      `v2 DOM must retain published Heading widget content, got: "${anonDomV2}"`
+    );
+    assert(
+      anonDomV2.includes("Click here to edit this paragraph text"),
+      `v2 DOM must include newly published Text widget content, got: "${anonDomV2}"`
+    );
+    console.log("  ✓ Browser DOM verified: v2 content differs from v1 and renders both Heading and Text widgets");
 
     // In editor publish modal, click Rollback button for v1 (dialog is auto-accepted by page.on('dialog'))
     const rollbackBtn = page.locator('button:has-text("Rollback")').first();
@@ -428,23 +504,39 @@ async function runBrowserE2E() {
     assert(rollbackRes, "Rollback request must succeed with HTTP 200");
     console.log("  ✓ Rollback to v1 triggered exclusively via browser UI (no direct API fallback)");
 
-    // Verify in database: active deployment restored
+    // Verify in database: active deployment restored deployment version 1
     const activeDeploymentAfterRollback = await prisma.deployment.findFirst({
       where: { websiteId: createdWebsiteId, status: "PUBLISHED" },
       orderBy: { completedAt: "desc" },
     });
     assert(activeDeploymentAfterRollback, "Active deployment must exist after rollback");
-    console.log(`  ✓ Database verified: Active deployment restored after rollback (v${activeDeploymentAfterRollback.version})`);
+    const rollbackMeta = activeDeploymentAfterRollback.metadata as any;
+    const restoredVersion = rollbackMeta?.rolledBackVersion ?? activeDeploymentAfterRollback.version;
+    assert.strictEqual(
+      restoredVersion,
+      1,
+      `Rollback must restore deployment version 1, got: ${restoredVersion}`
+    );
+    console.log(`  ✓ Database verified: Active deployment restored deployment version 1 (restoredFrom: v${restoredVersion}, deployment: v${activeDeploymentAfterRollback.version})`);
 
     // Verify public anonymous visitor DOM restores exact v1 content
     await anonPage.reload({ waitUntil: "networkidle" });
+    await waitForAnonymousSiteLoaded(anonPage);
     const anonDomAfterRollback = await anonPage.locator("#root").innerText();
     assert.strictEqual(
       anonDomAfterRollback,
       publicDomText,
       "Public visitor DOM MUST restore exact v1 content after rollback"
     );
-    console.log("  ✓ Browser DOM verified: Public site restored exact v1 content after rollback");
+    assert(
+      anonDomAfterRollback.includes("Heading Text"),
+      "Rollback DOM must contain original v1 Heading Text"
+    );
+    assert(
+      !anonDomAfterRollback.includes("Click here to edit this paragraph text"),
+      "Rollback DOM must NOT contain v2 Text widget content"
+    );
+    console.log("  ✓ Browser DOM verified: Public site restored deployment version 1 and exact published content after rollback");
 
     // Close publish modal
     const closeBtnAfterRollback = page.locator('button:has-text("✕")').first();

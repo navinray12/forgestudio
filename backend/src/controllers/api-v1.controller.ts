@@ -240,7 +240,11 @@ export async function updatePagesHandler(req: Request, res: Response) {
     }));
 
     editorData.pages = sanitizedPages;
-    const updated = await updateWebsiteEditorData(websiteId, user.id, editorData, undefined, undefined, undefined, true);
+    const expVer = req.body?.expectedVersion !== undefined && req.body?.expectedVersion !== null
+      ? Number(req.body.expectedVersion)
+      : website.version;
+    const expTimestamp = req.body?.lastKnownUpdatedAt;
+    const updated = await updateWebsiteEditorData(websiteId, user.id, editorData, undefined, expTimestamp, expVer);
 
     return sendSuccess(res, { pages: sanitizedPages });
   } catch (err: any) {

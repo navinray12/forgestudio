@@ -245,7 +245,7 @@ export async function updateCookieConsentConfig(websiteId: string, userId: strin
     theme: config.theme === "light" ? "light" : "dark",
   };
 
-  await updateWebsiteEditorData(websiteId, userId, editorData, undefined, undefined, undefined, true);
+  await updateWebsiteEditorData(websiteId, userId, editorData, undefined, undefined, website.version);
   return editorData.siteSettings.cookieConsent;
 }
 

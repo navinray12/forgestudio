@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import { getUserWebsites, getWebsiteById, updateWebsiteEditorData } from "../services/website.service.js";
+import { canUserAccessResource } from "../services/permission.service.js";
 import { AppError } from "../utils/app-error.js";
 
 // Helper strictly filtering the response output mapping (F-118 Output Serialization)
@@ -80,14 +81,20 @@ export async function updateDeveloperWebsiteHandler(req: Request, res: Response,
 
         // F-118: DO NOT completely blast over editorData via API blindly.
         // We only accept valid editorData subset PATCH mappings.
-        const { editorData } = req.body;
+        const { editorData, expectedVersion, lastKnownUpdatedAt } = req.body;
         if (!editorData) {
             throw new AppError("Missing editorData payload.", 400, "INVALID_REQUEST");
         }
 
-        // Implicit ownership verification and validation exists right inside updateWebsiteEditorData!
-        // It validates priority integers structurally against floats/overflows globally.
-        const website = await updateWebsiteEditorData(websiteId, user.id, editorData, undefined, undefined, undefined, true);
+        // Concurrency check: Require client expectedVersion/lastKnownUpdatedAt, or use latest DB version as CAS target
+        let expVer = expectedVersion !== undefined && expectedVersion !== null ? Number(expectedVersion) : undefined;
+        let expTimestamp = lastKnownUpdatedAt;
+        if (expVer === undefined && !expTimestamp) {
+            const current = await getWebsiteById(websiteId, user.id);
+            expVer = current.version;
+        }
+
+        const website = await updateWebsiteEditorData(websiteId, user.id, editorData, undefined, expTimestamp, expVer);
 
         return res.status(200).json({
             data: serializeWebsite(website)
@@ -102,6 +109,11 @@ export async function publishDeveloperWebsiteHandler(req: Request, res: Response
         // F-118 Publish Workflow
         const user = res.locals.user;
         const websiteId = req.params.id as string;
+
+        const canPublish = await canUserAccessResource(user.id, websiteId, "*", "PUBLISH");
+        if (!canPublish) {
+            throw new AppError("You do not have permission to publish this website", 403, "FORBIDDEN");
+        }
 
         const website = await getWebsiteById(websiteId, user.id);
         const editorData = website.editorData as any;
@@ -128,8 +140,8 @@ export async function publishDeveloperWebsiteHandler(req: Request, res: Response
             });
         }
 
-        // Then, rewrite this mutated blob into DB exactly mirroring standard user flows utilizing the unified service 
-        const updated = await updateWebsiteEditorData(websiteId, user.id, editorData, undefined, undefined, undefined, true);
+        // Atomic CAS using fetched website version prevents silent concurrent overwrites
+        const updated = await updateWebsiteEditorData(websiteId, user.id, editorData, undefined, undefined, website.version);
 
         return res.status(200).json({
             message: "Website strictly published securely.",

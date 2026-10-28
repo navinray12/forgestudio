@@ -282,7 +282,12 @@ export async function saveWebsiteSeoHandler(
       });
     }
 
-    const updatedWebsite = await updateWebsiteEditorData(websiteId, user.id, editorData, undefined, undefined, undefined, true);
+    const expVer = (req.body?.expectedVersion !== undefined && req.body?.expectedVersion !== null)
+      ? Number(req.body.expectedVersion)
+      : website.version;
+    const expTimestamp = req.body?.lastKnownUpdatedAt;
+
+    const updatedWebsite = await updateWebsiteEditorData(websiteId, user.id, editorData, undefined, expTimestamp, expVer);
 
     return res.status(200).json({
       success: true,
