@@ -4,15 +4,11 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { chromium, type Browser, type Page } from "playwright";
-import app from "../app.js";
-import { prisma } from "../config/prisma.js";
-import { signupUser } from "../services/signup.service.js";
 import {
-  getLastSentOtp,
-  clearEmailTestTransport,
-  enableIsolatedTestTransport,
-  disableIsolatedTestTransport,
-} from "../services/email.service.js";
+  assertSafeDisposableDatabase,
+  assertDatabaseIsolation,
+  sanitizeDatabaseUrl,
+} from "../utils/database-safety.js";
 
 const BACKEND_PORT = 5000;
 const FRONTEND_PORT = 5173;
@@ -71,9 +67,9 @@ function startFrontendServer(frontendDistPath: string, port: number): Promise<ht
   });
 }
 
-function startBackendServer(port: number): Promise<http.Server> {
+function startBackendServer(appInstance: any, port: number): Promise<http.Server> {
   return new Promise((resolve, reject) => {
-    const server = http.createServer(app);
+    const server = http.createServer(appInstance);
     server.listen(port, () => resolve(server));
     server.on("error", reject);
   });
@@ -85,49 +81,41 @@ async function runBrowserE2E() {
   console.log("================================================================\n");
 
   // ---------------------------------------------------------------------------
-  // SAFEGUARD: Strict Disposable-Database Verification
-  // Rejects ordinary localhost development databases, production databases,
-  // and unsafe test targets before any data mutations.
+  // SAFEGUARD: Strict Disposable-Database Verification & Isolation Guard
+  // 1. Validate target test DB URL before importing any database client.
+  // 2. Reject remote, production, ordinary development and mismatched targets.
+  // 3. Guarantee that ALLOW_DISPOSABLE_TEST_DB=true alone cannot authorize
+  //    testing against an ordinary development database.
   // ---------------------------------------------------------------------------
-  const rawDbUrl = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || "";
-  assert(rawDbUrl, "DATABASE_URL or TEST_DATABASE_URL environment variable must be defined");
+  const targetTestDbUrl =
+    process.env.TEST_DATABASE_URL ||
+    "postgresql://postgres:Br22%40Bihar@localhost:5432/forgestudio_disposable_fresh?schema=public";
 
-  const parsedDbUrl = new URL(rawDbUrl);
-  const host = parsedDbUrl.hostname.toLowerCase();
-  const dbName = parsedDbUrl.pathname.replace(/^\//, "").toLowerCase();
+  // Validate the intended disposable database connection
+  assertSafeDisposableDatabase(targetTestDbUrl);
+  console.log(`  ✓ Database verified as safe disposable target: ${sanitizeDatabaseUrl(targetTestDbUrl)}`);
 
-  // 1. Unconditionally reject non-local / production hosts
-  const isLocalHost = host === "localhost" || host === "127.0.0.1" || host === "::1";
-  assert(
-    isLocalHost,
-    `FATAL: Refusing to run destructive browser E2E test against remote database host "${host}".`
-  );
-
-  // 2. Reject production environment
-  assert(
-    process.env.NODE_ENV !== "production",
-    "FATAL: Refusing to run destructive browser E2E test in production environment."
-  );
-
-  // 3. Strict Disposable-Database Verification:
-  // Reject ordinary development databases (e.g. elementor_saas, forgestudio, postgres)
-  // Target database must have a dedicated test/e2e/disposable designation or explicit disposable authorization
-  const hasDisposableDbName = /(?:test|e2e|disposable|temp)/i.test(dbName);
-  const hasDisposableAuth =
-    process.env.DISPOSABLE_TEST_DATABASE === "true" ||
-    process.env.ALLOW_DISPOSABLE_TEST_DB === "true" ||
-    process.env.ALLOW_DESTRUCTIVE_E2E === "true";
-
-  if (!hasDisposableDbName && !hasDisposableAuth) {
-    throw new Error(
-      `FATAL: Refusing to run destructive browser E2E test against ordinary development database "${dbName}". ` +
-      `Target database must be a dedicated disposable database (name must contain 'test', 'e2e', 'disposable', or 'temp') ` +
-      `or be explicitly verified as disposable via ALLOW_DISPOSABLE_TEST_DB=true.`
-    );
-  }
-  console.log(`  ✓ Database verified as disposable test target: ${dbName} (host: ${host})`);
-
+  // Explicitly configure test environment before loading application/database modules
   process.env.NODE_ENV = "test";
+  process.env.TEST_DATABASE_URL = targetTestDbUrl;
+  process.env.DATABASE_URL = targetTestDbUrl;
+
+  // Dynamically import database and application modules
+  const { prisma, resolveActiveDatabaseUrl } = await import("../config/prisma.js");
+  const { default: app } = await import("../app.js");
+  const { signupUser } = await import("../services/signup.service.js");
+  const {
+    getLastSentOtp,
+    clearEmailTestTransport,
+    enableIsolatedTestTransport,
+    disableIsolatedTestTransport,
+  } = await import("../services/email.service.js");
+
+  // Strict isolation check: Prisma must be connected to the exact validated disposable database
+  const activePrismaUrl = resolveActiveDatabaseUrl();
+  assertDatabaseIsolation(targetTestDbUrl, activePrismaUrl);
+  console.log(`  ✓ Active Prisma database connection verified: ${sanitizeDatabaseUrl(activePrismaUrl)}`);
+
   enableIsolatedTestTransport();
   clearEmailTestTransport();
 
@@ -150,7 +138,7 @@ async function runBrowserE2E() {
     // 0. START SERVERS & LAUNCH CHROMIUM
     // -------------------------------------------------------------------------
     console.log("\n[SETUP] Starting Backend & Frontend Servers...");
-    backendServer = await startBackendServer(BACKEND_PORT);
+    backendServer = await startBackendServer(app, BACKEND_PORT);
     console.log(`  ✓ Backend server listening on http://localhost:${BACKEND_PORT}`);
 
     frontendServer = await startFrontendServer(frontendDistPath, FRONTEND_PORT);

@@ -198,16 +198,6 @@ export async function updatePagesHandler(req: Request, res: Response) {
     const user = res.locals.user;
     const websiteId = String(req.params.id);
 
-    const canEdit = await canUserAccessResource(user.id, websiteId, "*", "EDIT");
-    if (!canEdit) {
-      return sendError(res, "FORBIDDEN", "You do not have permission to edit this website", 403);
-    }
-
-    const website = await getWebsiteById(websiteId, user.id);
-    if (!website) {
-      return sendError(res, "NOT_FOUND", "Website not found", 404);
-    }
-
     const rawPages = Array.isArray(req.body)
       ? req.body
       : Array.isArray(req.body.pages)
@@ -216,6 +206,29 @@ export async function updatePagesHandler(req: Request, res: Response) {
 
     if (!rawPages) {
       return sendError(res, "VALIDATION_ERROR", "Invalid payload. Expected { pages: [...] } or an array of pages", 400);
+    }
+
+    const rawExpectedVersion = req.body?.expectedVersion;
+    const expTimestamp = req.body?.lastKnownUpdatedAt;
+    const expVer = rawExpectedVersion !== undefined && rawExpectedVersion !== null ? Number(rawExpectedVersion) : undefined;
+
+    if (expVer === undefined && !expTimestamp) {
+      return sendError(
+        res,
+        "MISSING_REVISION",
+        "Expected revision (expectedVersion or lastKnownUpdatedAt) is required for updating pages",
+        400
+      );
+    }
+
+    const canEdit = await canUserAccessResource(user.id, websiteId, "*", "EDIT");
+    if (!canEdit) {
+      return sendError(res, "FORBIDDEN", "You do not have permission to edit this website", 403);
+    }
+
+    const website = await getWebsiteById(websiteId, user.id);
+    if (!website) {
+      return sendError(res, "NOT_FOUND", "Website not found", 404);
     }
 
     let editorData = website.editorData;
@@ -240,10 +253,7 @@ export async function updatePagesHandler(req: Request, res: Response) {
     }));
 
     editorData.pages = sanitizedPages;
-    const expVer = req.body?.expectedVersion !== undefined && req.body?.expectedVersion !== null
-      ? Number(req.body.expectedVersion)
-      : website.version;
-    const expTimestamp = req.body?.lastKnownUpdatedAt;
+
     const updated = await updateWebsiteEditorData(websiteId, user.id, editorData, undefined, expTimestamp, expVer);
 
     return sendSuccess(res, { pages: sanitizedPages });

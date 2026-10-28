@@ -3,13 +3,26 @@ import pg from "pg";
 import { PrismaClient } from "../generated/prisma/client.js";
 import { PrismaPg } from "@prisma/adapter-pg";
 
-const connectionString =
-  process.env.DATABASE_URL ||
-  (process.env.NODE_ENV === "test" ? process.env.TEST_DATABASE_URL : undefined);
+/**
+ * Resolves the exact connection string Prisma and pgPool will use.
+ * In test mode (NODE_ENV === 'test') or when TEST_DATABASE_URL is set,
+ * TEST_DATABASE_URL is strictly prioritized.
+ */
+export function resolveActiveDatabaseUrl(): string {
+  const isTest = process.env.NODE_ENV === "test" || Boolean(process.env.TEST_DATABASE_URL);
+  const selected = (isTest && process.env.TEST_DATABASE_URL)
+    ? process.env.TEST_DATABASE_URL
+    : process.env.DATABASE_URL;
 
-if (!connectionString) {
-  throw new Error("DATABASE_URL environment variable is required.");
+  if (!selected) {
+    throw new Error("DATABASE_URL or TEST_DATABASE_URL environment variable is required.");
+  }
+  return selected;
 }
+
+const connectionString = resolveActiveDatabaseUrl();
+// Synchronize environment so child processes or external drivers use identical connection
+process.env.DATABASE_URL = connectionString;
 
 export const pgPool = new pg.Pool({ connectionString });
 const adapter = new PrismaPg(pgPool);

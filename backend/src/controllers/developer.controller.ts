@@ -86,12 +86,15 @@ export async function updateDeveloperWebsiteHandler(req: Request, res: Response,
             throw new AppError("Missing editorData payload.", 400, "INVALID_REQUEST");
         }
 
-        // Concurrency check: Require client expectedVersion/lastKnownUpdatedAt, or use latest DB version as CAS target
-        let expVer = expectedVersion !== undefined && expectedVersion !== null ? Number(expectedVersion) : undefined;
-        let expTimestamp = lastKnownUpdatedAt;
+        // Concurrency check: User editing requests must supply a client revision
+        const expVer = expectedVersion !== undefined && expectedVersion !== null ? Number(expectedVersion) : undefined;
+        const expTimestamp = lastKnownUpdatedAt;
         if (expVer === undefined && !expTimestamp) {
-            const current = await getWebsiteById(websiteId, user.id);
-            expVer = current.version;
+            throw new AppError(
+                "Expected revision (expectedVersion or lastKnownUpdatedAt) is required for website update",
+                400,
+                "MISSING_REVISION"
+            );
         }
 
         const website = await updateWebsiteEditorData(websiteId, user.id, editorData, undefined, expTimestamp, expVer);
