@@ -20,6 +20,8 @@ interface UseAutosaveParams {
   apiUrl: string;
   isLoadingWebsite: boolean;
   debounceMs?: number;
+  lastKnownUpdatedAt?: string | number | null;
+  onServerSaveSuccess?: (updatedWebsite: any) => void;
 }
 
 interface SavePayload {
@@ -55,6 +57,8 @@ export function useAutosave({
   apiUrl,
   isLoadingWebsite,
   debounceMs = 1500,
+  lastKnownUpdatedAt,
+  onServerSaveSuccess,
 }: UseAutosaveParams) {
   const [status, setStatus] = useState<AutosaveStatus>("saved");
   const [lastSavedAt, setLastSavedAt] = useState<number | null>(null);
@@ -83,6 +87,8 @@ export function useAutosave({
     popups,
     pageCss,
     apiUrl,
+    lastKnownUpdatedAt,
+    onServerSaveSuccess,
   });
 
   useEffect(() => {
@@ -101,6 +107,8 @@ export function useAutosave({
       popups,
       pageCss,
       apiUrl,
+      lastKnownUpdatedAt,
+      onServerSaveSuccess,
     };
   }, [
     websiteId,
@@ -117,6 +125,8 @@ export function useAutosave({
     popups,
     pageCss,
     apiUrl,
+    lastKnownUpdatedAt,
+    onServerSaveSuccess,
   ]);
 
   /**
@@ -239,6 +249,7 @@ export function useAutosave({
             popups: payload.popups,
             pageCss: payload.pageCss,
           },
+          lastKnownUpdatedAt: latestPropsRef.current.lastKnownUpdatedAt,
         };
 
         // 1. Always persist snapshot to local storage as immediate fail-safe
@@ -249,6 +260,7 @@ export function useAutosave({
         }
 
         // 2. Attempt backend API save
+        let serverSaveSucceeded = false;
         try {
           const res = await fetch(`${currentApiUrl}/api/websites/${currentWebId}`, {
             method: "PUT",
@@ -261,16 +273,36 @@ export function useAutosave({
 
           if (!res.ok) {
             const data = await res.json().catch(() => ({}));
-            console.warn("Backend save endpoint returned non-OK status, saved locally:", data);
+            if (res.status === 409) {
+              setStatus("error");
+              setErrorMessage("Conflict: This website was modified in another session. Unsaved changes are preserved locally.");
+            } else {
+              setStatus("error");
+              setErrorMessage(data?.message || data?.error?.message || "Failed to persist changes to server. Changes preserved locally.");
+            }
+          } else {
+            const data = await res.json().catch(() => ({}));
+            serverSaveSucceeded = true;
+            if (data?.website && latestPropsRef.current.onServerSaveSuccess) {
+              latestPropsRef.current.onServerSaveSuccess(data.website);
+            }
           }
         } catch (netErr) {
           console.warn("Backend save network request failed, saved locally:", netErr);
+          setStatus("error");
+          setErrorMessage("Network error: Could not reach server. Changes preserved locally in browser.");
         }
 
-        // Update baseline to the snapshot that was persisted
+        if (!serverSaveSucceeded) {
+          isSavingRef.current = false;
+          return;
+        }
+
+        // Update baseline ONLY when backend save succeeded
         baselineRef.current = payload.snapshot;
         const now = Date.now();
         setLastSavedAt(now);
+        setErrorMessage(null);
 
         isSavingRef.current = false;
 
@@ -305,7 +337,8 @@ export function useAutosave({
         isSavingRef.current = false;
         queuedPayloadRef.current = null;
         console.error("Autosave error:", err);
-        setStatus("saved"); // Local save succeeded
+        setStatus("error");
+        setErrorMessage("Save failed. Changes preserved locally.");
       }
     },
     [serializeState]

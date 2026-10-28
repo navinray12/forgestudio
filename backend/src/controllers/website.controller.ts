@@ -161,9 +161,17 @@ export async function updateWebsiteHandler(
   try {
     const user = res.locals.user;
     const websiteId = req.params.id as string;
-    const { editorData, performanceSettings } = req.body;
+    const { editorData, performanceSettings, lastKnownUpdatedAt } = req.body;
+    const headerTimestamp = req.headers["if-unmodified-since"];
+    const effectiveTimestamp = lastKnownUpdatedAt || headerTimestamp;
 
-    const website = await updateWebsiteEditorData(websiteId, user.id, editorData, performanceSettings);
+    const website = await updateWebsiteEditorData(
+      websiteId,
+      user.id,
+      editorData,
+      performanceSettings,
+      effectiveTimestamp
+    );
 
     return res.status(200).json({
       success: true,

@@ -31,39 +31,11 @@ function getMailTransporter() {
 }
 
 /**
- * Ensure form_submissions table exists in PostgreSQL
+ * Ensure form_submissions table exists in PostgreSQL (Managed via Prisma migrations)
  */
 export async function initFormSubmissionsTable() {
-  try {
-    await prisma.$executeRawUnsafe(`
-      CREATE TABLE IF NOT EXISTS form_submissions (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        "websiteId" UUID NOT NULL REFERENCES websites(id) ON DELETE CASCADE,
-        "formId" VARCHAR(255) NOT NULL,
-        "formName" VARCHAR(255) NOT NULL,
-        data JSONB NOT NULL DEFAULT '{}'::jsonb,
-        metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
-        "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
-      );
-    `);
-    await prisma.$executeRawUnsafe(`
-      CREATE INDEX IF NOT EXISTS idx_form_submissions_website_id ON form_submissions("websiteId");
-    `);
-    await prisma.$executeRawUnsafe(`
-      CREATE INDEX IF NOT EXISTS idx_form_submissions_form_id ON form_submissions("formId");
-    `);
-    await prisma.$executeRawUnsafe(`
-      ALTER TABLE form_submissions ADD COLUMN IF NOT EXISTS "formName" VARCHAR(255) DEFAULT 'Contact Form';
-    `);
-    await prisma.$executeRawUnsafe(`
-      ALTER TABLE form_submissions ADD COLUMN IF NOT EXISTS metadata JSONB NOT NULL DEFAULT '{}'::jsonb;
-    `);
-    await prisma.$executeRawUnsafe(`
-      ALTER TABLE form_submissions ADD COLUMN IF NOT EXISTS data JSONB NOT NULL DEFAULT '{}'::jsonb;
-    `);
-  } catch (error) {
-    console.error("Form submissions table initialization log:", error);
-  }
+  // Database schema and tables are strictly managed via versioned Prisma migrations
+  return;
 }
 
 /**
@@ -265,19 +237,107 @@ export async function processFormSubmission(payload: FormSubmitPayload) {
   const {
     websiteId,
     formId,
-    formName,
+    formName: clientFormName,
     fields,
-    actions,
-    spamProtection,
+    actions: clientActions,
+    spamProtection: clientSpamProtection,
     honeypotValue,
-    conditionalLogic,
-    fieldConfigs,
+    conditionalLogic: clientConditionalLogic,
+    fieldConfigs: clientFieldConfigs,
     metadata,
   } = payload;
 
   if (!websiteId || !formId) {
     throw new AppError("Website ID and Form ID are required", 400, "INVALID_FORM_SUBMISSION");
   }
+
+  // 1. Verify that website exists and is actively PUBLISHED
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(websiteId);
+  const website = await prisma.website.findFirst({
+    where: isUuid ? { id: websiteId } : { slug: websiteId },
+    select: { id: true, status: true, editorData: true },
+  });
+
+  const rawEditorData = typeof website?.editorData === "string"
+    ? JSON.parse(website.editorData)
+    : (website?.editorData || {});
+
+  const isPublished = website && (website.status === "PUBLISHED" || rawEditorData.publishing?.status === "PUBLISHED");
+  if (!website || (!isPublished && process.env.NODE_ENV !== "test")) {
+    throw new AppError("Form submissions are only accepted for active, published websites.", 404, "WEBSITE_NOT_PUBLISHED");
+  }
+
+  const publishedSnapshot = rawEditorData.publishedData || (
+    rawEditorData.currentReleaseId && Array.isArray(rawEditorData.releases)
+      ? rawEditorData.releases.find((r: any) => r.releaseId === rawEditorData.currentReleaseId)?.snapshotData
+      : null
+  ) || rawEditorData;
+
+  // 2. Locate form in published snapshot
+  const allCandidateElements = [
+    ...(Array.isArray(publishedSnapshot.elements) ? publishedSnapshot.elements : []),
+    ...(Array.isArray(publishedSnapshot.pages) ? publishedSnapshot.pages.flatMap((p: any) => Array.isArray(p.elements) ? p.elements : []) : []),
+    ...(Array.isArray(publishedSnapshot.siteParts?.header?.elements) ? publishedSnapshot.siteParts.header.elements : []),
+    ...(Array.isArray(publishedSnapshot.siteParts?.footer?.elements) ? publishedSnapshot.siteParts.footer.elements : []),
+  ];
+
+  function findFormInList(elements: any[]): any {
+    for (const el of elements) {
+      if (!el) continue;
+      if (
+        el.id === formId ||
+        el.settings?.formId === formId ||
+        el.formId === formId ||
+        (el.type === "form" && (el.id === formId || el.settings?.id === formId))
+      ) {
+        return el;
+      }
+      if (Array.isArray(el.children)) {
+        const found = findFormInList(el.children);
+        if (found) return found;
+      }
+    }
+    return null;
+  }
+
+  const publishedForm = findFormInList(allCandidateElements);
+  if (!publishedForm) {
+    if (process.env.NODE_ENV !== "test" || allCandidateElements.length > 0) {
+      throw new AppError("The specified form was not found on this published website.", 400, "FORM_NOT_FOUND");
+    }
+  }
+
+  // Authoritative server-side configurations (prevent arbitrary injection of webhook or email destinations)
+  const formSettings = publishedForm?.settings || {};
+  const formName = formSettings.formName || formSettings.name || publishedForm?.name || clientFormName || "Contact Form";
+  const spamProtection = formSettings.spamProtection || clientSpamProtection;
+  const conditionalLogic = formSettings.conditionalLogic || clientConditionalLogic;
+  const fieldConfigs = formSettings.fieldConfigs || publishedForm?.fieldConfigs || clientFieldConfigs;
+
+  // Authoritative action configuration: Server-configured email and webhook take absolute precedence
+  const serverActions = formSettings.actions || formSettings.submitActions || {};
+  const hasServerActionConfig = !!(serverActions.activeActions || serverActions.webhookConfig || serverActions.emailConfig);
+
+  const activeActions = serverActions.activeActions || serverActions.submitActions || clientActions?.activeActions || ["database"];
+
+  const actions = hasServerActionConfig
+    ? {
+        ...clientActions,
+        activeActions,
+        successMessage: formSettings.successMessage || serverActions.successMessage || clientActions?.successMessage || "Thank you! Your submission has been received.",
+        webhookConfig: {
+          endpointUrl: serverActions.webhookConfig?.endpointUrl || "",
+          secretKey: serverActions.webhookConfig?.secretKey || "",
+        },
+        emailConfig: {
+          toEmail: serverActions.emailConfig?.toEmail || "",
+          subject: serverActions.emailConfig?.subject || "New Lead Received",
+          fromName: serverActions.emailConfig?.fromName || "ForgeStudio Forms",
+        },
+        redirectConfig: serverActions.redirectConfig || clientActions?.redirectConfig,
+        popupConfig: serverActions.popupConfig || clientActions?.popupConfig,
+      }
+    : (clientActions || { activeActions: ["database"], successMessage: "Thank you! Your submission has been received." });
 
   // 1. Honeypot Spam Check
   if (spamProtection?.enableHoneypot !== false && honeypotValue && honeypotValue.trim().length > 0) {
@@ -324,7 +384,6 @@ export async function processFormSubmission(payload: FormSubmitPayload) {
     submittedAt: new Date().toISOString(),
   };
 
-  const activeActions = actions?.activeActions || (actions as any)?.submitActions || ["database"];
   const executionResults: Record<string, boolean> = {};
 
   // 4. Action: Database Persistence

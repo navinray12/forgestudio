@@ -8,390 +8,11 @@ import { recordAuditLog } from "./audit.service.js";
 const db = prisma as any;
 
 /**
- * Ensure websites table exists in PostgreSQL
+ * Ensure websites table exists in PostgreSQL (Managed via Prisma migrations)
  */
 export async function initWebsiteTable() {
-  try {
-    try {
-      await prisma.$executeRawUnsafe(`
-        DO $$
-        BEGIN
-          IF NOT EXISTS (
-            SELECT 1 FROM information_schema.columns 
-            WHERE table_name = 'users' AND column_name = 'optimizationCredits'
-          ) THEN
-            ALTER TABLE users ADD COLUMN "optimizationCredits" INTEGER DEFAULT 250;
-          END IF;
-        END $$;
-
-        CREATE TABLE IF NOT EXISTS optimization_credit_ledgers (
-          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          "userId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-          "websiteId" UUID,
-          "creditsUsed" INTEGER NOT NULL,
-          "actionType" VARCHAR(100) NOT NULL,
-          "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-          "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW()
-        );
-        CREATE INDEX IF NOT EXISTS idx_opt_credits_user ON optimization_credit_ledgers("userId", "createdAt");
-      `);
-    } catch (optErr) {}
-
-    await prisma.$executeRawUnsafe(`
-      CREATE TABLE IF NOT EXISTS websites (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        "userId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        name VARCHAR(255) NOT NULL,
-        slug VARCHAR(255) NOT NULL,
-        status VARCHAR(50) NOT NULL DEFAULT 'DRAFT',
-        "editorData" JSONB NOT NULL DEFAULT '{"version":1,"elements":[]}'::jsonb,
-        "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-        "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
-      );
-    `);
-    await prisma.$executeRawUnsafe(`
-      CREATE INDEX IF NOT EXISTS idx_websites_user_id ON websites("userId");
-    `);
-    try {
-      await prisma.$executeRawUnsafe(`
-        CREATE TABLE IF NOT EXISTS website_revisions (
-          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          "websiteId" UUID NOT NULL REFERENCES websites(id) ON DELETE CASCADE,
-          version INTEGER NOT NULL,
-          "revisionType" VARCHAR(50) NOT NULL DEFAULT 'MANUAL',
-          description VARCHAR(500),
-          data JSONB NOT NULL,
-          "createdBy" UUID REFERENCES users(id) ON DELETE SET NULL,
-          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
-        );
-      `);
-      await prisma.$executeRawUnsafe(`
-        CREATE UNIQUE INDEX IF NOT EXISTS website_revisions_websiteId_version_key ON website_revisions("websiteId", version);
-      `);
-      await prisma.$executeRawUnsafe(`
-        CREATE INDEX IF NOT EXISTS website_revisions_websiteId_idx ON website_revisions("websiteId");
-      `);
-      await prisma.$executeRawUnsafe(`
-        CREATE INDEX IF NOT EXISTS website_revisions_websiteId_createdAt_idx ON website_revisions("websiteId", "createdAt");
-      `);
-    } catch (revTableErr) {
-      // Table or constraint already exists
-    }
-
-    try {
-      await prisma.$executeRawUnsafe(`
-        CREATE TABLE IF NOT EXISTS deployments (
-          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          "websiteId" UUID NOT NULL REFERENCES websites(id) ON DELETE CASCADE,
-          version INTEGER NOT NULL,
-          status VARCHAR(50) NOT NULL DEFAULT 'QUEUED',
-          environment VARCHAR(50) NOT NULL DEFAULT 'PRODUCTION',
-          "destinationType" VARCHAR(50) NOT NULL DEFAULT 'INTERNAL',
-          "destinationRef" VARCHAR(500),
-          "sourceRevisionId" UUID,
-          metadata JSONB DEFAULT '{}',
-          error JSONB,
-          "startedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-          "completedAt" TIMESTAMP WITH TIME ZONE,
-          "createdBy" UUID REFERENCES users(id) ON DELETE SET NULL,
-          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
-        );
-      `);
-      await prisma.$executeRawUnsafe(`
-        CREATE INDEX IF NOT EXISTS deployments_websiteId_idx ON deployments("websiteId");
-      `);
-      await prisma.$executeRawUnsafe(`
-        CREATE INDEX IF NOT EXISTS deployments_websiteId_createdAt_idx ON deployments("websiteId", "createdAt");
-      `);
-      await prisma.$executeRawUnsafe(`
-        CREATE INDEX IF NOT EXISTS deployments_status_idx ON deployments("status");
-      `);
-    } catch (depTableErr) {
-      // Table or index already exists
-    }
-
-    try {
-      await prisma.$executeRawUnsafe(`
-        CREATE TABLE IF NOT EXISTS wordpress_connections (
-          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          "userId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-          "websiteId" UUID NOT NULL UNIQUE REFERENCES websites(id) ON DELETE CASCADE,
-          "siteUrl" VARCHAR(500) NOT NULL,
-          status VARCHAR(50) NOT NULL DEFAULT 'CONNECTED',
-          "wpSiteName" VARCHAR(255),
-          "apiKeyHash" VARCHAR(255) NOT NULL,
-          capabilities JSONB DEFAULT '[]',
-          metadata JSONB DEFAULT '{}',
-          "lastVerifiedAt" TIMESTAMP WITH TIME ZONE,
-          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
-        );
-      `);
-      await prisma.$executeRawUnsafe(`
-        CREATE INDEX IF NOT EXISTS wordpress_connections_userId_idx ON wordpress_connections("userId");
-      `);
-    } catch (wpConnErr) {
-      // Table already exists
-    }
-
-    try {
-      await prisma.$executeRawUnsafe(`
-        CREATE TABLE IF NOT EXISTS wordpress_page_mappings (
-          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          "websiteId" UUID NOT NULL REFERENCES websites(id) ON DELETE CASCADE,
-          "forgePageId" VARCHAR(100) NOT NULL,
-          "wpPostId" INTEGER NOT NULL,
-          "wpPostSlug" VARCHAR(255),
-          "wpPostUrl" VARCHAR(500),
-          "lastSyncedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-          CONSTRAINT "wordpress_page_mappings_websiteId_forgePageId_key" UNIQUE ("websiteId", "forgePageId")
-        );
-      `);
-      await prisma.$executeRawUnsafe(`
-        CREATE INDEX IF NOT EXISTS wordpress_page_mappings_websiteId_idx ON wordpress_page_mappings("websiteId");
-      `);
-    } catch (wpMapErr) {
-      // Table already exists
-    }
-
-    try {
-      await prisma.$executeRawUnsafe(`
-        CREATE TABLE IF NOT EXISTS workspaces (
-          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          name VARCHAR(255) NOT NULL,
-          slug VARCHAR(255) UNIQUE NOT NULL,
-          "ownerId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
-        );
-      `);
-    } catch (wsErr) {}
-
-    try {
-      await prisma.$executeRawUnsafe(`
-        CREATE TABLE IF NOT EXISTS teams (
-          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          name VARCHAR(255) NOT NULL,
-          description VARCHAR(500),
-          "ownerId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
-        );
-      `);
-    } catch (tmErr) {}
-
-    try {
-      await prisma.$executeRawUnsafe(`
-        DO $$
-        BEGIN
-          IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'websites' AND column_name = 'teamId') THEN
-            ALTER TABLE websites ADD COLUMN "teamId" UUID REFERENCES teams(id) ON DELETE SET NULL;
-          END IF;
-          IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'websites' AND column_name = 'workspaceId') THEN
-            ALTER TABLE websites ADD COLUMN "workspaceId" UUID REFERENCES workspaces(id) ON DELETE SET NULL;
-          ELSE
-            ALTER TABLE websites ALTER COLUMN "workspaceId" DROP NOT NULL;
-          END IF;
-        END $$;
-      `);
-    } catch (colErr) {}
-
-    try {
-      await prisma.$executeRawUnsafe(`
-        CREATE TABLE IF NOT EXISTS team_members (
-          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          "teamId" UUID NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
-          "userId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-          role VARCHAR(50) NOT NULL DEFAULT 'DESIGNER',
-          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-          CONSTRAINT "team_members_teamId_userId_key" UNIQUE ("teamId", "userId")
-        );
-      `);
-    } catch (tmmErr) {}
-
-    try {
-      await prisma.$executeRawUnsafe(`
-        CREATE TABLE IF NOT EXISTS team_invitations (
-          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          "teamId" UUID NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
-          email VARCHAR(255) NOT NULL,
-          role VARCHAR(50) NOT NULL DEFAULT 'DESIGNER',
-          "tokenHash" VARCHAR(255) UNIQUE NOT NULL,
-          status VARCHAR(50) NOT NULL DEFAULT 'PENDING',
-          "expiresAt" TIMESTAMP WITH TIME ZONE NOT NULL,
-          "invitedBy" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
-        );
-      `);
-    } catch (tmiErr) {}
-
-    try {
-      await prisma.$executeRawUnsafe(`
-        CREATE TABLE IF NOT EXISTS website_invitations (
-          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          "websiteId" UUID NOT NULL REFERENCES websites(id) ON DELETE CASCADE,
-          email VARCHAR(255) NOT NULL,
-          role VARCHAR(50) NOT NULL DEFAULT 'DESIGNER',
-          "tokenHash" VARCHAR(255) UNIQUE NOT NULL,
-          status VARCHAR(50) NOT NULL DEFAULT 'PENDING',
-          "expiresAt" TIMESTAMP WITH TIME ZONE NOT NULL,
-          "invitedBy" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
-        );
-      `);
-    } catch (wsiErr) {}
-
-    try {
-      await prisma.$executeRawUnsafe(`
-        CREATE TABLE IF NOT EXISTS developer_api_keys (
-          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          "userId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-          name VARCHAR(255) NOT NULL,
-          "tokenHash" VARCHAR(255) UNIQUE NOT NULL,
-          scopes JSONB DEFAULT '["websites:read"]',
-          "lastUsedAt" TIMESTAMP WITH TIME ZONE,
-          "revokedAt" TIMESTAMP WITH TIME ZONE,
-          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
-        );
-      `);
-      await prisma.$executeRawUnsafe(`
-        CREATE INDEX IF NOT EXISTS developer_api_keys_userId_idx ON developer_api_keys("userId");
-      `);
-    } catch (dakErr) {}
-
-    try {
-      await prisma.$executeRawUnsafe(`
-        CREATE TABLE IF NOT EXISTS background_jobs (
-          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          type VARCHAR(100) NOT NULL,
-          payload JSONB DEFAULT '{}',
-          status VARCHAR(50) NOT NULL DEFAULT 'QUEUED',
-          attempts INTEGER NOT NULL DEFAULT 0,
-          "maxAttempts" INTEGER NOT NULL DEFAULT 3,
-          "lastError" VARCHAR(2000),
-          "runAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-          "startedAt" TIMESTAMP WITH TIME ZONE,
-          "completedAt" TIMESTAMP WITH TIME ZONE,
-          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
-        );
-      `);
-      await prisma.$executeRawUnsafe(`
-        CREATE INDEX IF NOT EXISTS background_jobs_status_runAt_idx ON background_jobs("status", "runAt");
-      `);
-      await prisma.$executeRawUnsafe(`
-        CREATE INDEX IF NOT EXISTS background_jobs_type_idx ON background_jobs("type");
-      `);
-    } catch (bjErr) {}
-
-    try {
-      await prisma.$executeRawUnsafe(`
-        CREATE TABLE IF NOT EXISTS granular_permissions (
-          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          "websiteId" UUID NOT NULL REFERENCES websites(id) ON DELETE CASCADE,
-          "userId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-          "resourceId" VARCHAR(100) NOT NULL DEFAULT '*',
-          capability VARCHAR(100) NOT NULL,
-          effect VARCHAR(20) NOT NULL DEFAULT 'ALLOW',
-          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-          CONSTRAINT "granular_permissions_websiteId_userId_resourceId_capability_key" UNIQUE ("websiteId", "userId", "resourceId", "capability")
-        );
-      `);
-    } catch (gpErr) {}
-
-    try {
-      await prisma.$executeRawUnsafe(`
-        CREATE TABLE IF NOT EXISTS organizations (
-          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          name VARCHAR(255) NOT NULL,
-          slug VARCHAR(255) UNIQUE NOT NULL,
-          "ownerId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-          settings JSONB DEFAULT '{}',
-          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
-        );
-      `);
-    } catch (orgErr) {}
-
-    try {
-      await prisma.$executeRawUnsafe(`
-        DO $$
-        BEGIN
-          IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'workspaces' AND column_name = 'organizationId') THEN
-            ALTER TABLE workspaces ADD COLUMN "organizationId" UUID REFERENCES organizations(id) ON DELETE SET NULL;
-          END IF;
-          IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'workspaces' AND column_name = 'settings') THEN
-            ALTER TABLE workspaces ADD COLUMN settings JSONB DEFAULT '{}';
-          END IF;
-          IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'websites' AND column_name = 'organizationId') THEN
-            ALTER TABLE websites ADD COLUMN "organizationId" UUID REFERENCES organizations(id) ON DELETE SET NULL;
-          END IF;
-          IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'websites' AND column_name = 'approvalWorkflowEnabled') THEN
-            ALTER TABLE websites ADD COLUMN "approvalWorkflowEnabled" BOOLEAN NOT NULL DEFAULT false;
-          END IF;
-          IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'optimizationCredits') THEN
-            ALTER TABLE users ADD COLUMN "optimizationCredits" INTEGER NOT NULL DEFAULT 250;
-          END IF;
-        END $$;
-      `);
-    } catch (colErr2) {}
-
-    try {
-      await prisma.$executeRawUnsafe(`
-        CREATE TABLE IF NOT EXISTS organization_members (
-          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          "organizationId" UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
-          "userId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-          role VARCHAR(50) NOT NULL DEFAULT 'MEMBER',
-          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-          CONSTRAINT "organization_members_organizationId_userId_key" UNIQUE ("organizationId", "userId")
-        );
-      `);
-    } catch (omErr) {}
-
-    try {
-      await prisma.$executeRawUnsafe(`
-        CREATE TABLE IF NOT EXISTS workspace_members (
-          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          "workspaceId" UUID NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
-          "userId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-          role VARCHAR(50) NOT NULL DEFAULT 'MEMBER',
-          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-          CONSTRAINT "workspace_members_workspaceId_userId_key" UNIQUE ("workspaceId", "userId")
-        );
-      `);
-    } catch (wmErr) {}
-
-    try {
-      await prisma.$executeRawUnsafe(`
-        CREATE TABLE IF NOT EXISTS publish_approval_requests (
-          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          "websiteId" UUID NOT NULL REFERENCES websites(id) ON DELETE CASCADE,
-          "requesterId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-          "reviewerId" UUID REFERENCES users(id) ON DELETE SET NULL,
-          status VARCHAR(50) NOT NULL DEFAULT 'PENDING',
-          "targetVersion" INTEGER NOT NULL,
-          "reviewNotes" VARCHAR(1000),
-          snapshot JSONB NOT NULL,
-          "reviewedAt" TIMESTAMP WITH TIME ZONE,
-          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
-        );
-      `);
-    } catch (parErr) {}
-  } catch (error) {
-    console.error("Website table initialization log:", error);
-  }
+  // Database schema and tables are strictly managed via versioned Prisma migrations
+  return;
 }
 
 function generateSlug(name: string): string {
@@ -861,12 +482,26 @@ export async function updateWebsiteEditorData(
   websiteId: string,
   userId: string,
   editorData: any,
-  performanceSettings?: any
+  performanceSettings?: any,
+  lastKnownUpdatedAt?: string | number | Date
 ) {
   validateCanonicalEditorData(editorData);
 
   // Ensure website exists and fetch permission boundaries
   const website = await getWebsiteById(websiteId, userId);
+
+  // Multi-tab stale version conflict detection (HTTP 409)
+  if (lastKnownUpdatedAt) {
+    const clientTime = new Date(lastKnownUpdatedAt).getTime();
+    const serverTime = new Date(website.updatedAt).getTime();
+    if (!isNaN(clientTime) && serverTime - clientTime > 1500) {
+      throw new AppError(
+        "This website was modified in another session or browser tab. Please reload or review changes before saving.",
+        409,
+        "STALE_VERSION_CONFLICT"
+      );
+    }
+  }
 
   const canEditDesign = await canUserAccessResource(userId, websiteId, "*", "EDIT_DESIGN");
   const canEditContent = await canUserAccessResource(userId, websiteId, "*", "EDIT_CONTENT");
@@ -1009,15 +644,19 @@ export async function updateWebsiteEditorData(
     popups: safePopups,
     ...(safePages !== undefined ? { pages: safePages } : {}),
     ...(safeSiteParts !== undefined ? { siteParts: safeSiteParts } : {}),
+    // CRITICAL DRAFT ISOLATION: Draft saves never overwrite published release data
+    ...(currentEditorData.publishedData ? { publishedData: currentEditorData.publishedData } : {}),
+    ...(currentEditorData.releases ? { releases: currentEditorData.releases } : {}),
+    ...(currentEditorData.currentReleaseId ? { currentReleaseId: currentEditorData.currentReleaseId } : {}),
+    ...(currentEditorData.publishing ? { publishing: currentEditorData.publishing } : {}),
   };
 
   try {
-    const isPublishing = editorData.publishing?.status === "PUBLISHED";
     if (db?.website?.update) {
       const updateData: any = {
         editorData,
         updatedAt: new Date(),
-        ...(isPublishing ? { status: "PUBLISHED" } : {}),
+        status: website.status === "PUBLISHED" ? "PUBLISHED" : "DRAFT",
       };
       if (performanceSettings !== undefined) {
         updateData.performanceSettings = performanceSettings;
@@ -1031,10 +670,11 @@ export async function updateWebsiteEditorData(
 
     const jsonStr = JSON.stringify(editorData);
     let updated: any[];
+    const isPublished = website.status === "PUBLISHED";
 
     if (performanceSettings !== undefined) {
       const perfStr = JSON.stringify(performanceSettings);
-      if (isPublishing) {
+      if (isPublished) {
         updated = await prisma.$queryRaw`
            UPDATE websites
            SET "editorData" = ${jsonStr}::jsonb, "performanceSettings" = ${perfStr}::jsonb, status = 'PUBLISHED', "updatedAt" = NOW()
@@ -1050,7 +690,7 @@ export async function updateWebsiteEditorData(
          `;
       }
     } else {
-      if (isPublishing) {
+      if (isPublished) {
         updated = await prisma.$queryRaw`
            UPDATE websites
            SET "editorData" = ${jsonStr}::jsonb, status = 'PUBLISHED', "updatedAt" = NOW()

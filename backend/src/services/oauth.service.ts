@@ -31,41 +31,17 @@ export async function loginWithOAuth(
   // 1. Check existing OAuth identity
   // --------------------------------------------------
 
-  let existingIdentity: any = null;
-  try {
-    existingIdentity = await prisma.identity.findUnique({
-      where: {
-        provider_providerUserId: {
-          provider: profile.provider,
-          providerUserId: profile.providerUserId,
-        },
+  const existingIdentity = await prisma.identity.findUnique({
+    where: {
+      provider_providerUserId: {
+        provider: profile.provider,
+        providerUserId: profile.providerUserId,
       },
-      include: {
-        user: true,
-      },
-    });
-  } catch (dbErr: any) {
-    if (dbErr?.code === "P2022" || String(dbErr?.message || "").includes("optimizationCredits")) {
-      try {
-        await prisma.$executeRawUnsafe(`ALTER TABLE users ADD COLUMN IF NOT EXISTS "optimizationCredits" INTEGER NOT NULL DEFAULT 250;`);
-        existingIdentity = await prisma.identity.findUnique({
-          where: {
-            provider_providerUserId: {
-              provider: profile.provider,
-              providerUserId: profile.providerUserId,
-            },
-          },
-          include: {
-            user: true,
-          },
-        });
-      } catch (retryErr) {
-        throw dbErr;
-      }
-    } else {
-      throw dbErr;
-    }
-  }
+    },
+    include: {
+      user: true,
+    },
+  });
 
   let user;
 

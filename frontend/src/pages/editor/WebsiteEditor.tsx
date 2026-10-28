@@ -2005,6 +2005,12 @@ export default function WebsiteEditor() {
     pageCss,
     apiUrl,
     isLoadingWebsite: loading,
+    lastKnownUpdatedAt: website?.updatedAt,
+    onServerSaveSuccess: (updatedWebsite) => {
+      if (updatedWebsite?.updatedAt) {
+        setWebsite((prev) => prev ? { ...prev, updatedAt: updatedWebsite.updatedAt } : updatedWebsite);
+      }
+    },
   });
 
   // F-322 / F-334 Save & Update Template Integration
@@ -2434,9 +2440,10 @@ export default function WebsiteEditor() {
           pageSettings,
           ...(publishedDataRef.current ? { publishedData: publishedDataRef.current } : {}),
         },
+        lastKnownUpdatedAt: website?.updatedAt,
       };
 
-      // 1. Always save locally immediately
+      // 1. Always save locally immediately as fail-safe
       try {
         localStorage.setItem(`forgestudio_editor_${websiteId}`, JSON.stringify(payload.editorData));
       } catch (lsErr) {
@@ -2444,6 +2451,7 @@ export default function WebsiteEditor() {
       }
 
       // 2. Attempt backend API save
+      let serverSucceeded = false;
       try {
         const res = await fetch(`${apiUrl}/api/websites/${websiteId}`, {
           method: "PUT",
@@ -2455,33 +2463,47 @@ export default function WebsiteEditor() {
         });
 
         if (!res.ok) {
-          console.warn("Backend save returned non-OK status, saved locally.");
+          const data = await res.json().catch(() => ({}));
+          if (res.status === 409) {
+            setErrorMessage("Conflict: This website was modified in another session. Unsaved changes are preserved locally in this browser.");
+          } else {
+            setErrorMessage(data?.message || data?.error?.message || "Failed to persist changes to server. Local backup preserved.");
+          }
+        } else {
+          const data = await res.json().catch(() => ({}));
+          serverSucceeded = true;
+          if (data?.website?.updatedAt) {
+            setWebsite((prev) => prev ? { ...prev, updatedAt: data.website.updatedAt } : data.website);
+          }
         }
       } catch (netErr) {
         console.warn("Backend save request failed, saved locally:", netErr);
+        setErrorMessage("Network error: Could not reach server. Changes preserved locally in browser.");
       }
 
-      // Update F-321 Autosave baseline on successful save
-      updateAutosaveBaseline(
-        canonicalPageElements,
-        pageSettings,
-        payload.editorData.pages,
-        homePageId,
-        siteParts,
-        globalSettings,
-        globalSettings?.globalStyles,
-        publishing,
-        deployment,
-        breakpoints,
-        popups,
-        pageCss
-      );
+      if (serverSucceeded) {
+        // Update F-321 Autosave baseline on successful save
+        updateAutosaveBaseline(
+          canonicalPageElements,
+          pageSettings,
+          payload.editorData.pages,
+          homePageId,
+          siteParts,
+          globalSettings,
+          globalSettings?.globalStyles,
+          publishing,
+          deployment,
+          breakpoints,
+          popups,
+          pageCss
+        );
 
-      setSaveMessage("Saved successfully!");
-      setTimeout(() => setSaveMessage(""), 3000);
+        setSaveMessage("Saved successfully!");
+        setErrorMessage("");
+        setTimeout(() => setSaveMessage(""), 3000);
+      }
     } catch (err: any) {
-      setSaveMessage("Saved locally!");
-      setTimeout(() => setSaveMessage(""), 3000);
+      setErrorMessage("Save failed. Changes preserved locally in browser.");
     } finally {
       setSaving(false);
     }

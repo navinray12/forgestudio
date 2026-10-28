@@ -67,3 +67,23 @@ export async function revokeSupportSessions(userId: string) {
     },
   });
 }
+
+export async function validateSession(rawToken: string) {
+  const tokenHash = hashSessionToken(rawToken);
+  const session = await prisma.session.findUnique({
+    where: { tokenHash },
+    include: { user: true },
+  });
+  if (!session || session.revokedAt || session.expiresAt <= new Date()) {
+    return null;
+  }
+  return session.user;
+}
+
+export async function revokeSession(rawToken: string) {
+  const tokenHash = hashSessionToken(rawToken);
+  return prisma.session.updateMany({
+    where: { tokenHash, revokedAt: null },
+    data: { revokedAt: new Date() },
+  });
+}

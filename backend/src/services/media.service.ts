@@ -6,52 +6,11 @@ import { AppError } from "../utils/app-error.js";
 const db = prisma as any;
 
 /**
- * Ensure media_assets table exists in PostgreSQL
+ * Ensure media_assets table exists in PostgreSQL (Managed via Prisma migrations)
  */
 export async function initMediaAssetTable() {
-  try {
-    await prisma.$executeRawUnsafe(`
-      CREATE TABLE IF NOT EXISTS media_assets (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        "userId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        "websiteId" UUID REFERENCES websites(id) ON DELETE SET NULL,
-        filename VARCHAR(255) NOT NULL,
-        "originalName" VARCHAR(255) NOT NULL,
-        "mimeType" VARCHAR(100) NOT NULL,
-        "sizeBytes" INTEGER NOT NULL,
-        url VARCHAR(1000) NOT NULL,
-        width INTEGER,
-        height INTEGER,
-        "altText" VARCHAR(500),
-        format VARCHAR(50) NOT NULL DEFAULT 'ORIGINAL',
-        "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-        "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
-      );
-    `);
-
-    await prisma.$executeRawUnsafe(`
-      CREATE INDEX IF NOT EXISTS idx_media_assets_user_id ON media_assets("userId");
-    `);
-    await prisma.$executeRawUnsafe(`
-      CREATE INDEX IF NOT EXISTS idx_media_assets_website_id ON media_assets("websiteId");
-    `);
-
-    // Additive column checks
-    await prisma.$executeRawUnsafe(`
-      ALTER TABLE media_assets ADD COLUMN IF NOT EXISTS "altText" VARCHAR(500);
-    `);
-    await prisma.$executeRawUnsafe(`
-      ALTER TABLE media_assets ADD COLUMN IF NOT EXISTS width INTEGER;
-    `);
-    await prisma.$executeRawUnsafe(`
-      ALTER TABLE media_assets ADD COLUMN IF NOT EXISTS height INTEGER;
-    `);
-    await prisma.$executeRawUnsafe(`
-      ALTER TABLE media_assets ADD COLUMN IF NOT EXISTS format VARCHAR(50) DEFAULT 'ORIGINAL';
-    `);
-  } catch (error) {
-    console.error("Media assets table initialization log:", error);
-  }
+  // Database schema and tables are strictly managed via versioned Prisma migrations
+  return;
 }
 
 /**
@@ -333,12 +292,22 @@ export async function deleteMediaAsset(id: string, userId: string) {
     where: { id },
   });
 
-  // Attempt to delete physical file from disk if under local uploads
+  // Attempt to delete physical file from disk safely without path traversal
   try {
-    const uploadsDir = path.resolve(process.cwd(), "public/uploads");
-    const filePath = path.join(uploadsDir, asset.filename);
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
+    const safeFilename = path.basename(asset.filename);
+    const searchDirs = [
+      path.resolve(process.cwd(), "uploads", "images"),
+      path.resolve(process.cwd(), "uploads"),
+      path.resolve(process.cwd(), "public", "uploads"),
+    ];
+
+    for (const dir of searchDirs) {
+      const candidatePath = path.resolve(dir, safeFilename);
+      // Path traversal containment check
+      if (candidatePath.startsWith(dir) && fs.existsSync(candidatePath)) {
+        fs.unlinkSync(candidatePath);
+        break;
+      }
     }
   } catch (fsErr) {
     console.warn("Could not delete physical media file from disk:", fsErr);

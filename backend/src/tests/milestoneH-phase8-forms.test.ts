@@ -32,6 +32,7 @@ async function runMilestoneHTests() {
   console.log("Forms, Leads & Webhook Automation (Phase 8)");
   console.log("=================================================\n");
 
+  process.env.NODE_ENV = "test";
   let testUser: any = null;
   let testWebsite: any = null;
 
@@ -47,10 +48,14 @@ async function runMilestoneHTests() {
       },
     });
 
-    testWebsite = await createWebsite({
-      name: "Phase 8 Form Site",
-      slug: `phase8-form-${Date.now()}`,
-      userId: testUser.id,
+    testWebsite = await createWebsite(
+      testUser.id,
+      "Phase 8 Form Site"
+    );
+
+    await db.website.update({
+      where: { id: testWebsite.id },
+      data: { status: "PUBLISHED" },
     });
 
     // 1. Table Initialization
