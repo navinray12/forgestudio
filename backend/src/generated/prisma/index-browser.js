@@ -131,6 +131,9 @@ exports.Prisma.UserScalarFieldEnum = {
   phoneVerified: 'phoneVerified',
   status: 'status',
   role: 'role',
+  suspensionReason: 'suspensionReason',
+  suspendedAt: 'suspendedAt',
+  suspendedBy: 'suspendedBy',
   lastLoginAt: 'lastLoginAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
@@ -143,6 +146,10 @@ exports.Prisma.WebsiteScalarFieldEnum = {
   name: 'name',
   slug: 'slug',
   status: 'status',
+  moderationStatus: 'moderationStatus',
+  moderationReason: 'moderationReason',
+  moderatedAt: 'moderatedAt',
+  moderatedBy: 'moderatedBy',
   version: 'version',
   editorData: 'editorData',
   createdAt: 'createdAt',
@@ -306,6 +313,10 @@ exports.Prisma.AuditLogScalarFieldEnum = {
   targetResource: 'targetResource',
   details: 'details',
   ipAddress: 'ipAddress',
+  actorRole: 'actorRole',
+  result: 'result',
+  reason: 'reason',
+  correlationId: 'correlationId',
   createdAt: 'createdAt'
 };
 

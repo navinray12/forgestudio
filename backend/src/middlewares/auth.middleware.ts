@@ -47,6 +47,37 @@ export async function requireAuth(
       });
     }
 
+    if (session.user.status === "SUSPENDED") {
+      // Invalidate session immediately upon suspended user attempt
+      await prisma.session.update({
+        where: { id: session.id },
+        data: { revokedAt: new Date() },
+      }).catch(() => {});
+
+      return res.status(403).json({
+        success: false,
+        error: {
+          code: "ACCOUNT_SUSPENDED",
+          message: "Account has been suspended. Please contact support.",
+        },
+      });
+    }
+
+    if (session.user.status === "DELETED") {
+      await prisma.session.update({
+        where: { id: session.id },
+        data: { revokedAt: new Date() },
+      }).catch(() => {});
+
+      return res.status(401).json({
+        success: false,
+        error: {
+          code: "ACCOUNT_DELETED",
+          message: "Account has been deleted.",
+        },
+      });
+    }
+
     if (session.revokedAt) {
       return res.status(401).json({
         success: false,

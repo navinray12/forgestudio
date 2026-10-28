@@ -12,6 +12,7 @@ import {
   rollbackDeployment,
 } from "../services/publishing.service.js";
 import { canUserAccessResource } from "../services/permission.service.js";
+import { AppError } from "../utils/app-error.js";
 
 // Standard JSON Envelope Responders
 export function sendSuccess(res: Response, data: any, meta?: any, status = 200) {
@@ -292,6 +293,9 @@ export async function publishWebsiteV1Handler(req: Request, res: Response) {
 
     return sendSuccess(res, result, undefined, 201);
   } catch (err: any) {
+    if (err instanceof AppError) {
+      return sendError(res, err.code, err.message, err.statusCode);
+    }
     return sendError(res, "PUBLISH_FAILED", err.message || "Publish failed", 500);
   }
 }

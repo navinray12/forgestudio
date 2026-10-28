@@ -4,6 +4,7 @@ import { authorizeCapability } from "../services/permission.service.js";
 import {
   getHealthHandler,
   getOperationalStatusHandler,
+  getAdminMonitoringHandler,
   listJobsHandler,
   processNextJobHandler,
   retryJobHandler,
@@ -15,29 +16,46 @@ import {
   promoteDeploymentHandler,
   getAdminStatsHandler,
   getAdminUsersHandler,
+  getAdminUserDetailsHandler,
   updateAdminUserStatusHandler,
   getAdminWebsitesHandler,
+  getAdminWebsiteDetailsHandler,
+  updateAdminWebsiteModerationHandler,
+  getAdminAuditLogsHandler,
+  exportAdminAuditLogsCsvHandler,
 } from "../controllers/operations.controller.js";
 
 const router = Router();
 
-// Public / Cluster health probe (unauthenticated for load balancers and orchestrators)
+// Public health probe (unauthenticated for load balancers)
 router.get("/health", getHealthHandler);
 router.get("/status", getOperationalStatusHandler);
 
-// Protected Operations Endpoints (Restricted to Platform Admins)
-router.get("/jobs", requireAuth, requireRole(["ADMIN", "SUPER_ADMIN"]), listJobsHandler);
-router.post("/jobs/process-next", requireAuth, requireRole(["ADMIN", "SUPER_ADMIN"]), processNextJobHandler);
-router.post("/jobs/:id/retry", requireAuth, requireRole(["ADMIN", "SUPER_ADMIN"]), retryJobHandler);
-router.post("/jobs/:id/cancel", requireAuth, requireRole(["ADMIN", "SUPER_ADMIN"]), cancelJobHandler);
-router.delete("/jobs/purge", requireAuth, requireRole(["ADMIN", "SUPER_ADMIN"]), purgeCompletedJobsHandler);
-router.get("/alerts", requireAuth, requireRole(["ADMIN", "SUPER_ADMIN"]), getAlertsHandler);
+// Admin & Super Admin Core Operations Endpoints
+const adminRoles = ["ADMIN", "SUPER_ADMIN", "PLATFORM_ADMIN"];
+const superAdminOnly = ["SUPER_ADMIN", "PLATFORM_ADMIN"];
 
-// Admin & Super Admin Operations Endpoints
-router.get("/admin/stats", requireAuth, requireRole(["ADMIN", "SUPER_ADMIN"]), getAdminStatsHandler);
-router.get("/admin/users", requireAuth, requireRole(["ADMIN", "SUPER_ADMIN"]), getAdminUsersHandler);
-router.put("/admin/users/:userId/status", requireAuth, requireRole(["SUPER_ADMIN"]), updateAdminUserStatusHandler);
-router.get("/admin/websites", requireAuth, requireRole(["ADMIN", "SUPER_ADMIN"]), getAdminWebsitesHandler);
+router.get("/admin/stats", requireAuth, requireRole(adminRoles), getAdminStatsHandler);
+router.get("/admin/users", requireAuth, requireRole(adminRoles), getAdminUsersHandler);
+router.get("/admin/users/:userId", requireAuth, requireRole(adminRoles), getAdminUserDetailsHandler);
+router.put("/admin/users/:userId/status", requireAuth, requireRole(adminRoles), updateAdminUserStatusHandler);
+
+router.get("/admin/websites", requireAuth, requireRole(adminRoles), getAdminWebsitesHandler);
+router.get("/admin/websites/:websiteId", requireAuth, requireRole(adminRoles), getAdminWebsiteDetailsHandler);
+router.put("/admin/websites/:websiteId/moderation", requireAuth, requireRole(adminRoles), updateAdminWebsiteModerationHandler);
+
+router.get("/admin/audit-logs", requireAuth, requireRole(adminRoles), getAdminAuditLogsHandler);
+router.get("/admin/audit-logs/export", requireAuth, requireRole(adminRoles), exportAdminAuditLogsCsvHandler);
+
+router.get("/admin/monitoring", requireAuth, requireRole(adminRoles), getAdminMonitoringHandler);
+router.get("/alerts", requireAuth, requireRole(adminRoles), getAlertsHandler);
+
+// Super Admin Only: Background Worker & Infrastructure Job Queue
+router.get("/jobs", requireAuth, requireRole(superAdminOnly), listJobsHandler);
+router.post("/jobs/process-next", requireAuth, requireRole(superAdminOnly), processNextJobHandler);
+router.post("/jobs/:id/retry", requireAuth, requireRole(superAdminOnly), retryJobHandler);
+router.post("/jobs/:id/cancel", requireAuth, requireRole(superAdminOnly), cancelJobHandler);
+router.delete("/jobs/purge", requireAuth, requireRole(superAdminOnly), purgeCompletedJobsHandler);
 
 // Website Operational Actions
 router.post("/websites/:id/schedule-publish", requireAuth, authorizeCapability("PUBLISH"), schedulePublishHandler);

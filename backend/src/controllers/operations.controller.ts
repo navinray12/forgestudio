@@ -5,14 +5,19 @@ import {
   recordOperationalAlert,
   getAdminPlatformStats,
   getAdminUsers,
+  getAdminUserById,
   setAdminUserStatus,
   getAdminWebsites,
+  getAdminWebsiteById,
+  setAdminWebsiteModeration,
 } from "../services/monitoring.service.js";
+import {
+  queryAuditLogs,
+  exportAuditLogsToCsv,
+} from "../services/audit.service.js";
 import {
   listJobs,
   processNextJob,
-  enqueueJob,
-  getJobById,
   retryJob,
   cancelJob,
   purgeCompletedJobs,
@@ -22,6 +27,11 @@ import {
   cancelScheduledPublish,
   promoteDeployment,
 } from "../services/publishing.service.js";
+import { AppError } from "../utils/app-error.js";
+
+// ==========================================
+// System Health & Monitoring
+// ==========================================
 
 export async function getHealthHandler(_req: Request, res: Response, next: NextFunction) {
   try {
@@ -51,11 +61,241 @@ export async function getOperationalStatusHandler(_req: Request, res: Response, 
   }
 }
 
+export async function getAdminMonitoringHandler(_req: Request, res: Response, next: NextFunction) {
+  try {
+    const health = await getSystemHealth();
+    const alerts = getOperationalAlerts(20);
+    return res.status(200).json({
+      success: true,
+      data: {
+        health,
+        alerts,
+        nodeEnvironment: process.env.NODE_ENV || "development",
+        serverUptimeFormatted: `${Math.floor(process.uptime() / 3600)}h ${Math.floor((process.uptime() % 3600) / 60)}m`,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// ==========================================
+// Live Admin Platform Statistics
+// ==========================================
+
+export async function getAdminStatsHandler(_req: Request, res: Response, next: NextFunction) {
+  try {
+    const stats = await getAdminPlatformStats();
+    return res.status(200).json({
+      success: true,
+      data: stats,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// ==========================================
+// User Management & Suspension
+// ==========================================
+
+export async function getAdminUsersHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const query = req.query;
+    const result = await getAdminUsers({
+      search: query.search as string | undefined,
+      status: query.status as string | undefined,
+      role: query.role as string | undefined,
+      sortBy: query.sortBy as string | undefined,
+      sortOrder: (query.sortOrder as "asc" | "desc") || "desc",
+      page: query.page ? Number(query.page) : 1,
+      limit: query.limit ? Number(query.limit) : 20,
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: result.users,
+      pagination: result.pagination,
+      meta: { total: result.pagination.total },
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getAdminUserDetailsHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const userId = String(req.params.userId);
+    const user = await getAdminUserById(userId);
+    return res.status(200).json({
+      success: true,
+      data: user,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function updateAdminUserStatusHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const adminUser = res.locals.user || (req as any).user;
+    if (!adminUser) {
+      throw new AppError("Authentication required", 401, "UNAUTHORIZED");
+    }
+
+    const targetUserId = String(req.params.userId);
+    const { status, reason } = req.body;
+
+    if (!status || !["ACTIVE", "SUSPENDED", "DELETED"].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        error: { code: "VALIDATION_ERROR", message: "Status must be ACTIVE, SUSPENDED, or DELETED" },
+      });
+    }
+
+    const updated = await setAdminUserStatus(targetUserId, status, adminUser, reason);
+    return res.status(200).json({
+      success: true,
+      data: updated,
+      message: `User status updated to ${status}`,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// ==========================================
+// Website Management & Moderation
+// ==========================================
+
+export async function getAdminWebsitesHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const query = req.query;
+    const result = await getAdminWebsites({
+      search: query.search as string | undefined,
+      status: query.status as string | undefined,
+      moderationStatus: query.moderationStatus as string | undefined,
+      ownerId: query.ownerId as string | undefined,
+      sortBy: query.sortBy as string | undefined,
+      sortOrder: (query.sortOrder as "asc" | "desc") || "desc",
+      page: query.page ? Number(query.page) : 1,
+      limit: query.limit ? Number(query.limit) : 20,
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: result.websites,
+      pagination: result.pagination,
+      meta: { total: result.pagination.total },
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getAdminWebsiteDetailsHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const websiteId = String(req.params.websiteId);
+    const website = await getAdminWebsiteById(websiteId);
+    return res.status(200).json({
+      success: true,
+      data: website,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function updateAdminWebsiteModerationHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const adminUser = res.locals.user || (req as any).user;
+    if (!adminUser) {
+      throw new AppError("Authentication required", 401, "UNAUTHORIZED");
+    }
+
+    const websiteId = String(req.params.websiteId);
+    const { moderationStatus, reason } = req.body;
+
+    if (!moderationStatus || !["ACTIVE", "SUSPENDED"].includes(moderationStatus)) {
+      return res.status(400).json({
+        success: false,
+        error: { code: "VALIDATION_ERROR", message: "moderationStatus must be ACTIVE or SUSPENDED" },
+      });
+    }
+
+    const updated = await setAdminWebsiteModeration(websiteId, moderationStatus, adminUser, reason);
+    return res.status(200).json({
+      success: true,
+      data: updated,
+      message: `Website moderation status updated to ${moderationStatus}`,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// ==========================================
+// Admin Audit Logs
+// ==========================================
+
+export async function getAdminAuditLogsHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const query = req.query;
+    const result = await queryAuditLogs({
+      userId: query.userId as string | undefined,
+      actorRole: query.actorRole as string | undefined,
+      targetResource: query.targetResource as string | undefined,
+      action: query.action as string | undefined,
+      result: query.result as string | undefined,
+      search: query.search as string | undefined,
+      startDate: query.startDate as string | undefined,
+      endDate: query.endDate as string | undefined,
+      page: query.page ? Number(query.page) : 1,
+      limit: query.limit ? Number(query.limit) : 50,
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: result.logs,
+      pagination: result.pagination,
+      meta: { total: result.pagination.total },
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function exportAdminAuditLogsCsvHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const query = req.query;
+    const csvContent = await exportAuditLogsToCsv({
+      userId: query.userId as string | undefined,
+      actorRole: query.actorRole as string | undefined,
+      targetResource: query.targetResource as string | undefined,
+      action: query.action as string | undefined,
+      result: query.result as string | undefined,
+      search: query.search as string | undefined,
+      startDate: query.startDate as string | undefined,
+      endDate: query.endDate as string | undefined,
+    });
+
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader("Content-Disposition", `attachment; filename="audit_logs_${Date.now()}.csv"`);
+    return res.status(200).send(csvContent);
+  } catch (err) {
+    next(err);
+  }
+}
+
+// ==========================================
+// Background Jobs (Super Admin / Operations)
+// ==========================================
+
 export async function listJobsHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const type = req.query.type as string | undefined;
     const status = req.query.status as string | undefined;
-    const limit = parseInt(req.query.limit as string || "50", 10);
+    const limit = parseInt((req.query.limit as string) || "50", 10);
 
     const jobs = await listJobs({ type, status, limit });
     return res.status(200).json({
@@ -122,7 +362,7 @@ export async function purgeCompletedJobsHandler(_req: Request, res: Response, ne
 export async function getAlertsHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const level = req.query.level as string | undefined;
-    const limit = parseInt(req.query.limit as string || "50", 10);
+    const limit = parseInt((req.query.limit as string) || "50", 10);
     const alerts = getOperationalAlerts(limit, level);
 
     return res.status(200).json({
@@ -134,6 +374,10 @@ export async function getAlertsHandler(req: Request, res: Response, next: NextFu
     next(err);
   }
 }
+
+// ==========================================
+// Publishing Workflows
+// ==========================================
 
 export async function schedulePublishHandler(req: Request, res: Response, next: NextFunction) {
   try {
@@ -210,68 +454,3 @@ export async function cancelScheduledPublishHandler(req: Request, res: Response,
     next(err);
   }
 }
-
-export async function getAdminStatsHandler(_req: Request, res: Response, next: NextFunction) {
-  try {
-    const stats = await getAdminPlatformStats();
-    return res.status(200).json({
-      success: true,
-      data: stats,
-    });
-  } catch (err) {
-    next(err);
-  }
-}
-
-export async function getAdminUsersHandler(req: Request, res: Response, next: NextFunction) {
-  try {
-    const limit = parseInt((req.query.limit as string) || "50", 10);
-    const users = await getAdminUsers(limit);
-    return res.status(200).json({
-      success: true,
-      data: users,
-      meta: { total: users.length },
-    });
-  } catch (err) {
-    next(err);
-  }
-}
-
-export async function updateAdminUserStatusHandler(req: Request, res: Response, next: NextFunction) {
-  try {
-    const adminUser = res.locals.user || (req as any).user;
-    const targetUserId = String(req.params.userId);
-    const { status } = req.body;
-
-    if (!status || !["ACTIVE", "SUSPENDED", "DELETED"].includes(status)) {
-      return res.status(400).json({
-        success: false,
-        error: { code: "VALIDATION_ERROR", message: "Status must be ACTIVE, SUSPENDED, or DELETED" },
-      });
-    }
-
-    const updated = await setAdminUserStatus(targetUserId, status, adminUser?.id);
-    return res.status(200).json({
-      success: true,
-      data: updated,
-      message: `User status updated to ${status}`,
-    });
-  } catch (err) {
-    next(err);
-  }
-}
-
-export async function getAdminWebsitesHandler(req: Request, res: Response, next: NextFunction) {
-  try {
-    const limit = parseInt((req.query.limit as string) || "50", 10);
-    const websites = await getAdminWebsites(limit);
-    return res.status(200).json({
-      success: true,
-      data: websites,
-      meta: { total: websites.length },
-    });
-  } catch (err) {
-    next(err);
-  }
-}
-

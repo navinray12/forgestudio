@@ -250,6 +250,15 @@ export async function publishWebsite(
     throw new AppError("You do not have permission to publish this website.", 403, "FORBIDDEN");
   }
 
+  // 1.1 Administrative moderation check (Phase 2)
+  if ((website as any).moderationStatus === "SUSPENDED") {
+    throw new AppError(
+      "This website has been suspended by administration and cannot be published.",
+      403,
+      "WEBSITE_SUSPENDED"
+    );
+  }
+
   // Approval Workflow Gating (Optional, backwards compatible)
   if (website.approvalWorkflowEnabled) {
     const isOwnerOrAdmin = website.userId === userId || website.userPermission === "OWNER" || website.userPermission === "ADMIN";

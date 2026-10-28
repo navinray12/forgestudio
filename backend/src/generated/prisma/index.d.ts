@@ -6238,6 +6238,9 @@ export namespace Prisma {
     phoneVerified: boolean | null
     status: $Enums.UserStatus | null
     role: $Enums.UserRole | null
+    suspensionReason: string | null
+    suspendedAt: Date | null
+    suspendedBy: string | null
     lastLoginAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -6255,6 +6258,9 @@ export namespace Prisma {
     phoneVerified: boolean | null
     status: $Enums.UserStatus | null
     role: $Enums.UserRole | null
+    suspensionReason: string | null
+    suspendedAt: Date | null
+    suspendedBy: string | null
     lastLoginAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -6272,6 +6278,9 @@ export namespace Prisma {
     phoneVerified: number
     status: number
     role: number
+    suspensionReason: number
+    suspendedAt: number
+    suspendedBy: number
     lastLoginAt: number
     createdAt: number
     updatedAt: number
@@ -6299,6 +6308,9 @@ export namespace Prisma {
     phoneVerified?: true
     status?: true
     role?: true
+    suspensionReason?: true
+    suspendedAt?: true
+    suspendedBy?: true
     lastLoginAt?: true
     createdAt?: true
     updatedAt?: true
@@ -6316,6 +6328,9 @@ export namespace Prisma {
     phoneVerified?: true
     status?: true
     role?: true
+    suspensionReason?: true
+    suspendedAt?: true
+    suspendedBy?: true
     lastLoginAt?: true
     createdAt?: true
     updatedAt?: true
@@ -6333,6 +6348,9 @@ export namespace Prisma {
     phoneVerified?: true
     status?: true
     role?: true
+    suspensionReason?: true
+    suspendedAt?: true
+    suspendedBy?: true
     lastLoginAt?: true
     createdAt?: true
     updatedAt?: true
@@ -6437,6 +6455,9 @@ export namespace Prisma {
     phoneVerified: boolean
     status: $Enums.UserStatus
     role: $Enums.UserRole
+    suspensionReason: string | null
+    suspendedAt: Date | null
+    suspendedBy: string | null
     lastLoginAt: Date | null
     createdAt: Date
     updatedAt: Date
@@ -6473,6 +6494,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: boolean
     role?: boolean
+    suspensionReason?: boolean
+    suspendedAt?: boolean
+    suspendedBy?: boolean
     lastLoginAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -6524,6 +6548,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: boolean
     role?: boolean
+    suspensionReason?: boolean
+    suspendedAt?: boolean
+    suspendedBy?: boolean
     lastLoginAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -6541,6 +6568,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: boolean
     role?: boolean
+    suspensionReason?: boolean
+    suspendedAt?: boolean
+    suspendedBy?: boolean
     lastLoginAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -6558,13 +6588,16 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: boolean
     role?: boolean
+    suspensionReason?: boolean
+    suspendedAt?: boolean
+    suspendedBy?: boolean
     lastLoginAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     optimizationCredits?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "fullName" | "email" | "phone" | "passwordHash" | "verificationMethod" | "emailVerified" | "phoneVerified" | "status" | "role" | "lastLoginAt" | "createdAt" | "updatedAt" | "optimizationCredits", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "fullName" | "email" | "phone" | "passwordHash" | "verificationMethod" | "emailVerified" | "phoneVerified" | "status" | "role" | "suspensionReason" | "suspendedAt" | "suspendedBy" | "lastLoginAt" | "createdAt" | "updatedAt" | "optimizationCredits", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     identities?: boolean | User$identitiesArgs<ExtArgs>
     otpVerifications?: boolean | User$otpVerificationsArgs<ExtArgs>
@@ -6652,6 +6685,9 @@ export namespace Prisma {
       phoneVerified: boolean
       status: $Enums.UserStatus
       role: $Enums.UserRole
+      suspensionReason: string | null
+      suspendedAt: Date | null
+      suspendedBy: string | null
       lastLoginAt: Date | null
       createdAt: Date
       updatedAt: Date
@@ -7122,6 +7158,9 @@ export namespace Prisma {
     readonly phoneVerified: FieldRef<"User", 'Boolean'>
     readonly status: FieldRef<"User", 'UserStatus'>
     readonly role: FieldRef<"User", 'UserRole'>
+    readonly suspensionReason: FieldRef<"User", 'String'>
+    readonly suspendedAt: FieldRef<"User", 'DateTime'>
+    readonly suspendedBy: FieldRef<"User", 'String'>
     readonly lastLoginAt: FieldRef<"User", 'DateTime'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
     readonly updatedAt: FieldRef<"User", 'DateTime'>
@@ -8345,6 +8384,10 @@ export namespace Prisma {
     name: string | null
     slug: string | null
     status: string | null
+    moderationStatus: string | null
+    moderationReason: string | null
+    moderatedAt: Date | null
+    moderatedBy: string | null
     version: number | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -8360,6 +8403,10 @@ export namespace Prisma {
     name: string | null
     slug: string | null
     status: string | null
+    moderationStatus: string | null
+    moderationReason: string | null
+    moderatedAt: Date | null
+    moderatedBy: string | null
     version: number | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -8375,6 +8422,10 @@ export namespace Prisma {
     name: number
     slug: number
     status: number
+    moderationStatus: number
+    moderationReason: number
+    moderatedAt: number
+    moderatedBy: number
     version: number
     editorData: number
     createdAt: number
@@ -8401,6 +8452,10 @@ export namespace Prisma {
     name?: true
     slug?: true
     status?: true
+    moderationStatus?: true
+    moderationReason?: true
+    moderatedAt?: true
+    moderatedBy?: true
     version?: true
     createdAt?: true
     updatedAt?: true
@@ -8416,6 +8471,10 @@ export namespace Prisma {
     name?: true
     slug?: true
     status?: true
+    moderationStatus?: true
+    moderationReason?: true
+    moderatedAt?: true
+    moderatedBy?: true
     version?: true
     createdAt?: true
     updatedAt?: true
@@ -8431,6 +8490,10 @@ export namespace Prisma {
     name?: true
     slug?: true
     status?: true
+    moderationStatus?: true
+    moderationReason?: true
+    moderatedAt?: true
+    moderatedBy?: true
     version?: true
     editorData?: true
     createdAt?: true
@@ -8534,6 +8597,10 @@ export namespace Prisma {
     name: string
     slug: string
     status: string
+    moderationStatus: string
+    moderationReason: string | null
+    moderatedAt: Date | null
+    moderatedBy: string | null
     version: number
     editorData: JsonValue
     createdAt: Date
@@ -8569,6 +8636,10 @@ export namespace Prisma {
     name?: boolean
     slug?: boolean
     status?: boolean
+    moderationStatus?: boolean
+    moderationReason?: boolean
+    moderatedAt?: boolean
+    moderatedBy?: boolean
     version?: boolean
     editorData?: boolean
     createdAt?: boolean
@@ -8611,6 +8682,10 @@ export namespace Prisma {
     name?: boolean
     slug?: boolean
     status?: boolean
+    moderationStatus?: boolean
+    moderationReason?: boolean
+    moderatedAt?: boolean
+    moderatedBy?: boolean
     version?: boolean
     editorData?: boolean
     createdAt?: boolean
@@ -8631,6 +8706,10 @@ export namespace Prisma {
     name?: boolean
     slug?: boolean
     status?: boolean
+    moderationStatus?: boolean
+    moderationReason?: boolean
+    moderatedAt?: boolean
+    moderatedBy?: boolean
     version?: boolean
     editorData?: boolean
     createdAt?: boolean
@@ -8651,6 +8730,10 @@ export namespace Prisma {
     name?: boolean
     slug?: boolean
     status?: boolean
+    moderationStatus?: boolean
+    moderationReason?: boolean
+    moderatedAt?: boolean
+    moderatedBy?: boolean
     version?: boolean
     editorData?: boolean
     createdAt?: boolean
@@ -8661,7 +8744,7 @@ export namespace Prisma {
     approvalWorkflowEnabled?: boolean
   }
 
-  export type WebsiteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "name" | "slug" | "status" | "version" | "editorData" | "createdAt" | "updatedAt" | "teamId" | "workspaceId" | "organizationId" | "approvalWorkflowEnabled", ExtArgs["result"]["website"]>
+  export type WebsiteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "name" | "slug" | "status" | "moderationStatus" | "moderationReason" | "moderatedAt" | "moderatedBy" | "version" | "editorData" | "createdAt" | "updatedAt" | "teamId" | "workspaceId" | "organizationId" | "approvalWorkflowEnabled", ExtArgs["result"]["website"]>
   export type WebsiteInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     customCodeSnippets?: boolean | Website$customCodeSnippetsArgs<ExtArgs>
@@ -8738,6 +8821,10 @@ export namespace Prisma {
       name: string
       slug: string
       status: string
+      moderationStatus: string
+      moderationReason: string | null
+      moderatedAt: Date | null
+      moderatedBy: string | null
       version: number
       editorData: Prisma.JsonValue
       createdAt: Date
@@ -9199,6 +9286,10 @@ export namespace Prisma {
     readonly name: FieldRef<"Website", 'String'>
     readonly slug: FieldRef<"Website", 'String'>
     readonly status: FieldRef<"Website", 'String'>
+    readonly moderationStatus: FieldRef<"Website", 'String'>
+    readonly moderationReason: FieldRef<"Website", 'String'>
+    readonly moderatedAt: FieldRef<"Website", 'DateTime'>
+    readonly moderatedBy: FieldRef<"Website", 'String'>
     readonly version: FieldRef<"Website", 'Int'>
     readonly editorData: FieldRef<"Website", 'Json'>
     readonly createdAt: FieldRef<"Website", 'DateTime'>
@@ -23843,6 +23934,10 @@ export namespace Prisma {
     action: string | null
     targetResource: string | null
     ipAddress: string | null
+    actorRole: string | null
+    result: string | null
+    reason: string | null
+    correlationId: string | null
     createdAt: Date | null
   }
 
@@ -23852,6 +23947,10 @@ export namespace Prisma {
     action: string | null
     targetResource: string | null
     ipAddress: string | null
+    actorRole: string | null
+    result: string | null
+    reason: string | null
+    correlationId: string | null
     createdAt: Date | null
   }
 
@@ -23862,6 +23961,10 @@ export namespace Prisma {
     targetResource: number
     details: number
     ipAddress: number
+    actorRole: number
+    result: number
+    reason: number
+    correlationId: number
     createdAt: number
     _all: number
   }
@@ -23873,6 +23976,10 @@ export namespace Prisma {
     action?: true
     targetResource?: true
     ipAddress?: true
+    actorRole?: true
+    result?: true
+    reason?: true
+    correlationId?: true
     createdAt?: true
   }
 
@@ -23882,6 +23989,10 @@ export namespace Prisma {
     action?: true
     targetResource?: true
     ipAddress?: true
+    actorRole?: true
+    result?: true
+    reason?: true
+    correlationId?: true
     createdAt?: true
   }
 
@@ -23892,6 +24003,10 @@ export namespace Prisma {
     targetResource?: true
     details?: true
     ipAddress?: true
+    actorRole?: true
+    result?: true
+    reason?: true
+    correlationId?: true
     createdAt?: true
     _all?: true
   }
@@ -23975,6 +24090,10 @@ export namespace Prisma {
     targetResource: string
     details: JsonValue | null
     ipAddress: string | null
+    actorRole: string | null
+    result: string
+    reason: string | null
+    correlationId: string | null
     createdAt: Date
     _count: AuditLogCountAggregateOutputType | null
     _min: AuditLogMinAggregateOutputType | null
@@ -24002,6 +24121,10 @@ export namespace Prisma {
     targetResource?: boolean
     details?: boolean
     ipAddress?: boolean
+    actorRole?: boolean
+    result?: boolean
+    reason?: boolean
+    correlationId?: boolean
     createdAt?: boolean
     user?: boolean | AuditLog$userArgs<ExtArgs>
   }, ExtArgs["result"]["auditLog"]>
@@ -24013,6 +24136,10 @@ export namespace Prisma {
     targetResource?: boolean
     details?: boolean
     ipAddress?: boolean
+    actorRole?: boolean
+    result?: boolean
+    reason?: boolean
+    correlationId?: boolean
     createdAt?: boolean
     user?: boolean | AuditLog$userArgs<ExtArgs>
   }, ExtArgs["result"]["auditLog"]>
@@ -24024,6 +24151,10 @@ export namespace Prisma {
     targetResource?: boolean
     details?: boolean
     ipAddress?: boolean
+    actorRole?: boolean
+    result?: boolean
+    reason?: boolean
+    correlationId?: boolean
     createdAt?: boolean
     user?: boolean | AuditLog$userArgs<ExtArgs>
   }, ExtArgs["result"]["auditLog"]>
@@ -24035,10 +24166,14 @@ export namespace Prisma {
     targetResource?: boolean
     details?: boolean
     ipAddress?: boolean
+    actorRole?: boolean
+    result?: boolean
+    reason?: boolean
+    correlationId?: boolean
     createdAt?: boolean
   }
 
-  export type AuditLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "action" | "targetResource" | "details" | "ipAddress" | "createdAt", ExtArgs["result"]["auditLog"]>
+  export type AuditLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "action" | "targetResource" | "details" | "ipAddress" | "actorRole" | "result" | "reason" | "correlationId" | "createdAt", ExtArgs["result"]["auditLog"]>
   export type AuditLogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | AuditLog$userArgs<ExtArgs>
   }
@@ -24061,6 +24196,10 @@ export namespace Prisma {
       targetResource: string
       details: Prisma.JsonValue | null
       ipAddress: string | null
+      actorRole: string | null
+      result: string
+      reason: string | null
+      correlationId: string | null
       createdAt: Date
     }, ExtArgs["result"]["auditLog"]>
     composites: {}
@@ -24492,6 +24631,10 @@ export namespace Prisma {
     readonly targetResource: FieldRef<"AuditLog", 'String'>
     readonly details: FieldRef<"AuditLog", 'Json'>
     readonly ipAddress: FieldRef<"AuditLog", 'String'>
+    readonly actorRole: FieldRef<"AuditLog", 'String'>
+    readonly result: FieldRef<"AuditLog", 'String'>
+    readonly reason: FieldRef<"AuditLog", 'String'>
+    readonly correlationId: FieldRef<"AuditLog", 'String'>
     readonly createdAt: FieldRef<"AuditLog", 'DateTime'>
   }
     
@@ -64756,6 +64899,9 @@ export namespace Prisma {
     phoneVerified: 'phoneVerified',
     status: 'status',
     role: 'role',
+    suspensionReason: 'suspensionReason',
+    suspendedAt: 'suspendedAt',
+    suspendedBy: 'suspendedBy',
     lastLoginAt: 'lastLoginAt',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
@@ -64771,6 +64917,10 @@ export namespace Prisma {
     name: 'name',
     slug: 'slug',
     status: 'status',
+    moderationStatus: 'moderationStatus',
+    moderationReason: 'moderationReason',
+    moderatedAt: 'moderatedAt',
+    moderatedBy: 'moderatedBy',
     version: 'version',
     editorData: 'editorData',
     createdAt: 'createdAt',
@@ -64973,6 +65123,10 @@ export namespace Prisma {
     targetResource: 'targetResource',
     details: 'details',
     ipAddress: 'ipAddress',
+    actorRole: 'actorRole',
+    result: 'result',
+    reason: 'reason',
+    correlationId: 'correlationId',
     createdAt: 'createdAt'
   };
 
@@ -65734,6 +65888,9 @@ export namespace Prisma {
     phoneVerified?: BoolFilter<"User"> | boolean
     status?: EnumUserStatusFilter<"User"> | $Enums.UserStatus
     role?: EnumUserRoleFilter<"User"> | $Enums.UserRole
+    suspensionReason?: StringNullableFilter<"User"> | string | null
+    suspendedAt?: DateTimeNullableFilter<"User"> | Date | string | null
+    suspendedBy?: UuidNullableFilter<"User"> | string | null
     lastLoginAt?: DateTimeNullableFilter<"User"> | Date | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
@@ -65784,6 +65941,9 @@ export namespace Prisma {
     phoneVerified?: SortOrder
     status?: SortOrder
     role?: SortOrder
+    suspensionReason?: SortOrderInput | SortOrder
+    suspendedAt?: SortOrderInput | SortOrder
+    suspendedBy?: SortOrderInput | SortOrder
     lastLoginAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -65837,6 +65997,9 @@ export namespace Prisma {
     phoneVerified?: BoolFilter<"User"> | boolean
     status?: EnumUserStatusFilter<"User"> | $Enums.UserStatus
     role?: EnumUserRoleFilter<"User"> | $Enums.UserRole
+    suspensionReason?: StringNullableFilter<"User"> | string | null
+    suspendedAt?: DateTimeNullableFilter<"User"> | Date | string | null
+    suspendedBy?: UuidNullableFilter<"User"> | string | null
     lastLoginAt?: DateTimeNullableFilter<"User"> | Date | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
@@ -65887,6 +66050,9 @@ export namespace Prisma {
     phoneVerified?: SortOrder
     status?: SortOrder
     role?: SortOrder
+    suspensionReason?: SortOrderInput | SortOrder
+    suspendedAt?: SortOrderInput | SortOrder
+    suspendedBy?: SortOrderInput | SortOrder
     lastLoginAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -65912,6 +66078,9 @@ export namespace Prisma {
     phoneVerified?: BoolWithAggregatesFilter<"User"> | boolean
     status?: EnumUserStatusWithAggregatesFilter<"User"> | $Enums.UserStatus
     role?: EnumUserRoleWithAggregatesFilter<"User"> | $Enums.UserRole
+    suspensionReason?: StringNullableWithAggregatesFilter<"User"> | string | null
+    suspendedAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+    suspendedBy?: UuidNullableWithAggregatesFilter<"User"> | string | null
     lastLoginAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
@@ -65927,6 +66096,10 @@ export namespace Prisma {
     name?: StringFilter<"Website"> | string
     slug?: StringFilter<"Website"> | string
     status?: StringFilter<"Website"> | string
+    moderationStatus?: StringFilter<"Website"> | string
+    moderationReason?: StringNullableFilter<"Website"> | string | null
+    moderatedAt?: DateTimeNullableFilter<"Website"> | Date | string | null
+    moderatedBy?: UuidNullableFilter<"Website"> | string | null
     version?: IntFilter<"Website"> | number
     editorData?: JsonFilter<"Website">
     createdAt?: DateTimeFilter<"Website"> | Date | string
@@ -65968,6 +66141,10 @@ export namespace Prisma {
     name?: SortOrder
     slug?: SortOrder
     status?: SortOrder
+    moderationStatus?: SortOrder
+    moderationReason?: SortOrderInput | SortOrder
+    moderatedAt?: SortOrderInput | SortOrder
+    moderatedBy?: SortOrderInput | SortOrder
     version?: SortOrder
     editorData?: SortOrder
     createdAt?: SortOrder
@@ -66012,6 +66189,10 @@ export namespace Prisma {
     name?: StringFilter<"Website"> | string
     slug?: StringFilter<"Website"> | string
     status?: StringFilter<"Website"> | string
+    moderationStatus?: StringFilter<"Website"> | string
+    moderationReason?: StringNullableFilter<"Website"> | string | null
+    moderatedAt?: DateTimeNullableFilter<"Website"> | Date | string | null
+    moderatedBy?: UuidNullableFilter<"Website"> | string | null
     version?: IntFilter<"Website"> | number
     editorData?: JsonFilter<"Website">
     createdAt?: DateTimeFilter<"Website"> | Date | string
@@ -66053,6 +66234,10 @@ export namespace Prisma {
     name?: SortOrder
     slug?: SortOrder
     status?: SortOrder
+    moderationStatus?: SortOrder
+    moderationReason?: SortOrderInput | SortOrder
+    moderatedAt?: SortOrderInput | SortOrder
+    moderatedBy?: SortOrderInput | SortOrder
     version?: SortOrder
     editorData?: SortOrder
     createdAt?: SortOrder
@@ -66077,6 +66262,10 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"Website"> | string
     slug?: StringWithAggregatesFilter<"Website"> | string
     status?: StringWithAggregatesFilter<"Website"> | string
+    moderationStatus?: StringWithAggregatesFilter<"Website"> | string
+    moderationReason?: StringNullableWithAggregatesFilter<"Website"> | string | null
+    moderatedAt?: DateTimeNullableWithAggregatesFilter<"Website"> | Date | string | null
+    moderatedBy?: UuidNullableWithAggregatesFilter<"Website"> | string | null
     version?: IntWithAggregatesFilter<"Website"> | number
     editorData?: JsonWithAggregatesFilter<"Website">
     createdAt?: DateTimeWithAggregatesFilter<"Website"> | Date | string
@@ -67030,6 +67219,10 @@ export namespace Prisma {
     targetResource?: StringFilter<"AuditLog"> | string
     details?: JsonNullableFilter<"AuditLog">
     ipAddress?: StringNullableFilter<"AuditLog"> | string | null
+    actorRole?: StringNullableFilter<"AuditLog"> | string | null
+    result?: StringFilter<"AuditLog"> | string
+    reason?: StringNullableFilter<"AuditLog"> | string | null
+    correlationId?: StringNullableFilter<"AuditLog"> | string | null
     createdAt?: DateTimeFilter<"AuditLog"> | Date | string
     user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }
@@ -67041,6 +67234,10 @@ export namespace Prisma {
     targetResource?: SortOrder
     details?: SortOrderInput | SortOrder
     ipAddress?: SortOrderInput | SortOrder
+    actorRole?: SortOrderInput | SortOrder
+    result?: SortOrder
+    reason?: SortOrderInput | SortOrder
+    correlationId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     user?: UserOrderByWithRelationInput
   }
@@ -67055,6 +67252,10 @@ export namespace Prisma {
     targetResource?: StringFilter<"AuditLog"> | string
     details?: JsonNullableFilter<"AuditLog">
     ipAddress?: StringNullableFilter<"AuditLog"> | string | null
+    actorRole?: StringNullableFilter<"AuditLog"> | string | null
+    result?: StringFilter<"AuditLog"> | string
+    reason?: StringNullableFilter<"AuditLog"> | string | null
+    correlationId?: StringNullableFilter<"AuditLog"> | string | null
     createdAt?: DateTimeFilter<"AuditLog"> | Date | string
     user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }, "id">
@@ -67066,6 +67267,10 @@ export namespace Prisma {
     targetResource?: SortOrder
     details?: SortOrderInput | SortOrder
     ipAddress?: SortOrderInput | SortOrder
+    actorRole?: SortOrderInput | SortOrder
+    result?: SortOrder
+    reason?: SortOrderInput | SortOrder
+    correlationId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: AuditLogCountOrderByAggregateInput
     _max?: AuditLogMaxOrderByAggregateInput
@@ -67082,6 +67287,10 @@ export namespace Prisma {
     targetResource?: StringWithAggregatesFilter<"AuditLog"> | string
     details?: JsonNullableWithAggregatesFilter<"AuditLog">
     ipAddress?: StringNullableWithAggregatesFilter<"AuditLog"> | string | null
+    actorRole?: StringNullableWithAggregatesFilter<"AuditLog"> | string | null
+    result?: StringWithAggregatesFilter<"AuditLog"> | string
+    reason?: StringNullableWithAggregatesFilter<"AuditLog"> | string | null
+    correlationId?: StringNullableWithAggregatesFilter<"AuditLog"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"AuditLog"> | Date | string
   }
 
@@ -69823,6 +70032,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -69873,6 +70085,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -69923,6 +70138,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -69973,6 +70191,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -70023,6 +70244,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -70040,6 +70264,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -70057,6 +70284,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -70068,6 +70298,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -70106,6 +70340,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -70142,6 +70380,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -70180,6 +70422,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -70217,6 +70463,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -70232,6 +70482,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -70245,6 +70499,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -71286,6 +71544,10 @@ export namespace Prisma {
     targetResource: string
     details?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: string | null
+    actorRole?: string | null
+    result?: string
+    reason?: string | null
+    correlationId?: string | null
     createdAt?: Date | string
     user?: UserCreateNestedOneWithoutAuditLogsInput
   }
@@ -71297,6 +71559,10 @@ export namespace Prisma {
     targetResource: string
     details?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: string | null
+    actorRole?: string | null
+    result?: string
+    reason?: string | null
+    correlationId?: string | null
     createdAt?: Date | string
   }
 
@@ -71306,6 +71572,10 @@ export namespace Prisma {
     targetResource?: StringFieldUpdateOperationsInput | string
     details?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    actorRole?: NullableStringFieldUpdateOperationsInput | string | null
+    result?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    correlationId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneWithoutAuditLogsNestedInput
   }
@@ -71317,6 +71587,10 @@ export namespace Prisma {
     targetResource?: StringFieldUpdateOperationsInput | string
     details?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    actorRole?: NullableStringFieldUpdateOperationsInput | string | null
+    result?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    correlationId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -71327,6 +71601,10 @@ export namespace Prisma {
     targetResource: string
     details?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: string | null
+    actorRole?: string | null
+    result?: string
+    reason?: string | null
+    correlationId?: string | null
     createdAt?: Date | string
   }
 
@@ -71336,6 +71614,10 @@ export namespace Prisma {
     targetResource?: StringFieldUpdateOperationsInput | string
     details?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    actorRole?: NullableStringFieldUpdateOperationsInput | string | null
+    result?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    correlationId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -71346,6 +71628,10 @@ export namespace Prisma {
     targetResource?: StringFieldUpdateOperationsInput | string
     details?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    actorRole?: NullableStringFieldUpdateOperationsInput | string | null
+    result?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    correlationId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -74333,6 +74619,18 @@ export namespace Prisma {
     not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
+  export type UuidNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedUuidNullableFilter<$PrismaModel> | string | null
+  }
+
   export type DateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -74681,6 +74979,9 @@ export namespace Prisma {
     phoneVerified?: SortOrder
     status?: SortOrder
     role?: SortOrder
+    suspensionReason?: SortOrder
+    suspendedAt?: SortOrder
+    suspendedBy?: SortOrder
     lastLoginAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -74702,6 +75003,9 @@ export namespace Prisma {
     phoneVerified?: SortOrder
     status?: SortOrder
     role?: SortOrder
+    suspensionReason?: SortOrder
+    suspendedAt?: SortOrder
+    suspendedBy?: SortOrder
     lastLoginAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -74719,6 +75023,9 @@ export namespace Prisma {
     phoneVerified?: SortOrder
     status?: SortOrder
     role?: SortOrder
+    suspensionReason?: SortOrder
+    suspendedAt?: SortOrder
+    suspendedBy?: SortOrder
     lastLoginAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -74814,6 +75121,21 @@ export namespace Prisma {
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
+  export type UuidNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedUuidNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
   export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -74880,18 +75202,6 @@ export namespace Prisma {
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
-
-  export type UuidNullableFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    mode?: QueryMode
-    not?: NestedUuidNullableFilter<$PrismaModel> | string | null
   }
 
   export type UserScalarRelationFilter = {
@@ -75030,6 +75340,10 @@ export namespace Prisma {
     name?: SortOrder
     slug?: SortOrder
     status?: SortOrder
+    moderationStatus?: SortOrder
+    moderationReason?: SortOrder
+    moderatedAt?: SortOrder
+    moderatedBy?: SortOrder
     version?: SortOrder
     editorData?: SortOrder
     createdAt?: SortOrder
@@ -75050,6 +75364,10 @@ export namespace Prisma {
     name?: SortOrder
     slug?: SortOrder
     status?: SortOrder
+    moderationStatus?: SortOrder
+    moderationReason?: SortOrder
+    moderatedAt?: SortOrder
+    moderatedBy?: SortOrder
     version?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -75065,6 +75383,10 @@ export namespace Prisma {
     name?: SortOrder
     slug?: SortOrder
     status?: SortOrder
+    moderationStatus?: SortOrder
+    moderationReason?: SortOrder
+    moderatedAt?: SortOrder
+    moderatedBy?: SortOrder
     version?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -75120,21 +75442,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedJsonFilter<$PrismaModel>
     _max?: NestedJsonFilter<$PrismaModel>
-  }
-
-  export type UuidNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    mode?: QueryMode
-    not?: NestedUuidNullableWithAggregatesFilter<$PrismaModel> | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedStringNullableFilter<$PrismaModel>
-    _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
   export type EnumOtpPurposeFilter<$PrismaModel = never> = {
@@ -75750,6 +76057,10 @@ export namespace Prisma {
     targetResource?: SortOrder
     details?: SortOrder
     ipAddress?: SortOrder
+    actorRole?: SortOrder
+    result?: SortOrder
+    reason?: SortOrder
+    correlationId?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -75759,6 +76070,10 @@ export namespace Prisma {
     action?: SortOrder
     targetResource?: SortOrder
     ipAddress?: SortOrder
+    actorRole?: SortOrder
+    result?: SortOrder
+    reason?: SortOrder
+    correlationId?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -75768,6 +76083,10 @@ export namespace Prisma {
     action?: SortOrder
     targetResource?: SortOrder
     ipAddress?: SortOrder
+    actorRole?: SortOrder
+    result?: SortOrder
+    reason?: SortOrder
+    correlationId?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -81140,6 +81459,17 @@ export namespace Prisma {
     not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
+  export type NestedUuidNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedUuidNullableFilter<$PrismaModel> | string | null
+  }
+
   export type NestedDateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -81270,6 +81600,20 @@ export namespace Prisma {
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
+  export type NestedUuidNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedUuidNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
   export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -81311,17 +81655,6 @@ export namespace Prisma {
     not?: NestedFloatFilter<$PrismaModel> | number
   }
 
-  export type NestedUuidNullableFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedUuidNullableFilter<$PrismaModel> | string | null
-  }
-
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -81360,20 +81693,6 @@ export namespace Prisma {
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
-
-  export type NestedUuidNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedUuidNullableWithAggregatesFilter<$PrismaModel> | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedStringNullableFilter<$PrismaModel>
-    _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
   export type NestedEnumOtpPurposeFilter<$PrismaModel = never> = {
@@ -81675,6 +81994,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -81711,6 +82034,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -81782,6 +82109,10 @@ export namespace Prisma {
     targetResource: string
     details?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: string | null
+    actorRole?: string | null
+    result?: string
+    reason?: string | null
+    correlationId?: string | null
     createdAt?: Date | string
   }
 
@@ -81791,6 +82122,10 @@ export namespace Prisma {
     targetResource: string
     details?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: string | null
+    actorRole?: string | null
+    result?: string
+    reason?: string | null
+    correlationId?: string | null
     createdAt?: Date | string
   }
 
@@ -82796,6 +83131,10 @@ export namespace Prisma {
     name?: StringFilter<"Website"> | string
     slug?: StringFilter<"Website"> | string
     status?: StringFilter<"Website"> | string
+    moderationStatus?: StringFilter<"Website"> | string
+    moderationReason?: StringNullableFilter<"Website"> | string | null
+    moderatedAt?: DateTimeNullableFilter<"Website"> | Date | string | null
+    moderatedBy?: UuidNullableFilter<"Website"> | string | null
     version?: IntFilter<"Website"> | number
     editorData?: JsonFilter<"Website">
     createdAt?: DateTimeFilter<"Website"> | Date | string
@@ -82859,6 +83198,10 @@ export namespace Prisma {
     targetResource?: StringFilter<"AuditLog"> | string
     details?: JsonNullableFilter<"AuditLog">
     ipAddress?: StringNullableFilter<"AuditLog"> | string | null
+    actorRole?: StringNullableFilter<"AuditLog"> | string | null
+    result?: StringFilter<"AuditLog"> | string
+    reason?: StringNullableFilter<"AuditLog"> | string | null
+    correlationId?: StringNullableFilter<"AuditLog"> | string | null
     createdAt?: DateTimeFilter<"AuditLog"> | Date | string
   }
 
@@ -83604,6 +83947,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -83653,6 +83999,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -84517,6 +84866,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -84566,6 +84918,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -85264,6 +85619,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -85313,6 +85671,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -85378,6 +85739,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -85427,6 +85791,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -85476,6 +85843,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -85525,6 +85895,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -85590,6 +85963,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -85639,6 +86015,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -85688,6 +86067,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -85737,6 +86119,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -85802,6 +86187,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -85851,6 +86239,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -85900,6 +86291,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -85949,6 +86343,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -86014,6 +86411,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -86063,6 +86463,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -86209,6 +86612,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -86258,6 +86664,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -86366,6 +86775,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -86415,6 +86827,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -86464,6 +86879,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -86513,6 +86931,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -86578,6 +86999,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -86627,6 +87051,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -86670,6 +87097,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -86707,6 +87138,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -86782,6 +87217,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -86819,6 +87258,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -86927,6 +87370,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -86976,6 +87422,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -87098,6 +87547,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -87147,6 +87599,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -87190,6 +87645,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -87227,6 +87686,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -87278,6 +87741,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -87315,6 +87782,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -87350,6 +87821,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -87387,6 +87862,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -87502,6 +87981,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -87539,6 +88022,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -87621,6 +88108,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -87658,6 +88149,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -87709,6 +88204,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -87746,6 +88245,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -87787,6 +88290,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -87836,6 +88342,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -87901,6 +88410,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -87950,6 +88462,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -87993,6 +88508,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -88030,6 +88549,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -88081,6 +88604,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -88118,6 +88645,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -88153,6 +88684,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -88190,6 +88725,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -88241,6 +88780,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -88278,6 +88821,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -88412,6 +88959,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -88461,6 +89011,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -88561,6 +89114,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -88610,6 +89166,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -88653,6 +89212,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -88690,6 +89253,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -88736,6 +89303,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -88785,6 +89355,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -88844,6 +89417,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -88881,6 +89458,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -88933,6 +89514,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -88982,6 +89566,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -89031,6 +89618,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -89080,6 +89670,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -89145,6 +89738,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -89194,6 +89790,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -89237,6 +89836,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -89274,6 +89877,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -89320,6 +89927,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -89369,6 +89979,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -89428,6 +90041,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -89465,6 +90082,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -89517,6 +90138,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -89566,6 +90190,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -89609,6 +90236,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -89646,6 +90277,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -89692,6 +90327,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -89741,6 +90379,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -89800,6 +90441,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -89837,6 +90482,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -89889,6 +90538,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -89938,6 +90590,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -89981,6 +90636,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -90018,6 +90677,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -90064,6 +90727,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -90113,6 +90779,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -90172,6 +90841,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -90209,6 +90882,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -90261,6 +90938,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -90310,6 +90990,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -90353,6 +91036,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -90390,6 +91077,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -90436,6 +91127,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -90485,6 +91179,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -90544,6 +91241,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -90581,6 +91282,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -90633,6 +91338,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -90682,6 +91390,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -90725,6 +91436,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -90762,6 +91477,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -90808,6 +91527,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -90857,6 +91579,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -90916,6 +91641,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -90953,6 +91682,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -91005,6 +91738,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -91054,6 +91790,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -91097,6 +91836,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -91134,6 +91877,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -91185,6 +91932,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -91222,6 +91973,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -91257,6 +92012,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -91294,6 +92053,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -91340,6 +92103,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -91389,6 +92155,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -91448,6 +92217,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -91485,6 +92258,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -91537,6 +92314,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -91586,6 +92366,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -91635,6 +92418,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -91684,6 +92470,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -91758,6 +92547,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -91795,6 +92588,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -91891,6 +92688,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -91940,6 +92740,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -92064,6 +92867,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -92113,6 +92919,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -92211,6 +93020,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -92260,6 +93072,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -92336,6 +93151,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -92385,6 +93203,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -92483,6 +93304,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -92532,6 +93356,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -92575,6 +93402,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -92612,6 +93443,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -92658,6 +93493,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -92707,6 +93545,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -92766,6 +93607,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -92803,6 +93648,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -92855,6 +93704,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -92904,6 +93756,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -92982,6 +93837,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -93031,6 +93889,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -93105,6 +93966,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -93142,6 +94007,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -93239,6 +94108,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -93288,6 +94160,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -93369,6 +94244,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -93418,6 +94296,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -93526,6 +94407,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -93563,6 +94448,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -93625,6 +94514,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -93674,6 +94566,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -93800,6 +94695,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -93849,6 +94747,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -93949,6 +94850,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -93998,6 +94902,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -94076,6 +94983,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -94125,6 +95035,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -94225,6 +95138,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -94274,6 +95190,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -94317,6 +95236,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -94354,6 +95277,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -94400,6 +95327,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -94449,6 +95379,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -94503,6 +95436,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -94552,6 +95488,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -94611,6 +95550,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -94648,6 +95591,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -94700,6 +95647,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -94749,6 +95699,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -94809,6 +95762,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -94858,6 +95814,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -94907,6 +95866,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -94956,6 +95918,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -95004,6 +95969,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -95041,6 +96010,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -95098,6 +96071,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95147,6 +96123,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95201,6 +96180,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95238,6 +96221,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95273,6 +96260,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -95310,6 +96301,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -95361,6 +96356,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95398,6 +96397,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95433,6 +96436,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -95470,6 +96477,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -95521,6 +96532,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95558,6 +96573,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95593,6 +96612,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -95630,6 +96653,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -95681,6 +96708,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95718,6 +96749,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95753,6 +96788,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -95790,6 +96829,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -95841,6 +96884,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95878,6 +96925,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95919,6 +96970,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -95968,6 +97022,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -96033,6 +97090,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -96082,6 +97142,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -96131,6 +97194,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -96180,6 +97246,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -96275,6 +97344,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -96324,6 +97396,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -96467,6 +97542,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -96516,6 +97594,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -96581,6 +97662,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -96630,6 +97714,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -96679,6 +97766,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -96728,6 +97818,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -96793,6 +97886,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -96842,6 +97938,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -96936,6 +98035,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -96959,6 +98062,10 @@ export namespace Prisma {
     targetResource: string
     details?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: string | null
+    actorRole?: string | null
+    result?: string
+    reason?: string | null
+    correlationId?: string | null
     createdAt?: Date | string
   }
 
@@ -97375,6 +98482,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -97411,6 +98522,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -97447,6 +98562,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -97484,6 +98603,10 @@ export namespace Prisma {
     targetResource?: StringFieldUpdateOperationsInput | string
     details?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    actorRole?: NullableStringFieldUpdateOperationsInput | string | null
+    result?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    correlationId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -97493,6 +98616,10 @@ export namespace Prisma {
     targetResource?: StringFieldUpdateOperationsInput | string
     details?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    actorRole?: NullableStringFieldUpdateOperationsInput | string | null
+    result?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    correlationId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -97502,6 +98629,10 @@ export namespace Prisma {
     targetResource?: StringFieldUpdateOperationsInput | string
     details?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    actorRole?: NullableStringFieldUpdateOperationsInput | string | null
+    result?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    correlationId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -99352,6 +100483,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -99402,6 +100537,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99439,6 +100578,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99475,6 +100618,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99534,6 +100681,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -99572,6 +100723,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99609,6 +100764,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99645,6 +100804,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99678,6 +100841,10 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
     version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
@@ -99750,6 +100917,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99787,6 +100958,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99823,6 +100998,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string

@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import { prisma } from "../config/prisma.js";
 import { assignDefaultFreePlan } from "./subscription.service.js";
+import { AppError } from "../utils/app-error.js";
 
 export type OAuthProvider = "GOOGLE" | "GITHUB";
 
@@ -87,6 +88,10 @@ export async function loginWithOAuth(
     } catch (err) {
       console.error("Could not assign default free plan for OAuth user:", err);
     }
+  }
+
+  if (user.status === "SUSPENDED") {
+    throw new AppError("Account has been suspended. Please contact support.", 403, "ACCOUNT_SUSPENDED");
   }
 
   // --------------------------------------------------
