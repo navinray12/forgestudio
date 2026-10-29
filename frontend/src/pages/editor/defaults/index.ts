@@ -2192,6 +2192,91 @@ export function createDefaultElement(type: ElementType): EditorElement {
         },
       };
 
+    case "soundcloud":
+      return {
+        id,
+        type: "soundcloud",
+        content: "https://soundcloud.com/forss/flickermood",
+        styles: {
+          width: "100%",
+          marginTop: "16px",
+          marginBottom: "16px",
+          borderRadius: "12px",
+        },
+      } as any;
+
+    case "link-in-bio":
+      return {
+        id,
+        type: "link-in-bio",
+        content: "@username",
+        bioName: "@username",
+        bioTagline: "Digital Creator & Designer",
+        bioAvatarUrl: "",
+        bioLinks: [
+          { id: `bio_1`, label: "My Portfolio", url: "https://example.com", icon: "🌐", badge: "New" },
+          { id: `bio_2`, label: "Subscribe to Newsletter", url: "#", icon: "📩" },
+          { id: `bio_3`, label: "Latest Project", url: "#", icon: "⚡" },
+        ],
+        styles: {
+          width: "100%",
+          maxWidth: "420px",
+          marginTop: "20px",
+          marginBottom: "20px",
+        },
+      } as any;
+
+    case "image-box":
+      return {
+        id,
+        type: "image-box",
+        title: "Feature Highlight",
+        content: "Describe your key product feature or benefit in concise detail.",
+        src: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&auto=format&fit=crop&q=80",
+        href: "#",
+        imageBoxPosition: "top",
+        styles: {
+          width: "100%",
+          marginTop: "16px",
+          marginBottom: "16px",
+          borderRadius: "12px",
+        },
+      };
+
+    case "icon-box":
+      return {
+        id,
+        type: "icon-box",
+        title: "Lightning Performance",
+        content: "Optimized static output delivers instantaneous sub-second page loads worldwide.",
+        iconName: "zap",
+        icon: "⚡",
+        iconBoxPosition: "top",
+        styles: {
+          width: "100%",
+          marginTop: "16px",
+          marginBottom: "16px",
+          borderRadius: "12px",
+        },
+      };
+
+    case "icon-list":
+      return {
+        id,
+        type: "icon-list",
+        content: "Features Checklist",
+        iconListItems: [
+          { id: `il_1`, text: "High priority SLA support", icon: "✓", color: "#10b981" },
+          { id: `il_2`, text: "Unlimited custom domains", icon: "✓", color: "#10b981" },
+          { id: `il_3`, text: "Advanced analytics dashboard", icon: "✓", color: "#10b981" },
+        ],
+        styles: {
+          width: "100%",
+          marginTop: "12px",
+          marginBottom: "12px",
+        },
+      };
+
     default:
       return {
         id,

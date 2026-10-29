@@ -7,6 +7,7 @@ import {
   validateClasses,
 } from "../tokens/designToken.service.js";
 import { escapeJsonLd, generateStructuredData } from "../seo/seoAnalyzer.service.js";
+import { getWidgetCapability, isStaticCompatible, WIDGET_CAPABILITIES } from "./widgetManifest.js";
 
 function escapeHtml(str: string): string {
   if (!str) return "";
@@ -849,11 +850,365 @@ function renderElementToHtml(el: any, allPages: any[], websiteId?: string): stri
       const gridStyle = `display:grid;grid-template-columns:repeat(${cols},minmax(0,1fr));gap:${gap}px;`;
       return `<div class="fs-loop-grid"${idAttr}${classAttr} style="${gridStyle}${styleAttr ? styleAttr.replace(/^\\s*style="/, "").replace(/"$/, "") : ""}">\n${cardsHtml}\n</div>`;
     }
+    case "posts": {
+      const defaultPosts = [
+        { title: "Design Systems in 2026", excerpt: "Building modular component systems with speed.", date: "Jan 15, 2026", author: "Forge Team", thumbnail: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=800&auto=format&fit=crop&q=80", link: "#" },
+        { title: "Responsive Layout Architecture", excerpt: "CSS Grid and Container Queries explained.", date: "Jan 22, 2026", author: "Frontend Lead", thumbnail: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&auto=format&fit=crop&q=80", link: "#" },
+        { title: "Static Site Optimization", excerpt: "Delivering zero-runtime footprint static builds.", date: "Feb 02, 2026", author: "Core Dev", thumbnail: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&auto=format&fit=crop&q=80", link: "#" }
+      ];
+      const posts = Array.isArray(el.posts) && el.posts.length > 0 ? el.posts : defaultPosts;
+      const cols = Math.min(Math.max(el.columns || 3, 1), 6);
+      const cardsHtml = posts.map((post: any) => {
+        const title = escapeHtml(post.title || "Untitled Post");
+        const excerpt = escapeHtml(post.excerpt || "");
+        const author = post.author ? `<span class="fs-post-author">${escapeHtml(post.author)}</span>` : "";
+        const date = post.date ? `<span class="fs-post-date">${escapeHtml(post.date)}</span>` : "";
+        const href = resolveStaticHtmlHref(post.link || post.url || "#", allPages);
+        const thumb = post.thumbnail ? `<div class="fs-post-thumb"><img src="${escapeHtml(post.thumbnail)}" alt="${title}" loading="lazy" /></div>` : "";
+        return `<article class="fs-post-card">
+          ${thumb}
+          <div class="fs-post-body">
+            <div class="fs-post-meta">${author}${date}</div>
+            <h3 class="fs-post-title"><a href="${escapeHtml(href)}">${title}</a></h3>
+            ${excerpt ? `<p class="fs-post-excerpt">${excerpt}</p>` : ""}
+            <a href="${escapeHtml(href)}" class="fs-post-link">Read More →</a>
+          </div>
+        </article>`;
+      }).join("\n");
+      return `<div class="fs-posts-grid"${idAttr}${classAttr} style="display:grid;grid-template-columns:repeat(${cols},minmax(0,1fr));gap:24px;${styleAttr ? styleAttr.replace(/^\\s*style="/, "").replace(/"$/, "") : ""}">\n${cardsHtml}\n</div>`;
+    }
+    case "portfolio": {
+      const defaultItems = [
+        { title: "Brand Identity Project", category: "Branding", image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&auto=format&fit=crop&q=80", link: "#" },
+        { title: "Digital Platform Redesign", category: "Web Design", image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&auto=format&fit=crop&q=80", link: "#" },
+        { title: "Mobile Commerce App", category: "Mobile UI", image: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800&auto=format&fit=crop&q=80", link: "#" }
+      ];
+      const items = Array.isArray(el.items) && el.items.length > 0 ? el.items : defaultItems;
+      const cols = Math.min(Math.max(el.columns || 3, 1), 6);
+      const itemsHtml = items.map((item: any) => {
+        const title = escapeHtml(item.title || "Portfolio Item");
+        const category = escapeHtml(item.category || "");
+        const href = resolveStaticHtmlHref(item.link || item.url || "#", allPages);
+        return `<div class="fs-portfolio-item">
+          <div class="fs-portfolio-thumb">
+            <img src="${escapeHtml(item.image || "")}" alt="${title}" loading="lazy" />
+            <div class="fs-portfolio-overlay">
+              <span class="fs-portfolio-cat">${category}</span>
+              <h4 class="fs-portfolio-title"><a href="${escapeHtml(href)}">${title}</a></h4>
+            </div>
+          </div>
+        </div>`;
+      }).join("\n");
+      return `<div class="fs-portfolio-grid"${idAttr}${classAttr} style="display:grid;grid-template-columns:repeat(${cols},minmax(0,1fr));gap:20px;${styleAttr ? styleAttr.replace(/^\\s*style="/, "").replace(/"$/, "") : ""}">\n${itemsHtml}\n</div>`;
+    }
+    case "rating": {
+      const max = Math.min(Math.max(Number(el.maxRating || el.scale || 5), 1), 10);
+      const val = Math.min(Math.max(Number(el.rating || el.value || 4.5), 0), max);
+      const stars = [];
+      for (let i = 1; i <= max; i++) {
+        stars.push(i <= Math.round(val) ? "★" : "☆");
+      }
+      return `<div class="fs-rating-widget"${idAttr}${classAttr}${styleAttr}>
+        <span class="fs-rating-stars" style="color:${escapeHtml(el.starColor || "#f59e0b")};letter-spacing:2px;font-size:1.25rem;">${stars.join("")}</span>
+        ${el.showNumber !== false ? `<span class="fs-rating-score" style="margin-left:8px;font-weight:600;color:#64748b;">${val.toFixed(1)} / ${max}</span>` : ""}
+      </div>`;
+    }
+    case "soundcloud": {
+      const trackUrl = el.trackUrl || el.url || "https://soundcloud.com/forss/flickermood";
+      const height = el.height || 166;
+      const src = `https://w.soundcloud.com/player/?url=${encodeURIComponent(trackUrl)}&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true`;
+      return `<div class="fs-soundcloud-widget"${idAttr}${classAttr}${styleAttr}>
+        <iframe width="100%" height="${height}" scrolling="no" frameborder="no" allow="autoplay" src="${escapeHtml(src)}"></iframe>
+      </div>`;
+    }
+    case "link-in-bio": {
+      const name = escapeHtml(el.name || el.title || "Creator Profile");
+      const bio = escapeHtml(el.bio || el.subtitle || "Welcome to my official links page.");
+      const avatar = el.avatar || el.image || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80";
+      const links = Array.isArray(el.links) && el.links.length > 0 ? el.links : [
+        { label: "My Latest Projects", url: "#", icon: "🌐" },
+        { label: "Book a Consultation", url: "#", icon: "📅" },
+        { label: "Join the Newsletter", url: "#", icon: "✉️" }
+      ];
+      const linksHtml = links.map((l: any) => {
+        const href = resolveStaticHtmlHref(l.url || l.href || "#", allPages);
+        return `<a href="${escapeHtml(href)}" class="fs-bio-btn">${l.icon ? `<span class="fs-bio-btn-icon">${escapeHtml(l.icon)}</span>` : ""}<span class="fs-bio-btn-label">${escapeHtml(l.label || l.title || "Link")}</span></a>`;
+      }).join("\n");
+      return `<div class="fs-link-in-bio"${idAttr}${classAttr}${styleAttr}>
+        <div class="fs-bio-avatar-wrap"><img src="${escapeHtml(avatar)}" alt="${name}" class="fs-bio-avatar" /></div>
+        <h2 class="fs-bio-name">${name}</h2>
+        <p class="fs-bio-desc">${bio}</p>
+        <div class="fs-bio-links">${linksHtml}</div>
+      </div>`;
+    }
+    case "image-box": {
+      const title = escapeHtml(el.title || "Image Box Title");
+      const desc = escapeHtml(el.description || el.content || "");
+      const src = el.image || el.src || "https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&auto=format&fit=crop&q=80";
+      const href = resolveStaticHtmlHref(el.link || el.href || "", allPages);
+      const inner = `
+        <div class="fs-image-box-img"><img src="${escapeHtml(src)}" alt="${title}" loading="lazy" /></div>
+        <div class="fs-image-box-content">
+          <h3 class="fs-image-box-title">${title}</h3>
+          ${desc ? `<p class="fs-image-box-desc">${desc}</p>` : ""}
+        </div>`;
+      if (href && href !== "#") {
+        return `<a href="${escapeHtml(href)}" class="fs-image-box"${idAttr}${classAttr}${styleAttr}>${inner}</a>`;
+      }
+      return `<div class="fs-image-box"${idAttr}${classAttr}${styleAttr}>${inner}</div>`;
+    }
+    case "icon-box": {
+      const title = escapeHtml(el.title || "Feature Title");
+      const desc = escapeHtml(el.description || el.content || "Feature description providing essential details.");
+      const icon = escapeHtml(el.icon || el.iconName || "✦");
+      const href = resolveStaticHtmlHref(el.link || el.href || "", allPages);
+      const inner = `
+        <div class="fs-icon-box-icon" style="color:${escapeHtml(el.iconColor || "var(--primary-color)")};">${icon}</div>
+        <div class="fs-icon-box-content">
+          <h3 class="fs-icon-box-title">${title}</h3>
+          ${desc ? `<p class="fs-icon-box-desc">${desc}</p>` : ""}
+        </div>`;
+      if (href && href !== "#") {
+        return `<a href="${escapeHtml(href)}" class="fs-icon-box"${idAttr}${classAttr}${styleAttr}>${inner}</a>`;
+      }
+      return `<div class="fs-icon-box"${idAttr}${classAttr}${styleAttr}>${inner}</div>`;
+    }
+    case "icon-list": {
+      const defaultItems = [
+        { text: "Fast static compilation with zero runtime overhead", icon: "✓" },
+        { text: "Fully responsive multi-breakpoint layout engine", icon: "✓" },
+        { text: "Enterprise security and tenant isolation", icon: "✓" }
+      ];
+      const items = Array.isArray(el.items) && el.items.length > 0 ? el.items : defaultItems;
+      const itemsHtml = items.map((it: any) => {
+        const text = escapeHtml(it.text || it.title || "");
+        const icon = escapeHtml(it.icon || el.defaultIcon || "✓");
+        return `<li class="fs-icon-list-item"><span class="fs-icon-list-bullet">${icon}</span><span class="fs-icon-list-text">${text}</span></li>`;
+      }).join("\n");
+      return `<ul class="fs-icon-list"${idAttr}${classAttr}${styleAttr}>\n${itemsHtml}\n</ul>`;
+    }
+    case "tabs":
+    case "nested-tabs": {
+      const tabs = Array.isArray(el.tabs) && el.tabs.length > 0 ? el.tabs : [
+        { id: "tab-1", title: "Overview", content: "Comprehensive overview of platform capabilities and features." },
+        { id: "tab-2", title: "Specifications", content: "Deterministic architecture and responsive parity specifications." },
+        { id: "tab-3", title: "Integration", content: "Seamless workflow between editor, published site, and static export." }
+      ];
+      const navHtml = tabs.map((t: any, idx: number) => {
+        const tabId = escapeHtml(t.id || `tab_${idx}`);
+        const activeClass = idx === 0 ? " active" : "";
+        return `<button type="button" class="fs-tab-btn${activeClass}" data-tab-target="${tabId}">${escapeHtml(t.title || `Tab ${idx + 1}`)}</button>`;
+      }).join("\n");
+      const panesHtml = tabs.map((t: any, idx: number) => {
+        const tabId = escapeHtml(t.id || `tab_${idx}`);
+        const activeClass = idx === 0 ? " active" : "";
+        let contentHtml = "";
+        if (Array.isArray(t.elements) && t.elements.length > 0) {
+          contentHtml = t.elements.map((child: any) => renderElementToHtml(child, allPages, websiteId)).join("\n");
+        } else {
+          contentHtml = escapeHtml(t.content || "");
+        }
+        return `<div class="fs-tab-pane${activeClass}" data-tab-id="${tabId}" id="${tabId}">${contentHtml}</div>`;
+      }).join("\n");
+      return `<div class="fs-tabs-widget"${idAttr}${classAttr}${styleAttr}>
+        <div class="fs-tabs-nav">${navHtml}</div>
+        <div class="fs-tabs-content">${panesHtml}</div>
+      </div>`;
+    }
+    case "accordion":
+    case "nested-accordion":
+    case "toggle": {
+      const items = Array.isArray(el.items) && el.items.length > 0 ? el.items : [
+        { title: "What is Tri-Renderer Parity?", content: "Tri-Renderer Parity guarantees identical behavior across Editor Canvas, Published SPA, and Static Export.", open: true },
+        { title: "How does Responsive Layout work?", content: "All media query breakpoints cascade gracefully across Desktop, Tablet, and Mobile viewports.", open: false },
+        { title: "How are backend dependencies secured?", content: "Commerce, form submissions, and authentication strictly require validated server endpoints.", open: false }
+      ];
+      const itemsHtml = items.map((it: any, idx: number) => {
+        const isOpen = it.open || (idx === 0 && el.firstItemOpen !== false);
+        const activeClass = isOpen ? " active" : "";
+        let contentHtml = "";
+        if (Array.isArray(it.elements) && it.elements.length > 0) {
+          contentHtml = it.elements.map((child: any) => renderElementToHtml(child, allPages, websiteId)).join("\n");
+        } else {
+          contentHtml = escapeHtml(it.content || "");
+        }
+        return `<div class="fs-accordion-item${activeClass}">
+          <button type="button" class="fs-accordion-header">
+            <span>${escapeHtml(it.title || `Section ${idx + 1}`)}</span>
+            <span class="fs-accordion-icon">▾</span>
+          </button>
+          <div class="fs-accordion-content" style="${isOpen ? "display:block;" : "display:none;"}">${contentHtml}</div>
+        </div>`;
+      }).join("\n");
+      return `<div class="fs-accordion-widget"${idAttr}${classAttr}${styleAttr}>\n${itemsHtml}\n</div>`;
+    }
+    case "animated-headline": {
+      const prefix = escapeHtml(el.prefix || el.beforeText || "We Build");
+      const animated = escapeHtml(el.animatedText || el.highlightedText || el.text || "Extraordinary");
+      const suffix = escapeHtml(el.suffix || el.afterText || "Web Experiences");
+      const styleType = escapeHtml(el.animationStyle || "highlight");
+      return `<div class="fs-animated-headline fs-headline-${styleType}"${idAttr}${classAttr}${styleAttr}>
+        <span class="fs-headline-prefix">${prefix}</span>
+        <span class="fs-headline-dynamic" style="color:var(--primary-color);font-weight:bold;text-decoration:underline;">${animated}</span>
+        <span class="fs-headline-suffix">${suffix}</span>
+      </div>`;
+    }
+    case "table-of-contents":
+    case "toc": {
+      const title = escapeHtml(el.title || "Table of Contents");
+      const defaultHeadings = [
+        { text: "1. Overview & Objectives", anchor: "overview" },
+        { text: "2. Architecture & Design", anchor: "architecture" },
+        { text: "3. Implementation Details", anchor: "implementation" },
+        { text: "4. Verification & Testing", anchor: "testing" }
+      ];
+      const headings = Array.isArray(el.headings) && el.headings.length > 0 ? el.headings : defaultHeadings;
+      const linksHtml = headings.map((h: any) => {
+        return `<li><a href="#${escapeHtml(h.anchor || h.id || "")}">${escapeHtml(h.text || h.title || "")}</a></li>`;
+      }).join("\n");
+      return `<nav class="fs-toc-widget"${idAttr}${classAttr}${styleAttr}>
+        <h4 class="fs-toc-title">${title}</h4>
+        <ul class="fs-toc-list">\n${linksHtml}\n</ul>
+      </nav>`;
+    }
+    case "facebook-page": {
+      const pageUrl = el.pageUrl || el.url || "https://www.facebook.com/facebook";
+      const title = escapeHtml(el.title || "Follow us on Facebook");
+      return `<div class="fs-facebook-page"${idAttr}${classAttr}${styleAttr}>
+        <div class="fs-fb-card">
+          <div class="fs-fb-icon">f</div>
+          <div class="fs-fb-info">
+            <h4 class="fs-fb-title">${title}</h4>
+            <a href="${escapeHtml(pageUrl)}" target="_blank" rel="noopener noreferrer" class="fs-fb-link">Visit Facebook Page →</a>
+          </div>
+        </div>
+      </div>`;
+    }
+    case "paypal-button": {
+      const btnText = escapeHtml(el.buttonText || el.text || "Pay with PayPal");
+      const amount = Number(el.amount || 29.99).toFixed(2);
+      const isConfigured = Boolean(el.clientId || el.merchantId);
+      return `<div class="fs-paypal-button-wrap"${idAttr}${classAttr}${styleAttr}>
+        <button type="button" class="fs-paypal-btn" data-paypal-amount="${amount}" ${!isConfigured ? 'data-requires-config="true"' : ""}>
+          <span class="fs-paypal-icon">PayPal</span>
+          <span class="fs-paypal-text">${btnText} ($${amount})</span>
+        </button>
+        ${!isConfigured ? `<p class="fs-payment-notice" style="font-size:0.75rem;color:#64748b;margin-top:4px;">Live payment processing requires merchant configuration.</p>` : ""}
+      </div>`;
+    }
+    case "stripe-button": {
+      const btnText = escapeHtml(el.buttonText || el.text || "Checkout with Stripe");
+      const amount = Number(el.amount || 49.00).toFixed(2);
+      const isConfigured = Boolean(el.publishableKey || el.priceId);
+      return `<div class="fs-stripe-button-wrap"${idAttr}${classAttr}${styleAttr}>
+        <button type="button" class="fs-stripe-btn" data-stripe-amount="${amount}" ${!isConfigured ? 'data-requires-config="true"' : ""}>
+          <span class="fs-stripe-icon">Stripe</span>
+          <span class="fs-stripe-text">${btnText} ($${amount})</span>
+        </button>
+        ${!isConfigured ? `<p class="fs-payment-notice" style="font-size:0.75rem;color:#64748b;margin-top:4px;">Stripe live checkout requires merchant publishable key.</p>` : ""}
+      </div>`;
+    }
+    case "login": {
+      const title = escapeHtml(el.title || "Sign In to Your Account");
+      const btnText = escapeHtml(el.buttonText || "Log In");
+      return `<div class="fs-login-widget"${idAttr}${classAttr}${styleAttr}>
+        <form class="fs-login-form" action="/api/auth/login" method="POST">
+          <h3 class="fs-login-title">${title}</h3>
+          <div class="fs-field-group">
+            <label for="fs_login_user_${escapeHtml(el.id || "0")}">Username or Email</label>
+            <input type="text" id="fs_login_user_${escapeHtml(el.id || "0")}" name="username" required autocomplete="username" />
+          </div>
+          <div class="fs-field-group">
+            <label for="fs_login_pass_${escapeHtml(el.id || "0")}">Password</label>
+            <input type="password" id="fs_login_pass_${escapeHtml(el.id || "0")}" name="password" required autocomplete="current-password" />
+          </div>
+          <div class="fs-form-options">
+            <label><input type="checkbox" name="remember" /> Remember me</label>
+            <a href="#forgot" class="fs-forgot-link">Forgot password?</a>
+          </div>
+          <button type="submit" class="btn btn-primary fs-login-submit">${btnText}</button>
+        </form>
+      </div>`;
+    }
+    case "off-canvas": {
+      const triggerText = escapeHtml(el.triggerText || el.label || "Open Panel");
+      const panelId = escapeHtml(el.panelId || `panel_${el.id || "drawer"}`);
+      const children = Array.isArray(el.elements) ? el.elements : (Array.isArray(el.children) ? el.children : []);
+      const drawerContent = children.length > 0
+        ? children.map((c: any) => renderElementToHtml(c, allPages, websiteId)).join("\n")
+        : escapeHtml(el.content || "Off-canvas panel content");
+      return `<div class="fs-off-canvas-container"${idAttr}${classAttr}${styleAttr}>
+        <button type="button" class="btn fs-off-canvas-toggle" data-off-canvas-toggle="${panelId}">
+          ${triggerText}
+        </button>
+        <div class="fs-off-canvas-drawer" id="${panelId}" data-off-canvas-panel="${panelId}">
+          <div class="fs-off-canvas-header">
+            <h4>${escapeHtml(el.title || "Menu")}</h4>
+            <button type="button" class="fs-off-canvas-close" data-off-canvas-close="${panelId}">✕</button>
+          </div>
+          <div class="fs-off-canvas-body">${drawerContent}</div>
+        </div>
+        <div class="fs-off-canvas-backdrop" data-off-canvas-backdrop="${panelId}"></div>
+      </div>`;
+    }
+    case "basic-media-carousel": {
+      const slides = Array.isArray(el.slides) && el.slides.length > 0 ? el.slides : [
+        { url: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=800&auto=format&fit=crop&q=80", caption: "Slide 1" },
+        { url: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&auto=format&fit=crop&q=80", caption: "Slide 2" },
+        { url: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&auto=format&fit=crop&q=80", caption: "Slide 3" }
+      ];
+      const slidesHtml = slides.map((s: any, idx: number) => {
+        return `<div class="fs-carousel-slide" data-slide-index="${idx}">
+          <img src="${escapeHtml(s.url || s.image || "")}" alt="${escapeHtml(s.caption || `Slide ${idx + 1}`)}" loading="lazy" />
+          ${s.caption ? `<div class="fs-carousel-caption">${escapeHtml(s.caption)}</div>` : ""}
+        </div>`;
+      }).join("\n");
+      return `<div class="fs-carousel-widget"${idAttr}${classAttr}${styleAttr}>
+        <div class="fs-carousel-track">${slidesHtml}</div>
+        <button type="button" class="fs-carousel-prev" aria-label="Previous">❮</button>
+        <button type="button" class="fs-carousel-next" aria-label="Next">❯</button>
+      </div>`;
+    }
+    case "dynamic-lightbox": {
+      const src = el.src || el.image || "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=1200&auto=format&fit=crop&q=80";
+      const alt = escapeHtml(el.alt || el.title || "Lightbox Image");
+      return `<div class="fs-lightbox-item"${idAttr}${classAttr}${styleAttr}>
+        <a href="${escapeHtml(src)}" data-lightbox-src="${escapeHtml(src)}" class="fs-lightbox-trigger">
+          <img src="${escapeHtml(src)}" alt="${alt}" loading="lazy" />
+          <span class="fs-lightbox-zoom-icon">🔍</span>
+        </a>
+      </div>`;
+    }
+    case "wp-menu": {
+      const menuItems = Array.isArray(el.menuItems) ? el.menuItems : (Array.isArray(el.items) ? el.items : [
+        { label: "Home", url: "/" },
+        { label: "About", url: "/about" },
+        { label: "Services", url: "/services" },
+        { label: "Contact", url: "/contact" }
+      ]);
+      const itemsHtml = menuItems.map((item: any) => {
+        const href = resolveStaticHtmlHref(item.url || item.href || "#", allPages);
+        return `<li class="fs-wp-menu-item"><a href="${escapeHtml(href)}">${escapeHtml(item.label || item.title || "Link")}</a></li>`;
+      }).join("\n");
+      return `<nav class="fs-wp-menu"${idAttr}${classAttr}${styleAttr}><ul class="fs-wp-menu-list">\n${itemsHtml}\n</ul></nav>`;
+    }
     default: {
+      const cap = getWidgetCapability(el.type);
+      const isKnownLayout = ["container", "div", "div-block", "section", "row", "column"].includes(el.type);
       const children = Array.isArray(el.elements) ? el.elements : (Array.isArray(el.children) ? el.children : []);
       const fallbackChildren = children.length > 0
         ? children.map((child: any) => renderElementToHtml(child, allPages, websiteId)).join("\n")
         : escapeHtml(el.content || "");
+
+      if (!isKnownLayout && (!cap || cap.staticExport === false || cap.staticSupportLevel === "not-supported")) {
+        return `<div class="fs-unsupported-widget"${idAttr}${classAttr}${styleAttr} data-unsupported-widget="${escapeHtml(el.type || 'unknown')}">
+          <div class="fs-unsupported-notice">
+            <span class="fs-unsupported-badge">Interactive Widget</span>
+            <span class="fs-unsupported-msg">Widget <strong>${escapeHtml(el.type || 'unknown')}</strong> is not supported in static export or requires server runtime.</span>
+          </div>
+          ${fallbackChildren}
+        </div>`;
+      }
       return `<div${idAttr}${classAttr}${styleAttr}>${fallbackChildren}</div>`;
     }
   }
@@ -962,6 +1317,88 @@ function generatePageHtml(
   <script src="runtime.js"></script>
 </body>
 </html>`;
+}
+
+function collectAllElements(nodes: any[]): any[] {
+  const result: any[] = [];
+  for (const node of nodes || []) {
+    if (!node) continue;
+    result.push(node);
+    const children = Array.isArray(node.elements) ? node.elements : (Array.isArray(node.children) ? node.children : []);
+    if (children.length > 0) {
+      result.push(...collectAllElements(children));
+    }
+  }
+  return result;
+}
+
+function objectToCssDeclarations(obj: any): string {
+  if (!obj || typeof obj !== "object") return "";
+  return Object.entries(obj)
+    .filter(([_, v]) => v !== undefined && v !== null && v !== "")
+    .map(([k, v]) => `    ${k.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`)}: ${v};`)
+    .join("\n");
+}
+
+function generateResponsiveCss(websiteData: any): string {
+  const allNodes: any[] = [];
+  if (Array.isArray(websiteData.elements)) allNodes.push(...websiteData.elements);
+  if (Array.isArray(websiteData.pages)) {
+    for (const p of websiteData.pages) {
+      if (Array.isArray(p.elements)) allNodes.push(...p.elements);
+    }
+  }
+  if (websiteData.siteParts) {
+    if (Array.isArray(websiteData.siteParts.header?.elements)) allNodes.push(...websiteData.siteParts.header.elements);
+    if (Array.isArray(websiteData.siteParts.footer?.elements)) allNodes.push(...websiteData.siteParts.footer.elements);
+  }
+
+  const allElements = collectAllElements(allNodes);
+  const desktopRules: string[] = [];
+  const tabletRules: string[] = [];
+  const mobileRules: string[] = [];
+
+  for (const el of allElements) {
+    if (!el || !el.id) continue;
+    const selector = `#${el.id}`;
+
+    // Desktop visibility
+    if (el.visibility && el.visibility.desktop === false) {
+      desktopRules.push(`${selector} { display: none !important; }`);
+    }
+
+    // Tablet visibility & styles (max-width: 1024px)
+    if (el.visibility && el.visibility.tablet === false) {
+      tabletRules.push(`  ${selector} { display: none !important; }`);
+    }
+    if (el.responsiveStyles && el.responsiveStyles.tablet) {
+      const decls = objectToCssDeclarations(el.responsiveStyles.tablet);
+      if (decls) {
+        tabletRules.push(`  ${selector} {\n${decls}\n  }`);
+      }
+    }
+
+    // Mobile visibility & styles (max-width: 768px)
+    if (el.visibility && (el.visibility.mobile === false || el.visibility.phone === false)) {
+      mobileRules.push(`  ${selector} { display: none !important; }`);
+    }
+    if (el.responsiveStyles && el.responsiveStyles.mobile) {
+      const decls = objectToCssDeclarations(el.responsiveStyles.mobile);
+      if (decls) {
+        mobileRules.push(`  ${selector} {\n${decls}\n  }`);
+      }
+    }
+  }
+
+  let css = "";
+  if (desktopRules.length > 0) {
+    css += `\n/* Desktop Element Visibility Rules */\n${desktopRules.join("\n")}\n`;
+  }
+  css += `\n/* Responsive Layout Engine - Tablet Breakpoint (1024px) */\n@media (max-width: 1024px) {\n${tabletRules.join("\n")}\n}\n`;
+  css += `\n/* Responsive Layout Engine - Mobile Breakpoint (768px) */\n@media (max-width: 768px) {\n  .fs-posts-grid, .fs-portfolio-grid, .fs-loop-grid, .fs-pricing-table {\n    grid-template-columns: 1fr !important;\n  }\n${mobileRules.join("\n")}\n}\n`;
+  css += `\n/* Responsive Layout Engine - Narrow Mobile (480px) */\n@media (max-width: 480px) {\n  body { font-size: 15px; }\n}\n`;
+
+  return css;
 }
 
 function generateGlobalCss(websiteData: any): string {
@@ -1160,8 +1597,145 @@ img {
 .fs-post-prev a, .fs-post-next a { font-weight: 500; color: var(--primary-color); text-decoration: none; }
 .fs-post-prev a:hover, .fs-post-next a:hover { text-decoration: underline; }
 
+/* Phase 6 Widget Styles */
+.fs-posts-grid { display: grid; gap: 24px; }
+.fs-post-card { border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; background: #fff; display: flex; flex-direction: column; transition: transform 0.2s, box-shadow 0.2s; }
+.fs-post-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+.fs-post-thumb img { width: 100%; height: 200px; object-fit: cover; }
+.fs-post-body { padding: 1.25rem; display: flex; flex-direction: column; flex: 1; }
+.fs-post-meta { font-size: 0.8rem; color: #64748b; margin-bottom: 0.5rem; display: flex; gap: 0.75rem; }
+.fs-post-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; line-height: 1.3; }
+.fs-post-title a { color: var(--text-color); text-decoration: none; }
+.fs-post-title a:hover { color: var(--primary-color); }
+.fs-post-excerpt { font-size: 0.9rem; color: #475569; margin-bottom: 1rem; line-height: 1.5; flex: 1; }
+.fs-post-link { font-weight: 600; font-size: 0.9rem; color: var(--primary-color); text-decoration: none; align-self: flex-start; }
+
+.fs-portfolio-grid { display: grid; gap: 20px; }
+.fs-portfolio-item { position: relative; border-radius: 8px; overflow: hidden; }
+.fs-portfolio-thumb { position: relative; width: 100%; overflow: hidden; }
+.fs-portfolio-thumb img { width: 100%; height: 240px; object-fit: cover; transition: transform 0.3s ease; }
+.fs-portfolio-item:hover img { transform: scale(1.04); }
+.fs-portfolio-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.1) 70%); display: flex; flex-direction: column; justify-content: flex-end; padding: 1.25rem; color: #fff; }
+.fs-portfolio-cat { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #cbd5e1; }
+.fs-portfolio-title { font-size: 1.1rem; font-weight: 600; margin-top: 0.25rem; }
+.fs-portfolio-title a { color: #fff; text-decoration: none; }
+
+.fs-rating-widget { display: inline-flex; align-items: center; }
+
+.fs-soundcloud-widget { width: 100%; margin: 1rem 0; border-radius: 8px; overflow: hidden; }
+
+.fs-link-in-bio { max-width: 480px; margin: 2rem auto; text-align: center; padding: 2rem 1.5rem; }
+.fs-bio-avatar-wrap { width: 96px; height: 96px; margin: 0 auto 1rem; border-radius: 9999px; overflow: hidden; border: 3px solid var(--primary-color); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+.fs-bio-avatar { width: 100%; height: 100%; object-fit: cover; }
+.fs-bio-name { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
+.fs-bio-desc { font-size: 0.95rem; color: #64748b; margin-bottom: 1.5rem; line-height: 1.5; }
+.fs-bio-links { display: flex; flex-direction: column; gap: 0.75rem; }
+.fs-bio-btn { display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.85rem 1.25rem; background: #fff; border: 1px solid #cbd5e1; border-radius: 8px; color: var(--text-color); font-weight: 600; text-decoration: none; transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+.fs-bio-btn:hover { background: var(--primary-color); color: #fff; border-color: var(--primary-color); transform: translateY(-1px); }
+
+.fs-image-box { display: flex; flex-direction: column; gap: 1rem; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; background: #fff; text-decoration: none; color: inherit; }
+.fs-image-box-img img { width: 100%; height: 200px; object-fit: cover; }
+.fs-image-box-content { padding: 1.25rem; }
+.fs-image-box-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem; }
+.fs-image-box-desc { font-size: 0.9rem; color: #64748b; line-height: 1.5; }
+
+.fs-icon-box { display: flex; align-items: flex-start; gap: 1rem; padding: 1.5rem; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; }
+.fs-icon-box-icon { font-size: 2rem; line-height: 1; flex-shrink: 0; }
+.fs-icon-box-content { flex: 1; }
+.fs-icon-box-title { font-size: 1.15rem; font-weight: 600; margin-bottom: 0.35rem; }
+.fs-icon-box-desc { font-size: 0.9rem; color: #64748b; line-height: 1.5; }
+
+.fs-icon-list { list-style: none; padding: 0; margin: 1rem 0; display: flex; flex-direction: column; gap: 0.6rem; }
+.fs-icon-list-item { display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; }
+.fs-icon-list-bullet { color: var(--primary-color); font-weight: bold; }
+
+.fs-tabs-widget { border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; margin: 1.5rem 0; background: #fff; }
+.fs-tabs-nav { display: flex; border-bottom: 1px solid #e2e8f0; background: #f8fafc; overflow-x: auto; }
+.fs-tab-btn { padding: 0.75rem 1.25rem; border: none; background: transparent; font-size: 0.95rem; font-weight: 600; color: #64748b; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap; }
+.fs-tab-btn:hover { color: var(--text-color); }
+.fs-tab-btn.active { color: var(--primary-color); border-bottom-color: var(--primary-color); background: #fff; }
+.fs-tabs-content { padding: 1.5rem; }
+.fs-tab-pane { display: none; }
+.fs-tab-pane.active { display: block; animation: fsFadeIn 0.2s ease-in-out; }
+
+.fs-accordion-widget { border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; margin: 1.5rem 0; background: #fff; }
+.fs-accordion-item { border-bottom: 1px solid #e2e8f0; }
+.fs-accordion-item:last-child { border-bottom: none; }
+.fs-accordion-header { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; background: #fff; border: none; font-size: 1rem; font-weight: 600; text-align: left; cursor: pointer; transition: background 0.2s; }
+.fs-accordion-header:hover { background: #f8fafc; }
+.fs-accordion-icon { transition: transform 0.2s ease; }
+.fs-accordion-item.active .fs-accordion-icon { transform: rotate(180deg); }
+.fs-accordion-content { padding: 1rem 1.25rem; font-size: 0.95rem; color: #475569; line-height: 1.6; background: #fafafa; border-top: 1px solid #f1f5f9; }
+
+.fs-animated-headline { font-size: 2rem; font-weight: 800; margin: 1.5rem 0; line-height: 1.3; }
+.fs-headline-prefix { margin-right: 0.35rem; }
+.fs-headline-suffix { margin-left: 0.35rem; }
+
+.fs-toc-widget { border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.25rem; background: #f8fafc; margin: 1.5rem 0; }
+.fs-toc-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.75rem; }
+.fs-toc-list { list-style: none; padding-left: 0.5rem; display: flex; flex-direction: column; gap: 0.5rem; }
+.fs-toc-list li a { color: var(--primary-color); text-decoration: none; font-size: 0.95rem; }
+.fs-toc-list li a:hover { text-decoration: underline; }
+
+.fs-facebook-page { border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; max-width: 400px; background: #fff; }
+.fs-fb-card { display: flex; align-items: center; gap: 1rem; }
+.fs-fb-icon { width: 44px; height: 44px; border-radius: 9999px; background: #1877f2; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.5rem; }
+.fs-fb-info { flex: 1; }
+.fs-fb-title { font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem; }
+.fs-fb-link { font-size: 0.85rem; color: #1877f2; text-decoration: none; }
+
+.fs-paypal-button-wrap, .fs-stripe-button-wrap { margin: 1rem 0; }
+.fs-paypal-btn { display: inline-flex; align-items: center; gap: 0.5rem; background: #ffc439; color: #003087; font-weight: 700; border: none; border-radius: 4px; padding: 0.75rem 1.5rem; font-size: 1rem; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+.fs-stripe-btn { display: inline-flex; align-items: center; gap: 0.5rem; background: #635bff; color: #fff; font-weight: 600; border: none; border-radius: 4px; padding: 0.75rem 1.5rem; font-size: 1rem; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+
+.fs-login-widget { max-width: 400px; margin: 2rem auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 2rem; background: #fff; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+.fs-login-title { font-size: 1.35rem; font-weight: 700; margin-bottom: 1.25rem; }
+.fs-field-group { margin-bottom: 1rem; }
+.fs-field-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem; color: #475569; }
+.fs-field-group input { width: 100%; padding: 0.6rem 0.75rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; }
+.fs-form-options { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; margin-bottom: 1.25rem; }
+.fs-forgot-link { color: var(--primary-color); text-decoration: none; }
+.fs-login-submit { width: 100%; padding: 0.75rem; font-size: 1rem; }
+
+.fs-off-canvas-drawer { position: fixed; top: 0; right: 0; width: 320px; height: 100vh; background: #fff; box-shadow: -4px 0 15px rgba(0,0,0,0.15); transform: translateX(100%); transition: transform 0.3s ease; z-index: 1000; display: flex; flex-direction: column; }
+.fs-off-canvas-drawer.active { transform: translateX(0); }
+.fs-off-canvas-header { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem; border-bottom: 1px solid #e2e8f0; }
+.fs-off-canvas-close { background: none; border: none; font-size: 1.25rem; cursor: pointer; }
+.fs-off-canvas-body { padding: 1.25rem; overflow-y: auto; flex: 1; }
+.fs-off-canvas-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999; display: none; opacity: 0; transition: opacity 0.3s ease; }
+.fs-off-canvas-backdrop.active { display: block; opacity: 1; }
+
+.fs-carousel-widget { position: relative; overflow: hidden; margin: 1.5rem 0; border-radius: 8px; }
+.fs-carousel-track { display: flex; overflow-x: hidden; scroll-behavior: smooth; }
+.fs-carousel-slide { min-width: 100%; position: relative; }
+.fs-carousel-slide img { width: 100%; height: 350px; object-fit: cover; }
+.fs-carousel-caption { position: absolute; bottom: 0; inset-inline: 0; padding: 1rem; background: linear-gradient(to top, rgba(0,0,0,0.7), transparent); color: #fff; font-size: 0.95rem; }
+.fs-carousel-prev, .fs-carousel-next { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: #fff; border: none; border-radius: 9999px; width: 40px; height: 40px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; transition: background 0.2s; }
+.fs-carousel-prev { left: 1rem; }
+.fs-carousel-next { right: 1rem; }
+.fs-carousel-prev:hover, .fs-carousel-next:hover { background: rgba(0,0,0,0.8); }
+
+.fs-lightbox-item { display: inline-block; }
+.fs-lightbox-trigger { position: relative; display: inline-block; overflow: hidden; border-radius: 8px; }
+.fs-lightbox-trigger img { transition: transform 0.2s; }
+.fs-lightbox-trigger:hover img { transform: scale(1.02); }
+.fs-lightbox-zoom-icon { position: absolute; bottom: 0.5rem; right: 0.5rem; background: rgba(0,0,0,0.6); color: #fff; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.85rem; }
+
+.fs-wp-menu-list { list-style: none; padding: 0; margin: 0; display: flex; gap: 1.5rem; flex-wrap: wrap; }
+.fs-wp-menu-item a { color: var(--text-color); text-decoration: none; font-weight: 500; font-size: 0.95rem; }
+.fs-wp-menu-item a:hover { color: var(--primary-color); }
+
+.fs-unsupported-widget { border: 1px dashed #cbd5e1; border-radius: 8px; padding: 1.25rem; background: #f8fafc; margin: 1rem 0; }
+.fs-unsupported-notice { display: flex; align-items: center; gap: 0.75rem; }
+.fs-unsupported-badge { display: inline-block; padding: 0.2rem 0.5rem; background: #e2e8f0; color: #475569; font-size: 0.75rem; font-weight: 700; border-radius: 4px; text-transform: uppercase; }
+.fs-unsupported-msg { font-size: 0.85rem; color: #64748b; }
+
+@keyframes fsFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
 /* Custom Page Styles */
 ${safeData.pageCss || safeData.editorData?.pageCss || ""}
+
+${generateResponsiveCss(safeData)}
 `;
 }
 
@@ -1409,15 +1983,124 @@ function generateRuntimeJs(): string {
           alert('Order placed successfully! Thank you for your purchase.');
           window.location.href = 'purchase-summary.html';
         } else {
-          alert('Order recorded locally. Thank you for your purchase!');
-          saveCart([]);
+          var errData = {};
+          try { errData = await res.json(); } catch(e) {}
+          alert('Checkout failed: ' + (errData.error || errData.message || 'Payment or order processing declined.'));
         }
       } catch (err) {
-        alert('Order recorded locally. Thank you for your purchase!');
-        saveCart([]);
+        alert('Checkout error: Unable to contact order service. Cart preserved.');
       }
     });
   }
+
+  // Phase 6 Interactive Widgets Runtime
+  // 1. Tabs widget interaction
+  document.querySelectorAll('.fs-tabs-widget').forEach(function(tabsWidget) {
+    tabsWidget.querySelectorAll('.fs-tab-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var targetId = btn.getAttribute('data-tab-target');
+        tabsWidget.querySelectorAll('.fs-tab-btn').forEach(function(b) { b.classList.remove('active'); });
+        tabsWidget.querySelectorAll('.fs-tab-pane').forEach(function(p) { p.classList.remove('active'); });
+        btn.classList.add('active');
+        var targetPane = tabsWidget.querySelector('[data-tab-id="' + targetId + '"]') || document.getElementById(targetId);
+        if (targetPane) targetPane.classList.add('active');
+      });
+    });
+  });
+
+  // 2. Accordion widget interaction
+  document.querySelectorAll('.fs-accordion-item').forEach(function(item) {
+    var header = item.querySelector('.fs-accordion-header');
+    if (header) {
+      header.addEventListener('click', function() {
+        var isOpen = item.classList.contains('active');
+        var content = item.querySelector('.fs-accordion-content');
+        if (isOpen) {
+          item.classList.remove('active');
+          if (content) content.style.display = 'none';
+        } else {
+          item.classList.add('active');
+          if (content) content.style.display = 'block';
+        }
+      });
+    }
+  });
+
+  // 3. Off-canvas panel interaction
+  document.querySelectorAll('[data-off-canvas-toggle]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var panelId = btn.getAttribute('data-off-canvas-toggle');
+      var panel = document.getElementById(panelId);
+      var backdrop = document.querySelector('[data-off-canvas-backdrop="' + panelId + '"]');
+      if (panel) panel.classList.add('active');
+      if (backdrop) backdrop.classList.add('active');
+    });
+  });
+  document.querySelectorAll('[data-off-canvas-close], [data-off-canvas-backdrop]').forEach(function(el) {
+    el.addEventListener('click', function() {
+      var panelId = el.getAttribute('data-off-canvas-close') || el.getAttribute('data-off-canvas-backdrop');
+      var panel = document.getElementById(panelId);
+      var backdrop = document.querySelector('[data-off-canvas-backdrop="' + panelId + '"]');
+      if (panel) panel.classList.remove('active');
+      if (backdrop) backdrop.classList.remove('active');
+    });
+  });
+
+  // 4. Countdown timer live update
+  document.querySelectorAll('.fs-countdown').forEach(function(counter) {
+    var targetAttr = counter.getAttribute('data-target-date');
+    var targetDate = targetAttr ? new Date(targetAttr).getTime() : (Date.now() + 86400000 * 7);
+    function updateCountdown() {
+      var now = Date.now();
+      var diff = Math.max(0, targetDate - now);
+      var days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      var hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      var mins = Math.floor((diff / (1000 * 60)) % 60);
+      var secs = Math.floor((diff / 1000) % 60);
+      var dEl = counter.querySelector('.fs-countdown-days');
+      var hEl = counter.querySelector('.fs-countdown-hours');
+      var mEl = counter.querySelector('.fs-countdown-minutes');
+      var sEl = counter.querySelector('.fs-countdown-seconds');
+      if (dEl) dEl.textContent = String(days).padStart(2, '0');
+      if (hEl) hEl.textContent = String(hours).padStart(2, '0');
+      if (mEl) mEl.textContent = String(mins).padStart(2, '0');
+      if (sEl) sEl.textContent = String(secs).padStart(2, '0');
+    }
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+  });
+
+  // 5. Basic Carousel navigation
+  document.querySelectorAll('.fs-carousel-widget').forEach(function(carousel) {
+    var track = carousel.querySelector('.fs-carousel-track');
+    var prev = carousel.querySelector('.fs-carousel-prev');
+    var next = carousel.querySelector('.fs-carousel-next');
+    if (track && prev && next) {
+      prev.addEventListener('click', function() {
+        track.scrollBy({ left: -track.clientWidth, behavior: 'smooth' });
+      });
+      next.addEventListener('click', function() {
+        track.scrollBy({ left: track.clientWidth, behavior: 'smooth' });
+      });
+    }
+  });
+
+  // 6. Dynamic Lightbox
+  document.querySelectorAll('[data-lightbox-src]').forEach(function(trigger) {
+    trigger.addEventListener('click', function(e) {
+      e.preventDefault();
+      var src = trigger.getAttribute('data-lightbox-src');
+      var modal = document.createElement('div');
+      modal.className = 'fs-lightbox-modal';
+      modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;z-index:9999;cursor:pointer;';
+      var img = document.createElement('img');
+      img.src = src;
+      img.style.cssText = 'max-width:90%;max-height:90%;border-radius:8px;box-shadow:0 10px 25px rgba(0,0,0,0.5);';
+      modal.appendChild(img);
+      modal.addEventListener('click', function() { document.body.removeChild(modal); });
+      document.body.appendChild(modal);
+    });
+  });
 
   // Initialize store state on load
   updateCartBadges();

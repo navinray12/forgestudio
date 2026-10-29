@@ -183,7 +183,22 @@ import {
     resolveButtonHref,
     SearchBarWidgetRenderer,
     LoopGridWidgetRenderer,
-    DEFAULT_LOOP_ITEMS
+    DEFAULT_LOOP_ITEMS,
+    NestedTabsWidgetRenderer,
+    NestedAccordionWidgetRenderer,
+    CounterWidgetRenderer,
+    ProgressBarWidgetRenderer,
+    RatingWidgetRenderer,
+    AlertWidgetRenderer,
+    GoogleMapsWidgetRenderer,
+    SoundcloudWidgetRenderer,
+    LinkInBioWidgetRenderer,
+    ImageBoxWidgetRenderer,
+    IconBoxWidgetRenderer,
+    IconListWidgetRenderer,
+    PostsWidgetRenderer,
+    PortfolioWidgetRenderer,
+    VideoPlaylistWidgetRenderer
 } from "../editor/widgets";
 import {
     BreadcrumbsRenderer,
@@ -746,6 +761,21 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
             />
         </div>
     );
+    if (el.type === "counter") return <div ref={assignRefIfTracked as any} {...mergedProps}><CounterWidgetRenderer el={el} mergedStyles={finalMergedStyles} isPreview={true} /></div>;
+    if (el.type === "progress-bar") return <div ref={assignRefIfTracked as any} {...mergedProps}><ProgressBarWidgetRenderer el={el} mergedStyles={finalMergedStyles} isPreview={true} /></div>;
+    if (el.type === "rating") return <div ref={assignRefIfTracked as any} {...mergedProps}><RatingWidgetRenderer el={el} mergedStyles={finalMergedStyles} isPreview={true} /></div>;
+    if (el.type === "alert") return <div ref={assignRefIfTracked as any} {...mergedProps}><AlertWidgetRenderer el={el} mergedStyles={finalMergedStyles} isPreview={true} /></div>;
+    if (el.type === "google-maps") return <div ref={assignRefIfTracked as any} {...mergedProps}><GoogleMapsWidgetRenderer el={el} mergedStyles={finalMergedStyles} isPreview={true} /></div>;
+    if (el.type === "soundcloud") return <div ref={assignRefIfTracked as any} {...mergedProps}><SoundcloudWidgetRenderer el={el} mergedStyles={finalMergedStyles} isPreview={true} /></div>;
+    if (el.type === "link-in-bio") return <div ref={assignRefIfTracked as any} {...mergedProps}><LinkInBioWidgetRenderer el={el} mergedStyles={finalMergedStyles} isPreview={true} apiUrl={apiUrl} /></div>;
+    if (el.type === "image-box") return <div ref={assignRefIfTracked as any} {...mergedProps}><ImageBoxWidgetRenderer el={el} mergedStyles={finalMergedStyles} isPreview={true} apiUrl={apiUrl} /></div>;
+    if (el.type === "icon-box") return <div ref={assignRefIfTracked as any} {...mergedProps}><IconBoxWidgetRenderer el={el} mergedStyles={finalMergedStyles} isPreview={true} /></div>;
+    if (el.type === "icon-list") return <div ref={assignRefIfTracked as any} {...mergedProps}><IconListWidgetRenderer el={el} mergedStyles={finalMergedStyles} isPreview={true} /></div>;
+    if (el.type === "posts") return <div ref={assignRefIfTracked as any} {...mergedProps}><PostsWidgetRenderer el={el} mergedStyles={finalMergedStyles} activeDevice={activeBreakpointId === "mobile" ? "mobile" : activeBreakpointId === "tablet" ? "tablet" : "desktop"} isPreview={true} apiUrl={apiUrl} /></div>;
+    if (el.type === "portfolio") return <div ref={assignRefIfTracked as any} {...mergedProps}><PortfolioWidgetRenderer el={el} mergedStyles={finalMergedStyles} activeDevice={activeBreakpointId === "mobile" ? "mobile" : activeBreakpointId === "tablet" ? "tablet" : "desktop"} isPreview={true} /></div>;
+    if (el.type === "video-playlist") return <div ref={assignRefIfTracked as any} {...mergedProps}><VideoPlaylistWidgetRenderer el={el} mergedStyles={finalMergedStyles} isPreview={true} apiUrl={apiUrl} /></div>;
+    if (el.type === "nested-tabs") return <div ref={assignRefIfTracked as any} {...mergedProps}><NestedTabsWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "nested-accordion") return <div ref={assignRefIfTracked as any} {...mergedProps}><NestedAccordionWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
 
     if (el.type === "container" || el.type === "div-block") {
         const deviceMode = (activeBreakpointId === "mobile" || activeBreakpointId === "tablet") ? activeBreakpointId : "desktop";

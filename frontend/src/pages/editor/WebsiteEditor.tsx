@@ -314,7 +314,8 @@ import {
   ReusableComponentWidgetRenderer,
   FavoriteWidgetsWidgetRenderer,
   LoopGridWidgetRenderer,
-  resolveButtonHref
+  resolveButtonHref,
+  SoundcloudWidgetRenderer
 } from "./widgets";
 
 import { SpacingControl } from "./inspector";
@@ -6636,6 +6637,10 @@ export default function WebsiteEditor() {
               src={`https://maps.google.com/maps?q=${encodeURIComponent(el.mapAddress || "San Francisco, CA")}&t=&z=${el.mapZoom || 14}&ie=UTF8&iwloc=&output=embed`}
             />
           </div>
+        )}
+
+        {el.type === "soundcloud" && (
+          <SoundcloudWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
         )}
 
         {el.type === "divider" && (
