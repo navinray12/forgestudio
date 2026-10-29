@@ -480,10 +480,40 @@ function renderElementToHtml(el: any, allPages: any[], websiteId?: string): stri
       }).join("\n");
       return `<div class="fs-reviews-grid"${idAttr}${classAttr}${styleAttr}>\n${reviewsHtml}\n</div>`;
     }
+    case "loop-carousel": {
+      const dynamicItems = Array.isArray(el.cptEntries) && el.cptEntries.length > 0
+        ? el.cptEntries.map((e: any) => ({
+            title: e.title || e.name || "Untitled",
+            description: e.data?.description || e.data?.excerpt || e.description || "",
+            imageUrl: e.data?.image || e.data?.featuredImage || e.imageUrl || "",
+            badge: e.data?.category || e.badge || "",
+            buttonText: e.data?.buttonText || "Read More",
+            linkUrl: e.slug ? `/portfolio/${escapeHtml(e.slug)}` : "#",
+          }))
+        : null;
+
+      const items = dynamicItems || (Array.isArray(el.loopCarouselItems) && el.loopCarouselItems.length > 0 ? el.loopCarouselItems : (Array.isArray(el.items) ? el.items : []));
+      const slidesHtml = items.map((it: any, idx: number) => `
+        <div class="fs-carousel-slide fs-loop-carousel-card" data-slide-index="${idx}">
+          ${it.imageUrl || it.image ? `<img src="${escapeHtml(it.imageUrl || it.image)}" alt="${escapeHtml(it.title || "")}" />` : ""}
+          <div class="fs-loop-carousel-body">
+            ${it.badge ? `<span class="fs-loop-badge">${escapeHtml(it.badge)}</span>` : ""}
+            <h4 class="fs-loop-card-title">${escapeHtml(it.title || "")}</h4>
+            ${it.description ? `<p class="fs-loop-card-desc">${escapeHtml(it.description)}</p>` : ""}
+            ${it.buttonText ? `<a href="${escapeHtml(it.linkUrl || "#")}" class="fs-loop-card-btn">${escapeHtml(it.buttonText)}</a>` : ""}
+          </div>
+        </div>
+      `).join("\n");
+
+      return `<div class="fs-carousel-widget fs-loop-carousel"${idAttr}${classAttr}${styleAttr}>
+        <div class="fs-carousel-track">${slidesHtml}</div>
+        <button type="button" class="fs-carousel-prev" aria-label="Previous">❮</button>
+        <button type="button" class="fs-carousel-next" aria-label="Next">❯</button>
+      </div>`;
+    }
     case "media-carousel":
     case "testimonial-carousel":
     case "nested-carousel":
-    case "loop-carousel":
     case "image-carousel": {
       const items = Array.isArray(el.mediaCarouselItems) ? el.mediaCarouselItems :
         (Array.isArray(el.testimonialCarouselItems) ? el.testimonialCarouselItems :
@@ -820,7 +850,17 @@ function renderElementToHtml(el: any, allPages: any[], websiteId?: string): stri
         { title: "Next-Gen CSS Architecture", excerpt: "Mastering subgrid, container queries, and native nesting.", category: "Architecture", date: "Jan 22, 2026", slug: "next-gen-css", featuredImage: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&auto=format&fit=crop&q=80" },
         { title: "Modern Headless WordPress", excerpt: "Decoupled frontends with lightning fast response times.", category: "Development", date: "Feb 02, 2026", slug: "headless-wordpress", featuredImage: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&auto=format&fit=crop&q=80" },
       ];
-      const posts = Array.isArray(el.posts) && el.posts.length > 0 ? el.posts : defaultPosts;
+      const dynamicPosts = Array.isArray(el.cptEntries) && el.cptEntries.length > 0
+        ? el.cptEntries.map((e: any) => ({
+            title: e.title || e.name || "Untitled",
+            excerpt: e.data?.description || e.data?.excerpt || e.description || "",
+            featuredImage: e.data?.image || e.data?.featuredImage || e.featuredImage || "",
+            category: e.data?.category || e.category || "",
+            date: e.createdAt || e.data?.date || "",
+            slug: e.slug || "",
+          }))
+        : null;
+      const posts = dynamicPosts || (Array.isArray(el.posts) && el.posts.length > 0 ? el.posts : defaultPosts);
       const cols = Math.min(Math.max(el.loopColumns || 3, 1), 6);
       const gap = el.loopGap ?? 24;
       const limit = el.queryLimit || 6;

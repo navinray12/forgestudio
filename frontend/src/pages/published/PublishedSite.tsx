@@ -9,7 +9,7 @@ import {
     initMotionRuntime
 } from "../editor/utils";
 import type { EditorElement, Breakpoint } from "../editor/types";
-import { resolveDynamicTokens } from "../editor/types";
+import { resolveDynamicTokens, matchesThemeCondition } from "../editor/types";
 import type { PopupConfig } from "../../types/popup.types";
 
 const BackgroundSlideshow: React.FC<{ urls: string[]; interval?: number }> = ({ urls, interval }) => {
@@ -1370,7 +1370,7 @@ function PublishedSite() {
             )}
 
             {/* Configured Global Header */}
-            {sitePartsState?.header?.elements && sitePartsState.header.elements.length > 0 && (sitePartsState.header.isEnabled ?? true) && (
+            {sitePartsState?.header?.elements && sitePartsState.header.elements.length > 0 && (sitePartsState.header.isEnabled ?? true) && matchesThemeCondition(sitePartsState.header.conditions, { pageId: activePageId, isHome: activePageId === "home" || Boolean(pages?.find(p => p.id === activePageId)?.isHome) || pages?.find(p => p.id === activePageId)?.slug === "/", slug: pages?.find(p => p.id === activePageId)?.slug }) && (
                 <header className="site-global-header w-full">
                     {sitePartsState.header.elements.map((el: EditorElement, index: number) => (
                         <RenderNode
@@ -1501,7 +1501,7 @@ function PublishedSite() {
             />
 
             {/* Configured Global Footer */}
-            {sitePartsState?.footer?.elements && sitePartsState.footer.elements.length > 0 && (sitePartsState.footer.isEnabled ?? true) && (
+            {sitePartsState?.footer?.elements && sitePartsState.footer.elements.length > 0 && (sitePartsState.footer.isEnabled ?? true) && matchesThemeCondition(sitePartsState.footer.conditions, { pageId: activePageId, isHome: activePageId === "home" || Boolean(pages?.find(p => p.id === activePageId)?.isHome) || pages?.find(p => p.id === activePageId)?.slug === "/", slug: pages?.find(p => p.id === activePageId)?.slug }) && (
                 <footer className="site-global-footer w-full">
                     {sitePartsState.footer.elements.map((el: EditorElement, index: number) => (
                         <RenderNode

@@ -194,10 +194,16 @@ import {
   performanceBudgetHandler,
 } from "../controllers/seo.controller.js";
 
+import { getPublicEntriesByCptSlugHandler } from "../controllers/customPostType.controller.js";
+
 const router = Router();
 
 // Public endpoint for published websites (Unauthenticated, Comment 7 & 8)
 router.get("/public/:id", getPublicWebsiteHandler);
+
+// Public CPT entries endpoints (Unauthenticated)
+router.get("/:websiteId/public/types/:cptSlug/entries", getPublicEntriesByCptSlugHandler);
+router.get("/public/:websiteId/types/:cptSlug/entries", getPublicEntriesByCptSlugHandler);
 
 // Public webhook endpoint for WordPress events (HMAC signature protected)
 router.post("/:id/wordpress/webhook", handleWordPressWebhook);

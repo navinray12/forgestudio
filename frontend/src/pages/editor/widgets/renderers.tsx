@@ -3608,10 +3608,22 @@ export const LoopCarouselWidgetRenderer = ({
     }))
     : [];
 
-  const items = el.loopCarouselItems && el.loopCarouselItems.length > 0
-    ? el.loopCarouselItems
-    : dynamicCptItems;
-  const slidesPerView = el.loopCarouselSlidesPerView || 3;
+  const hasDynamicCpt = Array.isArray((el as any).cptEntries) && (el as any).cptEntries.length > 0;
+  const items = hasDynamicCpt
+    ? dynamicCptItems
+    : (el.loopCarouselItems && el.loopCarouselItems.length > 0 ? el.loopCarouselItems : dynamicCptItems);
+
+  // Responsive slidesPerView calculation: desktop (3), tablet (2), mobile (1)
+  let slidesPerView: number = (el.loopCarouselSlidesPerView as number) || 3;
+  if (typeof window !== "undefined") {
+    if (window.innerWidth < 768) {
+      slidesPerView = (el as any).loopCarouselSlidesPerViewMobile || 1;
+    } else if (window.innerWidth < 1024) {
+      slidesPerView = (el as any).loopCarouselSlidesPerViewTablet || 2;
+    }
+  }
+  slidesPerView = Math.max(1, Math.min(items.length || 1, slidesPerView));
+
   const gap = el.loopCarouselGap ?? 20;
   const autoplay = el.loopCarouselAutoplay !== false;
   const autoplaySpeed = el.loopCarouselAutoplaySpeed || 3500;
@@ -3630,6 +3642,18 @@ export const LoopCarouselWidgetRenderer = ({
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [dragOffset, setDragOffset] = useState<number>(0);
   const [isMouseDown, setIsMouseDown] = useState(false);
+
+  if (items.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 p-8 text-center bg-slate-50/60 w-full">
+        <span className="text-2xl mb-1">♾️</span>
+        <p className="text-xs font-bold text-slate-700">No Carousel Items Found</p>
+        <p className="text-[11px] text-slate-400 mt-0.5">
+          Select a Custom Post Type with published entries or add custom cards in the inspector.
+        </p>
+      </div>
+    );
+  }
 
   const maxIndex = Math.max(0, items.length - slidesPerView);
 
@@ -9666,7 +9690,21 @@ export const LoopGridWidgetRenderer: React.FC<LoopGridWidgetRendererProps> = ({
   }, [el.id]);
 
   // Query Engine Evaluation (F-247, F-258)
-  const baseItems = Array.isArray(el.posts) && el.posts.length > 0 ? el.posts : DEFAULT_LOOP_ITEMS;
+  const dynamicEntries = Array.isArray((el as any).cptEntries) && (el as any).cptEntries.length > 0
+    ? (el as any).cptEntries.map((e: any) => ({
+        id: e.id,
+        title: e.title || e.name || "Untitled",
+        slug: e.slug || "",
+        excerpt: e.data?.description || e.data?.excerpt || e.description || "",
+        featuredImage: e.data?.image || e.data?.featuredImage || e.featuredImage || "",
+        category: e.data?.category || e.category || "",
+        date: e.createdAt || e.data?.date || "",
+        author: e.author?.fullName || e.author || "",
+        data: e.data || {},
+      }))
+    : null;
+
+  const baseItems = dynamicEntries || (Array.isArray(el.posts) && el.posts.length > 0 ? el.posts : DEFAULT_LOOP_ITEMS);
 
   let filteredItems = baseItems.filter((item: any) => {
     // Taxonomy Slug Filter

@@ -41,6 +41,7 @@ import {
   aiHostingRoutes,
   elementorCloudRoutes,
   exportRoutes,
+  themeBuilderRoutes,
 } from "./routes/index.js";
 
 import apiV1Routes from "./routes/api-v1.routes.js";
@@ -162,6 +163,8 @@ app.use("/api/v1/composer", composerRoutes);
 app.use("/api/composer", composerRoutes);
 app.use("/api/v1/cpt", customPostTypeRoutes);
 app.use("/api/cpt", customPostTypeRoutes);
+app.use("/api/v1/theme", themeBuilderRoutes);
+app.use("/api/theme", themeBuilderRoutes);
 app.use("/api/v1/custom-code", customCodeRoutes);
 app.use("/api/custom-code", customCodeRoutes);
 app.use("/api/v1/design-notes", designNotesRoutes);
