@@ -33,6 +33,7 @@ import {
   getRevisionByIdHandler,
   createRevisionHandler,
   restoreRevisionHandler,
+  compareRevisionsHandler,
 } from "../controllers/revision.controller.js";
 import {
   validatePublishHandler,
@@ -420,6 +421,7 @@ router.post("/:id/seo/performance-budget", authorizeCapability("VIEW"), performa
 
 // Revisions API
 router.get("/:id/revisions", authorizeCapability("VIEW"), getWebsiteRevisionsHandler);
+router.get("/:id/revisions/compare", authorizeCapability("VIEW"), compareRevisionsHandler);
 router.get("/:id/revisions/:revisionId", authorizeCapability("VIEW"), getRevisionByIdHandler);
 router.post("/:id/revisions", authorizeCapability("EDIT"), createRevisionHandler);
 router.post("/:id/revisions/:revisionId/restore", authorizeCapability("EDIT"), restoreRevisionHandler);

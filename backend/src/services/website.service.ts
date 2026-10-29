@@ -434,6 +434,21 @@ export async function createWebsite(
   const initialEditorData = customEditorData || {
     version: 1,
     elements: [],
+    pages: [
+      {
+        id: "home",
+        name: "Home",
+        slug: "/",
+        isHome: true,
+        elements: [],
+        pageSettings: {
+          title: trimmedName,
+          path: "/",
+          description: "",
+        },
+      },
+    ],
+    homePageId: "home",
   };
 
   try {

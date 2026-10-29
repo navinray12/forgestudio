@@ -361,3 +361,218 @@ export async function restoreRevision(websiteId: string, revisionId: string, use
     website: updatedWebsite,
   };
 }
+
+export interface RevisionDiffSummary {
+  addedPagesCount: number;
+  deletedPagesCount: number;
+  modifiedPagesCount: number;
+  homepageChanged: { from: string; to: string } | null;
+  elementCountDelta: number;
+}
+
+export interface PageDiffDetail {
+  pageId: string;
+  name: string;
+  slug: string;
+  changes: Array<"RENAME" | "SLUG_CHANGE" | "SETTINGS_MODIFIED" | "ELEMENTS_MODIFIED">;
+  details: {
+    oldName?: string;
+    newName?: string;
+    oldSlug?: string;
+    newSlug?: string;
+    oldElementCount?: number;
+    newElementCount?: number;
+  };
+}
+
+/**
+ * Compare two website revisions and return a structured diff of pages, settings, and elements.
+ */
+export async function compareRevisions(
+  websiteId: string,
+  baseIdentifier: string | number,
+  targetIdentifier: string | number,
+  userId: string
+) {
+  // 1. Authorize: Enforce VIEW capability
+  await getWebsiteById(websiteId, userId);
+  const canView = await canUserAccessResource(userId, websiteId, "*", "VIEW");
+  if (!canView) {
+    throw new AppError("You do not have permission to view revisions.", 403, "FORBIDDEN");
+  }
+
+  // Helper to fetch revision by ID or version number
+  const resolveRevisionSnapshot = async (identifier: string | number) => {
+    if (identifier === "current" || identifier === "draft") {
+      const site = await db.website.findUnique({ where: { id: websiteId } });
+      if (!site) throw new AppError("Website not found.", 404, "NOT_FOUND");
+      const ed = typeof site.editorData === "string" ? JSON.parse(site.editorData) : site.editorData || {};
+      return {
+        id: "current",
+        version: site.version || 0,
+        revisionType: "DRAFT",
+        description: "Current Working Draft",
+        createdAt: site.updatedAt,
+        data: ed,
+      };
+    }
+
+    const isUuid = typeof identifier === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier);
+    let rev = null;
+    if (isUuid) {
+      rev = await db.websiteRevision.findUnique({
+        where: { id: identifier as string },
+      });
+    } else {
+      const verNum = Number(identifier);
+      if (!isNaN(verNum)) {
+        rev = await db.websiteRevision.findUnique({
+          where: { websiteId_version: { websiteId, version: verNum } },
+        });
+      }
+    }
+
+    if (!rev || rev.websiteId !== websiteId) {
+      throw new AppError(`Revision '${identifier}' not found for this website.`, 404, "NOT_FOUND");
+    }
+
+    const rawData = typeof rev.data === "string" ? JSON.parse(rev.data) : rev.data;
+    return {
+      id: rev.id,
+      version: rev.version,
+      revisionType: rev.revisionType,
+      description: rev.description,
+      createdAt: rev.createdAt,
+      data: rawData,
+    };
+  };
+
+  const baseRev = await resolveRevisionSnapshot(baseIdentifier);
+  const targetRev = await resolveRevisionSnapshot(targetIdentifier);
+
+  const baseData = baseRev.data || {};
+  const targetData = targetRev.data || {};
+
+  const basePages: any[] = Array.isArray(baseData.pages) ? baseData.pages : [];
+  const targetPages: any[] = Array.isArray(targetData.pages) ? targetData.pages : [];
+
+  const basePageMap = new Map<string, any>(basePages.map((p) => [p.id, p]));
+  const targetPageMap = new Map<string, any>(targetPages.map((p) => [p.id, p]));
+
+  const addedPages: any[] = [];
+  const deletedPages: any[] = [];
+  const modifiedPages: PageDiffDetail[] = [];
+
+  // Identify added & modified pages
+  for (const [id, targetPage] of targetPageMap.entries()) {
+    const basePage = basePageMap.get(id);
+    if (!basePage) {
+      addedPages.push({
+        id: targetPage.id,
+        name: targetPage.name,
+        slug: targetPage.slug,
+        elementCount: targetPage.elements?.length || 0,
+      });
+    } else {
+      const changes: Array<"RENAME" | "SLUG_CHANGE" | "SETTINGS_MODIFIED" | "ELEMENTS_MODIFIED"> = [];
+      const details: PageDiffDetail["details"] = {};
+
+      if (basePage.name !== targetPage.name) {
+        changes.push("RENAME");
+        details.oldName = basePage.name;
+        details.newName = targetPage.name;
+      }
+
+      if (basePage.slug !== targetPage.slug) {
+        changes.push("SLUG_CHANGE");
+        details.oldSlug = basePage.slug;
+        details.newSlug = targetPage.slug;
+      }
+
+      const baseSettingsStr = JSON.stringify(basePage.pageSettings || {});
+      const targetSettingsStr = JSON.stringify(targetPage.pageSettings || {});
+      if (baseSettingsStr !== targetSettingsStr) {
+        changes.push("SETTINGS_MODIFIED");
+      }
+
+      const baseCount = basePage.elements?.length || 0;
+      const targetCount = targetPage.elements?.length || 0;
+      const baseElementsStr = JSON.stringify(basePage.elements || []);
+      const targetElementsStr = JSON.stringify(targetPage.elements || []);
+      if (baseElementsStr !== targetElementsStr) {
+        changes.push("ELEMENTS_MODIFIED");
+        details.oldElementCount = baseCount;
+        details.newElementCount = targetCount;
+      }
+
+      if (changes.length > 0) {
+        modifiedPages.push({
+          pageId: id,
+          name: targetPage.name,
+          slug: targetPage.slug,
+          changes,
+          details,
+        });
+      }
+    }
+  }
+
+  // Identify deleted pages
+  for (const [id, basePage] of basePageMap.entries()) {
+    if (!targetPageMap.has(id)) {
+      deletedPages.push({
+        id: basePage.id,
+        name: basePage.name,
+        slug: basePage.slug,
+        elementCount: basePage.elements?.length || 0,
+      });
+    }
+  }
+
+  // Compare homePageId
+  const baseHome = baseData.homePageId || basePages.find((p) => p.isHome || p.slug === "/")?.id || "";
+  const targetHome = targetData.homePageId || targetPages.find((p) => p.isHome || p.slug === "/")?.id || "";
+  const homepageChanged = baseHome !== targetHome ? { from: baseHome, to: targetHome } : null;
+
+  // Total element counts
+  const countElements = (pages: any[], fallbackElements: any[] = []) => {
+    if (pages.length > 0) {
+      return pages.reduce((sum, p) => sum + (p.elements?.length || 0), 0);
+    }
+    return fallbackElements.length;
+  };
+
+  const baseElemCount = countElements(basePages, baseData.elements || []);
+  const targetElemCount = countElements(targetPages, targetData.elements || []);
+
+  const summary: RevisionDiffSummary = {
+    addedPagesCount: addedPages.length,
+    deletedPagesCount: deletedPages.length,
+    modifiedPagesCount: modifiedPages.length,
+    homepageChanged,
+    elementCountDelta: targetElemCount - baseElemCount,
+  };
+
+  return {
+    success: true,
+    baseRevision: {
+      id: baseRev.id,
+      version: baseRev.version,
+      revisionType: baseRev.revisionType,
+      description: baseRev.description,
+      createdAt: baseRev.createdAt,
+    },
+    targetRevision: {
+      id: targetRev.id,
+      version: targetRev.version,
+      revisionType: targetRev.revisionType,
+      description: targetRev.description,
+      createdAt: targetRev.createdAt,
+    },
+    summary,
+    addedPages,
+    deletedPages,
+    modifiedPages,
+  };
+}
+

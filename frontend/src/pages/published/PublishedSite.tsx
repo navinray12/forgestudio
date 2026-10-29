@@ -210,18 +210,30 @@ const renderSvgIcon = (_name: string, size: string, color: string) => (
     <svg width={size} height={size} fill={color} viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" /></svg>
 );
 
-const findTargetPage = (pagesList: PageConfig[] | undefined, target: string): PageConfig | undefined => {
+const normalizeRoutePath = (path: string): string => {
+    if (!path) return "";
+    return path
+        .split("?")[0]
+        .split("#")[0]
+        .trim()
+        .replace(/^\/+/, "")
+        .replace(/\/+$/, "")
+        .toLowerCase();
+};
+
+const findTargetPage = (pagesList: PageConfig[] | undefined, target: string, homePageId?: string): PageConfig | undefined => {
     if (!target || !pagesList || pagesList.length === 0) return undefined;
-    const clean = target.replace(/^\//, "").split("?")[0].split("#")[0];
+    const cleanTarget = normalizeRoutePath(target);
+    if (cleanTarget === "") {
+        return pagesList.find((p) => p.isHome || (homePageId && p.id === homePageId) || p.slug === "/" || p.id === "home") || pagesList[0];
+    }
     return pagesList.find(
         (p) =>
             p.id === target ||
-            p.slug === target ||
-            p.slug === `/${clean}` ||
-            p.slug.replace(/^\//, "") === clean ||
-            p.name.toLowerCase() === target.toLowerCase() ||
-            p.name.toLowerCase() === clean.toLowerCase() ||
-            (clean === "" && (p.isHome || p.id === "home"))
+            normalizeRoutePath(p.slug) === cleanTarget ||
+            normalizeRoutePath((p as any).pageSettings?.path || "") === cleanTarget ||
+            p.name.toLowerCase() === cleanTarget ||
+            p.name.toLowerCase() === target.toLowerCase()
     );
 };
 
@@ -944,11 +956,13 @@ function PublishedSite() {
                     setPages(pagesList);
                     const urlParams = new URLSearchParams(window.location.search);
                     const queryPage = urlParams.get("page");
-                    const initialSlug = pageSlug || queryPage;
+                    const pathParts = window.location.pathname.split("/").filter(Boolean);
+                    const slugFromPath = pathParts.length >= 2 && pathParts[0] === "site" ? pathParts.slice(2).join("/") : undefined;
+                    const initialSlug = pageSlug || slugFromPath || queryPage;
                     const cleanSlug = initialSlug ? initialSlug.replace(/^\//, "") : "";
                     const isPostRoute = cleanSlug.startsWith("post/") || cleanSlug.startsWith("blog/");
                     const isTermRoute = cleanSlug.startsWith("category/") || cleanSlug.startsWith("tag/");
-                    const matchedPage = initialSlug ? findTargetPage(pagesList, initialSlug) : undefined;
+                    const matchedPage = initialSlug ? findTargetPage(pagesList, initialSlug, editorData.homePageId) : undefined;
 
                     if (matchedPage) {
                         setActivePageId(matchedPage.id || "home");
@@ -970,8 +984,10 @@ function PublishedSite() {
                         // F-239: 404 Template Fallback for unmatched route
                         setActivePageId("404-template");
                         setElements(loadedSiteParts.notFound404.elements);
+                    } else if (initialSlug && !isPostRoute && !isTermRoute) {
+                        setErrorMessage("The requested page cannot be found or does not exist.");
                     } else {
-                        const activePage = pagesList.find((p: any) => p.isHome || p.slug === "/") || pagesList[0];
+                        const activePage = pagesList.find((p: any) => p.isHome || (editorData.homePageId && p.id === editorData.homePageId) || p.slug === "/") || pagesList[0];
                         setActivePageId(activePage.id || "home");
                         setElements(activePage.elements?.length ? activePage.elements : (editorData.elements || []));
                     }
