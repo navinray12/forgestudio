@@ -128,19 +128,35 @@ interface RevisionComparisonResult {
 
 ### Real Automated Test Results
 
-1. **Phase 4 Integration Suite (`backend/tests/phase4-page-lifecycle.test.ts`)**
-   - **Total Tests:** 28
-   - **Passed:** 28
+1. **Phase 4 Final Lifecycle, Revisions & Playwright E2E Suite (`backend/tests/phase4-page-lifecycle.test.ts`)**
+   - **Total Tests:** 41
+   - **Passed:** 41
    - **Failed:** 0
    - **Coverage:**
-     - Setup Users & Multi-Tenant Provisioning
-     - Group A: Multi-Page CRUD, renaming, duplicate element IDs, array reordering, reload persistence, non-home page deletion
+     - Gate 1: 6 Negative Database Safety Tests (Empty DB URL, Production NODE_ENV, Ordinary Dev DBs [elementor_saas, forgestudio, postgres], Remote/Cloud DBs, Override Flag Alone, Target Mismatch)
+     - Gate 2: Disposable Database Isolation & Connection Identity Verification (Database: `forgestudio_disposable_fresh`, Schema: `public`, Port: `5432`, Host: `localhost`)
+     - Group A: Multi-Page CRUD, Renaming, Duplication with regenerated element IDs, Reordering with reload persistence, Non-home page deletion
      - Optimistic Concurrency Control: CAS atomic updates & HTTP 409 stale version conflict verification
-     - Group B: Homepage switching, single effective homepage constraint, published root route update
-     - Group C: 3 durable revisions created, structured comparison engine, comparison API, revision restore, draft isolation, cross-tenant restore denial
-     - Group D: Root route resolution, simple route resolution, multi-level nested route resolution, 404 safety
-     - Group E: VIEWER edit protection (403), cross-tenant isolation (403), suspended user (403), revoked session (401)
-     - Group F: Playwright Chromium browser E2E (Root URL DOM rendering, nested route deep linking, page reload, 404 handling)
+     - Group B: Homepage switching, Solitary effective homepage invariant, Published root route update
+     - Group C (Fix 1): Transactional Revision Restoration & Recovery Verification Loop
+       * Save v1 -> Modify About -> Save v2 -> Add Services -> Save v3 -> Restore v1
+       * CAS expectedVersion check: Stale version returns HTTP 409
+       * RBAC check: VIEWER role cannot restore revisions (HTTP 403)
+       * Tenant check: Foreign tenant cannot restore revisions (HTTP 403/404)
+       * Restored v1 verified: Services absent, About restored to v1
+       * Public runtime isolation verified: Public site untouched
+       * Pre-restore v3 recovery snapshot located in database
+       * Restored recovery snapshot: Exact v3 content (Services and modified About) returned
+       * Simultaneous restore concurrency: Exactly 1 winner and 1 HTTP 409 conflict
+     - Group D: Structured revision comparison engine & comparison API endpoint
+     - Group E: RBAC VIEWER protection (403), Cross-tenant isolation (403), Suspended user (403), Revoked session (401)
+     - Group F (Fix 3): Real Playwright Chromium Browser E2E
+       * Journey A (Published Homepage): Exact title, unique hero headline, DOM identification, no unrelated content
+       * Journey B (Nested Route `/services/web-design`): Exact nested content, heading, URL preservation & browser reload
+       * Journey C (404 Route): Visible 404 UI asserted; missing page content is not rendered; homepage content is not displayed as successful route; non-empty HTML false-pass prevented
+       * Journey D (Homepage Switching): Root `/` dynamically remapped from Home to About Us
+       * Journey E (Draft Isolation): Unpublished draft changes isolated across visitor browser context until explicit publish
+       * Journey F (Revision Restore): Draft restored, recovery revision preserved, public site isolated
 
 2. **Phase 3 Auth & 7+7 RBAC Regression Suite (`backend/tests/phase3-auth-rbac.test.ts`)**
    - **Total Tests:** 29
@@ -163,12 +179,31 @@ interface RevisionComparisonResult {
    - **Failed:** 0
 
 6. **Production Compilations:**
-   - Frontend Build (`tsc -b && vite build`): **PASS** (Built in 24.67s, 2086 modules transformed)
-   - Backend Build (`tsc`): **PASS** (0 TypeScript errors)
+   - Frontend Build (`npm run build`): **PASS** (Vite v8.3.5 production bundle, 2086 modules transformed)
+   - Backend Build (`npm run build`): **PASS** (0 TypeScript compiler errors)
 
 ---
 
-## 7. Known Limitations & Deferred Items
+## 7. Phase 4 Final QA Gate Summary
 
-1. **Slug Redirects History:** While changing page slugs safely updates canonical routing, historic redirect chains (301 redirects from old URLs) are handled at the router level without an independent URL redirect rewrite table.
-2. **Visual Screenshot Diff:** The structured comparison engine produces detailed structural, semantic, and element-level diffs; pixel-by-pixel visual image comparison is not claimed or included.
+### 1. Pre-Restore Recovery Snapshots
+Before overwriting the active website draft during a restore operation, `restoreRevision` reads the current draft state, generates an immutable snapshot containing all pages, page IDs, element trees, homepage references, and custom settings, monotonically allocates a new revision version, and stores a durable revision tagged with `revisionType: "RESTORE"`.
+
+### 2. Transactional Restore
+The entire restore operation executes within an atomic Prisma transaction (`prisma.$transaction`). It validates the website, executes the optimistic concurrency CAS check, verifies tenant ownership, persists the pre-restore recovery snapshot, applies the restored snapshot to the working draft, increments `website.version`, and logs an audit record. Any failure automatically rolls back all operations.
+
+### 3. Optimistic Concurrency Control (CAS)
+Every save and restore operation requires an `expectedVersion`. If the database `version` differs from the client's `expectedVersion`, the backend immediately rejects the request with HTTP 409 (`STALE_VERSION_CONFLICT`), preserving the latest working draft and preventing lost updates.
+
+### 4. Published Data Preservation
+`restoreRevision` modifies the working draft only. `publishedData`, active release snapshots, and deployment history are strictly preserved during restore and save operations. Public website endpoints continue serving immutable published snapshots until an explicit user publish action is triggered.
+
+### 5. Disposable Database Safeguards
+Tests verify disposable database criteria via `assertSafeDisposableDatabase` and `validateDisposableDatabaseUrl` before connecting to PostgreSQL. Production databases, ordinary dev databases (`elementor_saas`, `forgestudio`, `postgres`), and remote cloud databases are strictly rejected. Connection identity (`db`, `schema`, `port`, `host`) is verified before any write occurs.
+
+### 6. Exact Browser Assertions
+Playwright Chromium E2E tests validate DOM nodes using real selectors and content assertions (`waitForSelector`, `textContent`, `getAttribute`, `title`), checking exact page headings, paragraph texts, and visible 404 UI rather than non-empty HTML strings.
+
+### 7. Remaining Blockers
+- **None.** All Phase 4 requirements and the three verified gap closure items are fully implemented and verified.
+

@@ -7170,6 +7170,7 @@ export default function WebsiteEditor() {
                 className="w-7 h-7 flex items-center justify-center rounded text-slate-300 hover:text-white hover:bg-slate-800 transition border-l border-slate-700/80 cursor-pointer"
                 title="Revision History"
                 aria-label="Revision History"
+                data-testid="revision-history-button"
               >
                 <HistoryIcon className="w-3.5 h-3.5" />
               </button>

@@ -144,9 +144,61 @@ export function assertDatabaseIsolation(expectedTargetUrl: string, actualPrismaU
   const expDb = parsedExpected.pathname.replace(/^\//, "").toLowerCase();
   const actDb = parsedActual.pathname.replace(/^\//, "").toLowerCase();
 
-  if (expHost !== actHost || expDb !== actDb) {
+  const expPort = parsedExpected.port || "5432";
+  const actPort = parsedActual.port || "5432";
+  const expSchema = (parsedExpected.searchParams.get("schema") || "public").toLowerCase();
+  const actSchema = (parsedActual.searchParams.get("schema") || "public").toLowerCase();
+
+  if (expHost !== actHost || expDb !== actDb || expPort !== actPort || expSchema !== actSchema) {
     throw new Error(
-      `FATAL: Database Target Mismatch! Expected test database is "${expDb}" on "${expHost}", but active Prisma client is connected to "${actDb}" on "${actHost}". Isolation cannot be proven.`
+      `FATAL: Database Target Mismatch! Expected test database is "${expDb}" on "${expHost}:${expPort}" (schema: "${expSchema}"), but active Prisma client is connected to "${actDb}" on "${actHost}:${actPort}" (schema: "${actSchema}"). Isolation cannot be proven.`
     );
   }
+}
+
+/**
+ * Queries active PostgreSQL connection identity (database, schema, port)
+ * and asserts that it matches the validated safe disposable database target.
+ */
+export async function verifyConnectedDatabaseIdentity(
+  prismaClient: any,
+  expectedTargetUrl: string
+): Promise<{ host: string; port: number; database: string; schema: string }> {
+  assertSafeDisposableDatabase(expectedTargetUrl);
+  const parsedExpected = new URL(expectedTargetUrl);
+  const expDb = parsedExpected.pathname.replace(/^\//, "").toLowerCase();
+  const expPort = parseInt(parsedExpected.port || "5432", 10);
+  const expSchema = (parsedExpected.searchParams.get("schema") || "public").toLowerCase();
+
+  const rows: any = await prismaClient.$queryRaw`
+    SELECT current_database() as db, current_schema() as sch, inet_server_port() as port
+  `;
+
+  const info = Array.isArray(rows) && rows[0] ? rows[0] : null;
+  if (!info) {
+    throw new Error("FATAL: Could not verify connected database identity.");
+  }
+
+  const actDb = String(info.db || "").toLowerCase();
+  const actSchema = String(info.sch || "").toLowerCase();
+  const actPort = info.port ? Number(info.port) : expPort;
+
+  if (actDb !== expDb) {
+    throw new Error(
+      `FATAL: Connected database identity mismatch! Connected to database "${actDb}", expected disposable database "${expDb}".`
+    );
+  }
+
+  if (actSchema !== expSchema) {
+    throw new Error(
+      `FATAL: Connected database schema mismatch! Connected to schema "${actSchema}", expected "${expSchema}".`
+    );
+  }
+
+  return {
+    host: parsedExpected.hostname,
+    port: actPort,
+    database: actDb,
+    schema: actSchema,
+  };
 }

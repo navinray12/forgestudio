@@ -261,9 +261,26 @@ export async function createRevision(websiteId: string, userId: string, payload:
  * INVARIANT: Restore updates the working draft ONLY.
  * It strictly preserves any publishedData, does NOT set status to PUBLISHED,
  * and does NOT alter the public website runtime.
+ *
+ * Atomically:
+ * 1. Verifies caller permissions.
+ * 2. In a Prisma transaction:
+ *    - Verifies optimistic concurrency (expectedVersion).
+ *    - Validates target revision belongs to the same website.
+ *    - Captures a complete snapshot of the CURRENT working draft.
+ *    - Creates a durable recovery revision representing the pre-restore state.
+ *    - Applies the selected historical revision to the draft (preserving publishedData).
+ *    - Increments website version.
+ *    - Records audit log.
+ * Any failure rolls back the entire transaction.
  */
-export async function restoreRevision(websiteId: string, revisionId: string, userId: string) {
-  // 1. Authorize: Enforce EDIT_DESIGN or EDIT_CONTENT (rejects REVIEWER)
+export async function restoreRevision(
+  websiteId: string,
+  revisionId: string,
+  userId: string,
+  expectedVersion?: number
+) {
+  // 1. Authorize: Enforce EDIT_DESIGN or EDIT_CONTENT (rejects VIEWER / REVIEWER)
   await getWebsiteById(websiteId, userId);
   const canEditDesign = await canUserAccessResource(userId, websiteId, "*", "EDIT_DESIGN");
   const canEditContent = await canUserAccessResource(userId, websiteId, "*", "EDIT_CONTENT");
@@ -272,95 +289,172 @@ export async function restoreRevision(websiteId: string, revisionId: string, use
     throw new AppError("You do not have permission to restore revisions.", 403, "FORBIDDEN");
   }
 
-  // 2. Fetch target revision
-  const revision = await db.websiteRevision.findUnique({
-    where: { id: revisionId },
-  });
-
-  if (!revision || revision.websiteId !== websiteId) {
-    throw new AppError("Revision not found or does not belong to this website.", 404, "NOT_FOUND");
-  }
-
-  // 3. Fetch current website and isolate publishedData
-  const website = await db.website.findUnique({
-    where: { id: websiteId },
-  });
-
-  if (!website) {
-    throw new AppError("Website not found.", 404, "NOT_FOUND");
-  }
-
-  const currentEditorData = typeof website.editorData === "string"
-    ? JSON.parse(website.editorData)
-    : (website.editorData || {});
-
-  // Preserved published snapshot from current state
-  const currentPublishedData = currentEditorData.publishedData;
-
-  const restoredSnapshot = typeof revision.data === "string"
-    ? JSON.parse(revision.data)
-    : revision.data;
-
-  // 4. Construct updated editorData:
-  // Restored working draft with publishedData strictly preserved
-  const updatedEditorData = {
-    ...restoredSnapshot,
-    ...(currentPublishedData ? { publishedData: currentPublishedData } : {}),
-  };
-
-  // 5. Update website in database
-  // Notice: status is NOT modified to "PUBLISHED"
-  const updatedWebsite = await db.website.update({
-    where: { id: websiteId },
-    data: {
-      editorData: updatedEditorData,
-      updatedAt: new Date(),
-    },
-  });
-
-  // 6. Record a RESTORE checkpoint revision documenting the action
-  let restoreRevRecord: any = null;
+  // 2. Atomic PostgreSQL Transaction
   try {
-    restoreRevRecord = await createRevision(websiteId, userId, {
-      revisionType: "RESTORE",
-      description: `Restored from version v${revision.version}`,
-      snapshot: restoredSnapshot,
+    return await db.$transaction(async (tx: any) => {
+    // A. Validate current website state
+    const website = await tx.website.findUnique({
+      where: { id: websiteId },
     });
-  } catch (chkErr) {
-    console.warn("Failed to create RESTORE checkpoint revision:", chkErr);
-  }
 
-  // 7. Record audit log
-  try {
-    await db.auditLog.create({
+    if (!website) {
+      throw new AppError("Website not found.", 404, "NOT_FOUND");
+    }
+
+    // B. Optimistic Concurrency Check (CAS)
+    if (expectedVersion !== undefined && expectedVersion !== null) {
+      const expNum = Number(expectedVersion);
+      if (website.version !== expNum) {
+        throw new AppError(
+          `Optimistic concurrency conflict: Expected website version ${expNum}, but current database version is ${website.version}.`,
+          409,
+          "STALE_VERSION_CONFLICT"
+        );
+      }
+    }
+
+    // C. Validate requested historical revision belongs to the same website
+    const historicalRevision = await tx.websiteRevision.findUnique({
+      where: { id: revisionId },
+    });
+
+    if (!historicalRevision || historicalRevision.websiteId !== websiteId) {
+      throw new AppError("Revision not found or does not belong to this website.", 404, "NOT_FOUND");
+    }
+
+    // D. Capture complete durable snapshot of the CURRENT working draft BEFORE overwriting
+    const currentEditorData = typeof website.editorData === "string"
+      ? JSON.parse(website.editorData)
+      : (website.editorData || {});
+
+    // Preserve published snapshot and active deployment data
+    const currentPublishedData = currentEditorData.publishedData;
+
+    const preRestoreDraftSnapshot = {
+      version: currentEditorData.version ?? website.version,
+      elements: currentEditorData.elements ?? [],
+      pages: currentEditorData.pages ?? [],
+      pageSettings: currentEditorData.pageSettings ?? {},
+      siteParts: currentEditorData.siteParts ?? null,
+      globalSettings: currentEditorData.globalSettings ?? null,
+      globalStyles: currentEditorData.globalStyles ?? null,
+      navigation: currentEditorData.navigation ?? [],
+      siteSettings: currentEditorData.siteSettings ?? null,
+      breakpoints: currentEditorData.breakpoints ?? null,
+      popups: currentEditorData.popups ?? null,
+      pageCss: currentEditorData.pageCss ?? "",
+      homePageId: currentEditorData.homePageId ?? "",
+    };
+
+    // E. Allocate next monotonic revision version and create durable recovery revision
+    const latestRev = await tx.websiteRevision.findFirst({
+      where: { websiteId },
+      orderBy: { version: "desc" },
+      select: { version: true },
+    });
+    const recoveryRevisionVersion = (latestRev?.version ?? 0) + 1;
+
+    const recoveryRevision = await tx.websiteRevision.create({
+      data: {
+        websiteId,
+        version: recoveryRevisionVersion,
+        revisionType: "RESTORE",
+        description: `Pre-restore recovery snapshot before restoring v${historicalRevision.version}`,
+        data: preRestoreDraftSnapshot,
+        createdBy: userId,
+      },
+    });
+
+    // F. Apply selected historical revision to draft ONLY, strictly preserving publishedData
+    const restoredRawData = typeof historicalRevision.data === "string"
+      ? JSON.parse(historicalRevision.data)
+      : (historicalRevision.data || {});
+
+    const updatedEditorData = {
+      ...restoredRawData,
+      ...(currentPublishedData ? { publishedData: currentPublishedData } : {}),
+    };
+
+    // G. Atomically increment website optimistic concurrency version via CAS
+    const targetExpectedVersion = expectedVersion !== undefined && expectedVersion !== null
+      ? Number(expectedVersion)
+      : website.version;
+    const newWebsiteVersion = targetExpectedVersion + 1;
+
+    const updateResult = await tx.website.updateMany({
+      where: {
+        id: websiteId,
+        version: targetExpectedVersion,
+      },
+      data: {
+        editorData: updatedEditorData,
+        version: newWebsiteVersion,
+        updatedAt: new Date(),
+      },
+    });
+
+    if (updateResult.count === 0) {
+      throw new AppError(
+        `Optimistic concurrency conflict: Expected website version ${targetExpectedVersion}, but current database version has changed.`,
+        409,
+        "STALE_VERSION_CONFLICT"
+      );
+    }
+
+    const updatedWebsite = await tx.website.findUnique({
+      where: { id: websiteId },
+    });
+
+    // H. Persist mandatory audit record inside transaction
+    await tx.auditLog.create({
       data: {
         userId,
         action: "REVISION_RESTORED",
         targetResource: `website:${websiteId}`,
         details: {
-          restoredFromRevisionId: revision.id,
-          restoredFromVersion: revision.version,
-          restoreCheckpointVersion: restoreRevRecord?.version,
+          restoredFromRevisionId: historicalRevision.id,
+          restoredFromVersion: historicalRevision.version,
+          recoveryRevisionId: recoveryRevision.id,
+          recoveryVersion: recoveryRevision.version,
+          previousWebsiteVersion: website.version,
+          newWebsiteVersion: newWebsiteVersion,
         },
       },
     });
-  } catch (auditErr) {
-    console.warn("Audit log creation for restore failed:", auditErr);
-  }
 
-  return {
-    success: true,
-    message: `Restored working draft to revision v${revision.version} successfully.`,
-    restoredRevision: {
-      id: revision.id,
-      version: revision.version,
-      revisionType: revision.revisionType,
-      description: revision.description,
-      data: restoredSnapshot,
-    },
-    website: updatedWebsite,
-  };
+    return {
+      success: true,
+      message: `Restored working draft to revision v${historicalRevision.version} successfully. Recovery snapshot saved as v${recoveryRevision.version}.`,
+      recoveryRevisionId: recoveryRevision.id,
+      recoveryVersion: recoveryRevision.version,
+      recoveryRevision,
+      restoredRevision: {
+        id: historicalRevision.id,
+        version: historicalRevision.version,
+        revisionType: historicalRevision.revisionType,
+        description: historicalRevision.description,
+        data: restoredRawData,
+      },
+      website: updatedWebsite,
+    };
+  });
+  } catch (error: any) {
+    if (
+      error?.code === "P2002" ||
+      error?.message?.includes("Unique constraint failed") ||
+      error?.cause?.driverAdapterError?.name === "UniqueConstraintViolation" ||
+      error?.driverAdapterError?.name === "UniqueConstraintViolation"
+    ) {
+      throw new AppError(
+        "Optimistic concurrency conflict: A concurrent update or restore operation was completed first.",
+        409,
+        "STALE_VERSION_CONFLICT"
+      );
+    }
+    throw error;
+  }
 }
+
 
 export interface RevisionDiffSummary {
   addedPagesCount: number;

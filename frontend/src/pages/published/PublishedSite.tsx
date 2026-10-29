@@ -359,7 +359,7 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
         return <React.Fragment key={el.id}><h2 ref={assignRefIfTracked as any} {...mergedProps} className={`${mergedProps.className} ${optInnerClass}`} style={{ fontSize: "32px", fontWeight: "700", color: "#0f172a", ...mergedProps.style, ...finalInnerStyles }}>{resolvedHeading}</h2></React.Fragment>;
     }
 
-    if (el.type === "text") {
+    if (el.type === "text" || el.type === "paragraph") {
         const resolvedText = resolveDynamicTokens(el.content || "", tokenContext);
         return <React.Fragment key={el.id}><p ref={assignRefIfTracked as any} {...mergedProps} className={`${mergedProps.className} ${optInnerClass}`} style={{ fontSize: "16px", color: "#475569", ...mergedProps.style, ...finalInnerStyles }}>{resolvedText}</p></React.Fragment>;
     }
@@ -1297,12 +1297,15 @@ function PublishedSite() {
         );
     }
     if (errorMessage) {
+        const is404 = errorMessage.includes("cannot be found") || errorMessage.includes("does not exist");
         return (
-            <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col items-center justify-center p-6 text-center">
-                <div className="text-5xl mb-4">🌐</div>
-                <h1 className="text-2xl font-bold mb-2">This website is unavailable.</h1>
-                <p className="text-slate-500 max-w-md text-sm">
-                    The requested page cannot be found or is not currently published.
+            <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col items-center justify-center p-6 text-center" data-testid="error-container">
+                <div className="text-5xl mb-4">{is404 ? "🔍" : "🌐"}</div>
+                <h1 className="text-2xl font-bold mb-2" data-testid="error-title">
+                    {is404 ? "404 - Page Not Found" : "This website is unavailable."}
+                </h1>
+                <p className="text-slate-500 max-w-md text-sm" data-testid="error-message">
+                    {errorMessage}
                 </p>
             </div>
         );

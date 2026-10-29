@@ -95,8 +95,13 @@ export async function restoreRevisionHandler(
     const websiteId = req.params.id as string;
     const revisionId = req.params.revisionId as string;
     const user = res.locals.user;
-
-    const result = await restoreRevision(websiteId, revisionId, user.id);
+    const expectedVersion = req.body?.expectedVersion ?? req.query?.expectedVersion;
+    const result = await restoreRevision(
+      websiteId,
+      revisionId,
+      user.id,
+      expectedVersion !== undefined && expectedVersion !== null ? Number(expectedVersion) : undefined
+    );
 
     return res.status(200).json(result);
   } catch (error) {
