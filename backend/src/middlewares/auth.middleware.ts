@@ -111,8 +111,11 @@ export async function requireAuth(
   }
 }
 
+import { normalizeGlobalRole } from "../services/permission.service.js";
+
 export function requireRole(allowedRoles: string | string[]) {
-  const roles = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];
+  const rawAllowed = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];
+  const normalizedAllowed = rawAllowed.map((r) => normalizeGlobalRole(r));
 
   return (req: Request, res: Response, next: NextFunction) => {
     const user = res.locals.user || (req as any).user;
@@ -124,7 +127,9 @@ export function requireRole(allowedRoles: string | string[]) {
       });
     }
 
-    if (!roles.includes(user.role)) {
+    const userGlobalRole = normalizeGlobalRole(user.role);
+
+    if (!rawAllowed.includes(user.role) && !normalizedAllowed.includes(userGlobalRole)) {
       return res.status(403).json({
         success: false,
         error: {

@@ -18,6 +18,7 @@ import {
   getAdminUsersHandler,
   getAdminUserDetailsHandler,
   updateAdminUserStatusHandler,
+  updateAdminUserRoleHandler,
   getAdminWebsitesHandler,
   getAdminWebsiteDetailsHandler,
   updateAdminWebsiteModerationHandler,
@@ -33,12 +34,13 @@ router.get("/status", getOperationalStatusHandler);
 
 // Admin & Super Admin Core Operations Endpoints
 const adminRoles = ["ADMIN", "SUPER_ADMIN", "PLATFORM_ADMIN"];
-const superAdminOnly = ["SUPER_ADMIN", "PLATFORM_ADMIN"];
+const superAdminOnly = ["SUPER_ADMIN"];
 
 router.get("/admin/stats", requireAuth, requireRole(adminRoles), getAdminStatsHandler);
 router.get("/admin/users", requireAuth, requireRole(adminRoles), getAdminUsersHandler);
 router.get("/admin/users/:userId", requireAuth, requireRole(adminRoles), getAdminUserDetailsHandler);
 router.put("/admin/users/:userId/status", requireAuth, requireRole(adminRoles), updateAdminUserStatusHandler);
+router.put("/admin/users/:userId/role", requireAuth, requireRole(adminRoles), updateAdminUserRoleHandler);
 
 router.get("/admin/websites", requireAuth, requireRole(adminRoles), getAdminWebsitesHandler);
 router.get("/admin/websites/:websiteId", requireAuth, requireRole(adminRoles), getAdminWebsiteDetailsHandler);

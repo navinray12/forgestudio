@@ -2,7 +2,12 @@ import { prisma } from "../config/prisma.js";
 import { AppError } from "../utils/app-error.js";
 import { checkWebsiteLimit } from "./subscription.service.js";
 import crypto from "crypto";
-import { canUserAccessResource } from "./permission.service.js";
+import {
+  canUserAccessResource,
+  CANONICAL_PROJECT_ROLES,
+  normalizeProjectRole,
+  canAssignProjectRole,
+} from "./permission.service.js";
 import { recordAuditLog } from "./audit.service.js";
 
 const db = prisma as any;
@@ -28,11 +33,55 @@ function generateSlug(name: string): string {
 /**
  * Get all websites belonging to a specific user
  */
-export async function getUserWebsites(userId: string) {
+export async function getUserWebsites(userId: string, workspaceId?: string | null) {
   try {
+    if (workspaceId) {
+      // Enforce workspace membership check for cross-tenant isolation
+      const membership = await db.workspaceMember.findUnique({
+        where: { workspaceId_userId: { workspaceId, userId } },
+      });
+      if (!membership) {
+        throw new AppError("You do not have access to this workspace", 403, "FORBIDDEN");
+      }
+
+      const wsWebsites = await db.website.findMany({
+        where: { workspaceId },
+        include: {
+          wpConnection: {
+            select: {
+              id: true,
+              siteUrl: true,
+              wpSiteName: true,
+              status: true,
+              lastVerifiedAt: true,
+              createdAt: true,
+            },
+          },
+          mailerConfig: {
+            select: {
+              id: true,
+              host: true,
+              port: true,
+              username: true,
+              fromName: true,
+              fromEmail: true,
+              isVerified: true,
+            },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+      });
+      return wsWebsites || [];
+    }
+
     if (db?.website?.findMany) {
       const websites = await db.website.findMany({
-        where: { userId },
+        where: {
+          OR: [
+            { userId },
+            { collaborators: { some: { userId } } },
+          ],
+        },
         include: {
           wpConnection: {
             select: {
@@ -72,11 +121,13 @@ export async function getUserWebsites(userId: string) {
           FROM site_mailer_configs WHERE "websiteId" = w.id
         ) mc) as "mailerConfig"
       FROM websites w
-      WHERE w."userId" = ${userId}::uuid
+      LEFT JOIN website_collaborators c ON c."websiteId" = w.id AND c."userId" = ${userId}::uuid
+      WHERE w."userId" = ${userId}::uuid OR c.id IS NOT NULL
       ORDER BY w."createdAt" DESC
     `;
     return rawWebsites || [];
   } catch (error) {
+    if (error instanceof AppError) throw error;
     console.error("Error fetching user websites:", error);
     return [];
   }
@@ -277,7 +328,25 @@ export async function getWebsiteById(websiteId: string, userId: string) {
             }
           });
           if (collab) {
-            permission = collab.permission;
+            permission = normalizeProjectRole(collab.permission);
+          } else if (website.workspaceId) {
+            const wsMember = await db.workspaceMember.findUnique({
+              where: { workspaceId_userId: { workspaceId: website.workspaceId, userId } }
+            });
+            if (wsMember) {
+              permission = wsMember.role === "OWNER" || wsMember.role === "ADMIN" ? "ADMIN" : "VIEWER";
+            } else {
+              website = null;
+            }
+          } else if (website.organizationId) {
+            const orgMember = await db.organizationMember.findUnique({
+              where: { organizationId_userId: { organizationId: website.organizationId, userId } }
+            });
+            if (orgMember) {
+              permission = orgMember.role === "OWNER" || orgMember.role === "ADMIN" ? "ADMIN" : "VIEWER";
+            } else {
+              website = null;
+            }
           } else {
             website = null; // Purge access
           }
@@ -841,7 +910,7 @@ export async function getWebsiteRoles(websiteId: string, userId: string) {
         id: c.userId,
         name: c.user.fullName || c.user.email,
         email: c.user.email,
-        role: c.permission
+        role: normalizeProjectRole(c.permission)
       });
     }
   }
@@ -849,11 +918,28 @@ export async function getWebsiteRoles(websiteId: string, userId: string) {
     where: { websiteId, status: "PENDING" }
   });
 
-  return { members, invitations: invitationsList };
+  return {
+    members,
+    roles: members,
+    invitations: invitationsList,
+    availableRoles: CANONICAL_PROJECT_ROLES,
+  };
 }
 
 export async function updateWebsiteRole(websiteId: string, requesterUserId: string, targetUserId: string, newRole: string) {
-  const validRoles = ["ADMIN", "DESIGNER", "CONTENT_EDITOR", "REVIEWER"];
+  const validRoles = [
+    "OWNER",
+    "ADMIN",
+    "DESIGNER",
+    "DEVELOPER",
+    "CONTENT_EDITOR",
+    "SEO_MANAGER",
+    "VIEWER",
+    "PROJECT_OWNER",
+    "PROJECT_ADMIN",
+    "REVIEWER",
+    "CLIENT",
+  ];
   if (!validRoles.includes(newRole)) {
     throw new AppError("Invalid role specified.", 400, "INVALID_ROLE");
   }
@@ -881,9 +967,15 @@ export async function updateWebsiteRole(websiteId: string, requesterUserId: stri
     throw new AppError("Collaborator not found.", 404, "NOT_FOUND");
   }
 
+  const normalizedNewRole = normalizeProjectRole(newRole);
+  const roleCheck = canAssignProjectRole(requesterRole, existing.permission, normalizedNewRole);
+  if (!roleCheck.allowed) {
+    throw new AppError(roleCheck.reason || "Unauthorized role assignment", 403, "FORBIDDEN");
+  }
+
   await db.websiteCollaborator.update({
     where: { id: existing.id },
-    data: { permission: newRole }
+    data: { permission: normalizedNewRole }
   });
 
   try {
@@ -892,7 +984,7 @@ export async function updateWebsiteRole(websiteId: string, requesterUserId: stri
         userId: requesterUserId,
         action: "ROLE_UPDATED",
         targetResource: `website:${websiteId}`,
-        details: { targetUserId, newRole, previousRole: existing.permission },
+        details: { targetUserId, newRole: normalizedNewRole, previousRole: existing.permission },
       },
     });
   } catch (e) {}
@@ -902,13 +994,33 @@ export async function updateWebsiteRole(websiteId: string, requesterUserId: stri
 
 export async function inviteWebsiteMember(websiteId: string, inviterId: string, email: string, role: string = "DESIGNER") {
   const website = await getWebsiteById(websiteId, inviterId);
-  if (website.userPermission !== "OWNER" && website.userPermission !== "ADMIN") {
+  const requesterRole = website.userPermission;
+
+  if (requesterRole !== "OWNER" && requesterRole !== "ADMIN") {
     throw new AppError("You do not have permission to invite members.", 403, "FORBIDDEN");
   }
 
-  const validRoles = ["ADMIN", "DESIGNER", "CONTENT_EDITOR", "REVIEWER"];
+  const validRoles = [
+    "OWNER",
+    "ADMIN",
+    "DESIGNER",
+    "DEVELOPER",
+    "CONTENT_EDITOR",
+    "SEO_MANAGER",
+    "VIEWER",
+    "PROJECT_OWNER",
+    "PROJECT_ADMIN",
+    "REVIEWER",
+    "CLIENT",
+  ];
   if (!validRoles.includes(role)) {
     throw new AppError("Invalid role specified.", 400, "BAD_REQUEST");
+  }
+
+  const normalizedRole = normalizeProjectRole(role);
+  const roleCheck = canAssignProjectRole(requesterRole, "VIEWER", normalizedRole);
+  if (!roleCheck.allowed) {
+    throw new AppError(roleCheck.reason || "Unauthorized role invitation", 403, "FORBIDDEN");
   }
 
   const existingMember = await db.user.findUnique({
@@ -930,7 +1042,7 @@ export async function inviteWebsiteMember(websiteId: string, inviterId: string, 
     data: {
       websiteId,
       email,
-      role,
+      role: normalizedRole,
       tokenHash,
       status: "PENDING",
       expiresAt: expiry,
@@ -944,7 +1056,7 @@ export async function inviteWebsiteMember(websiteId: string, inviterId: string, 
         userId: inviterId,
         action: "COLLABORATOR_INVITED",
         targetResource: `website:${websiteId}`,
-        details: { email, role, inviteId: invite.id },
+        details: { email, role: normalizedRole, inviteId: invite.id },
       },
     });
   } catch (e) {}
@@ -1002,8 +1114,9 @@ export async function acceptWebsiteInvitation(token: string, userId: string) {
 
 export async function removeWebsiteMember(websiteId: string, requesterId: string, targetUserId: string) {
   const website = await getWebsiteById(websiteId, requesterId);
+  const requesterRole = website.userPermission;
 
-  if (website.userPermission !== "OWNER" && website.userPermission !== "ADMIN") {
+  if (requesterRole !== "OWNER" && requesterRole !== "ADMIN") {
     throw new AppError("Forbidden", 403, "FORBIDDEN");
   }
 
@@ -1012,9 +1125,26 @@ export async function removeWebsiteMember(websiteId: string, requesterId: string
     throw new AppError("Cannot remove the project owner.", 403, "FORBIDDEN");
   }
 
-  await db.websiteCollaborator.delete({
+  const targetMember = await db.websiteCollaborator.findUnique({
     where: { websiteId_userId: { websiteId, userId: targetUserId } }
   });
+  if (!targetMember) {
+    throw new AppError("Collaborator not found.", 404, "NOT_FOUND");
+  }
+
+  // Admin cannot remove peer Admin
+  if (requesterRole !== "OWNER" && (targetMember.permission === "ADMIN" || targetMember.permission === "PROJECT_ADMIN")) {
+    throw new AppError("Only the project owner can remove administrators.", 403, "FORBIDDEN");
+  }
+
+  await db.$transaction([
+    db.websiteCollaborator.delete({
+      where: { websiteId_userId: { websiteId, userId: targetUserId } }
+    }),
+    db.granularPermission.deleteMany({
+      where: { websiteId, userId: targetUserId }
+    })
+  ]);
 
   try {
     await prisma.auditLog.create({

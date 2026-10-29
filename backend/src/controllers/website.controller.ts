@@ -15,13 +15,14 @@ import {
  * Fetch all websites for current authenticated user
  */
 export async function getWebsitesHandler(
-  _req: Request,
+  req: Request,
   res: Response,
   next: NextFunction
 ) {
   try {
     const user = res.locals.user;
-    const websites = await getUserWebsites(user.id);
+    const workspaceId = (req.query?.workspaceId as string) || undefined;
+    const websites = await getUserWebsites(user.id, workspaceId);
 
     return res.status(200).json({
       success: true,
@@ -317,6 +318,14 @@ export async function setGranularPermissionHandler(req: Request, res: Response, 
     const { setGranularPermission } = await import("../services/permission.service.js");
     const result = await setGranularPermission(req.params.id as string, res.locals.user.id, targetUserId, resourceId, capability, effect);
     return res.status(200).json({ ...result, success: true });
+  } catch (error) { next(error); }
+}
+
+export async function getEffectivePermissionsHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { getEffectivePermissions } = await import("../services/permission.service.js");
+    const result = await getEffectivePermissions(req.params.id as string, res.locals.user.id);
+    return res.status(200).json({ success: true, ...result });
   } catch (error) { next(error); }
 }
 

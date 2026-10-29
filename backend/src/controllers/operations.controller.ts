@@ -28,6 +28,8 @@ import {
   promoteDeployment,
 } from "../services/publishing.service.js";
 import { AppError } from "../utils/app-error.js";
+import { prisma } from "../config/prisma.js";
+import { canAssignGlobalRole } from "../services/permission.service.js";
 
 // ==========================================
 // System Health & Monitoring
@@ -158,6 +160,93 @@ export async function updateAdminUserStatusHandler(req: Request, res: Response, 
       success: true,
       data: updated,
       message: `User status updated to ${status}`,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function updateAdminUserRoleHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const adminUser = res.locals.user || (req as any).user;
+    if (!adminUser) {
+      throw new AppError("Authentication required", 401, "UNAUTHORIZED");
+    }
+
+    const targetUserId = String(req.params.userId);
+    const { role } = req.body;
+
+    if (!role) {
+      return res.status(400).json({
+        success: false,
+        error: { code: "VALIDATION_ERROR", message: "Role is required" },
+      });
+    }
+
+    if (adminUser.id === targetUserId) {
+      return res.status(400).json({
+        success: false,
+        error: { code: "CANNOT_MODIFY_SELF", message: "You cannot change your own global role." },
+      });
+    }
+
+    const targetUser = await prisma.user.findUnique({ where: { id: targetUserId } });
+    if (!targetUser) {
+      return res.status(404).json({
+        success: false,
+        error: { code: "NOT_FOUND", message: "User not found" },
+      });
+    }
+
+    let isLastSuperAdmin = false;
+    if (targetUser.role === "SUPER_ADMIN") {
+      const superAdminCount = await prisma.user.count({
+        where: { role: "SUPER_ADMIN", status: "ACTIVE" },
+      });
+      isLastSuperAdmin = superAdminCount <= 1;
+    }
+
+    const check = canAssignGlobalRole(adminUser.role, targetUser.role, role, isLastSuperAdmin);
+    if (!check.allowed) {
+      return res.status(403).json({
+        success: false,
+        error: { code: "FORBIDDEN", message: check.reason || "Unauthorized role assignment" },
+      });
+    }
+
+    let dbRole: any = role;
+    if (role === "CUSTOMER") dbRole = "USER";
+
+    const updated = await prisma.user.update({
+      where: { id: targetUserId },
+      data: { role: dbRole },
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        role: true,
+        status: true,
+        updatedAt: true,
+      },
+    });
+
+    try {
+      await prisma.auditLog.create({
+        data: {
+          userId: adminUser.id,
+          actorRole: adminUser.role,
+          action: "USER_ROLE_CHANGED",
+          targetResource: `user:${targetUserId}`,
+          result: "SUCCESS",
+          details: { previousRole: targetUser.role, newRole: updated.role },
+        },
+      });
+    } catch (_) {}
+
+    return res.status(200).json({
+      success: true,
+      data: updated,
+      message: `User global role updated to ${updated.role}`,
     });
   } catch (err) {
     next(err);

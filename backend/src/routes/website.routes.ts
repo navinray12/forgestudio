@@ -16,6 +16,7 @@ import {
   removeWebsiteMemberHandler,
   getGranularPermissionsHandler,
   setGranularPermissionHandler,
+  getEffectivePermissionsHandler,
   getPublicWebsiteHandler,
   getManagedWebsiteDetailsHandler,
   getCookieConsentHandler,
@@ -437,5 +438,6 @@ router.post("/:id/invitations/:inviteId/resend", authorizeCapability("MANAGE_TEA
 
 router.get("/:id/permissions", authorizeCapability("MANAGE_TEAM"), getGranularPermissionsHandler);
 router.post("/:id/permissions", authorizeCapability("MANAGE_TEAM"), setGranularPermissionHandler);
+router.get("/:id/effective-permissions", authorizeCapability("VIEW"), getEffectivePermissionsHandler);
 
 export default router;

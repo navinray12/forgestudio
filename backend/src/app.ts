@@ -47,6 +47,8 @@ import apiV1Routes from "./routes/api-v1.routes.js";
 import operationsRoutes from "./routes/operations.routes.js";
 import auditLogRoutes from "./routes/auditLog.routes.js";
 import mediaRoutes from "./routes/media.routes.js";
+import workspaceRoutes from "./routes/workspace.routes.js";
+import organizationRoutes from "./routes/organization.routes.js";
 import { downloadWordPressPluginHandler } from "./controllers/wordpress.controller.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 import healthRoutes from "./routes/health.routes.js";
@@ -138,6 +140,10 @@ app.use("/api/v1/websites", experimentRoutes);
 app.use("/api/websites", experimentRoutes);
 app.use("/api/v1/teams", teamRoutes);
 app.use("/api/teams", teamRoutes);
+app.use("/api/v1/workspaces", workspaceRoutes);
+app.use("/api/workspaces", workspaceRoutes);
+app.use("/api/v1/organizations", organizationRoutes);
+app.use("/api/organizations", organizationRoutes);
 
 // Media & Uploads
 app.use("/api/v1/uploads", uploadRoutes);
