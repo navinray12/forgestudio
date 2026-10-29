@@ -1,4 +1,4 @@
-export type AutosaveStatus = "saved" | "unsaved" | "saving" | "error";
+export type AutosaveStatus = "saved" | "unsaved" | "saving" | "error" | "offline" | "conflict";
 
 export interface AutosaveState {
   status: AutosaveStatus;

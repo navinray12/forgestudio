@@ -11,7 +11,11 @@
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
-    "db:validate": "prisma validate"
+    "db:validate": "prisma validate",
+    "test:phase5": "tsx tests/phase5-editor-stability.test.ts",
+    "test:phase4": "tsx tests/phase4-page-lifecycle.test.ts",
+    "test:phase3": "tsx tests/phase3-auth-rbac.test.ts",
+    "test:phase2": "tsx tests/phase2-admin.test.ts"
   },
   "keywords": [],
   "author": "",

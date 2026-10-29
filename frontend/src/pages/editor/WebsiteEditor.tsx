@@ -25,6 +25,10 @@ import { ContentOnlyInspector } from "./components/ContentOnlyInspector";
 import { ExperimentManagerModal } from "./components/experiments/ExperimentManagerModal";
 import { useCanvasPresence } from "../../features/collaboration/hooks/useCanvasPresence";
 import { WooCommerceProvider } from "../../context/WooCommerceContext";
+import { useEditorMutations } from "./mutations/useEditorMutations";
+import { useEditorHistory } from "./history/useEditorHistory";
+import { useEditorDnD } from "./dnd/useEditorDnD";
+import { EditorHeaderToolbar } from "./components/EditorHeaderToolbar";
 
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -656,11 +660,6 @@ export default function WebsiteEditor() {
     setSelectedIds([unpackedElements.id]);
   };
 
-  // Drag & Drop State
-  const [draggingId, setDraggingId] = useState<string | null>(null);
-  const [dropTargetId, setDropTargetId] = useState<string | null>(null);
-  const [dropPosition, setDropPosition] = useState<"before" | "after" | "inside" | null>(null);
-
   // Context Menu State (F-010)
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; elementId: string } | null>(null);
 
@@ -723,44 +722,40 @@ export default function WebsiteEditor() {
     });
   };
 
-  // Revision & History State (F-013)
-  const [history, setHistory] = useState<EditorElement[][]>([]);
-  const [historyIndex, setHistoryIndex] = useState<number>(-1);
-  const isUndoRedoAction = useRef(false);
+  // Editor Loading State
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (isUndoRedoAction.current) {
-      isUndoRedoAction.current = false;
-      return;
+  // Revision & History State (F-013 & Phase 5)
+  const {
+    history,
+    historyIndex,
+    undo: handleUndo,
+    redo: handleRedo,
+    canUndo,
+    canRedo,
+    resetHistory: setHistoryWithSnapshot,
+  } = useEditorHistory({
+    elements,
+    setElements,
+    selectedId,
+    setSelectedId,
+    setSelectedIds,
+    maxHistory: 50,
+    isLoadingWebsite: loading,
+  });
+
+  const setHistory = useCallback((action: any) => {
+    if (typeof action === "function") {
+      const res = action([]);
+      if (Array.isArray(res) && res.length > 0) {
+        setHistoryWithSnapshot(res[res.length - 1] || []);
+      }
+    } else if (Array.isArray(action) && action.length > 0) {
+      setHistoryWithSnapshot(action[action.length - 1] || []);
     }
+  }, [setHistoryWithSnapshot]);
 
-    setHistory((prev) => {
-      const sliced = historyIndex >= 0 ? prev.slice(0, historyIndex + 1) : prev;
-      const updated = [...sliced, JSON.parse(JSON.stringify(elements))];
-      if (updated.length > 50) updated.shift();
-      return updated;
-    });
-
-    setHistoryIndex(historyIndex >= 0 ? Math.min(historyIndex + 1, 49) : 0);
-  }, [elements]);
-
-  const handleUndo = () => {
-    if (historyIndex > 0 && history[historyIndex - 1]) {
-      isUndoRedoAction.current = true;
-      const newIndex = historyIndex - 1;
-      setHistoryIndex(newIndex);
-      setElements(JSON.parse(JSON.stringify(history[newIndex])));
-    }
-  };
-
-  const handleRedo = () => {
-    if (historyIndex < history.length - 1 && history[historyIndex + 1]) {
-      isUndoRedoAction.current = true;
-      const newIndex = historyIndex + 1;
-      setHistoryIndex(newIndex);
-      setElements(JSON.parse(JSON.stringify(history[newIndex])));
-    }
-  };
+  const setHistoryIndex = useCallback((_idx: any) => {}, []);
 
   const getAllElementIds = (list: EditorElement[]): string[] => {
     let ids: string[] = [];
@@ -809,7 +804,6 @@ export default function WebsiteEditor() {
       setSelectedIds([id]);
     }
   };
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -1989,6 +1983,7 @@ export default function WebsiteEditor() {
     lastSavedAt: autosaveLastSavedAt,
     errorMessage: autosaveError,
     updateBaseline: updateAutosaveBaseline,
+    saveNow: triggerAutosaveNow,
   } = useAutosave({
     websiteId,
     elements,
@@ -2387,7 +2382,7 @@ export default function WebsiteEditor() {
     }
   };
 
-  // Save Website Data
+  // Save Website Data (Harmonized with serialized autosave queue)
   const handleSave = async () => {
     if (!websiteId) return;
 
@@ -2396,125 +2391,15 @@ export default function WebsiteEditor() {
       setSaveMessage("");
       setErrorMessage("");
 
-      const canonicalHeaderElements = canvasMode === "header" ? elements : (siteParts.header?.elements || []);
-      const canonicalFooterElements = canvasMode === "footer" ? elements : (siteParts.footer?.elements || []);
-      const canonicalSingleElements = canvasMode === "single" ? elements : (siteParts.single?.elements || []);
-      const canonicalArchiveElements = canvasMode === "archive" ? elements : (siteParts.archive?.elements || []);
-      const canonical404Elements = canvasMode === "404" ? elements : (siteParts.notFound404?.elements || []);
-      const canonicalSearchResultsElements = canvasMode === "search-results" ? elements : (siteParts.searchResults?.elements || []);
-      const canonicalPageElements = canvasMode === "page" ? elements : (pages.find(p => p.id === activePageId)?.elements || []);
+      await triggerAutosaveNow();
 
-      const payload = {
-        editorData: {
-          version: 1,
-          elements: canonicalPageElements,
-          pages: pages.map((p) =>
-            p.id === activePageId && canvasMode === "page"
-              ? { ...p, elements: canonicalPageElements, pageSettings }
-              : p
-          ),
-          homePageId,
-          siteParts: {
-            header: {
-              enabled: siteParts.header?.enabled ?? true,
-              elements: canonicalHeaderElements,
-            },
-            footer: {
-              enabled: siteParts.footer?.enabled ?? true,
-              elements: canonicalFooterElements,
-            },
-            single: {
-              enabled: siteParts.single?.enabled ?? true,
-              elements: canonicalSingleElements,
-            },
-            archive: {
-              enabled: siteParts.archive?.enabled ?? true,
-              elements: canonicalArchiveElements,
-            },
-            notFound404: {
-              enabled: siteParts.notFound404?.enabled ?? true,
-              elements: canonical404Elements,
-            },
-            searchResults: {
-              enabled: siteParts.searchResults?.enabled ?? true,
-              elements: canonicalSearchResultsElements,
-            },
-          },
-          publishing,
-          deployment,
-          breakpoints,
-          globalSettings,
-          globalStyles: globalSettings?.globalStyles,
-          globalVariables,
-          globalClasses,
-          popups,
-          pageCss,
-          pageSettings,
-          ...(publishedDataRef.current ? { publishedData: publishedDataRef.current } : {}),
-        },
-        expectedVersion: website?.version,
-        lastKnownUpdatedAt: website?.updatedAt,
-      };
-
-      // 1. Always save locally immediately as fail-safe
-      try {
-        localStorage.setItem(`forgestudio_editor_${websiteId}`, JSON.stringify(payload.editorData));
-      } catch (lsErr) {
-        console.warn("Failed to write to localStorage:", lsErr);
-      }
-
-      // 2. Attempt backend API save
-      let serverSucceeded = false;
-      try {
-        const res = await fetch(`${apiUrl}/api/websites/${websiteId}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify(payload),
-        });
-
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          if (res.status === 409) {
-            setErrorMessage("Conflict: This website was modified in another session. Unsaved changes are preserved locally in this browser.");
-          } else {
-            setErrorMessage(data?.message || data?.error?.message || "Failed to persist changes to server. Local backup preserved.");
-          }
-        } else {
-          const data = await res.json().catch(() => ({}));
-          serverSucceeded = true;
-          if (data?.website?.updatedAt || data?.website?.version !== undefined) {
-            setWebsite((prev) => prev ? {
-              ...prev,
-              updatedAt: data.website.updatedAt || prev.updatedAt,
-              version: data.website.version !== undefined ? data.website.version : prev.version,
-            } : data.website);
-          }
-        }
-      } catch (netErr) {
-        console.warn("Backend save request failed, saved locally:", netErr);
+      if (autosaveStatus === "conflict") {
+        setErrorMessage("Conflict: This website was modified in another session. Unsaved changes are preserved locally in this browser.");
+      } else if (autosaveStatus === "offline") {
         setErrorMessage("Network error: Could not reach server. Changes preserved locally in browser.");
-      }
-
-      if (serverSucceeded) {
-        // Update F-321 Autosave baseline on successful save
-        updateAutosaveBaseline(
-          canonicalPageElements,
-          pageSettings,
-          payload.editorData.pages,
-          homePageId,
-          siteParts,
-          globalSettings,
-          globalSettings?.globalStyles,
-          publishing,
-          deployment,
-          breakpoints,
-          popups,
-          pageCss
-        );
-
+      } else if (autosaveStatus === "error") {
+        setErrorMessage(autosaveError || "Save failed. Changes preserved locally in browser.");
+      } else {
         setSaveMessage("Saved successfully!");
         setErrorMessage("");
         setTimeout(() => setSaveMessage(""), 3000);
@@ -2526,173 +2411,57 @@ export default function WebsiteEditor() {
     }
   };
 
-  // Element Actions
+  // Unified Editor Mutations Engine (Phase 5 Step 3)
+  const {
+    addElement: mutationAddElement,
+    deleteElement: mutationDeleteElement,
+    duplicateElement: mutationDuplicateElement,
+    reorderElement: handleReorderElement,
+    moveElement: handleMoveElement,
+    updateElementContent,
+    updateElementProp,
+  } = useEditorMutations({
+    elements,
+    setElements,
+    setSelectedId,
+    setSelectedIds,
+    disabledWidgets,
+    pages,
+    activePageId,
+  });
+
   const handleAddElement = (type: ElementType, targetId: string | null = null) => {
-    if (disabledWidgets.includes(type)) return;
-    const effectiveTargetId = targetId || selectedId;
-    const newEl = createDefaultElement(type);
-    if (newEl.type === "button") {
-      const defaultPage = pages.find((p) => p.id === activePageId) || pages.find((p) => p.isHome || p.id === "home") || pages[0];
-      if (defaultPage) {
-        newEl.pageId = defaultPage.id;
-        newEl.href = defaultPage.slug.startsWith("/") ? defaultPage.slug : `/${defaultPage.slug}`;
-        newEl.linkUrl = newEl.href;
-        newEl.destinationType = "page";
-        newEl.linkType = "page";
-        newEl.target = "_self";
-      }
-    }
-    setElements((prev) => insertTreeElement(prev, effectiveTargetId, newEl));
-    setSelectedId(newEl.id);
-    setSelectedIds([newEl.id]);
-  };
-
-  const handleDropElement = (
-    e: React.DragEvent,
-    targetId: string | null = null,
-    position: "before" | "after" | "inside" | null = null
-  ) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const dataString = e.dataTransfer.getData("application/json") || e.dataTransfer.getData("text/plain");
-
-    let effectiveTargetId = targetId || dropTargetId;
-    let effectivePosition: "before" | "after" | "inside" = position || dropPosition || "after";
-
-    setDropTargetId(null);
-    setDropPosition(null);
-    setDraggingId(null);
-
-    if (!effectiveTargetId && elements.length > 0) {
-      let closestId: string | null = null;
-      let minDist = Infinity;
-      let calculatedPos: "before" | "after" = "after";
-
-      const nodes = document.querySelectorAll("[data-el-id]");
-      nodes.forEach((node) => {
-        const id = node.getAttribute("data-el-id");
-        if (!id) return;
-        const rect = node.getBoundingClientRect();
-        const midY = rect.top + rect.height / 2;
-        const dist = Math.abs(e.clientY - midY);
-        if (dist < minDist) {
-          minDist = dist;
-          closestId = id;
-          calculatedPos = e.clientY < midY ? "before" : "after";
-        }
-      });
-
-      if (closestId) {
-        effectiveTargetId = closestId;
-        effectivePosition = calculatedPos;
-      }
-    }
-
-    if (!dataString) return;
-
-    try {
-      const data = JSON.parse(dataString);
-      if (data.type === "new" && data.widgetType) {
-        if (disabledWidgets.includes(data.widgetType as ElementType)) return;
-        const newEl = createDefaultElement(data.widgetType as ElementType);
-        if (newEl.type === "button") {
-          const defaultPage = pages.find((p) => p.id === activePageId) || pages.find((p) => p.isHome || p.id === "home") || pages[0];
-          if (defaultPage) {
-            newEl.pageId = defaultPage.id;
-            newEl.href = defaultPage.slug.startsWith("/") ? defaultPage.slug : `/${defaultPage.slug}`;
-            newEl.linkUrl = newEl.href;
-            newEl.destinationType = "page";
-            newEl.linkType = "page";
-            newEl.target = "_self";
-          }
-        }
-        setElements((prev) => insertTreeElementAtPosition(prev, effectiveTargetId, effectivePosition, newEl));
-        setSelectedId(newEl.id);
-        setSelectedIds([newEl.id]);
-      } else if (data.type === "move" && data.id) {
-        if (effectiveTargetId && (data.id === effectiveTargetId || isDescendant(elements, data.id, effectiveTargetId))) return;
-        setElements((prev) => moveTreeElement(prev, data.id, effectiveTargetId, effectivePosition));
-        setSelectedId(data.id);
-        setSelectedIds([data.id]);
-      }
-    } catch (err) {
-      console.error("Drag and drop parse error:", err);
-    }
-  };
-
-  const handleCanvasAutoScroll = (e: React.DragEvent) => {
-    const mainContainer = e.currentTarget.closest("main") || document.querySelector("main");
-    if (!mainContainer) return;
-
-    const rect = mainContainer.getBoundingClientRect();
-    const edgeThreshold = 60;
-    const scrollSpeed = 15;
-
-    if (e.clientY - rect.top < edgeThreshold) {
-      mainContainer.scrollTop -= scrollSpeed;
-    } else if (rect.bottom - e.clientY < edgeThreshold) {
-      mainContainer.scrollTop += scrollSpeed;
-    }
-  };
-
-  const handleDragOverElement = (
-    e: React.DragEvent,
-    elId: string,
-    isContainer: boolean
-  ) => {
-    e.preventDefault();
-    e.stopPropagation();
-    e.dataTransfer.dropEffect = "move";
-
-    if (draggingId === elId || (draggingId && isDescendant(elements, draggingId, elId))) {
-      setDropTargetId(null);
-      setDropPosition(null);
-      return;
-    }
-
-    const rect = e.currentTarget.getBoundingClientRect();
-    const offsetY = e.clientY - rect.top;
-    const height = rect.height;
-
-    let pos: "before" | "after" | "inside" = "after";
-    if (isContainer) {
-      if (offsetY < Math.min(height * 0.25, 30)) {
-        pos = "before";
-      } else if (offsetY > height - Math.min(height * 0.25, 30)) {
-        pos = "after";
-      } else {
-        pos = "inside";
-      }
-    } else {
-      if (offsetY < height * 0.5) {
-        pos = "before";
-      } else {
-        pos = "after";
-      }
-    }
-
-    setDropTargetId(elId);
-    setDropPosition(pos);
+    mutationAddElement(type, targetId || selectedId);
   };
 
   const handleDeleteElement = (id: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
-    setElements((prev) => deleteTreeElement(prev, id));
-    if (selectedId === id) setSelectedId(null);
+    mutationDeleteElement(id);
   };
 
   const handleDuplicateElement = (idToDuplicate?: string | null, e?: React.MouseEvent) => {
     e?.stopPropagation();
     const targetId = idToDuplicate || selectedId;
-    if (!targetId) return;
-
-    const { updatedList, newId } = duplicateTreeElement(elements, targetId);
-    setElements(updatedList);
-    if (newId) {
-      setSelectedId(newId);
-    }
+    if (targetId) mutationDuplicateElement(targetId);
   };
+
+  // Drag and Drop Engine (Phase 5 Step 2)
+  const {
+    draggingId,
+    dropTargetId,
+    dropPosition,
+    setDraggingId,
+    setDropTargetId,
+    setDropPosition,
+    handleDragOverElement,
+    handleCanvasAutoScroll,
+    handleDrop: handleDropElement,
+  } = useEditorDnD({
+    elements,
+    onAddElement: (type, targetId, pos) => mutationAddElement(type, targetId, pos),
+    onMoveElement: (srcId, tgtId, pos) => handleMoveElement(srcId, tgtId, pos),
+    disabledWidgets,
+  });
 
   const handleCopyElement = (idToCopy?: string | null, e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -2774,12 +2543,6 @@ export default function WebsiteEditor() {
 
     setElements((prev) => insertTreeElement(prev, selectedId, clonedItem));
     setSelectedId(clonedItem.id);
-  };
-
-  const updateElementContent = (id: string, newContent: string) => {
-    setElements((prev) =>
-      updateTreeElement(prev, id, (el) => ({ ...el, content: newContent }))
-    );
   };
 
   // Keyboard Shortcuts Listener (F-025: Save, Delete, Preview, Undo, Redo, Copy, Paste, Duplicate, Section Move, F-027: Finder, F-031: Shortcuts Help)
@@ -3185,10 +2948,6 @@ export default function WebsiteEditor() {
       ...prev,
       [id]: !prev[id],
     }));
-  };
-
-  const handleReorderElement = (id: string, direction: "up" | "down") => {
-    setElements((prev) => reorderTreeElement(prev, id, direction));
   };
 
   const flattenAndSearchElements = (
@@ -6933,508 +6692,61 @@ export default function WebsiteEditor() {
   return (
     <WooCommerceProvider websiteId={websiteId}>
     <div className="flex h-screen flex-col overflow-hidden bg-[#f1f5f9] text-slate-800 font-sans">
-      {/* ========================================== */}
-      {/* Top Header Bar */}
-      {/* ========================================== */}
       {!isFullScreenCanvas && (
-        <header
-          className={`relative w-full h-13 shrink-0 flex items-center justify-between px-3 md:px-4 shadow-md transition overflow-x-auto ${userPreferences.themeMode === "light"
-            ? "bg-white border-b border-slate-200 text-slate-800"
-            : "bg-[#0b1329] text-white"
-            }`}
-        >
-          {/* 1. Left Region: Brand / Back / Breadcrumb & Page Selector */}
-          <div className="flex items-center gap-1.5 md:gap-2 shrink-0 min-w-0">
-            {/* Quit Editor Button */}
-            <button
-              type="button"
-              onClick={handleQuitEditor}
-              className="w-8 h-8 rounded-lg border border-slate-700/80 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-white transition flex items-center justify-center shadow-sm cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-blue-500"
-              title="Back to Dashboard"
-              aria-label="Back to Dashboard"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </button>
-
-            {/* Project Title / Breadcrumb */}
-            <span className="text-xs font-bold text-white tracking-wide border-l border-slate-700/80 pl-2.5 hidden sm:inline-block max-w-[90px] md:max-w-[130px] truncate">
-              {website?.name || "ForgeStudio"}
-            </span>
-
-            {/* Page Selector Dropdown */}
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setIsPageSelectorOpen(!isPageSelectorOpen)}
-                className="h-8 px-2.5 text-xs font-semibold text-white bg-slate-800/90 hover:bg-slate-700/90 rounded-lg border border-slate-700/80 transition flex items-center gap-1.5 shadow-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500"
-                title="Switch Active Page or Manage Site Pages"
-                aria-label="Switch Active Page"
-                aria-expanded={isPageSelectorOpen}
-                aria-haspopup="listbox"
-              >
-                <span className="text-amber-400 text-xs">📄</span>
-                <span className="max-w-[70px] sm:max-w-[110px] truncate font-bold">
-                  {pages.find((p) => p.id === activePageId)?.name || "Page"}
-                </span>
-                {homePageId === activePageId && (
-                  <span className="text-[9px] bg-amber-500/20 text-amber-300 px-1 py-0.5 rounded font-bold hidden md:inline">Home</span>
-                )}
-                <ChevronDown className="w-3 h-3 text-slate-400" />
-              </button>
-
-              {isPageSelectorOpen && (
-                <div className="absolute top-full left-0 mt-1.5 w-64 bg-slate-900/95 backdrop-blur-md border border-slate-700 rounded-xl shadow-2xl py-1 z-50 animate-fadeIn">
-                  <div className="px-3 py-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800 flex items-center justify-between">
-                    <span>Site Pages</span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsPageSelectorOpen(false);
-                        setIsPageManagerModalOpen(true);
-                      }}
-                      className="text-blue-400 hover:text-blue-300 font-semibold cursor-pointer text-[10px]"
-                    >
-                      Manage All ⚙️
-                    </button>
-                  </div>
-                  <div className="max-h-60 overflow-y-auto py-1">
-                    {pages.map((p) => (
-                      <button
-                        key={p.id}
-                        type="button"
-                        onClick={() => {
-                          handleSwitchEditingPage(p.id);
-                          setIsPageSelectorOpen(false);
-                        }}
-                        className={`w-full text-left px-3 py-1.5 text-xs flex items-center justify-between hover:bg-slate-800 transition cursor-pointer ${p.id === activePageId ? "bg-blue-600/20 text-blue-300 font-bold" : "text-slate-300"
-                          }`}
-                      >
-                        <div className="flex items-center gap-2 truncate">
-                          <span>{p.id === homePageId ? "🏠" : "📄"}</span>
-                          <span className="truncate">{p.name}</span>
-                        </div>
-                        <span className="text-[10px] text-slate-500 font-mono">{p.slug}</span>
-                      </button>
-                    ))}
-                  </div>
-                  <div className="p-1.5 border-t border-slate-800 bg-slate-950/40">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsPageSelectorOpen(false);
-                        setIsPageManagerModalOpen(true);
-                      }}
-                      className="w-full text-left px-2.5 py-1.5 text-xs text-blue-400 hover:bg-blue-900/30 rounded-lg flex items-center gap-1.5 transition font-semibold cursor-pointer"
-                    >
-                      <span>➕</span>
-                      <span>Add / Manage Pages...</span>
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Scope Switcher Dropdown (Page / Header / Footer / Single / Archive / 404 / Search Results) */}
-            <div className="relative" ref={scopeDropdownRef}>
-              <button
-                type="button"
-                onClick={() => setIsScopeDropdownOpen((prev) => !prev)}
-                className="h-8 px-2 text-xs font-semibold text-slate-300 bg-slate-800/80 hover:bg-slate-700/80 hover:text-white rounded-lg border border-slate-700/80 transition flex items-center gap-1 shadow-sm cursor-pointer"
-                title="Switch Canvas Scope (Page / Header / Footer / Single / Archive / 404 / Search)"
-                aria-label="Switch Canvas Scope"
-              >
-                <span className="text-xs">
-                  {canvasMode === "page" && "📄"}
-                  {canvasMode === "header" && "🌐"}
-                  {canvasMode === "footer" && "🌐"}
-                  {canvasMode === "single" && "📰"}
-                  {canvasMode === "archive" && "📚"}
-                  {canvasMode === "404" && "⚠️"}
-                  {canvasMode === "search-results" && "🔍"}
-                </span>
-                <span className="capitalize font-semibold hidden md:inline">
-                  {canvasMode === "404" ? "404 Page" : canvasMode === "search-results" ? "Search Results" : canvasMode}
-                </span>
-                <ChevronDown className="w-3 h-3 text-slate-400" />
-              </button>
-
-              {isScopeDropdownOpen && (
-                <div className="absolute top-full left-0 mt-1.5 w-44 bg-slate-900/95 backdrop-blur-md border border-slate-700 rounded-xl shadow-2xl py-1 z-50 animate-fadeIn">
-                  {(
-                    [
-                      { mode: "page", label: "Page Content", icon: "📄" },
-                      { mode: "header", label: "Global Header", icon: "🌐" },
-                      { mode: "footer", label: "Global Footer", icon: "🌐" },
-                      { mode: "single", label: "Single Post Template", icon: "📰" },
-                      { mode: "archive", label: "Archive Template", icon: "📚" },
-                      { mode: "404", label: "404 Not Found Page", icon: "⚠️" },
-                      { mode: "search-results", label: "Search Results Layout", icon: "🔍" },
-                    ] as const
-                  ).map(({ mode, label, icon }) => (
-                    <button
-                      key={mode}
-                      type="button"
-                      onClick={() => {
-                        handleSwitchCanvasMode(mode as ThemeBuilderScope);
-                        setIsScopeDropdownOpen(false);
-                      }}
-                      className={`w-full text-left px-3 py-1.5 text-xs flex items-center justify-between transition cursor-pointer hover:bg-slate-800 ${canvasMode === mode
-                        ? "bg-blue-600/20 text-blue-300 font-bold"
-                        : "text-slate-300 hover:text-white"
-                        }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span>{icon}</span>
-                        <span>{label}</span>
-                      </div>
-                      {canvasMode === mode && (
-                        <span className="text-blue-400 text-xs">✓</span>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* 2. Center Region: Viewport Switcher */}
-          <div className="hidden lg:flex items-center justify-center pointer-events-auto">
-            <div className="flex items-center gap-0.5 bg-slate-900/80 p-0.5 rounded-lg border border-slate-700/80 shadow-sm">
-              <button
-                type="button"
-                onClick={() => setActiveDevice("desktop")}
-                className={`w-7 h-7 flex items-center justify-center rounded-md transition cursor-pointer ${activeDevice === "desktop"
-                  ? "bg-blue-600 text-white shadow-xs font-bold"
-                  : "text-slate-400 hover:text-white hover:bg-slate-800/60"
-                  }`}
-                title="Desktop View"
-                aria-label="Desktop View"
-              >
-                <Monitor className="w-3.5 h-3.5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveDevice("tablet")}
-                className={`w-7 h-7 flex items-center justify-center rounded-md transition cursor-pointer ${activeDevice === "tablet"
-                  ? "bg-blue-600 text-white shadow-xs font-bold"
-                  : "text-slate-400 hover:text-white hover:bg-slate-800/60"
-                  }`}
-                title="Tablet View"
-                aria-label="Tablet View"
-              >
-                <Tablet className="w-3.5 h-3.5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveDevice("mobile")}
-                className={`w-7 h-7 flex items-center justify-center rounded-md transition cursor-pointer ${activeDevice === "mobile"
-                  ? "bg-blue-600 text-white shadow-xs font-bold"
-                  : "text-slate-400 hover:text-white hover:bg-slate-800/60"
-                  }`}
-                title="Mobile View"
-                aria-label="Mobile View"
-              >
-                <Smartphone className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </div>
-
-          {/* 3. Right Region: Compact Tools, History, Primary Actions */}
-          <div className="flex items-center justify-end gap-1.5 md:gap-2 shrink-0">
-            {/* Status Messages */}
-            {saveMessage && <span className="text-xs font-medium text-emerald-400 shrink-0 hidden xl:inline">✓ {saveMessage}</span>}
-            {errorMessage && <span className="text-xs font-medium text-red-400 shrink-0 hidden xl:inline">{errorMessage}</span>}
-
-            {/* History Controls Group (Undo / Redo / History) */}
-            <div className="flex items-center gap-0.5 bg-[#16203a] p-0.5 rounded-lg border border-slate-700/80 shrink-0">
-              <button
-                onClick={handleUndo}
-                disabled={historyIndex <= 0}
-                className="w-7 h-7 flex items-center justify-center rounded text-slate-300 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent transition cursor-pointer"
-                title="Undo (Ctrl+Z)"
-                aria-label="Undo"
-              >
-                <Undo className="w-3.5 h-3.5" />
-              </button>
-              <button
-                onClick={handleRedo}
-                disabled={historyIndex >= history.length - 1}
-                className="w-7 h-7 flex items-center justify-center rounded text-slate-300 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent transition cursor-pointer"
-                title="Redo (Ctrl+Y)"
-                aria-label="Redo"
-              >
-                <Redo className="w-3.5 h-3.5" />
-              </button>
-              <button
-                onClick={() => setIsRevisionHistoryOpen(true)}
-                className="w-7 h-7 flex items-center justify-center rounded text-slate-300 hover:text-white hover:bg-slate-800 transition border-l border-slate-700/80 cursor-pointer"
-                title="Revision History"
-                aria-label="Revision History"
-                data-testid="revision-history-button"
-              >
-                <HistoryIcon className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-            {/* Selected Element Quick Actions (Only active when element selected) */}
-            {selectedId && (
-              <div className="hidden xl:flex items-center gap-0.5 bg-[#16203a] p-0.5 rounded-lg border border-blue-500/40 shrink-0">
-                <button
-                  onClick={() => handleReorderElement(selectedId, "up")}
-                  className="w-6 h-6 flex items-center justify-center text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 rounded cursor-pointer"
-                  title="Move Up"
-                  aria-label="Move Up"
-                >
-                  ▲
-                </button>
-                <button
-                  onClick={() => handleReorderElement(selectedId, "down")}
-                  className="w-6 h-6 flex items-center justify-center text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 rounded cursor-pointer"
-                  title="Move Down"
-                  aria-label="Move Down"
-                >
-                  ▼
-                </button>
-                <button
-                  onClick={(e) => handleCopyElement(selectedId, e)}
-                  className="w-6 h-6 flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-800 rounded cursor-pointer"
-                  title="Copy (Ctrl+C)"
-                  aria-label="Copy Element"
-                >
-                  <Copy className="w-3 h-3" />
-                </button>
-                <button
-                  onClick={(e) => handleDuplicateElement(selectedId, e)}
-                  className="w-6 h-6 flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-800 rounded cursor-pointer"
-                  title="Duplicate (Ctrl+D)"
-                  aria-label="Duplicate Element"
-                >
-                  <Layers className="w-3 h-3" />
-                </button>
-                <button
-                  onClick={() => handleSaveAsComponent(selectedId)}
-                  className="w-6 h-6 flex items-center justify-center text-purple-300 bg-purple-900/40 hover:bg-purple-800 rounded cursor-pointer"
-                  title="Save as Reusable Component"
-                  aria-label="Save Component"
-                >
-                  🧩
-                </button>
-                <button
-                  onClick={handleOpenReplaceTemplate}
-                  className="w-6 h-6 flex items-center justify-center text-amber-300 bg-amber-900/40 hover:bg-amber-800 rounded cursor-pointer"
-                  title="Replace with Template"
-                  aria-label="Replace with Template"
-                >
-                  🔄
-                </button>
-              </div>
-            )}
-
-            {/* Icon-Based Utility Tools Group */}
-            <div className="flex items-center gap-1 border-l border-slate-700/80 pl-1.5 shrink-0">
-              {/* Search */}
-              <button
-                type="button"
-                onClick={() => setIsFinderOpen(true)}
-                className="w-7 h-7 rounded-lg border border-slate-700/80 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-white transition flex items-center justify-center shadow-xs cursor-pointer"
-                title="Search (Ctrl+K)"
-                aria-label="Search"
-              >
-                <Search className="w-3.5 h-3.5" />
-              </button>
-
-              {/* SEO & Quality Audit */}
-              <button
-                type="button"
-                onClick={() => setIsSeoModalOpen(true)}
-                className="w-7 h-7 rounded-lg border border-indigo-500/40 bg-indigo-950/40 hover:bg-indigo-900/60 text-indigo-300 hover:text-white transition flex items-center justify-center shadow-xs cursor-pointer"
-                title="SEO & Quality Audit"
-                aria-label="SEO & Quality Audit"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-              </button>
-
-              {/* Tokens */}
-              <button
-                type="button"
-                onClick={() => setIsVariablesModalOpen(true)}
-                className="w-7 h-7 rounded-lg border border-indigo-500/40 bg-indigo-950/40 hover:bg-indigo-900/60 text-indigo-300 hover:text-white transition flex items-center justify-center shadow-xs cursor-pointer"
-                title="Design Variables & CSS Tokens"
-                aria-label="Tokens"
-              >
-                <Palette className="w-3.5 h-3.5 text-indigo-400" />
-              </button>
-
-              {/* F-339: Dynamic Multi-Mode Theme Toggle */}
-              <button
-                type="button"
-                onClick={() => setCanvasTheme((t) => (t === "light" ? "dark" : "light"))}
-                className={`px-2.5 py-1 text-xs font-semibold rounded-lg border transition flex items-center gap-1.5 cursor-pointer ${canvasTheme === "dark"
-                  ? "bg-indigo-950/60 text-indigo-300 border-indigo-700/80 shadow-sm"
-                  : "bg-amber-950/30 text-amber-300 border-amber-700/60"
-                  }`}
-                title="Toggle Dynamic Canvas Theme (☀️ Light / 🌙 Dark)"
-              >
-                <span>{canvasTheme === "dark" ? "🌙 Dark" : "☀️ Light"}</span>
-              </button>
-
-              {/* Live Real-time Collaborators Avatar Stack */}
-              {canvasPeers.length > 0 && (
-                <div className="flex items-center -space-x-1.5 overflow-hidden pl-1 pr-1" title={`${canvasPeers.length} other collaborator(s) online`}>
-                  {canvasPeers.map((peer) => (
-                    <div
-                      key={peer.socketId}
-                      title={`${peer.user.name} is currently editing`}
-                      className="relative flex items-center justify-center w-6 h-6 rounded-full text-[9px] font-extrabold text-white ring-2 ring-slate-900 shadow-sm transition hover:z-20 hover:scale-110"
-                      style={{ backgroundColor: peer.user.color }}
-                    >
-                      {peer.user.name.slice(0, 2).toUpperCase()}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Client Restricted Mode Badge */}
-              {isRestrictedMode && (
-                <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-500/15 border border-amber-500/40 text-amber-300 text-xs font-bold shadow-xs">
-                  <Lock className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Client Editor Mode (Content Only)</span>
-                </div>
-              )}
-
-              {/* F-339: Variables Manager (Tokens) */}
-              <button
-                type="button"
-                onClick={() => setIsVariablesModalOpen(true)}
-                className="px-3 py-1 text-xs font-semibold rounded-lg border text-indigo-300 bg-indigo-950/40 hover:bg-indigo-900/60 border-indigo-800/60 transition flex items-center gap-1.5 cursor-pointer"
-                title="Design Variables & CSS Tokens (F-339)"
-              >
-                <span>🎨</span>
-                <span>Tokens</span>
-              </button>
-
-              {/* Classes */}
-              <button
-                type="button"
-                onClick={() => setIsClassModalOpen(true)}
-                className="w-7 h-7 rounded-lg border border-emerald-500/40 bg-emerald-950/40 hover:bg-emerald-900/60 text-emerald-300 hover:text-white transition flex items-center justify-center shadow-xs cursor-pointer"
-                title="Global Utility Classes"
-                aria-label="Classes"
-              >
-                <FileText className="w-3.5 h-3.5 text-emerald-400" />
-              </button>
-
-              {/* Notes */}
-              <button
-                type="button"
-                onClick={() => setIsDesignNotesOpen(!isDesignNotesOpen)}
-                className={`w-7 h-7 rounded-lg border transition flex items-center justify-center shadow-xs cursor-pointer ${isDesignNotesOpen
-                  ? "bg-purple-600/30 text-purple-200 border-purple-500/60"
-                  : "text-slate-300 bg-slate-800/80 hover:bg-slate-700/80 border-slate-700/80"
-                  }`}
-                title="Collaborative Design Notes"
-                aria-label="Notes"
-              >
-                <MessageSquare className="w-3.5 h-3.5" />
-              </button>
-
-              {/* Dev Mode */}
-              <button
-                type="button"
-                onClick={() => setDevModalMode((prev) => (prev === "export-code" ? null : "export-code"))}
-                className={`w-7 h-7 rounded-lg border transition flex items-center justify-center shadow-xs cursor-pointer ${devModalMode === "export-code"
-                  ? "bg-blue-600 text-white border-blue-500"
-                  : "text-blue-300 bg-blue-900/40 hover:bg-blue-800/60 border-blue-700/60"
-                  }`}
-                title="Developer Mode"
-                aria-label="Developer Mode"
-              >
-                <Code2 className="w-3.5 h-3.5" />
-              </button>
-
-              {/* Phase 3: A/B Split Testing */}
-              <button
-                type="button"
-                onClick={() => setIsExperimentModalOpen(true)}
-                className="px-3 py-1 text-xs font-semibold rounded-lg border text-purple-300 bg-purple-950/40 hover:bg-purple-900/60 border-purple-800/60 transition flex items-center gap-1.5 cursor-pointer"
-                title="A/B Split Testing & Conversion Experiments"
-              >
-                <span>🧪</span>
-                <span>A/B Tests</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={handleSave}
-                disabled={saving}
-                className="px-4 py-1 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition disabled:opacity-50 cursor-pointer"
-              >
-                {saving ? "Saving..." : "💾 Save"}
-              </button>
-
-              {/* Fullscreen Canvas */}
-              <button
-                type="button"
-                onClick={() => setIsFullScreenCanvas(!isFullScreenCanvas)}
-                className="w-7 h-7 rounded-lg border border-slate-700/80 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-white transition flex items-center justify-center shadow-xs cursor-pointer"
-                title="Toggle Full Screen Canvas"
-                aria-label="Toggle Full Screen Canvas"
-              >
-                <span className="text-xs leading-none">⛶</span>
-              </button>
-            </div>
-
-            {/* Divider */}
-            <div className="h-4 w-px bg-slate-700/80 mx-0.5 shrink-0" />
-
-            {/* Primary Actions: Preview, Save, Publish */}
-            {/* Preview Button */}
-            <button
-              type="button"
-              onClick={() => setIsPreview(!isPreview)}
-              className={`w-8 h-8 rounded-lg border transition flex items-center justify-center shadow-sm cursor-pointer shrink-0 ${isPreview
-                ? "bg-amber-500/20 text-amber-300 border-amber-500/60 hover:bg-amber-500/30"
-                : "bg-slate-800/80 text-slate-300 border-slate-700/80 hover:bg-slate-700/80 hover:text-white"
-                }`}
-              title={isPreview ? "Exit Preview (Ctrl+P)" : "Preview"}
-              aria-label={isPreview ? "Exit Preview" : "Preview"}
-            >
-              <Eye className="w-4 h-4" />
-            </button>
-
-            {/* Save Button */}
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={saving}
-              className="h-8 px-3 rounded-lg border border-blue-500 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm cursor-pointer shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
-              title="Save (Ctrl+S)"
-              aria-label="Save"
-            >
-              {saving ? (
-                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-              ) : (
-                <Save className="w-3.5 h-3.5" />
-              )}
-              <span className="hidden sm:inline">Save</span>
-            </button>
-
-            {/* Publish Button */}
-            <button
-              type="button"
-              onClick={() => setIsPublishModalOpen(true)}
-              className="h-8 px-3.5 relative rounded-lg border border-emerald-500/50 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs transition flex items-center gap-1.5 shadow-sm cursor-pointer shrink-0"
-              title="Publish Website"
-              aria-label="Publish"
-            >
-              <Rocket className="w-3.5 h-3.5" />
-              <span>Publish</span>
-              {publishing.status === "PUBLISHED" && (
-                <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse ring-1 ring-emerald-950"></span>
-              )}
-            </button>
-          </div>
-        </header>
+        <EditorHeaderToolbar
+          websiteName={website?.name}
+          themeMode={userPreferences.themeMode}
+          onQuitEditor={handleQuitEditor}
+          pages={pages}
+          activePageId={activePageId}
+          homePageId={homePageId}
+          onSwitchPage={(pid) => handleSwitchEditingPage(pid)}
+          onOpenPageManager={() => setIsPageManagerModalOpen(true)}
+          isPageSelectorOpen={isPageSelectorOpen}
+          setIsPageSelectorOpen={setIsPageSelectorOpen}
+          canvasMode={canvasMode}
+          onSwitchCanvasMode={(mode) => handleSwitchCanvasMode(mode)}
+          isScopeDropdownOpen={isScopeDropdownOpen}
+          setIsScopeDropdownOpen={setIsScopeDropdownOpen}
+          activeDevice={activeDevice}
+          onSelectDevice={(device) => setActiveDevice(device)}
+          onUndo={handleUndo}
+          onRedo={handleRedo}
+          canUndo={historyIndex > 0}
+          canRedo={historyIndex < history.length - 1}
+          onOpenRevisionHistory={() => setIsRevisionHistoryOpen(true)}
+          autosaveStatus={autosaveStatus}
+          autosaveLastSavedAt={autosaveLastSavedAt}
+          autosaveError={autosaveError}
+          saveMessage={saveMessage}
+          errorMessage={errorMessage}
+          isSaving={saving}
+          onSave={handleSave}
+          canvasTheme={canvasTheme}
+          onToggleCanvasTheme={() => setCanvasTheme((t) => (t === "light" ? "dark" : "light"))}
+          canvasPeers={canvasPeers}
+          isRestrictedMode={isRestrictedMode}
+          selectedId={selectedId}
+          onReorderSelected={(dir) => selectedId && handleReorderElement(selectedId, dir)}
+          onCopySelected={(e) => selectedId && handleCopyElement(selectedId, e)}
+          onDuplicateSelected={(e) => selectedId && handleDuplicateElement(selectedId, e)}
+          onSaveAsComponentSelected={() => selectedId && handleSaveAsComponent(selectedId)}
+          onReplaceTemplateSelected={handleOpenReplaceTemplate}
+          isPreview={isPreview}
+          onTogglePreview={() => setIsPreview(!isPreview)}
+          onOpenPublishModal={() => setIsPublishModalOpen(true)}
+          publishingStatus={publishing.status}
+          onOpenFinder={() => setIsFinderOpen(true)}
+          onOpenSeoModal={() => setIsSeoModalOpen(true)}
+          onOpenVariablesModal={() => setIsVariablesModalOpen(true)}
+          onOpenClassModal={() => setIsClassModalOpen(true)}
+          isDesignNotesOpen={isDesignNotesOpen}
+          onToggleDesignNotes={() => setIsDesignNotesOpen((prev) => !prev)}
+          devModalMode={devModalMode}
+          onToggleDevMode={() => setDevModalMode((prev) => (prev === "export-code" ? null : "export-code"))}
+          onOpenExperimentModal={() => setIsExperimentModalOpen(true)}
+          onToggleFullScreenCanvas={() => setIsFullScreenCanvas(!isFullScreenCanvas)}
+        />
       )}
 
       {/* ========================================== */}

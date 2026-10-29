@@ -163,10 +163,11 @@ export async function updateWebsiteHandler(
   try {
     const user = res.locals.user;
     const websiteId = req.params.id as string;
-    const { editorData, performanceSettings, lastKnownUpdatedAt, expectedVersion } = req.body;
+    const { editorData, performanceSettings, lastKnownUpdatedAt, expectedVersion, version } = req.body;
     const headerTimestamp = req.headers["if-unmodified-since"];
     const effectiveTimestamp = lastKnownUpdatedAt || headerTimestamp;
-    const effectiveVersion = expectedVersion !== undefined && expectedVersion !== null ? Number(expectedVersion) : undefined;
+    const rawVersion = expectedVersion !== undefined && expectedVersion !== null ? expectedVersion : version;
+    const effectiveVersion = rawVersion !== undefined && rawVersion !== null ? Number(rawVersion) : undefined;
 
     if (effectiveVersion === undefined && !effectiveTimestamp) {
       throw new AppError("Expected revision (expectedVersion or lastKnownUpdatedAt) is required for editor save", 400, "MISSING_REVISION");

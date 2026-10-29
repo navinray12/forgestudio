@@ -280,7 +280,7 @@ export function useAutosave({
           if (!res.ok) {
             const data = await res.json().catch(() => ({}));
             if (res.status === 409) {
-              setStatus("error");
+              setStatus("conflict");
               setErrorMessage("Conflict: This website was modified in another session. Unsaved changes are preserved locally.");
             } else {
               setStatus("error");
@@ -289,13 +289,21 @@ export function useAutosave({
           } else {
             const data = await res.json().catch(() => ({}));
             serverSaveSucceeded = true;
-            if (data?.website && latestPropsRef.current.onServerSaveSuccess) {
-              latestPropsRef.current.onServerSaveSuccess(data.website);
+            if (data?.website) {
+              if (data.website.version !== undefined) {
+                latestPropsRef.current.expectedVersion = data.website.version;
+              }
+              if (data.website.updatedAt) {
+                latestPropsRef.current.lastKnownUpdatedAt = data.website.updatedAt;
+              }
+              if (latestPropsRef.current.onServerSaveSuccess) {
+                latestPropsRef.current.onServerSaveSuccess(data.website);
+              }
             }
           }
         } catch (netErr) {
           console.warn("Backend save network request failed, saved locally:", netErr);
-          setStatus("error");
+          setStatus("offline");
           setErrorMessage("Network error: Could not reach server. Changes preserved locally in browser.");
         }
 
@@ -528,11 +536,73 @@ export function useAutosave({
     };
   }, []);
 
+  /**
+   * Coordinated manual save: flushes debounce and executes immediately
+   */
+  const saveNow = useCallback(async (): Promise<boolean> => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    const snapshot = serializeState(
+      latestPropsRef.current.elements,
+      latestPropsRef.current.pageSettings,
+      latestPropsRef.current.pages,
+      latestPropsRef.current.homePageId,
+      latestPropsRef.current.siteParts,
+      latestPropsRef.current.globalSettings,
+      latestPropsRef.current.globalStyles || latestPropsRef.current.globalSettings?.globalStyles,
+      latestPropsRef.current.publishing,
+      latestPropsRef.current.deployment,
+      latestPropsRef.current.breakpoints,
+      latestPropsRef.current.popups,
+      latestPropsRef.current.pageCss
+    );
+
+    const payloadToSave: SavePayload = {
+      snapshot,
+      elements: JSON.parse(JSON.stringify(latestPropsRef.current.elements || [])),
+      pageSettings: JSON.parse(JSON.stringify(latestPropsRef.current.pageSettings || {})),
+      pages: JSON.parse(JSON.stringify(latestPropsRef.current.pages || [])),
+      homePageId: latestPropsRef.current.homePageId,
+      siteParts: latestPropsRef.current.siteParts
+        ? JSON.parse(JSON.stringify(latestPropsRef.current.siteParts))
+        : undefined,
+      globalSettings: latestPropsRef.current.globalSettings
+        ? JSON.parse(JSON.stringify(latestPropsRef.current.globalSettings))
+        : undefined,
+      globalStyles: latestPropsRef.current.globalStyles || latestPropsRef.current.globalSettings?.globalStyles
+        ? JSON.parse(JSON.stringify(latestPropsRef.current.globalStyles || latestPropsRef.current.globalSettings?.globalStyles))
+        : undefined,
+      publishing: latestPropsRef.current.publishing
+        ? JSON.parse(JSON.stringify(latestPropsRef.current.publishing))
+        : undefined,
+      deployment: latestPropsRef.current.deployment
+        ? JSON.parse(JSON.stringify(latestPropsRef.current.deployment))
+        : undefined,
+      breakpoints: latestPropsRef.current.breakpoints
+        ? JSON.parse(JSON.stringify(latestPropsRef.current.breakpoints))
+        : undefined,
+      popups: latestPropsRef.current.popups
+        ? JSON.parse(JSON.stringify(latestPropsRef.current.popups))
+        : undefined,
+      pageCss: latestPropsRef.current.pageCss,
+    };
+
+    if (isSavingRef.current) {
+      queuedPayloadRef.current = payloadToSave;
+      return true;
+    }
+    await performSave(payloadToSave);
+    return true;
+  }, [performSave, serializeState]);
+
   return {
     status,
     lastSavedAt,
     errorMessage,
     isDirty: status === "unsaved" || status === "saving",
     updateBaseline,
+    saveNow,
   };
 }

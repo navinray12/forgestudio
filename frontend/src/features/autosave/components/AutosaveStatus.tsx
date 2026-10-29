@@ -43,6 +43,7 @@ export const AutosaveStatusIndicator: React.FC<AutosaveStatusProps> = ({
   if (status === "saving") {
     return (
       <div
+        data-testid="autosave-status"
         className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-900/40 border border-blue-700/60 text-blue-300 text-xs font-semibold animate-pulse"
         role="status"
         aria-live="polite"
@@ -63,6 +64,7 @@ export const AutosaveStatusIndicator: React.FC<AutosaveStatusProps> = ({
   if (status === "unsaved") {
     return (
       <div
+        data-testid="autosave-status"
         className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-950/40 border border-amber-800/60 text-amber-300 text-xs font-semibold"
         role="status"
         aria-live="polite"
@@ -73,9 +75,42 @@ export const AutosaveStatusIndicator: React.FC<AutosaveStatusProps> = ({
     );
   }
 
+  if (status === "conflict") {
+    return (
+      <div
+        data-testid="autosave-status"
+        className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-950/40 border border-orange-800/60 text-orange-300 text-xs font-semibold cursor-help"
+        title={errorMessage || "Conflict: Website modified in another session. Local changes preserved."}
+        role="status"
+        aria-live="assertive"
+      >
+        <svg className="h-3.5 w-3.5 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <span>Version conflict</span>
+      </div>
+    );
+  }
+
+  if (status === "offline") {
+    return (
+      <div
+        data-testid="autosave-status"
+        className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-800/60 border border-slate-700 text-slate-300 text-xs font-semibold cursor-help"
+        title={errorMessage || "Offline: Saved to local storage backup only."}
+        role="status"
+        aria-live="polite"
+      >
+        <span className="h-2 w-2 rounded-full bg-slate-400" />
+        <span>Offline / Local backup</span>
+      </div>
+    );
+  }
+
   if (status === "error") {
     return (
       <div
+        data-testid="autosave-status"
         className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-950/40 border border-red-800/60 text-red-300 text-xs font-semibold cursor-help"
         title={errorMessage || "Autosave failed. Your changes are safe in memory."}
         role="status"
@@ -96,6 +131,7 @@ export const AutosaveStatusIndicator: React.FC<AutosaveStatusProps> = ({
   // Default: Saved state
   return (
     <div
+      data-testid="autosave-status"
       className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-950/30 border border-emerald-800/50 text-emerald-300 text-xs font-semibold"
       role="status"
       aria-live="polite"
