@@ -52243,11 +52243,13 @@ export namespace Prisma {
   export type BackgroundJobAvgAggregateOutputType = {
     attempts: number | null
     maxAttempts: number | null
+    fencingToken: number | null
   }
 
   export type BackgroundJobSumAggregateOutputType = {
     attempts: number | null
     maxAttempts: number | null
+    fencingToken: number | null
   }
 
   export type BackgroundJobMinAggregateOutputType = {
@@ -52260,6 +52262,15 @@ export namespace Prisma {
     runAt: Date | null
     startedAt: Date | null
     completedAt: Date | null
+    workerId: string | null
+    claimedAt: Date | null
+    leaseExpiresAt: Date | null
+    heartbeatAt: Date | null
+    fencingToken: number | null
+    idempotencyKey: string | null
+    correlationId: string | null
+    tenantId: string | null
+    websiteId: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -52274,6 +52285,15 @@ export namespace Prisma {
     runAt: Date | null
     startedAt: Date | null
     completedAt: Date | null
+    workerId: string | null
+    claimedAt: Date | null
+    leaseExpiresAt: Date | null
+    heartbeatAt: Date | null
+    fencingToken: number | null
+    idempotencyKey: string | null
+    correlationId: string | null
+    tenantId: string | null
+    websiteId: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -52289,6 +52309,15 @@ export namespace Prisma {
     runAt: number
     startedAt: number
     completedAt: number
+    workerId: number
+    claimedAt: number
+    leaseExpiresAt: number
+    heartbeatAt: number
+    fencingToken: number
+    idempotencyKey: number
+    correlationId: number
+    tenantId: number
+    websiteId: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -52298,11 +52327,13 @@ export namespace Prisma {
   export type BackgroundJobAvgAggregateInputType = {
     attempts?: true
     maxAttempts?: true
+    fencingToken?: true
   }
 
   export type BackgroundJobSumAggregateInputType = {
     attempts?: true
     maxAttempts?: true
+    fencingToken?: true
   }
 
   export type BackgroundJobMinAggregateInputType = {
@@ -52315,6 +52346,15 @@ export namespace Prisma {
     runAt?: true
     startedAt?: true
     completedAt?: true
+    workerId?: true
+    claimedAt?: true
+    leaseExpiresAt?: true
+    heartbeatAt?: true
+    fencingToken?: true
+    idempotencyKey?: true
+    correlationId?: true
+    tenantId?: true
+    websiteId?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -52329,6 +52369,15 @@ export namespace Prisma {
     runAt?: true
     startedAt?: true
     completedAt?: true
+    workerId?: true
+    claimedAt?: true
+    leaseExpiresAt?: true
+    heartbeatAt?: true
+    fencingToken?: true
+    idempotencyKey?: true
+    correlationId?: true
+    tenantId?: true
+    websiteId?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -52344,6 +52393,15 @@ export namespace Prisma {
     runAt?: true
     startedAt?: true
     completedAt?: true
+    workerId?: true
+    claimedAt?: true
+    leaseExpiresAt?: true
+    heartbeatAt?: true
+    fencingToken?: true
+    idempotencyKey?: true
+    correlationId?: true
+    tenantId?: true
+    websiteId?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -52446,6 +52504,15 @@ export namespace Prisma {
     runAt: Date
     startedAt: Date | null
     completedAt: Date | null
+    workerId: string | null
+    claimedAt: Date | null
+    leaseExpiresAt: Date | null
+    heartbeatAt: Date | null
+    fencingToken: number
+    idempotencyKey: string | null
+    correlationId: string | null
+    tenantId: string | null
+    websiteId: string | null
     createdAt: Date
     updatedAt: Date
     _count: BackgroundJobCountAggregateOutputType | null
@@ -52480,6 +52547,15 @@ export namespace Prisma {
     runAt?: boolean
     startedAt?: boolean
     completedAt?: boolean
+    workerId?: boolean
+    claimedAt?: boolean
+    leaseExpiresAt?: boolean
+    heartbeatAt?: boolean
+    fencingToken?: boolean
+    idempotencyKey?: boolean
+    correlationId?: boolean
+    tenantId?: boolean
+    websiteId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["backgroundJob"]>
@@ -52495,6 +52571,15 @@ export namespace Prisma {
     runAt?: boolean
     startedAt?: boolean
     completedAt?: boolean
+    workerId?: boolean
+    claimedAt?: boolean
+    leaseExpiresAt?: boolean
+    heartbeatAt?: boolean
+    fencingToken?: boolean
+    idempotencyKey?: boolean
+    correlationId?: boolean
+    tenantId?: boolean
+    websiteId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["backgroundJob"]>
@@ -52510,6 +52595,15 @@ export namespace Prisma {
     runAt?: boolean
     startedAt?: boolean
     completedAt?: boolean
+    workerId?: boolean
+    claimedAt?: boolean
+    leaseExpiresAt?: boolean
+    heartbeatAt?: boolean
+    fencingToken?: boolean
+    idempotencyKey?: boolean
+    correlationId?: boolean
+    tenantId?: boolean
+    websiteId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["backgroundJob"]>
@@ -52525,11 +52619,20 @@ export namespace Prisma {
     runAt?: boolean
     startedAt?: boolean
     completedAt?: boolean
+    workerId?: boolean
+    claimedAt?: boolean
+    leaseExpiresAt?: boolean
+    heartbeatAt?: boolean
+    fencingToken?: boolean
+    idempotencyKey?: boolean
+    correlationId?: boolean
+    tenantId?: boolean
+    websiteId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type BackgroundJobOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "type" | "payload" | "status" | "attempts" | "maxAttempts" | "lastError" | "runAt" | "startedAt" | "completedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["backgroundJob"]>
+  export type BackgroundJobOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "type" | "payload" | "status" | "attempts" | "maxAttempts" | "lastError" | "runAt" | "startedAt" | "completedAt" | "workerId" | "claimedAt" | "leaseExpiresAt" | "heartbeatAt" | "fencingToken" | "idempotencyKey" | "correlationId" | "tenantId" | "websiteId" | "createdAt" | "updatedAt", ExtArgs["result"]["backgroundJob"]>
 
   export type $BackgroundJobPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "BackgroundJob"
@@ -52545,6 +52648,15 @@ export namespace Prisma {
       runAt: Date
       startedAt: Date | null
       completedAt: Date | null
+      workerId: string | null
+      claimedAt: Date | null
+      leaseExpiresAt: Date | null
+      heartbeatAt: Date | null
+      fencingToken: number
+      idempotencyKey: string | null
+      correlationId: string | null
+      tenantId: string | null
+      websiteId: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["backgroundJob"]>
@@ -52980,6 +53092,15 @@ export namespace Prisma {
     readonly runAt: FieldRef<"BackgroundJob", 'DateTime'>
     readonly startedAt: FieldRef<"BackgroundJob", 'DateTime'>
     readonly completedAt: FieldRef<"BackgroundJob", 'DateTime'>
+    readonly workerId: FieldRef<"BackgroundJob", 'String'>
+    readonly claimedAt: FieldRef<"BackgroundJob", 'DateTime'>
+    readonly leaseExpiresAt: FieldRef<"BackgroundJob", 'DateTime'>
+    readonly heartbeatAt: FieldRef<"BackgroundJob", 'DateTime'>
+    readonly fencingToken: FieldRef<"BackgroundJob", 'Int'>
+    readonly idempotencyKey: FieldRef<"BackgroundJob", 'String'>
+    readonly correlationId: FieldRef<"BackgroundJob", 'String'>
+    readonly tenantId: FieldRef<"BackgroundJob", 'String'>
+    readonly websiteId: FieldRef<"BackgroundJob", 'String'>
     readonly createdAt: FieldRef<"BackgroundJob", 'DateTime'>
     readonly updatedAt: FieldRef<"BackgroundJob", 'DateTime'>
   }
@@ -65522,6 +65643,15 @@ export namespace Prisma {
     runAt: 'runAt',
     startedAt: 'startedAt',
     completedAt: 'completedAt',
+    workerId: 'workerId',
+    claimedAt: 'claimedAt',
+    leaseExpiresAt: 'leaseExpiresAt',
+    heartbeatAt: 'heartbeatAt',
+    fencingToken: 'fencingToken',
+    idempotencyKey: 'idempotencyKey',
+    correlationId: 'correlationId',
+    tenantId: 'tenantId',
+    websiteId: 'websiteId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -69183,6 +69313,15 @@ export namespace Prisma {
     runAt?: DateTimeFilter<"BackgroundJob"> | Date | string
     startedAt?: DateTimeNullableFilter<"BackgroundJob"> | Date | string | null
     completedAt?: DateTimeNullableFilter<"BackgroundJob"> | Date | string | null
+    workerId?: StringNullableFilter<"BackgroundJob"> | string | null
+    claimedAt?: DateTimeNullableFilter<"BackgroundJob"> | Date | string | null
+    leaseExpiresAt?: DateTimeNullableFilter<"BackgroundJob"> | Date | string | null
+    heartbeatAt?: DateTimeNullableFilter<"BackgroundJob"> | Date | string | null
+    fencingToken?: IntFilter<"BackgroundJob"> | number
+    idempotencyKey?: StringNullableFilter<"BackgroundJob"> | string | null
+    correlationId?: StringNullableFilter<"BackgroundJob"> | string | null
+    tenantId?: UuidNullableFilter<"BackgroundJob"> | string | null
+    websiteId?: UuidNullableFilter<"BackgroundJob"> | string | null
     createdAt?: DateTimeFilter<"BackgroundJob"> | Date | string
     updatedAt?: DateTimeFilter<"BackgroundJob"> | Date | string
   }
@@ -69198,12 +69337,22 @@ export namespace Prisma {
     runAt?: SortOrder
     startedAt?: SortOrderInput | SortOrder
     completedAt?: SortOrderInput | SortOrder
+    workerId?: SortOrderInput | SortOrder
+    claimedAt?: SortOrderInput | SortOrder
+    leaseExpiresAt?: SortOrderInput | SortOrder
+    heartbeatAt?: SortOrderInput | SortOrder
+    fencingToken?: SortOrder
+    idempotencyKey?: SortOrderInput | SortOrder
+    correlationId?: SortOrderInput | SortOrder
+    tenantId?: SortOrderInput | SortOrder
+    websiteId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type BackgroundJobWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    idempotencyKey?: string
     AND?: BackgroundJobWhereInput | BackgroundJobWhereInput[]
     OR?: BackgroundJobWhereInput[]
     NOT?: BackgroundJobWhereInput | BackgroundJobWhereInput[]
@@ -69216,9 +69365,17 @@ export namespace Prisma {
     runAt?: DateTimeFilter<"BackgroundJob"> | Date | string
     startedAt?: DateTimeNullableFilter<"BackgroundJob"> | Date | string | null
     completedAt?: DateTimeNullableFilter<"BackgroundJob"> | Date | string | null
+    workerId?: StringNullableFilter<"BackgroundJob"> | string | null
+    claimedAt?: DateTimeNullableFilter<"BackgroundJob"> | Date | string | null
+    leaseExpiresAt?: DateTimeNullableFilter<"BackgroundJob"> | Date | string | null
+    heartbeatAt?: DateTimeNullableFilter<"BackgroundJob"> | Date | string | null
+    fencingToken?: IntFilter<"BackgroundJob"> | number
+    correlationId?: StringNullableFilter<"BackgroundJob"> | string | null
+    tenantId?: UuidNullableFilter<"BackgroundJob"> | string | null
+    websiteId?: UuidNullableFilter<"BackgroundJob"> | string | null
     createdAt?: DateTimeFilter<"BackgroundJob"> | Date | string
     updatedAt?: DateTimeFilter<"BackgroundJob"> | Date | string
-  }, "id">
+  }, "id" | "idempotencyKey">
 
   export type BackgroundJobOrderByWithAggregationInput = {
     id?: SortOrder
@@ -69231,6 +69388,15 @@ export namespace Prisma {
     runAt?: SortOrder
     startedAt?: SortOrderInput | SortOrder
     completedAt?: SortOrderInput | SortOrder
+    workerId?: SortOrderInput | SortOrder
+    claimedAt?: SortOrderInput | SortOrder
+    leaseExpiresAt?: SortOrderInput | SortOrder
+    heartbeatAt?: SortOrderInput | SortOrder
+    fencingToken?: SortOrder
+    idempotencyKey?: SortOrderInput | SortOrder
+    correlationId?: SortOrderInput | SortOrder
+    tenantId?: SortOrderInput | SortOrder
+    websiteId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: BackgroundJobCountOrderByAggregateInput
@@ -69254,6 +69420,15 @@ export namespace Prisma {
     runAt?: DateTimeWithAggregatesFilter<"BackgroundJob"> | Date | string
     startedAt?: DateTimeNullableWithAggregatesFilter<"BackgroundJob"> | Date | string | null
     completedAt?: DateTimeNullableWithAggregatesFilter<"BackgroundJob"> | Date | string | null
+    workerId?: StringNullableWithAggregatesFilter<"BackgroundJob"> | string | null
+    claimedAt?: DateTimeNullableWithAggregatesFilter<"BackgroundJob"> | Date | string | null
+    leaseExpiresAt?: DateTimeNullableWithAggregatesFilter<"BackgroundJob"> | Date | string | null
+    heartbeatAt?: DateTimeNullableWithAggregatesFilter<"BackgroundJob"> | Date | string | null
+    fencingToken?: IntWithAggregatesFilter<"BackgroundJob"> | number
+    idempotencyKey?: StringNullableWithAggregatesFilter<"BackgroundJob"> | string | null
+    correlationId?: StringNullableWithAggregatesFilter<"BackgroundJob"> | string | null
+    tenantId?: UuidNullableWithAggregatesFilter<"BackgroundJob"> | string | null
+    websiteId?: UuidNullableWithAggregatesFilter<"BackgroundJob"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"BackgroundJob"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"BackgroundJob"> | Date | string
   }
@@ -73638,6 +73813,15 @@ export namespace Prisma {
     runAt?: Date | string
     startedAt?: Date | string | null
     completedAt?: Date | string | null
+    workerId?: string | null
+    claimedAt?: Date | string | null
+    leaseExpiresAt?: Date | string | null
+    heartbeatAt?: Date | string | null
+    fencingToken?: number
+    idempotencyKey?: string | null
+    correlationId?: string | null
+    tenantId?: string | null
+    websiteId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -73653,6 +73837,15 @@ export namespace Prisma {
     runAt?: Date | string
     startedAt?: Date | string | null
     completedAt?: Date | string | null
+    workerId?: string | null
+    claimedAt?: Date | string | null
+    leaseExpiresAt?: Date | string | null
+    heartbeatAt?: Date | string | null
+    fencingToken?: number
+    idempotencyKey?: string | null
+    correlationId?: string | null
+    tenantId?: string | null
+    websiteId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -73668,6 +73861,15 @@ export namespace Prisma {
     runAt?: DateTimeFieldUpdateOperationsInput | Date | string
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    workerId?: NullableStringFieldUpdateOperationsInput | string | null
+    claimedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    leaseExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    heartbeatAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fencingToken?: IntFieldUpdateOperationsInput | number
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    correlationId?: NullableStringFieldUpdateOperationsInput | string | null
+    tenantId?: NullableStringFieldUpdateOperationsInput | string | null
+    websiteId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -73683,6 +73885,15 @@ export namespace Prisma {
     runAt?: DateTimeFieldUpdateOperationsInput | Date | string
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    workerId?: NullableStringFieldUpdateOperationsInput | string | null
+    claimedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    leaseExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    heartbeatAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fencingToken?: IntFieldUpdateOperationsInput | number
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    correlationId?: NullableStringFieldUpdateOperationsInput | string | null
+    tenantId?: NullableStringFieldUpdateOperationsInput | string | null
+    websiteId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -73698,6 +73909,15 @@ export namespace Prisma {
     runAt?: Date | string
     startedAt?: Date | string | null
     completedAt?: Date | string | null
+    workerId?: string | null
+    claimedAt?: Date | string | null
+    leaseExpiresAt?: Date | string | null
+    heartbeatAt?: Date | string | null
+    fencingToken?: number
+    idempotencyKey?: string | null
+    correlationId?: string | null
+    tenantId?: string | null
+    websiteId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -73713,6 +73933,15 @@ export namespace Prisma {
     runAt?: DateTimeFieldUpdateOperationsInput | Date | string
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    workerId?: NullableStringFieldUpdateOperationsInput | string | null
+    claimedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    leaseExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    heartbeatAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fencingToken?: IntFieldUpdateOperationsInput | number
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    correlationId?: NullableStringFieldUpdateOperationsInput | string | null
+    tenantId?: NullableStringFieldUpdateOperationsInput | string | null
+    websiteId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -73728,6 +73957,15 @@ export namespace Prisma {
     runAt?: DateTimeFieldUpdateOperationsInput | Date | string
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    workerId?: NullableStringFieldUpdateOperationsInput | string | null
+    claimedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    leaseExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    heartbeatAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fencingToken?: IntFieldUpdateOperationsInput | number
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    correlationId?: NullableStringFieldUpdateOperationsInput | string | null
+    tenantId?: NullableStringFieldUpdateOperationsInput | string | null
+    websiteId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -77082,6 +77320,15 @@ export namespace Prisma {
     runAt?: SortOrder
     startedAt?: SortOrder
     completedAt?: SortOrder
+    workerId?: SortOrder
+    claimedAt?: SortOrder
+    leaseExpiresAt?: SortOrder
+    heartbeatAt?: SortOrder
+    fencingToken?: SortOrder
+    idempotencyKey?: SortOrder
+    correlationId?: SortOrder
+    tenantId?: SortOrder
+    websiteId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -77089,6 +77336,7 @@ export namespace Prisma {
   export type BackgroundJobAvgOrderByAggregateInput = {
     attempts?: SortOrder
     maxAttempts?: SortOrder
+    fencingToken?: SortOrder
   }
 
   export type BackgroundJobMaxOrderByAggregateInput = {
@@ -77101,6 +77349,15 @@ export namespace Prisma {
     runAt?: SortOrder
     startedAt?: SortOrder
     completedAt?: SortOrder
+    workerId?: SortOrder
+    claimedAt?: SortOrder
+    leaseExpiresAt?: SortOrder
+    heartbeatAt?: SortOrder
+    fencingToken?: SortOrder
+    idempotencyKey?: SortOrder
+    correlationId?: SortOrder
+    tenantId?: SortOrder
+    websiteId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -77115,6 +77372,15 @@ export namespace Prisma {
     runAt?: SortOrder
     startedAt?: SortOrder
     completedAt?: SortOrder
+    workerId?: SortOrder
+    claimedAt?: SortOrder
+    leaseExpiresAt?: SortOrder
+    heartbeatAt?: SortOrder
+    fencingToken?: SortOrder
+    idempotencyKey?: SortOrder
+    correlationId?: SortOrder
+    tenantId?: SortOrder
+    websiteId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -77122,6 +77388,7 @@ export namespace Prisma {
   export type BackgroundJobSumOrderByAggregateInput = {
     attempts?: SortOrder
     maxAttempts?: SortOrder
+    fencingToken?: SortOrder
   }
 
   export type IntNullableFilter<$PrismaModel = never> = {

@@ -12,6 +12,7 @@
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
     "db:validate": "prisma validate",
+    "test:phase14": "tsx tests/phase14-background-jobs.test.ts",
     "test:phase13": "tsx tests/phase13-developer-api.test.ts",
     "test:phase7": "tsx tests/phase7-theme-cms.test.ts",
     "test:phase6": "tsx tests/phase6-widget-parity.test.ts",

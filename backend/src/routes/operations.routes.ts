@@ -5,6 +5,7 @@ import {
   getHealthHandler,
   getOperationalStatusHandler,
   getAdminMonitoringHandler,
+  getJobMetricsHandler,
   listJobsHandler,
   processNextJobHandler,
   retryJobHandler,
@@ -53,6 +54,7 @@ router.get("/admin/monitoring", requireAuth, requireRole(adminRoles), getAdminMo
 router.get("/alerts", requireAuth, requireRole(adminRoles), getAlertsHandler);
 
 // Super Admin Only: Background Worker & Infrastructure Job Queue
+router.get("/jobs/metrics", requireAuth, requireRole(superAdminOnly), getJobMetricsHandler);
 router.get("/jobs", requireAuth, requireRole(superAdminOnly), listJobsHandler);
 router.post("/jobs/process-next", requireAuth, requireRole(superAdminOnly), processNextJobHandler);
 router.post("/jobs/:id/retry", requireAuth, requireRole(superAdminOnly), retryJobHandler);

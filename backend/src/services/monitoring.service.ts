@@ -1,6 +1,7 @@
 import { prisma } from "../config/prisma.js";
 import { recordAuditLog } from "./audit.service.js";
 import { AppError } from "../utils/app-error.js";
+import { getJobMetrics } from "./jobs/jobRunner.js";
 
 const db = prisma as any;
 
@@ -258,8 +259,11 @@ export async function getAdminPlatformStats() {
     });
   }
 
+  const jobMetrics = await getJobMetrics();
+
   return {
     health,
+    jobs: jobMetrics,
     totals: {
       totalUsers,
       newUsersToday,
@@ -279,6 +283,10 @@ export async function getAdminPlatformStats() {
       totalWorkspaces,
       storageUsageMb: Math.round((totalMediaBytes / (1024 * 1024)) * 100) / 100,
       recentAlertsCount: recentAlerts.length,
+      jobsQueued: jobMetrics.counts.QUEUED,
+      jobsRunning: jobMetrics.counts.RUNNING,
+      jobsFailed: jobMetrics.counts.FAILED,
+      jobsCompleted: jobMetrics.counts.COMPLETED,
     },
     recentAuditLogs,
     recentDeployments,

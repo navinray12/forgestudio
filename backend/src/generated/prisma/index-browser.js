@@ -611,6 +611,15 @@ exports.Prisma.BackgroundJobScalarFieldEnum = {
   runAt: 'runAt',
   startedAt: 'startedAt',
   completedAt: 'completedAt',
+  workerId: 'workerId',
+  claimedAt: 'claimedAt',
+  leaseExpiresAt: 'leaseExpiresAt',
+  heartbeatAt: 'heartbeatAt',
+  fencingToken: 'fencingToken',
+  idempotencyKey: 'idempotencyKey',
+  correlationId: 'correlationId',
+  tenantId: 'tenantId',
+  websiteId: 'websiteId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };

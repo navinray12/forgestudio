@@ -14,6 +14,7 @@ import {
 import {
   queryAuditLogs,
   exportAuditLogsToCsv,
+  recordAuditLog,
 } from "../services/audit.service.js";
 import {
   listJobs,
@@ -21,6 +22,7 @@ import {
   retryJob,
   cancelJob,
   purgeCompletedJobs,
+  getJobMetrics,
 } from "../services/jobs/jobRunner.js";
 import {
   schedulePublish,
@@ -409,10 +411,36 @@ export async function processNextJobHandler(_req: Request, res: Response, next: 
   }
 }
 
+export async function getJobMetricsHandler(_req: Request, res: Response, next: NextFunction) {
+  try {
+    const metrics = await getJobMetrics();
+    return res.status(200).json({
+      success: true,
+      data: metrics,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function retryJobHandler(req: Request, res: Response, next: NextFunction) {
   try {
+    const user = res.locals.user || (req as any).user;
     const jobId = String(req.params.id);
     const job = await retryJob(jobId);
+
+    if (user?.id) {
+      await recordAuditLog({
+        userId: user.id,
+        actorRole: user.role,
+        action: "RETRY_BACKGROUND_JOB",
+        targetResource: `BackgroundJob:${jobId}`,
+        result: "SUCCESS",
+        details: { jobId, type: job.type, status: job.status },
+        ipAddress: req.ip,
+      });
+    }
+
     return res.status(200).json({
       success: true,
       data: job,
@@ -424,9 +452,24 @@ export async function retryJobHandler(req: Request, res: Response, next: NextFun
 
 export async function cancelJobHandler(req: Request, res: Response, next: NextFunction) {
   try {
+    const user = res.locals.user || (req as any).user;
     const jobId = String(req.params.id);
     const reason = req.body?.reason || "Cancelled via Operations Dashboard";
     const result = await cancelJob(jobId, reason);
+
+    if (user?.id) {
+      await recordAuditLog({
+        userId: user.id,
+        actorRole: user.role,
+        action: "CANCEL_BACKGROUND_JOB",
+        targetResource: `BackgroundJob:${jobId}`,
+        result: "SUCCESS",
+        reason,
+        details: { jobId, result },
+        ipAddress: req.ip,
+      });
+    }
+
     return res.status(200).json({
       success: true,
       data: result,

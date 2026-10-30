@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { prisma } from "../../config/prisma.js";
 import { AppError } from "../../utils/app-error.js";
 
@@ -6,6 +7,12 @@ export type JobType =
   | "DEPLOYMENT_VERIFY"
   | "WEBHOOK_RETRY"
   | "MEDIA_OPTIMIZATION"
+  | "WORDPRESS_PUBLISH"
+  | "WORDPRESS_FORM_SYNC"
+  | "WORDPRESS_SEO_SYNC"
+  | "WORDPRESS_ANALYTICS_SYNC"
+  | "WORDPRESS_MENU_SYNC"
+  | "WORDPRESS_WEBHOOK_DELIVERY"
   | string;
 
 export type JobStatus =
@@ -15,15 +22,27 @@ export type JobStatus =
   | "FAILED"
   | "CANCELLED";
 
+export interface EnqueueJobOptions {
+  runAt?: Date;
+  maxAttempts?: number;
+  idempotencyKey?: string;
+  correlationId?: string;
+  tenantId?: string;
+  websiteId?: string;
+}
+
 export type JobHandler = (payload: any, job: any) => Promise<any>;
 
 // Registered in-process handlers
 const handlers: Map<string, JobHandler> = new Map();
 
-// In-memory fallback if database table is initializing
-const memoryQueue: any[] = [];
+// Default worker identifier for this process
+export const DEFAULT_WORKER_ID =
+  process.env.WORKER_ID || `worker_${process.pid}_${crypto.randomUUID().slice(0, 8)}`;
 
-let workerInterval: any = null;
+let workerInterval: NodeJS.Timeout | null = null;
+let isShuttingDown = false;
+let inFlightJobCount = 0;
 
 export function registerJobHandler(type: string, handler: JobHandler) {
   handlers.set(type, handler);
@@ -33,14 +52,45 @@ export function unregisterJobHandler(type: string) {
   handlers.delete(type);
 }
 
+/**
+ * Permanent error indicator to immediately fail without retries
+ */
+export class PermanentJobError extends Error {
+  public readonly isPermanent = true;
+  constructor(message: string) {
+    super(message);
+    this.name = "PermanentJobError";
+  }
+}
+
+/**
+ * Enqueue a job into PostgreSQL durable queue.
+ * Strictly persists to database. Never falls back to memory.
+ */
 export async function enqueueJob(
   type: string,
   payload: any,
-  options: { runAt?: Date; maxAttempts?: number } = {}
+  options: EnqueueJobOptions = {}
 ) {
-  const runAt = options.runAt || new Date();
-  const maxAttempts = options.maxAttempts || 3;
+  if (!type || typeof type !== "string") {
+    throw new AppError("Job type must be a valid non-empty string", 400, "INVALID_JOB_TYPE");
+  }
 
+  const runAt = options.runAt || new Date();
+  const maxAttempts = options.maxAttempts ?? 3;
+  const correlationId = options.correlationId || crypto.randomUUID();
+
+  // 1. Idempotency Check: if idempotencyKey is provided, return existing job
+  if (options.idempotencyKey) {
+    const existing = await (prisma as any).backgroundJob.findUnique({
+      where: { idempotencyKey: options.idempotencyKey },
+    });
+    if (existing) {
+      return existing;
+    }
+  }
+
+  // 2. Strict Durable Insertion into PostgreSQL
   try {
     const job = await (prisma as any).backgroundJob.create({
       data: {
@@ -50,63 +100,67 @@ export async function enqueueJob(
         attempts: 0,
         maxAttempts,
         runAt,
+        idempotencyKey: options.idempotencyKey || null,
+        correlationId,
+        tenantId: options.tenantId || null,
+        websiteId: options.websiteId || null,
+        fencingToken: 0,
       },
     });
     return job;
-  } catch (err) {
-    // Fallback to in-memory queue
-    const memJob = {
-      id: `mem_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
-      type,
-      payload: payload || {},
-      status: "QUEUED",
-      attempts: 0,
-      maxAttempts,
-      lastError: null,
-      runAt,
-      startedAt: null,
-      completedAt: null,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    memoryQueue.push(memJob);
-    return memJob;
+  } catch (err: any) {
+    // If concurrent insert raced on unique idempotencyKey, return the Winner's record
+    if (options.idempotencyKey && (err?.code === "P2002" || err?.message?.includes("idempotencyKey"))) {
+      const existing = await (prisma as any).backgroundJob.findUnique({
+        where: { idempotencyKey: options.idempotencyKey },
+      });
+      if (existing) return existing;
+    }
+
+    // Fail explicitly: no in-memory fake durability
+    throw new AppError(
+      `Failed to enqueue durable background job into database: ${err?.message || err}`,
+      503,
+      "DURABLE_QUEUE_UNAVAILABLE"
+    );
   }
 }
 
 export async function getJobById(jobId: string) {
-  try {
-    const job = await (prisma as any).backgroundJob.findUnique({
-      where: { id: jobId },
-    });
-    if (job) return job;
-  } catch {}
-
-  return memoryQueue.find((j) => j.id === jobId) || null;
+  if (!jobId) return null;
+  return await (prisma as any).backgroundJob.findUnique({
+    where: { id: jobId },
+  });
 }
 
-export async function listJobs(filters: { type?: string; status?: string; limit?: number } = {}) {
-  const limit = filters.limit || 50;
+export async function listJobs(filters: {
+  type?: string;
+  status?: string;
+  tenantId?: string;
+  websiteId?: string;
+  limit?: number;
+  offset?: number;
+} = {}) {
+  const limit = Math.min(Math.max(filters.limit || 50, 1), 200);
+  const skip = filters.offset || 0;
 
-  try {
-    const where: any = {};
-    if (filters.type) where.type = filters.type;
-    if (filters.status) where.status = filters.status;
+  const where: any = {};
+  if (filters.type) where.type = filters.type;
+  if (filters.status) where.status = filters.status;
+  if (filters.tenantId) where.tenantId = filters.tenantId;
+  if (filters.websiteId) where.websiteId = filters.websiteId;
 
-    const dbJobs = await (prisma as any).backgroundJob.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      take: limit,
-    });
-    if (dbJobs.length > 0) return dbJobs;
-  } catch {}
-
-  let memFiltered = memoryQueue;
-  if (filters.type) memFiltered = memFiltered.filter((j) => j.type === filters.type);
-  if (filters.status) memFiltered = memFiltered.filter((j) => j.status === filters.status);
-  return memFiltered.slice(0, limit);
+  return await (prisma as any).backgroundJob.findMany({
+    where,
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    skip,
+  });
 }
 
+/**
+ * Cancel an eligible job
+ */
 export async function cancelJob(
   jobId: string,
   reason?: string
@@ -115,254 +169,469 @@ export async function cancelJob(
     throw new AppError("jobId is required to cancel job", 400, "INVALID_JOB_ID");
   }
 
+  const existing = await (prisma as any).backgroundJob.findUnique({
+    where: { id: jobId },
+  });
+
+  if (!existing) {
+    throw new AppError(`Job ${jobId} not found`, 404, "JOB_NOT_FOUND");
+  }
+
+  if (existing.status === "CANCELLED") {
+    return { success: true, job: existing, alreadyCancelled: true };
+  }
+  if (existing.status === "COMPLETED") {
+    throw new AppError("Cannot cancel job that has already completed", 400, "JOB_ALREADY_COMPLETED");
+  }
+
   const now = new Date();
+  const updated = await (prisma as any).backgroundJob.update({
+    where: { id: jobId },
+    data: {
+      status: "CANCELLED",
+      lastError: reason ? `Cancelled: ${reason}` : "Cancelled by operator",
+      completedAt: now,
+      updatedAt: now,
+    },
+  });
 
-  // 1. Try DB first
-  try {
-    const existing = await (prisma as any).backgroundJob.findUnique({
-      where: { id: jobId },
-    });
-
-    if (existing) {
-      if (existing.status === "CANCELLED") {
-        return { success: true, job: existing, alreadyCancelled: true };
-      }
-      if (existing.status === "COMPLETED") {
-        throw new AppError("Cannot cancel job that has already completed", 400, "JOB_ALREADY_COMPLETED");
-      }
-
-      const updated = await (prisma as any).backgroundJob.update({
-        where: { id: jobId },
-        data: {
-          status: "CANCELLED",
-          lastError: reason ? `Cancelled: ${reason}` : "Cancelled by user",
-          completedAt: now,
-          updatedAt: now,
-        },
-      });
-      return { success: true, job: updated };
-    }
-  } catch (err: any) {
-    if (err instanceof AppError) throw err;
-  }
-
-  // 2. Try Memory Queue fallback
-  const memJob = memoryQueue.find((j) => j.id === jobId);
-  if (memJob) {
-    if (memJob.status === "CANCELLED") {
-      return { success: true, job: memJob, alreadyCancelled: true };
-    }
-    if (memJob.status === "COMPLETED") {
-      throw new AppError("Cannot cancel job that has already completed", 400, "JOB_ALREADY_COMPLETED");
-    }
-
-    memJob.status = "CANCELLED";
-    memJob.lastError = reason ? `Cancelled: ${reason}` : "Cancelled by user";
-    memJob.completedAt = now;
-    memJob.updatedAt = now;
-    return { success: true, job: memJob };
-  }
-
-  throw new AppError(`Job ${jobId} not found`, 404, "JOB_NOT_FOUND");
+  return { success: true, job: updated };
 }
 
+/**
+ * Retry an existing failed or cancelled job
+ */
 export async function retryJob(jobId: string) {
   if (!jobId) {
     throw new AppError("jobId is required", 400, "INVALID_JOB_ID");
   }
-  const now = new Date();
-  try {
-    const job = await (prisma as any).backgroundJob.update({
-      where: { id: jobId },
-      data: {
-        status: "QUEUED",
-        attempts: 0,
-        lastError: null,
-        runAt: now,
-        completedAt: null,
-        updatedAt: now,
-      },
-    });
-    return job;
-  } catch {
-    const memJob = memoryQueue.find((j) => j.id === jobId);
-    if (memJob) {
-      memJob.status = "QUEUED";
-      memJob.attempts = 0;
-      memJob.lastError = null;
-      memJob.runAt = now;
-      memJob.completedAt = null;
-      memJob.updatedAt = now;
-      return memJob;
-    }
+
+  const existing = await (prisma as any).backgroundJob.findUnique({
+    where: { id: jobId },
+  });
+
+  if (!existing) {
     throw new AppError(`Job ${jobId} not found`, 404, "JOB_NOT_FOUND");
   }
+
+  if (existing.status === "COMPLETED") {
+    throw new AppError("Cannot retry a job that has already completed successfully", 400, "INVALID_STATE_TRANSITION");
+  }
+
+  const now = new Date();
+  const job = await (prisma as any).backgroundJob.update({
+    where: { id: jobId },
+    data: {
+      status: "QUEUED",
+      attempts: 0,
+      lastError: null,
+      runAt: now,
+      completedAt: null,
+      workerId: null,
+      fencingToken: (existing.fencingToken || 0) + 1,
+      updatedAt: now,
+    },
+  });
+
+  return job;
 }
 
 export async function purgeCompletedJobs(): Promise<{ purgedCount: number }> {
+  const result = await (prisma as any).backgroundJob.deleteMany({
+    where: {
+      status: { in: ["COMPLETED", "CANCELLED"] },
+    },
+  });
+  return { purgedCount: result.count || 0 };
+}
+
+/**
+ * Atomically claim the next eligible job using PostgreSQL FOR UPDATE SKIP LOCKED
+ */
+export async function claimNextJob(
+  workerId: string = DEFAULT_WORKER_ID,
+  leaseDurationMs: number = 60000,
+  filter?: { id?: string; type?: string }
+): Promise<any | null> {
+  const filterId = filter?.id || null;
+  const filterType = filter?.type || null;
+
+  const rows: any[] = await prisma.$queryRawUnsafe(
+    `
+    WITH candidate AS (
+      SELECT id FROM "background_jobs"
+      WHERE "status" = 'QUEUED'
+        AND "runAt" <= (NOW() AT TIME ZONE 'UTC') + INTERVAL '1 second'
+        AND ($1::text IS NULL OR "id"::text = $1)
+        AND ($2::text IS NULL OR "type" = $2)
+      ORDER BY "runAt" ASC, "createdAt" ASC
+      LIMIT 1
+      FOR UPDATE SKIP LOCKED
+    )
+    UPDATE "background_jobs"
+    SET
+      "status" = 'RUNNING',
+      "startedAt" = (NOW() AT TIME ZONE 'UTC'),
+      "claimedAt" = (NOW() AT TIME ZONE 'UTC'),
+      "heartbeatAt" = (NOW() AT TIME ZONE 'UTC'),
+      "leaseExpiresAt" = (NOW() AT TIME ZONE 'UTC') + ($3 || ' milliseconds')::interval,
+      "workerId" = $4,
+      "fencingToken" = "fencingToken" + 1,
+      "updatedAt" = (NOW() AT TIME ZONE 'UTC')
+    FROM candidate
+    WHERE "background_jobs"."id" = candidate.id
+    RETURNING "background_jobs".*;
+    `,
+    filterId,
+    filterType,
+    leaseDurationMs,
+    workerId
+  );
+
+  return rows.length > 0 ? rows[0] : null;
+}
+
+/**
+ * Renew worker lease & heartbeat during execution
+ */
+export async function renewJobLease(
+  jobId: string,
+  workerId: string,
+  fencingToken: number,
+  extensionMs: number = 60000
+): Promise<boolean> {
+  const rows: any[] = await prisma.$queryRawUnsafe(
+    `
+    UPDATE "background_jobs"
+    SET
+      "heartbeatAt" = (NOW() AT TIME ZONE 'UTC'),
+      "leaseExpiresAt" = (NOW() AT TIME ZONE 'UTC') + ($1 || ' milliseconds')::interval,
+      "updatedAt" = (NOW() AT TIME ZONE 'UTC')
+    WHERE "id"::text = $2
+      AND "workerId" = $3
+      AND "fencingToken" = $4
+      AND "status" = 'RUNNING'
+    RETURNING "id";
+    `,
+    extensionMs,
+    jobId,
+    workerId,
+    fencingToken
+  );
+
+  return rows.length > 0;
+}
+
+/**
+ * Reclaim abandoned jobs whose worker lease has expired
+ */
+export async function reclaimAbandonedJobs(): Promise<number> {
   try {
-    const count = await (prisma as any).backgroundJob.deleteMany({
-      where: {
-        status: { in: ["COMPLETED", "CANCELLED"] },
-      },
-    });
-    return { purgedCount: count.count || 0 };
+    const rows: any[] = await prisma.$queryRawUnsafe(
+      `
+      UPDATE "background_jobs"
+      SET
+        "status" = CASE WHEN "attempts" + 1 >= "maxAttempts" THEN 'FAILED' ELSE 'QUEUED' END,
+        "attempts" = "attempts" + 1,
+        "lastError" = CASE 
+          WHEN "attempts" + 1 >= "maxAttempts" THEN 'Crash recovery: worker lease expired and max attempts exceeded'
+          ELSE 'Crash recovery: worker lease expired, requeued for retry'
+        END,
+        "completedAt" = CASE WHEN "attempts" + 1 >= "maxAttempts" THEN (NOW() AT TIME ZONE 'UTC') ELSE NULL END,
+        "workerId" = NULL,
+        "runAt" = (NOW() AT TIME ZONE 'UTC'),
+        "updatedAt" = (NOW() AT TIME ZONE 'UTC')
+      WHERE "status" = 'RUNNING' AND "leaseExpiresAt" < (NOW() AT TIME ZONE 'UTC')
+      RETURNING "id";
+      `
+    );
+    return rows.length;
   } catch {
-    let purged = 0;
-    for (let i = memoryQueue.length - 1; i >= 0; i--) {
-      if (memoryQueue[i].status === "COMPLETED" || memoryQueue[i].status === "CANCELLED") {
-        memoryQueue.splice(i, 1);
-        purged++;
-      }
-    }
-    return { purgedCount: purged };
+    return 0;
   }
 }
 
+/**
+ * Process next job from queue with atomic claiming and lease management
+ */
 export async function processNextJob(
-  filter?: { id?: string; type?: string }
-): Promise<{ processed: boolean; job?: any; result?: any; error?: any }> {
-  const now = new Date();
-
-  // Try DB first
-  let job: any = null;
-  try {
-    const where: any = {
-      status: "QUEUED",
-      runAt: { lte: now },
-    };
-    if (filter?.id) where.id = filter.id;
-    if (filter?.type) where.type = filter.type;
-
-    const candidate = await (prisma as any).backgroundJob.findFirst({
-      where,
-      orderBy: { runAt: "asc" },
-    });
-
-    if (candidate) {
-      // Mark RUNNING
-      job = await (prisma as any).backgroundJob.update({
-        where: { id: candidate.id },
-        data: {
-          status: "RUNNING",
-          startedAt: new Date(),
-        },
-      });
-    }
-  } catch {}
-
-  // Try Memory Queue fallback if no DB job
-  if (!job) {
-    const memIdx = memoryQueue.findIndex(
-      (j) =>
-        j.status === "QUEUED" &&
-        new Date(j.runAt).getTime() <= now.getTime() &&
-        (!filter?.id || j.id === filter.id) &&
-        (!filter?.type || j.type === filter.type)
-    );
-    if (memIdx >= 0) {
-      job = memoryQueue[memIdx];
-      job.status = "RUNNING";
-      job.startedAt = new Date();
-    }
+  filter?: { id?: string; type?: string },
+  workerId: string = DEFAULT_WORKER_ID,
+  leaseDurationMs: number = 60000
+): Promise<{ processed: boolean; job?: any; result?: any; error?: any; staleOrStolen?: boolean }> {
+  if (isShuttingDown && !filter?.id) {
+    return { processed: false, error: "Worker is shutting down" };
   }
 
+  // 1. Reclaim any expired abandoned jobs first
+  await reclaimAbandonedJobs();
+
+  // 2. Atomic claim using FOR UPDATE SKIP LOCKED
+  const job = await claimNextJob(workerId, leaseDurationMs, filter);
   if (!job) {
     return { processed: false };
   }
 
-  // Prevent executing cancelled jobs
-  if (job.status === "CANCELLED") {
-    return { processed: false, job, error: "Job is cancelled" };
-  }
+  inFlightJobCount++;
+
+  // 3. Setup periodic heartbeat / lease renewal during handler execution
+  const heartbeatIntervalMs = Math.max(1000, Math.floor(leaseDurationMs / 3));
+  let renewalTimer: NodeJS.Timeout | null = setInterval(async () => {
+    try {
+      await renewJobLease(job.id, workerId, job.fencingToken, leaseDurationMs);
+    } catch {}
+  }, heartbeatIntervalMs);
+
+  const cleanupTimer = () => {
+    if (renewalTimer) {
+      clearInterval(renewalTimer);
+      renewalTimer = null;
+    }
+  };
 
   const handler = handlers.get(job.type);
   if (!handler) {
+    cleanupTimer();
     const errMsg = `No handler registered for job type: ${job.type}`;
-    await markJobFailed(job, errMsg);
+    await markJobFailed(job, workerId, errMsg, true);
+    inFlightJobCount = Math.max(0, inFlightJobCount - 1);
     return { processed: true, job, error: errMsg };
   }
 
   try {
-    const result = await handler(job.payload, job);
-    // Double check if cancelled concurrently during execution
-    const currentStatus = await getJobById(job.id);
-    if (currentStatus?.status === "CANCELLED") {
-      return { processed: true, job: currentStatus, result: { cancelled: true } };
+    // 4. Verify job was not cancelled right before executing
+    const current = await getJobById(job.id);
+    if (current?.status === "CANCELLED") {
+      cleanupTimer();
+      inFlightJobCount = Math.max(0, inFlightJobCount - 1);
+      return { processed: true, job: current, result: { cancelled: true } };
     }
-    await markJobCompleted(job, result);
+
+    // 5. Execute handler
+    const result = await handler(job.payload, job);
+
+    // 6. Double check cancellation during execution
+    const postExec = await getJobById(job.id);
+    if (postExec?.status === "CANCELLED") {
+      cleanupTimer();
+      inFlightJobCount = Math.max(0, inFlightJobCount - 1);
+      return { processed: true, job: postExec, result: { cancelled: true } };
+    }
+
+    cleanupTimer();
+
+    // 7. Atomic complete with fencing token & worker verification
+    const completed = await markJobCompleted(job, workerId);
+    inFlightJobCount = Math.max(0, inFlightJobCount - 1);
+
+    if (!completed) {
+      // Lease expired or fencing token changed - worker lost ownership
+      return {
+        processed: true,
+        job,
+        result,
+        staleOrStolen: true,
+        error: "Worker lost ownership lease before completing job",
+      };
+    }
+
     return { processed: true, job, result };
   } catch (err: any) {
+    cleanupTimer();
+    const isPermanent =
+      err instanceof PermanentJobError ||
+      err?.isPermanent === true ||
+      err?.statusCode === 400 ||
+      err?.statusCode === 401 ||
+      err?.statusCode === 403 ||
+      err?.statusCode === 404 ||
+      err?.message?.includes("SSRF") ||
+      err?.message?.includes("not found");
+
     const errMsg = err?.message || String(err);
-    await markJobFailed(job, errMsg);
+    await markJobFailed(job, workerId, errMsg, isPermanent);
+    inFlightJobCount = Math.max(0, inFlightJobCount - 1);
     return { processed: true, job, error: errMsg };
   }
 }
 
-async function markJobCompleted(job: any, _result?: any) {
-  const now = new Date();
-  try {
-    await (prisma as any).backgroundJob.update({
-      where: { id: job.id },
-      data: {
-        status: "COMPLETED",
-        completedAt: now,
-        updatedAt: now,
-      },
-    });
-  } catch {
-    job.status = "COMPLETED";
-    job.completedAt = now;
-    job.updatedAt = now;
-  }
+/**
+ * Mark job completed with fencing protection
+ */
+async function markJobCompleted(job: any, workerId: string): Promise<boolean> {
+  const rows: any[] = await prisma.$queryRawUnsafe(
+    `
+    UPDATE "background_jobs"
+    SET
+      "status" = 'COMPLETED',
+      "completedAt" = (NOW() AT TIME ZONE 'UTC'),
+      "updatedAt" = (NOW() AT TIME ZONE 'UTC')
+    WHERE "id"::text = $1
+      AND "workerId" = $2
+      AND "fencingToken" = $3
+      AND "status" = 'RUNNING'
+    RETURNING "id";
+    `,
+    job.id,
+    workerId,
+    job.fencingToken
+  );
+
+  return rows.length > 0;
 }
 
-async function markJobFailed(job: any, errorMsg: string) {
-  const now = new Date();
-  const nextAttempts = (job.attempts || 0) + 1;
-  const isFinalFailure = nextAttempts >= (job.maxAttempts || 3);
+/**
+ * Mark job failed with exponential backoff & jitter or terminal failure
+ */
+async function markJobFailed(
+  job: any,
+  workerId: string,
+  errorMsg: string,
+  isPermanent: boolean
+): Promise<boolean> {
+  const currentAttempts = job.attempts || 0;
+  const nextAttempts = currentAttempts + 1;
+  const maxAttempts = job.maxAttempts || 3;
+  const isFinalFailure = isPermanent || nextAttempts >= maxAttempts;
 
-  // Exponential backoff: 2^attempts seconds
-  const backoffMs = Math.pow(2, nextAttempts) * 1000;
-  const nextRunAt = new Date(Date.now() + backoffMs);
+  let nextRunAt = new Date();
+  if (!isFinalFailure) {
+    // Exponential backoff: base 1s * 2^attempts + jitter (0-500ms), capped at 5 minutes
+    const baseBackoffMs = Math.min(300000, 1000 * Math.pow(2, nextAttempts));
+    const jitterMs = Math.floor(Math.random() * 500);
+    nextRunAt = new Date(Date.now() + baseBackoffMs + jitterMs);
+  }
 
   const nextStatus = isFinalFailure ? "FAILED" : "QUEUED";
 
+  const rows: any[] = await prisma.$queryRawUnsafe(
+    `
+    UPDATE "background_jobs"
+    SET
+      "status" = $1,
+      "attempts" = $2,
+      "lastError" = $3,
+      "runAt" = $4,
+      "completedAt" = $5,
+      "workerId" = NULL,
+      "updatedAt" = (NOW() AT TIME ZONE 'UTC')
+    WHERE "id"::text = $6
+      AND "workerId" = $7
+      AND "fencingToken" = $8
+      AND "status" = 'RUNNING'
+    RETURNING "id";
+    `,
+    nextStatus,
+    nextAttempts,
+    errorMsg.slice(0, 2000),
+    isFinalFailure ? job.runAt : nextRunAt,
+    isFinalFailure ? new Date() : null,
+    job.id,
+    workerId,
+    job.fencingToken
+  );
+
+  return rows.length > 0;
+}
+
+/**
+ * Operational Metrics for Dashboards
+ */
+export async function getJobMetrics() {
   try {
-    await (prisma as any).backgroundJob.update({
-      where: { id: job.id },
-      data: {
-        status: nextStatus,
-        attempts: nextAttempts,
-        lastError: errorMsg.slice(0, 2000),
-        runAt: isFinalFailure ? job.runAt : nextRunAt,
-        completedAt: isFinalFailure ? now : null,
-        updatedAt: now,
-      },
+    const counts = await (prisma as any).backgroundJob.groupBy({
+      by: ["status"],
+      _count: { id: true },
     });
-  } catch {
-    job.status = nextStatus;
-    job.attempts = nextAttempts;
-    job.lastError = errorMsg.slice(0, 2000);
-    job.runAt = isFinalFailure ? job.runAt : nextRunAt;
-    job.completedAt = isFinalFailure ? now : null;
-    job.updatedAt = now;
+
+    const statusCounts: Record<string, number> = {
+      QUEUED: 0,
+      RUNNING: 0,
+      COMPLETED: 0,
+      FAILED: 0,
+      CANCELLED: 0,
+    };
+
+    for (const c of counts) {
+      statusCounts[c.status] = c._count.id;
+    }
+
+    // Active workers with heartbeat in last 2 minutes
+    const activeWorkersRaw: any[] = await prisma.$queryRawUnsafe(`
+      SELECT COUNT(DISTINCT "workerId") as active_workers
+      FROM "background_jobs"
+      WHERE "status" = 'RUNNING' AND "heartbeatAt" >= (NOW() AT TIME ZONE 'UTC') - INTERVAL '2 minutes';
+    `);
+    const activeWorkers = Number(activeWorkersRaw[0]?.active_workers || 0);
+
+    // Oldest pending job
+    const oldestPending = await (prisma as any).backgroundJob.findFirst({
+      where: { status: "QUEUED" },
+      orderBy: { runAt: "asc" },
+      select: { runAt: true, createdAt: true },
+    });
+
+    const oldestAgeMs = oldestPending
+      ? Math.max(0, Date.now() - new Date(oldestPending.runAt).getTime())
+      : 0;
+
+    // Stuck jobs (in RUNNING status with expired lease)
+    const stuckJobsCount: any[] = await prisma.$queryRawUnsafe(`
+      SELECT COUNT(*) as count FROM "background_jobs"
+      WHERE "status" = 'RUNNING' AND "leaseExpiresAt" < (NOW() AT TIME ZONE 'UTC');
+    `);
+
+    return {
+      counts: statusCounts,
+      total: Object.values(statusCounts).reduce((a, b) => a + b, 0),
+      activeWorkers,
+      stuckJobsCount: Number(stuckJobsCount[0]?.count || 0),
+      oldestPendingAgeMs: oldestAgeMs,
+    };
+  } catch (err: any) {
+    return {
+      counts: { QUEUED: 0, RUNNING: 0, COMPLETED: 0, FAILED: 0, CANCELLED: 0 },
+      total: 0,
+      activeWorkers: 0,
+      stuckJobsCount: 0,
+      oldestPendingAgeMs: 0,
+      error: err?.message,
+    };
   }
 }
 
-export function startJobWorker(intervalMs: number = 2000) {
+/**
+ * Start worker loop
+ */
+export function startJobWorker(intervalMs: number = 3000, workerId: string = DEFAULT_WORKER_ID) {
   if (workerInterval) return;
+  isShuttingDown = false;
 
   workerInterval = setInterval(async () => {
     try {
-      await processNextJob();
+      await processNextJob(undefined, workerId);
     } catch {}
   }, intervalMs);
 }
 
-export function stopJobWorker() {
+/**
+ * Stop worker loop gracefully
+ */
+export async function stopJobWorker(graceTimeoutMs: number = 5000) {
+  isShuttingDown = true;
   if (workerInterval) {
     clearInterval(workerInterval);
     workerInterval = null;
   }
+
+  // Wait for in-flight jobs to drain up to graceTimeoutMs
+  const startWait = Date.now();
+  while (inFlightJobCount > 0 && Date.now() - startWait < graceTimeoutMs) {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  isShuttingDown = false;
+}
+
+export function resetWorkerShutdown() {
+  isShuttingDown = false;
 }
