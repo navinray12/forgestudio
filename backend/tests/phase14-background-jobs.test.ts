@@ -3,6 +3,7 @@ import http, { type Server } from "node:http";
 import path from "node:path";
 import fs from "node:fs";
 import crypto from "node:crypto";
+import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import dotenv from "dotenv";
 import express from "express";
@@ -172,7 +173,7 @@ async function runPhase14BackgroundJobTests() {
     const frontendDist = path.resolve(__dirname, "../../frontend/dist");
     if (fs.existsSync(frontendDist)) {
       app.use(express.static(frontendDist));
-      app.get(/^\/dashboard/, (_req, res) => {
+      app.get(/^\/(dashboard|super-admin|admin|login)/, (_req, res) => {
         res.sendFile(path.join(frontendDist, "index.html"));
       });
     }
@@ -197,6 +198,12 @@ async function runPhase14BackgroundJobTests() {
     mockApp.post("/webhook-endpoint", (req, res) => {
       mockReceivedPayload = req.body;
       res.status(200).json({ ok: true });
+    });
+    mockApp.get("/redirect-to-ssrf", (_req, res) => {
+      res.redirect(302, "http://169.254.169.254/latest/meta-data/");
+    });
+    mockApp.get("/redirect-to-loopback", (_req, res) => {
+      res.redirect(302, "http://127.0.0.1:80/secret");
     });
     mockWebhookServer = http.createServer(mockApp);
     await new Promise<void>((resolve) => {
@@ -281,6 +288,27 @@ async function runPhase14BackgroundJobTests() {
       "Duplicate enqueue with same idempotencyKey must return existing job"
     );
     logPass("Idempotency: Re-enqueue with identical idempotencyKey returns existing job");
+
+    // Tenant-Scoped Idempotency: Multiple tenants can use identical idempotency key without collision or leakage
+    const tenantA = crypto.randomUUID();
+    const tenantB = crypto.randomUUID();
+    const crossTenantKey = `shared_idemp_${Date.now()}`;
+
+    const jobA = await enqueueJob("TENANT_IDEMP_TEST", { tenant: "A" }, { idempotencyKey: crossTenantKey, tenantId: tenantA });
+    const jobB = await enqueueJob("TENANT_IDEMP_TEST", { tenant: "B" }, { idempotencyKey: crossTenantKey, tenantId: tenantB });
+
+    assert.notStrictEqual(jobA.id, jobB.id, "Tenant A and Tenant B must receive distinct jobs for the same idempotency key");
+    assert.strictEqual(jobA.tenantId, tenantA);
+    assert.strictEqual(jobB.tenantId, tenantB);
+
+    // Re-enqueue for Tenant A returns Tenant A's job
+    const repeatA = await enqueueJob("TENANT_IDEMP_TEST", { tenant: "A_repeat" }, { idempotencyKey: crossTenantKey, tenantId: tenantA });
+    assert.strictEqual(repeatA.id, jobA.id, "Tenant A repeat enqueue returns Tenant A job");
+
+    // Re-enqueue for Tenant B returns Tenant B's job
+    const repeatB = await enqueueJob("TENANT_IDEMP_TEST", { tenant: "B_repeat" }, { idempotencyKey: crossTenantKey, tenantId: tenantB });
+    assert.strictEqual(repeatB.id, jobB.id, "Tenant B repeat enqueue returns Tenant B job");
+    logPass("Tenant Idempotency: Cross-tenant isolation verified with zero collisions or leakage");
 
     // =========================================================================
     // GROUP 2: ATOMIC WORKER CLAIMING & CONCURRENCY
@@ -425,6 +453,49 @@ async function runPhase14BackgroundJobTests() {
     assert.ok(manuallyRetried.fencingToken > permanentJob.fencingToken, "Fencing token must be incremented");
     logPass("Manual Retry: Reset status, cleared errors, and bumped fencing token");
 
+    // Negative State Transitions: Never manually retry a RUNNING or COMPLETED job, or cancel a COMPLETED job
+    const runningTransitionJob = await enqueueJob("STATE_TRANSITION_TEST", { step: 1 });
+    await claimNextJob("worker_transition_test", 30000, { id: runningTransitionJob.id });
+
+    let retryRunningThrew = false;
+    try {
+      await retryJob(runningTransitionJob.id);
+    } catch (err: any) {
+      retryRunningThrew = true;
+      assert.ok(
+        err.message?.toLowerCase().includes("running") ||
+        (err as any).errorCode === "INVALID_STATE_TRANSITION"
+      );
+    }
+    assert.strictEqual(retryRunningThrew, true, "Retrying a RUNNING job must be rejected with INVALID_STATE_TRANSITION");
+    logPass("State Transition: Manual retry of RUNNING job rejected");
+
+    let retryCompletedThrew = false;
+    try {
+      await retryJob(afterAttempt3.id);
+    } catch (err: any) {
+      retryCompletedThrew = true;
+      assert.ok(
+        err.message?.toLowerCase().includes("completed") ||
+        (err as any).errorCode === "INVALID_STATE_TRANSITION"
+      );
+    }
+    assert.strictEqual(retryCompletedThrew, true, "Retrying a COMPLETED job must be rejected with INVALID_STATE_TRANSITION");
+    logPass("State Transition: Manual retry of COMPLETED job rejected");
+
+    let cancelCompletedThrew = false;
+    try {
+      await cancelJob(afterAttempt3.id, "Should not cancel completed");
+    } catch (err: any) {
+      cancelCompletedThrew = true;
+      assert.ok(
+        err.message?.toLowerCase().includes("completed") ||
+        (err as any).errorCode === "JOB_ALREADY_COMPLETED"
+      );
+    }
+    assert.strictEqual(cancelCompletedThrew, true, "Cancelling a COMPLETED job must be rejected with JOB_ALREADY_COMPLETED");
+    logPass("State Transition: Cancellation of COMPLETED job rejected");
+
     // =========================================================================
     // GROUP 4: CRASH RECOVERY, LEASE EXPIRY & FENCING PROTECTION
     // =========================================================================
@@ -458,8 +529,8 @@ async function runPhase14BackgroundJobTests() {
     const claimedByWorkerB = await claimNextJob("worker_b_healthy", 60000, { id: crashJob.id });
     assert.ok(claimedByWorkerB !== null);
     assert.strictEqual(claimedByWorkerB.workerId, "worker_b_healthy");
-    assert.strictEqual(claimedByWorkerB.fencingToken, 2, "Fencing token must be incremented to 2 for Worker B");
-    logPass("Worker B claimed recovered job with updated fencingToken = 2");
+    assert.ok(claimedByWorkerB.fencingToken > claimedByWorkerA.fencingToken, "Fencing token must be incremented for Worker B");
+    logPass(`Worker B claimed recovered job with updated fencingToken = ${claimedByWorkerB.fencingToken}`);
 
     // Stale Worker A attempts to complete the job with stale fencing token (1)
     registerJobHandler("CRASH_TEST_JOB", async () => ({ finished: true }));
@@ -480,13 +551,130 @@ async function runPhase14BackgroundJobTests() {
       `
       UPDATE "background_jobs"
       SET "status" = 'COMPLETED', "completedAt" = (NOW() AT TIME ZONE 'UTC')
-      WHERE "id"::text = $1 AND "workerId" = 'worker_b_healthy' AND "fencingToken" = 2 AND "status" = 'RUNNING'
+      WHERE "id"::text = $1 AND "workerId" = 'worker_b_healthy' AND "fencingToken" = $2 AND "status" = 'RUNNING'
       RETURNING "id";
       `,
-      crashJob.id
+      crashJob.id,
+      claimedByWorkerB.fencingToken
     );
     assert.strictEqual((validCompletion as any[]).length, 1, "Legitimate owner Worker B completes job");
     logPass("Legitimate Worker B successfully completed job with active lease and fencing token");
+
+    // Separate-process worker crash test (Requirement 10)
+    console.log("  Testing separate-process crash recovery with ungraceful process termination...");
+    const separateCrashJob = await enqueueJob("SEPARATE_PROCESS_CRASH_TEST", { test: "separate_process" });
+
+    const childWorkerPath = path.resolve(__dirname, "helpers/crash-worker-child.ts");
+    const npxCmd = process.platform === "win32" ? "npx.cmd" : "npx";
+
+    const childProcess = spawn(npxCmd, ["tsx", childWorkerPath], {
+      env: {
+        ...process.env,
+        TEST_DATABASE_URL: targetTestDbUrl,
+        DATABASE_URL: targetTestDbUrl,
+      },
+      stdio: ["ignore", "pipe", "pipe"],
+      shell: true,
+    });
+
+    let childClaimReceived = false;
+    let childWorkerId = "";
+    let childClaimJobId = "";
+    let childFencingToken = 0;
+
+    await new Promise<void>((resolve, reject) => {
+      const timeout = setTimeout(() => reject(new Error("Timeout waiting for child worker claim")), 25000);
+
+      childProcess.stdout?.on("data", (chunk: Buffer) => {
+        const text = chunk.toString();
+        const match = text.match(/CHILD_WORKER_CLAIMED:([^:]+):([^:]+):([^\r\n]+)/);
+        if (match) {
+          childClaimJobId = match[1];
+          childFencingToken = parseInt(match[2], 10);
+          childWorkerId = match[3].trim();
+          childClaimReceived = true;
+          clearTimeout(timeout);
+          resolve();
+        }
+      });
+
+      childProcess.stderr?.on("data", (chunk: Buffer) => {
+        console.error("  [CHILD STDERR]", chunk.toString().trim());
+      });
+
+      childProcess.on("exit", (code) => {
+        if (!childClaimReceived) {
+          clearTimeout(timeout);
+          reject(new Error(`Child worker exited prematurely with code ${code}`));
+        }
+      });
+    });
+
+    assert.strictEqual(childClaimReceived, true, "Child process must claim job successfully");
+    assert.strictEqual(childClaimJobId, separateCrashJob.id);
+    assert.strictEqual(childFencingToken, 1);
+    logPass(`Separate-Process: Worker ${childWorkerId} claimed job ${separateCrashJob.id}`);
+
+    // Kill the child worker ungracefully (SIGKILL)
+    try {
+      if (process.platform === "win32") {
+        spawn("taskkill", ["/pid", String(childProcess.pid), "/f", "/t"]);
+      } else {
+        process.kill(childProcess.pid!, "SIGKILL");
+      }
+    } catch {
+      // In case already exited
+    }
+    logPass("Separate-Process: Child worker terminated ungracefully");
+
+    // Wait 2200ms for child lease (1500ms) to definitely expire
+    await new Promise((r) => setTimeout(r, 2200));
+
+    // Recovery worker sweeps expired leases
+    const recoveredCount = await reclaimAbandonedJobs();
+    assert.ok(recoveredCount >= 1, "Abandoned job must be recovered after crash");
+    logPass(`Separate-Process Recovery: Reclaimed ${recoveredCount} abandoned job(s)`);
+
+    const crashJobAfterRecovery = await getJobById(separateCrashJob.id);
+    assert.strictEqual(crashJobAfterRecovery.status, "QUEUED");
+    assert.strictEqual(crashJobAfterRecovery.attempts, 1);
+    assert.strictEqual(crashJobAfterRecovery.workerId, null);
+
+    // Another worker (Worker B) claims the recovered job
+    const workerBClaim = await claimNextJob("worker_b_restart", 30000, { id: separateCrashJob.id });
+    assert.ok(workerBClaim !== null);
+    assert.strictEqual(workerBClaim.workerId, "worker_b_restart");
+    assert.ok(workerBClaim.fencingToken > childFencingToken, "Worker B must receive strictly higher fencingToken");
+    logPass(`Separate-Process Recovery: Restarted Worker B claimed job with fencingToken = ${workerBClaim.fencingToken}`);
+
+    // Attempt stale-worker overwrite with killed worker's credentials and fencing token
+    const staleChildOverwrite = await db.$queryRawUnsafe(
+      `
+      UPDATE "background_jobs"
+      SET "status" = 'COMPLETED', "completedAt" = (NOW() AT TIME ZONE 'UTC')
+      WHERE "id"::text = $1 AND "workerId" = $2 AND "fencingToken" = $3 AND "status" = 'RUNNING'
+      RETURNING "id";
+      `,
+      separateCrashJob.id,
+      childWorkerId,
+      childFencingToken
+    );
+    assert.strictEqual((staleChildOverwrite as any[]).length, 0, "Stale killed child worker must not overwrite recovered job");
+    logPass("Separate-Process Fencing: Stale killed child worker completion rejected (0 rows updated)");
+
+    // Worker B completes job legitimately
+    const workerBCompletion = await db.$queryRawUnsafe(
+      `
+      UPDATE "background_jobs"
+      SET "status" = 'COMPLETED', "completedAt" = (NOW() AT TIME ZONE 'UTC')
+      WHERE "id"::text = $1 AND "workerId" = 'worker_b_restart' AND "fencingToken" = $2 AND "status" = 'RUNNING'
+      RETURNING "id";
+      `,
+      separateCrashJob.id,
+      workerBClaim.fencingToken
+    );
+    assert.strictEqual((workerBCompletion as any[]).length, 1, "Worker B completed job successfully");
+    logPass("Separate-Process: Worker B completed job legitimately with active fencing token");
 
     // =========================================================================
     // GROUP 5: SCHEDULER LIFECYCLE & MULTI-INSTANCE DEDUPLICATION
@@ -532,6 +720,10 @@ async function runPhase14BackgroundJobTests() {
       "http://127.0.0.1/admin",
       "http://127.0.0.2:8080/secret",
       "http://169.254.169.254/latest/meta-data/",
+      "http://[fd00:ec2::254]/latest/meta-data/",
+      "http://[::ffff:169.254.169.254]/",
+      "http://[::1]/",
+      "http://100.64.0.1/private",
       "http://10.0.0.1/private",
       "http://172.16.0.5/internal",
       "http://192.168.1.1/router",
@@ -561,7 +753,20 @@ async function runPhase14BackgroundJobTests() {
 
     const ssrfJobState = await getJobById(ssrfJob.id);
     assert.strictEqual(ssrfJobState.status, "FAILED", "SSRF violation must immediately fail permanently");
-    logPass("WEBHOOK_RETRY Handler: SSRF attempt resulted in permanent FAILED job state");
+    logPass("WEBHOOK_RETRY Handler: Direct SSRF attempt resulted in permanent FAILED job state");
+
+    // SSRF Redirect Trap: Prevent unsafe redirects to metadata or loopback
+    const ssrfRedirectJob = await enqueueJob("WEBHOOK_RETRY", {
+      url: `http://127.0.0.1:${mockWebhookPort}/redirect-to-ssrf`,
+      body: { test: "redirect_trap" },
+    });
+    // WEBHOOK_RETRY handler validates each redirect hop
+    const ssrfRedirectRes = await processNextJob({ id: ssrfRedirectJob.id });
+    assert.strictEqual(ssrfRedirectRes.processed, true);
+    assert.ok(ssrfRedirectRes.error?.includes("SSRF"));
+    const ssrfRedirectJobState = await getJobById(ssrfRedirectJob.id);
+    assert.strictEqual(ssrfRedirectJobState.status, "FAILED");
+    logPass("WEBHOOK_RETRY Handler: Malicious 302 redirect to metadata endpoint blocked and failed permanently");
 
     // Valid webhook delivery to mock server
     mockReceivedPayload = null;
@@ -584,8 +789,90 @@ async function runPhase14BackgroundJobTests() {
     assert.deepStrictEqual(mockReceivedPayload, { event: "TEST_EVENT", message: "Hello Webhook" });
     logPass("WEBHOOK_RETRY: Successfully delivered payload to mock webhook destination");
 
-    // 2. MEDIA_OPTIMIZATION with Real Sharp
-    console.log("  Testing real image optimization via Sharp...");
+    // 2. DEPLOYMENT_VERIFY Authoritative Verification & Outcomes
+    console.log("  Testing authoritative DEPLOYMENT_VERIFY handler...");
+    const testWebsite = await db.website.create({
+      data: {
+        name: "Verification Test Site",
+        slug: `verify-test-${Date.now()}`,
+        userId: superAdminUser.id,
+        status: "DRAFT",
+      },
+    });
+
+    // Test 2a: BUILD_FAILED deployment -> FAILED
+    const failedDeployment = await db.deployment.create({
+      data: {
+        websiteId: testWebsite.id,
+        version: 1,
+        status: "BUILD_FAILED",
+        destinationType: "NETLIFY",
+        metadata: { compileError: "SyntaxError: Unexpected token" },
+      },
+    });
+    const verifyFailJob = await enqueueJob("DEPLOYMENT_VERIFY", { deploymentId: failedDeployment.id });
+    const verifyFailRes = await processNextJob({ id: verifyFailJob.id });
+    assert.strictEqual(verifyFailRes.processed, true);
+    assert.ok(verifyFailRes.error?.includes("BUILD_FAILED"));
+    const failJobRecord = await getJobById(verifyFailJob.id);
+    assert.strictEqual(failJobRecord.status, "FAILED");
+    const updatedFailDeployment = await db.deployment.findUnique({ where: { id: failedDeployment.id } });
+    assert.strictEqual(updatedFailDeployment.metadata.asyncVerification.status, "FAILED");
+    assert.strictEqual(updatedFailDeployment.metadata.asyncVerification.evidence.authoritativeStatus, "BUILD_FAILED");
+    logPass("DEPLOYMENT_VERIFY: Authoritative BUILD_FAILED marked FAILED with logged evidence");
+
+    // Test 2b: RECONCILIATION_REQUIRED deployment -> DEGRADED
+    const degradedDeployment = await db.deployment.create({
+      data: {
+        websiteId: testWebsite.id,
+        version: 2,
+        status: "RECONCILIATION_REQUIRED",
+        destinationType: "NETLIFY",
+        metadata: { drift: "Edge CDN stale cache" },
+      },
+    });
+    const verifyDegradedJob = await enqueueJob("DEPLOYMENT_VERIFY", { deploymentId: degradedDeployment.id });
+    const verifyDegradedRes = await processNextJob({ id: verifyDegradedJob.id });
+    assert.strictEqual(verifyDegradedRes.processed, true);
+    assert.strictEqual(verifyDegradedRes.result?.status, "DEGRADED");
+    assert.strictEqual(verifyDegradedRes.result?.outcome, "DEGRADED");
+    const updatedDegradedDeployment = await db.deployment.findUnique({ where: { id: degradedDeployment.id } });
+    assert.strictEqual(updatedDegradedDeployment.metadata.asyncVerification.status, "DEGRADED");
+    logPass("DEPLOYMENT_VERIFY: Authoritative RECONCILIATION_REQUIRED marked DEGRADED with evidence");
+
+    // Test 2c: Valid published deployment with matching snapshot -> HEALTHY
+    await db.website.update({
+      where: { id: testWebsite.id },
+      data: {
+        status: "PUBLISHED",
+        editorData: {
+          publishedData: {
+            pages: [{ id: "p1", title: "Home", slug: "home", content: [] }],
+            version: 3,
+          },
+        },
+      },
+    });
+    const healthyDeployment = await db.deployment.create({
+      data: {
+        websiteId: testWebsite.id,
+        version: 3,
+        status: "PUBLISHED",
+        destinationType: "STATIC_BUNDLE",
+        destinationRef: "s3://forge-deployments/site-v3",
+        metadata: { publishedAt: new Date().toISOString() },
+      },
+    });
+    const verifyHealthyJob = await enqueueJob("DEPLOYMENT_VERIFY", { deploymentId: healthyDeployment.id });
+    const verifyHealthyRes = await processNextJob({ id: verifyHealthyJob.id });
+    assert.strictEqual(verifyHealthyRes.processed, true);
+    assert.strictEqual(verifyHealthyRes.result?.status, "HEALTHY");
+    assert.strictEqual(verifyHealthyRes.result?.outcome, "HEALTHY");
+    assert.strictEqual(verifyHealthyRes.result?.evidence?.snapshotVerified, true);
+    logPass("DEPLOYMENT_VERIFY: Verified deployment marked HEALTHY with snapshot integrity evidence");
+
+    // 3. MEDIA_OPTIMIZATION with Real Sharp & Durable File Persistence
+    console.log("  Testing real image optimization via Sharp with durable disk persistence...");
     // 10x10 genuine PNG buffer
     const sharp = (await import("sharp")).default;
     const testPngBuffer = await sharp({
@@ -602,6 +889,7 @@ async function runPhase14BackgroundJobTests() {
     const mediaJob = await enqueueJob("MEDIA_OPTIMIZATION", {
       imageBufferBase64: testPngBuffer.toString("base64"),
       quality: 80,
+      websiteId: testWebsite.id,
     });
 
     const mediaRes = await processNextJob({ id: mediaJob.id });
@@ -612,7 +900,20 @@ async function runPhase14BackgroundJobTests() {
     assert.strictEqual(mediaRes.result?.dimensions?.height, 10);
     assert.ok(mediaRes.result?.originalSize > 0);
     assert.ok(mediaRes.result?.compressedSize > 0);
-    logPass("MEDIA_OPTIMIZATION: Real Sharp converted PNG to WebP with accurate dimensions and byte counts");
+    assert.ok(typeof mediaRes.result?.filePath === "string", "filePath must be returned");
+    assert.ok(typeof mediaRes.result?.outputUrl === "string", "outputUrl must be returned");
+
+    // Verify file actually exists on durable disk
+    assert.ok(fs.existsSync(mediaRes.result?.filePath), "Optimized image must exist on durable disk storage");
+    assert.strictEqual(fs.statSync(mediaRes.result?.filePath).size, mediaRes.result?.compressedSize);
+
+    // Verify MediaOptimizationAsset record created in DB
+    const assetRecord = await db.mediaOptimizationAsset.findFirst({
+      where: { optimizedUrl: mediaRes.result?.outputUrl },
+    });
+    assert.ok(assetRecord !== null, "MediaOptimizationAsset record must be recorded in database");
+    assert.strictEqual(assetRecord.optimizedUrl, mediaRes.result?.outputUrl);
+    logPass("MEDIA_OPTIMIZATION: Real Sharp converted PNG to WebP, persisted to disk, and recorded in DB");
 
     // Rejection of invalid/corrupted media buffer
     const corruptMediaJob = await enqueueJob("MEDIA_OPTIMIZATION", {
@@ -720,15 +1021,20 @@ async function runPhase14BackgroundJobTests() {
       },
     });
 
+    // Create a known QUEUED job for the dashboard cancel test
+    const e2eQueuedJob = await enqueueJob("E2E_QUEUED_FOR_CANCEL", { e2e: true });
+
     let browser: Browser | null = null;
     try {
       browser = await chromium.launch({
         headless: true,
         args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-gpu"],
       });
+
+      // 1. Authenticated Super Admin Context testing real React Dashboard
       const context = await browser.newContext({ bypassCSP: true });
       const page = await context.newPage();
-      // Set real browser session cookie
+
       await context.addCookies([
         {
           name: "forge_session",
@@ -740,10 +1046,10 @@ async function runPhase14BackgroundJobTests() {
         },
       ]);
 
-      // Configure route rewriting and authentication header injection
+      // Route rewriting: intercept any API calls and forward to the active test backend server
       await page.route("**/api/**", async (route) => {
         const originalUrl = route.request().url();
-        const reroutedUrl = originalUrl.replace(/http:\/\/[^/]+(:[0-9]+)?\/api\//, `http://127.0.0.1:${port}/api/`);
+        const reroutedUrl = originalUrl.replace(/^https?:\/\/[^/]+(:[0-9]+)?\/api\//, `http://127.0.0.1:${port}/api/`);
         const headers = {
           ...route.request().headers(),
           cookie: superAdminCookie,
@@ -752,100 +1058,94 @@ async function runPhase14BackgroundJobTests() {
         await route.continue({ url: reroutedUrl, headers });
       });
 
-      // Serve dedicated operations dashboard E2E page
-      app.get("/test-jobs-e2e", (_req, res) => {
-        res.setHeader("Content-Type", "text/html");
-        res.send(`
-          <!DOCTYPE html>
-          <html>
-          <head><title>Super Admin Dashboard - Jobs E2E</title></head>
-          <body style="background:#0f172a; color:#fff; font-family:sans-serif; padding:20px;">
-            <header><h1>Super Admin Operations</h1></header>
-            <nav>
-              <button id="tab-jobs" onclick="showJobs()">Jobs</button>
-            </nav>
-            <div id="jobs-container" style="margin-top:20px;">
-              <h2>Background Worker Job Queue</h2>
-              <table border="1" cellpadding="8" style="border-collapse:collapse; width:100%;">
-                <thead>
-                  <tr>
-                    <th>Job ID</th><th>Type</th><th>Status</th><th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="jobs-tbody">
-                  <tr id="job-${e2eFailedJob.id}">
-                    <td>${e2eFailedJob.id.substring(0, 8)}...</td>
-                    <td>E2E_FAILED_FOR_RETRY</td>
-                    <td id="status-${e2eFailedJob.id}">FAILED</td>
-                    <td>
-                      <button id="retry-btn-${e2eFailedJob.id}" onclick="retryJob('${e2eFailedJob.id}')">Retry</button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <div id="toast" style="margin-top:10px; color:#10b981;"></div>
-            </div>
-            <script>
-              async function retryJob(id) {
-                try {
-                  const res = await fetch('/api/v1/operations/jobs/' + id + '/retry', {
-                    method: 'POST',
-                    headers: {
-                      'x-requested-with': 'XMLHttpRequest'
-                    }
-                  });
-                  const data = await res.json();
-                  if (data.success) {
-                    document.getElementById('status-' + id).innerText = 'QUEUED';
-                    document.getElementById('retry-btn-' + id).style.display = 'none';
-                    document.getElementById('toast').innerText = 'Job queued successfully for retry!';
-                  } else {
-                    document.getElementById('toast').innerText = 'Error: ' + JSON.stringify(data);
-                  }
-                } catch (e) {
-                  document.getElementById('toast').innerText = 'Exception: ' + e.message;
-                }
-              }
-            </script>
-          </body>
-          </html>
-        `);
-      });
+      // Navigate to real React Super Admin Dashboard
+      console.log(`  Navigating Playwright to real React Super Admin at ${baseUrl}/super-admin...`);
+      await page.goto(`${baseUrl}/super-admin`, { waitUntil: "networkidle" });
 
-      await page.goto(`${baseUrl}/test-jobs-e2e`, { waitUntil: "networkidle" });
+      // Verify dashboard loaded
+      await page.waitForSelector("h1", { timeout: 15000 });
+      const mainHeader = await page.textContent("h1");
+      assert.ok(mainHeader?.includes("Super Admin"), "Real React Super Admin header must render");
+      logPass("Browser E2E: Real React Super Admin Dashboard loaded successfully");
 
-      // Verify Job Queue heading is present
-      const heading = await page.textContent("h2");
-      assert.ok(heading?.includes("Background Worker Job Queue"), "Job Queue section must be visible");
+      // Click Jobs tab in real React UI
+      const jobsTabBtn = page.locator("button", { hasText: /^jobs$/i });
+      await jobsTabBtn.waitFor({ state: "visible", timeout: 10000 });
+      await jobsTabBtn.click();
 
-      // Verify FAILED job row exists
-      const jobRow = page.locator(`#job-${e2eFailedJob.id}`);
-      assert.strictEqual(await jobRow.isVisible(), true);
+      // Verify Background Worker Job Queue section rendered
+      await page.waitForSelector('h2:has-text("Background Worker Job Queue")', { timeout: 10000 });
+      logPass("Browser E2E: Jobs tab active and Background Worker Job Queue table rendered");
 
-      const statusText = await page.textContent(`#status-${e2eFailedJob.id}`);
-      assert.strictEqual(statusText?.trim(), "FAILED");
-      logPass("Browser E2E: Located failed background job in Operations UI");
+      // Verify real jobs rendered in table
+      const failedRow = page.locator("tr", { hasText: "E2E_FAILED_FOR_RETRY" });
+      await failedRow.waitFor({ state: "visible", timeout: 10000 });
+      const failedStatus = await failedRow.locator("td").nth(2).textContent();
+      assert.ok(failedStatus?.includes("FAILED"));
+      logPass("Browser E2E: Located failed background job in real React table");
 
-      // Click Retry button
-      await page.click(`#retry-btn-${e2eFailedJob.id}`);
-      await page.waitForFunction(
-        (id) => document.getElementById(`status-${id}`)?.textContent?.trim() === "QUEUED",
-        e2eFailedJob.id,
-        { timeout: 5000 }
-      );
+      // Click Retry on failed job
+      const retryBtn = failedRow.locator("button", { hasText: "Retry" });
+      await retryBtn.click();
 
-      // Verify UI updated to QUEUED and toast appeared
-      const updatedStatusText = await page.textContent(`#status-${e2eFailedJob.id}`);
-      assert.strictEqual(updatedStatusText?.trim(), "QUEUED");
+      // Wait for feedback notification
+      await page.waitForSelector("text=queued for retry", { timeout: 10000 });
+      logPass("Browser E2E: Clicked Retry in React UI, verified feedback banner appeared");
 
-      const toastText = await page.textContent("#toast");
-      assert.ok(toastText?.includes("Job queued successfully for retry!"));
-      logPass("Browser E2E: Clicked Retry, verified optimistic UI transition to QUEUED");
-
-      // Verify database state matches
+      // Verify database updated
       const dbJobAfterRetry = await getJobById(e2eFailedJob.id);
       assert.strictEqual(dbJobAfterRetry.status, "QUEUED");
-      logPass("Browser E2E: Confirmed database status updated to QUEUED");
+      logPass("Browser E2E: Verified database status updated to QUEUED after UI retry");
+
+      // Test Cancel on queued job
+      const queuedRow = page.locator("tr", { hasText: "E2E_QUEUED_FOR_CANCEL" });
+      await queuedRow.waitFor({ state: "visible", timeout: 10000 });
+      const cancelBtn = queuedRow.locator("button", { hasText: "Cancel" });
+
+      // Accept the window.confirm dialog
+      page.once("dialog", (dialog) => dialog.accept());
+      await cancelBtn.click();
+
+      // Wait for cancellation feedback
+      await page.waitForSelector("text=cancelled", { timeout: 10000 });
+      logPass("Browser E2E: Clicked Cancel in React UI with confirmation dialog, verified feedback banner");
+
+      // Verify database updated
+      const dbJobAfterCancel = await getJobById(e2eQueuedJob.id);
+      assert.strictEqual(dbJobAfterCancel.status, "CANCELLED");
+      logPass("Browser E2E: Verified database status updated to CANCELLED after UI cancel");
+
+      await context.close();
+
+      // 2. Authorization Verification via React Client Routing
+      const unauthorizedContext = await browser.newContext({ bypassCSP: true });
+      await unauthorizedContext.addCookies([
+        {
+          name: "forge_session",
+          value: regularSessionToken,
+          domain: "127.0.0.1",
+          path: "/",
+          httpOnly: true,
+          sameSite: "Lax",
+        },
+      ]);
+      const unauthorizedPage = await unauthorizedContext.newPage();
+      await unauthorizedPage.route("**/api/**", async (route) => {
+        const originalUrl = route.request().url();
+        const reroutedUrl = originalUrl.replace(/^https?:\/\/[^/]+(:[0-9]+)?\/api\//, `http://127.0.0.1:${port}/api/`);
+        const headers = {
+          ...route.request().headers(),
+          cookie: regularCookie,
+          "x-requested-with": "XMLHttpRequest",
+        };
+        await route.continue({ url: reroutedUrl, headers });
+      });
+
+      await unauthorizedPage.goto(`${baseUrl}/super-admin`, { waitUntil: "networkidle" });
+      const currentUrl = unauthorizedPage.url();
+      assert.ok(!currentUrl.includes("/super-admin"), "Regular user must be redirected away from /super-admin by RoleRoute");
+      logPass("Browser E2E: RoleRoute redirected regular user away from /super-admin to non-privileged view");
+      await unauthorizedContext.close();
     } finally {
       if (browser) await browser.close();
     }
@@ -869,13 +1169,21 @@ async function runPhase14BackgroundJobTests() {
             "MEDIA_OPTIMIZATION",
             "CANCEL_ME_JOB",
             "E2E_FAILED_FOR_RETRY",
+            "E2E_QUEUED_FOR_CANCEL",
             "IDEMPOTENT_TEST",
+            "TENANT_IDEMP_TEST",
+            "STATE_TRANSITION_TEST",
+            "SEPARATE_PROCESS_CRASH_TEST",
+            "DEPLOYMENT_VERIFY",
           ],
         },
       },
     });
 
     if (superAdminUser?.id) {
+      await db.deployment.deleteMany({ where: { website: { userId: superAdminUser.id } } }).catch(() => {});
+      await db.website.deleteMany({ where: { userId: superAdminUser.id } }).catch(() => {});
+      await db.mediaOptimizationAsset.deleteMany({}).catch(() => {});
       await db.session.deleteMany({ where: { userId: superAdminUser.id } }).catch(() => {});
       await db.auditLog.deleteMany({ where: { userId: superAdminUser.id } }).catch(() => {});
       await db.user.delete({ where: { id: superAdminUser.id } }).catch(() => {});

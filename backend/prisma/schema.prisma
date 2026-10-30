@@ -828,13 +828,14 @@ model BackgroundJob {
   leaseExpiresAt DateTime? @db.Timestamptz(6)
   heartbeatAt    DateTime? @db.Timestamptz(6)
   fencingToken   Int       @default(0)
-  idempotencyKey String?   @unique @db.VarChar(255)
+  idempotencyKey String?   @db.VarChar(255)
   correlationId  String?   @db.VarChar(100)
   tenantId       String?   @db.Uuid
   websiteId      String?   @db.Uuid
   createdAt      DateTime  @default(now()) @db.Timestamptz(6)
   updatedAt      DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
 
+  @@unique([tenantId, idempotencyKey])
   @@index([status, runAt])
   @@index([status, runAt, leaseExpiresAt])
   @@index([type])

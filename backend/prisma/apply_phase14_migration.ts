@@ -15,8 +15,10 @@ async function main() {
   await prisma.$executeRawUnsafe(`ALTER TABLE "background_jobs" ADD COLUMN IF NOT EXISTS "tenantId" UUID;`);
   await prisma.$executeRawUnsafe(`ALTER TABLE "background_jobs" ADD COLUMN IF NOT EXISTS "websiteId" UUID;`);
 
-  // 2. Indexes for worker claiming and lease expiry
-  await prisma.$executeRawUnsafe(`CREATE UNIQUE INDEX IF NOT EXISTS "idx_background_jobs_idempotency" ON "background_jobs" ("idempotencyKey") WHERE "idempotencyKey" IS NOT NULL;`);
+  // 2. Indexes for worker claiming, lease expiry, and tenant-scoped idempotency
+  await prisma.$executeRawUnsafe(`DROP INDEX IF EXISTS "idx_background_jobs_idempotency";`);
+  await prisma.$executeRawUnsafe(`DROP INDEX IF EXISTS "background_jobs_idempotencyKey_key";`);
+  await prisma.$executeRawUnsafe(`CREATE UNIQUE INDEX IF NOT EXISTS "background_jobs_tenantId_idempotencyKey_key" ON "background_jobs" ("tenantId", "idempotencyKey") WHERE "idempotencyKey" IS NOT NULL;`);
   await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS "idx_background_jobs_claim" ON "background_jobs" ("status", "runAt", "leaseExpiresAt");`);
   await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS "idx_background_jobs_worker" ON "background_jobs" ("workerId");`);
   await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS "idx_background_jobs_website" ON "background_jobs" ("websiteId");`);

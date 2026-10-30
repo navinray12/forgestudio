@@ -69352,7 +69352,7 @@ export namespace Prisma {
 
   export type BackgroundJobWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    idempotencyKey?: string
+    tenantId_idempotencyKey?: BackgroundJobTenantIdIdempotencyKeyCompoundUniqueInput
     AND?: BackgroundJobWhereInput | BackgroundJobWhereInput[]
     OR?: BackgroundJobWhereInput[]
     NOT?: BackgroundJobWhereInput | BackgroundJobWhereInput[]
@@ -69370,12 +69370,13 @@ export namespace Prisma {
     leaseExpiresAt?: DateTimeNullableFilter<"BackgroundJob"> | Date | string | null
     heartbeatAt?: DateTimeNullableFilter<"BackgroundJob"> | Date | string | null
     fencingToken?: IntFilter<"BackgroundJob"> | number
+    idempotencyKey?: StringNullableFilter<"BackgroundJob"> | string | null
     correlationId?: StringNullableFilter<"BackgroundJob"> | string | null
     tenantId?: UuidNullableFilter<"BackgroundJob"> | string | null
     websiteId?: UuidNullableFilter<"BackgroundJob"> | string | null
     createdAt?: DateTimeFilter<"BackgroundJob"> | Date | string
     updatedAt?: DateTimeFilter<"BackgroundJob"> | Date | string
-  }, "id" | "idempotencyKey">
+  }, "id" | "tenantId_idempotencyKey">
 
   export type BackgroundJobOrderByWithAggregationInput = {
     id?: SortOrder
@@ -77307,6 +77308,11 @@ export namespace Prisma {
 
   export type PublishApprovalRequestSumOrderByAggregateInput = {
     targetVersion?: SortOrder
+  }
+
+  export type BackgroundJobTenantIdIdempotencyKeyCompoundUniqueInput = {
+    tenantId: string
+    idempotencyKey: string
   }
 
   export type BackgroundJobCountOrderByAggregateInput = {

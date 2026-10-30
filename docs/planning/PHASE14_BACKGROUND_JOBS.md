@@ -30,32 +30,34 @@ Migration `backend/prisma/migrations/20261030010000_add_background_job_durabilit
 ```sql
 -- AlterTable: Add worker claim, lease, fencing, idempotency, and correlation columns
 ALTER TABLE "background_jobs" 
-  ADD COLUMN IF NOT EXISTS "workerId" TEXT,
-  ADD COLUMN IF NOT EXISTS "claimedAt" TIMESTAMP(3),
-  ADD COLUMN IF NOT EXISTS "leaseExpiresAt" TIMESTAMP(3),
-  ADD COLUMN IF NOT EXISTS "heartbeatAt" TIMESTAMP(3),
+  ADD COLUMN IF NOT EXISTS "workerId" VARCHAR(100),
+  ADD COLUMN IF NOT EXISTS "claimedAt" TIMESTAMPTZ(6),
+  ADD COLUMN IF NOT EXISTS "leaseExpiresAt" TIMESTAMPTZ(6),
+  ADD COLUMN IF NOT EXISTS "heartbeatAt" TIMESTAMPTZ(6),
   ADD COLUMN IF NOT EXISTS "fencingToken" INTEGER NOT NULL DEFAULT 0,
-  ADD COLUMN IF NOT EXISTS "idempotencyKey" TEXT,
-  ADD COLUMN IF NOT EXISTS "correlationId" TEXT,
-  ADD COLUMN IF NOT EXISTS "tenantId" TEXT,
-  ADD COLUMN IF NOT EXISTS "websiteId" TEXT;
+  ADD COLUMN IF NOT EXISTS "idempotencyKey" VARCHAR(255),
+  ADD COLUMN IF NOT EXISTS "correlationId" VARCHAR(100),
+  ADD COLUMN IF NOT EXISTS "tenantId" UUID,
+  ADD COLUMN IF NOT EXISTS "websiteId" UUID;
 
--- CreateIndexes
-CREATE INDEX IF NOT EXISTS "idx_background_jobs_queue_claim" 
-  ON "background_jobs" ("status", "runAt", "priority" DESC, "createdAt" ASC);
+-- Indexes for Queue Ordering and Lease Recovery
+CREATE INDEX IF NOT EXISTS "background_jobs_status_runAt_idx" 
+  ON "background_jobs" ("status", "runAt");
 
-CREATE INDEX IF NOT EXISTS "idx_background_jobs_lease_recovery" 
-  ON "background_jobs" ("status", "leaseExpiresAt");
+CREATE INDEX IF NOT EXISTS "background_jobs_status_runAt_leaseExpiresAt_idx" 
+  ON "background_jobs" ("status", "runAt", "leaseExpiresAt");
 
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_background_jobs_idempotency" 
+-- Tenant-Scoped Idempotency Index (additive migration safely replaces global unique index)
+CREATE UNIQUE INDEX IF NOT EXISTS "background_jobs_tenantId_idempotencyKey_key" 
   ON "background_jobs" ("tenantId", "idempotencyKey") 
   WHERE "idempotencyKey" IS NOT NULL;
 ```
 
 ### Key Durability Invariants:
-- **`fencingToken`**: Starts at 0, increments on every worker claim or manual retry. Any worker attempting to complete, fail, or update a job must supply its assigned `fencingToken`. Stale tokens are rejected immediately.
+- **`fencingToken`**: Starts at 0, increments on every worker claim, recovery sweep, or manual retry. Any worker attempting to complete, fail, or update a job must supply its assigned `fencingToken`. Stale tokens are rejected immediately with 0 rows affected.
 - **`leaseExpiresAt`**: Absolute timestamp marking when worker ownership expires. Prevents orphaned jobs when worker processes crash or freeze.
-- **`idempotencyKey`**: Scoped per tenant, preventing duplicate background jobs for the same upstream operation.
+- **`idempotencyKey`**: Scoped per tenant (`[tenantId, idempotencyKey]`), preventing cross-tenant collisions and preventing leakage while eliminating duplicate jobs for the same upstream operation within a tenant.
+- **Queue Ordering Policy**: Deterministic FIFO and scheduled ordering: `ORDER BY "runAt" ASC, "createdAt" ASC`. Jobs scheduled in the future (`runAt > NOW()`) remain untouched until their scheduled timestamp arrives.
 
 ---
 
@@ -69,7 +71,7 @@ WITH candidate AS (
   FROM "background_jobs"
   WHERE "status" = 'QUEUED'
     AND "runAt" <= (NOW() AT TIME ZONE 'UTC') + INTERVAL '1 second'
-  ORDER BY "priority" DESC, "createdAt" ASC
+  ORDER BY "runAt" ASC, "createdAt" ASC
   LIMIT 1
   FOR UPDATE SKIP LOCKED
 )
@@ -90,7 +92,8 @@ RETURNING "background_jobs".*;
 
 ### Concurrency Guarantees:
 - **Zero Race Conditions:** PostgreSQL locks only the selected candidate row and skips already-locked rows without blocking concurrent worker threads.
-- **Zero Double-Processing:** Even under dozens of parallel workers, each job is claimed by exactly one worker.
+- **Zero Double-Processing:** Even under dozens of parallel workers or separate worker OS processes, each job is claimed by exactly one worker.
+- **FIFO & Scheduled Ordering:** Candidates are claimed strictly by scheduled time and creation time (`ORDER BY "runAt" ASC, "createdAt" ASC`), guaranteeing fair chronological dispatch.
 - **UTC Alignment:** All time comparisons utilize `(NOW() AT TIME ZONE 'UTC')` to eliminate timezone drift between database engines and application runtimes.
 
 ---
@@ -151,27 +154,43 @@ Active workers processing long-running jobs (e.g. batch image optimizations or d
 
 ---
 
-## 6. Real Job Handlers
+## 6. Real Job Handlers & Security Architecture
 
 ### 6.1 Server-Side Request Forgery (SSRF) Protection in `WEBHOOK_RETRY`
 The `validateSafeWebhookUrl` validator parses targets using the Node.js `URL` API and DNS lookups, rejecting forbidden IP spaces:
 
 | Blocked Subnet / Target | Classification | Rationale |
 |:---|:---|:---|
-| `127.0.0.0/8`, `localhost` | Loopback | Blocks internal service manipulation |
+| `127.0.0.0/8`, `localhost` | IPv4 Loopback | Blocks internal loopback exploitation |
 | `10.0.0.0/8` | RFC 1918 Private Class A | Blocks internal VPC service scanning |
 | `172.16.0.0/12` | RFC 1918 Private Class B | Blocks internal container network probing |
 | `192.168.0.0/16` | RFC 1918 Private Class C | Blocks internal network devices |
 | `169.254.0.0/16` / `169.254.169.254` | Link-Local / AWS/GCP Metadata | Blocks cloud instance credential exfiltration |
+| `100.64.0.0/10` | Carrier-Grade NAT (RFC 6598) | Blocks shared service provider address space |
 | `::1` | IPv6 Loopback | Prevents IPv6 localhost bypasses |
-| `fc00::/7` | IPv6 Unique Local Address | Blocks private IPv6 networks |
+| `fe80::/10` | IPv6 Link-Local | Blocks IPv6 link-local addresses |
+| `fc00::/7` / `fd00::/8` | IPv6 Unique Local Address | Blocks private IPv6 networks and AWS IPv6 metadata (`fd00:ec2::254`) |
+| `::ffff:0:0/96` | IPv4-Mapped IPv6 | Prevents IPv4 bypasses encapsulated in IPv6 notation |
 
-### 6.2 Real Image Optimization in `MEDIA_OPTIMIZATION`
-Replaces mock and fabricated byte responses with Sharp processing:
+#### Strict Redirect Interception (`redirect: "manual"`):
+Standard `fetch()` libraries automatically follow 301/302 redirects without re-validating the target destination, creating a severe SSRF vulnerability (e.g. public endpoint redirecting to `http://169.254.169.254/`). `WEBHOOK_RETRY` enforces manual redirect handling:
+1. Performs `fetch(url, { redirect: "manual" })`.
+2. Inspects `Location` header on 301/302/307/308 responses.
+3. Re-validates the new target against `validateSafeWebhookUrl(newTarget)` before each hop (up to 3 hops maximum).
+4. Aborts immediately with `PermanentJobError` upon any forbidden destination.
+
+### 6.2 Authoritative `DEPLOYMENT_VERIFY`
+Never marks a deployment `HEALTHY` merely because a record exists:
+1. **Authoritative Status Verification:** Inspects deployment status in the database. Deployments in `BUILD_FAILED`, `DEPLOY_FAILED`, `VALIDATION_FAILED`, or `VERIFICATION_FAILED` immediately trigger `FAILED` verification outcome with logged error evidence. Deployments in `RECONCILIATION_REQUIRED` result in `DEGRADED` outcome.
+2. **Snapshot Integrity Verification:** Loads website published snapshot from `editorData.publishedData` and verifies that the snapshot version matches the deployment version and contains genuine page content.
+3. **Endpoint Health Probe:** If an endpoint URL is configured, issues a timeout-bounded HEAD probe to verify the deployed HTTP status.
+4. **Diagnostic Evidence Logging:** Writes structured evidence to `deployment.metadata.asyncVerification` containing authoritative status, snapshot verification state, and verification timestamp.
+
+### 6.3 Real Image Optimization in `MEDIA_OPTIMIZATION`
 - Validates binary magic bytes and headers using `sharp(buffer).metadata()`.
-- Resizes large assets exceeding max bounds while maintaining aspect ratio.
-- Compresses to modern `.webp` with quality tuning.
-- Emits genuine output buffer length and pixel dimensions.
+- Converts raw image buffers into optimized modern `.webp` with quality tuning.
+- **Durable Disk Persistence:** Persists the genuine WebP output file to approved durable storage (`uploads/optimized/` or `UPLOADS_DIR`). Fails explicitly with `PermanentJobError` if durable storage is unconfigured or unwritable.
+- **Media Asset Tracking:** Creates a `MediaOptimizationAsset` record in PostgreSQL tracking original vs. compressed byte sizes, dimensions, and the accessible output reference (`/uploads/optimized/{id}.webp`).
 
 ---
 
@@ -186,15 +205,21 @@ Operations endpoints are protected by `authenticateToken` and `requireSuperAdmin
 | `POST` | `/api/v1/operations/jobs/:id/retry` | Re-queues a failed or cancelled job, clears error state, and logs an audit record |
 | `POST` | `/api/v1/operations/jobs/:id/cancel` | Cancels a queued or running job, frees worker claims, and logs an audit record |
 
+### State Transition Invariants:
+- **`retryJob`**: Rejects `RUNNING` jobs with HTTP 400 `INVALID_STATE_TRANSITION` (preventing concurrent execution while an active worker holds a lease). Rejects `COMPLETED` jobs with HTTP 400 `INVALID_STATE_TRANSITION`. Atomically updates only rows in `('FAILED', 'CANCELLED')` status.
+- **`cancelJob`**: Rejects `COMPLETED` jobs with HTTP 400 `JOB_ALREADY_COMPLETED`. Atomically updates only rows in `('QUEUED', 'RUNNING')` status.
+
 ---
 
-## 8. Graceful Shutdown Protocol
+## 8. Graceful Shutdown & Crash Recovery Protocol
 
-The backend server (`backend/src/server.ts`) handles system termination signals (`SIGTERM`, `SIGINT`):
-1. **Stop Scheduling:** Calls `stopScheduler(5000)` to stop cron tickers and wait for any active dispatch routines to complete.
-2. **Stop Workers:** Calls `stopJobWorker(10000)` which sets draining flags, ceases new claims, and allows in-flight jobs to complete or safely release their leases.
-3. **Stop HTTP Server:** Closes incoming HTTP socket connections (`server.close()`).
-4. **Disconnect Database:** Cleanly closes Prisma connection pools (`prisma.$disconnect()`).
+### Separate-Process Worker Crash Recovery:
+1. A separate worker OS process claims a job with a short lease.
+2. The worker process crashes or is killed ungracefully (`SIGKILL`).
+3. The lease lapses (`leaseExpiresAt < NOW()`).
+4. Another worker or the recovery daemon (`reclaimAbandonedJobs()`) reclaims the job, increments the fencing token, and resets status to `QUEUED`.
+5. Worker B claims the job with a newer fencing token.
+6. Any stale completion attempt from the dead worker is rejected with 0 rows affected.
 
 ---
 
@@ -211,10 +236,11 @@ FORGESTUDIO PHASE 14 — BACKGROUND JOBS, WORKER CLAIMS & SCHEDULER
 [GATE 2] Validating Dedicated Disposable Database Target: PASSED
 
 GROUP 1: DURABLE QUEUE & PERSISTENCE (100 JOBS)
-  - 100 jobs persisted into PostgreSQL in 1689ms: PASSED
+  - 100 jobs persisted into PostgreSQL: PASSED
   - Direct database count query validation: PASSED
   - Invalid job type rejected without fallback: PASSED
   - Idempotency key deduplication: PASSED
+  - Tenant Idempotency: Cross-tenant isolation verified with zero collisions: PASSED
 
 GROUP 2: ATOMIC WORKER CLAIMING & CONCURRENCY
   - 4 concurrent workers claimed 20 jobs with zero double claims: PASSED
@@ -225,24 +251,36 @@ GROUP 3: RETRIES, BACKOFF & PERMANENT ERROR CLASSIFICATION
   - Successful recovery on attempt 3: PASSED
   - PermanentJobError immediately marked FAILED: PASSED
   - Manual retry resetting status and bumping fencing token: PASSED
+  - State Transition: Manual retry of RUNNING job rejected: PASSED
+  - State Transition: Manual retry of COMPLETED job rejected: PASSED
+  - State Transition: Cancellation of COMPLETED job rejected: PASSED
 
 GROUP 4: CRASH RECOVERY, LEASE EXPIRY & FENCING PROTECTION
   - Expired worker lease reclaimed by recovery daemon: PASSED
-  - Worker B claimed recovered job with updated fencingToken: PASSED
+  - Worker B claimed recovered job with updated fencingToken = 3: PASSED
   - Fencing protection: Stale Worker A rejected from overwriting newer claim: PASSED
-  - Worker B completes job successfully: PASSED
+  - Legitimate Worker B successfully completed job with active lease: PASSED
+  - Separate-Process crash test: Worker claimed job, killed ungracefully via SIGKILL: PASSED
+  - Separate-Process recovery: Reclaimed abandoned job, restarted Worker B claimed with fencingToken = 3: PASSED
+  - Separate-Process fencing: Stale killed child worker completion rejected (0 rows updated): PASSED
+  - Separate-Process: Worker B completed job legitimately with active fencing token: PASSED
 
 GROUP 5: SCHEDULER LIFECYCLE & DEDUPLICATION
   - Future scheduled job ignored before runAt: PASSED
   - Overdue job claimed immediately: PASSED
-  - Scheduler starts and stops cleanly: PASSED
+  - Scheduler starts cleanly: PASSED
+  - Scheduler stops gracefully without errors: PASSED
 
 GROUP 6: REAL JOB HANDLERS (SSRF & SHARP)
-  - Blocked all 8 private/metadata SSRF targets: PASSED
-  - SSRF attempt marked as permanent FAILED: PASSED
+  - Blocked all 12 private/metadata SSRF targets: PASSED
+  - Direct SSRF attempt resulted in permanent FAILED job state: PASSED
+  - Malicious 302 redirect to metadata endpoint blocked and failed permanently: PASSED
   - Valid webhook delivered to mock destination: PASSED
-  - Sharp PNG-to-WebP conversion with true dimensions and bytes: PASSED
-  - Corrupted buffer rejected without fabricated bytes: PASSED
+  - Authoritative DEPLOYMENT_VERIFY BUILD_FAILED marked FAILED with evidence: PASSED
+  - Authoritative DEPLOYMENT_VERIFY RECONCILIATION_REQUIRED marked DEGRADED with evidence: PASSED
+  - Authoritative DEPLOYMENT_VERIFY verified deployment marked HEALTHY with snapshot evidence: PASSED
+  - Real Sharp converted PNG to WebP, persisted to disk, and recorded in DB: PASSED
+  - Corrupted image buffer rejected honestly without fabricated bytes: PASSED
 
 GROUP 7: OPERATIONS MONITORING & RECOVERY API
   - GET /jobs/metrics aggregates: PASSED
@@ -251,14 +289,17 @@ GROUP 7: OPERATIONS MONITORING & RECOVERY API
   - POST /jobs/:id/retry with audit trail: PASSED
   - Non-SuperAdmin HTTP 403 authorization guard: PASSED
 
-GROUP 8: BROWSER OPERATIONS E2E (PLAYWRIGHT)
-  - Located failed job in Super Admin UI: PASSED
-  - Clicked Retry and verified optimistic UI transition to QUEUED: PASSED
-  - Confirmed database status updated to QUEUED: PASSED
+GROUP 8: BROWSER OPERATIONS E2E (REAL REACT DASHBOARD VIA PLAYWRIGHT)
+  - Mounted real React Super Admin Dashboard: PASSED
+  - Navigated to Jobs tab and verified Background Worker Job Queue table rendered: PASSED
+  - Located failed background job in real React table: PASSED
+  - Clicked Retry in React UI, verified feedback banner and DB status updated to QUEUED: PASSED
+  - Clicked Cancel in React UI with confirmation dialog, verified feedback banner and DB status CANCELLED: PASSED
+  - RoleRoute redirected regular user away from /super-admin to non-privileged view: PASSED
 
 =================================================================
 PHASE 14 BACKGROUND JOBS & QUEUE WORKERS TEST SUMMARY
-TOTAL PASSED: 34 | TOTAL FAILED: 0
+TOTAL PASSED: 53 | TOTAL FAILED: 0
 =================================================================
 ```
 

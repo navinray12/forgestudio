@@ -80,10 +80,13 @@ export async function enqueueJob(
   const maxAttempts = options.maxAttempts ?? 3;
   const correlationId = options.correlationId || crypto.randomUUID();
 
-  // 1. Idempotency Check: if idempotencyKey is provided, return existing job
+  // 1. Idempotency Check: if idempotencyKey is provided, return existing job scoped to tenant
   if (options.idempotencyKey) {
-    const existing = await (prisma as any).backgroundJob.findUnique({
-      where: { idempotencyKey: options.idempotencyKey },
+    const existing = await (prisma as any).backgroundJob.findFirst({
+      where: {
+        idempotencyKey: options.idempotencyKey,
+        tenantId: options.tenantId || null,
+      },
     });
     if (existing) {
       return existing;
@@ -109,10 +112,13 @@ export async function enqueueJob(
     });
     return job;
   } catch (err: any) {
-    // If concurrent insert raced on unique idempotencyKey, return the Winner's record
+    // If concurrent insert raced on tenant-scoped idempotencyKey, return the existing record
     if (options.idempotencyKey && (err?.code === "P2002" || err?.message?.includes("idempotencyKey"))) {
-      const existing = await (prisma as any).backgroundJob.findUnique({
-        where: { idempotencyKey: options.idempotencyKey },
+      const existing = await (prisma as any).backgroundJob.findFirst({
+        where: {
+          idempotencyKey: options.idempotencyKey,
+          tenantId: options.tenantId || null,
+        },
       });
       if (existing) return existing;
     }
@@ -159,7 +165,9 @@ export async function listJobs(filters: {
 }
 
 /**
- * Cancel an eligible job
+ * Cancel an eligible job atomically.
+ * Only jobs in QUEUED or RUNNING states can be cancelled.
+ * Completed jobs are strictly rejected.
  */
 export async function cancelJob(
   jobId: string,
@@ -169,10 +177,7 @@ export async function cancelJob(
     throw new AppError("jobId is required to cancel job", 400, "INVALID_JOB_ID");
   }
 
-  const existing = await (prisma as any).backgroundJob.findUnique({
-    where: { id: jobId },
-  });
-
+  const existing = await getJobById(jobId);
   if (!existing) {
     throw new AppError(`Job ${jobId} not found`, 404, "JOB_NOT_FOUND");
   }
@@ -184,56 +189,107 @@ export async function cancelJob(
     throw new AppError("Cannot cancel job that has already completed", 400, "JOB_ALREADY_COMPLETED");
   }
 
-  const now = new Date();
-  const updated = await (prisma as any).backgroundJob.update({
-    where: { id: jobId },
-    data: {
-      status: "CANCELLED",
-      lastError: reason ? `Cancelled: ${reason}` : "Cancelled by operator",
-      completedAt: now,
-      updatedAt: now,
-    },
-  });
+  const cancelReason = reason ? `Cancelled: ${reason}` : "Cancelled by operator";
 
-  return { success: true, job: updated };
+  // Conditional atomic state update: strictly transitions from QUEUED or RUNNING to CANCELLED
+  const rows: any[] = await prisma.$queryRawUnsafe(
+    `
+    UPDATE "background_jobs"
+    SET
+      "status" = 'CANCELLED',
+      "lastError" = $1,
+      "completedAt" = (NOW() AT TIME ZONE 'UTC'),
+      "workerId" = NULL,
+      "fencingToken" = "fencingToken" + 1,
+      "updatedAt" = (NOW() AT TIME ZONE 'UTC')
+    WHERE "id"::text = $2
+      AND "status" IN ('QUEUED', 'RUNNING')
+    RETURNING *;
+    `,
+    cancelReason,
+    jobId
+  );
+
+  if (rows.length === 0) {
+    const latest = await getJobById(jobId);
+    if (latest?.status === "CANCELLED") {
+      return { success: true, job: latest, alreadyCancelled: true };
+    }
+    if (latest?.status === "COMPLETED") {
+      throw new AppError("Cannot cancel job that has already completed", 400, "JOB_ALREADY_COMPLETED");
+    }
+    throw new AppError(`Cannot cancel job ${jobId} in status: ${latest?.status}`, 400, "INVALID_STATE_TRANSITION");
+  }
+
+  return { success: true, job: rows[0] };
 }
 
 /**
- * Retry an existing failed or cancelled job
+ * Retry an existing failed or cancelled job.
+ * RUNNING or COMPLETED jobs are strictly forbidden from being manually retried.
+ * Performs a conditional atomic update to eliminate race conditions.
  */
 export async function retryJob(jobId: string) {
   if (!jobId) {
     throw new AppError("jobId is required", 400, "INVALID_JOB_ID");
   }
 
-  const existing = await (prisma as any).backgroundJob.findUnique({
-    where: { id: jobId },
-  });
-
+  const existing = await getJobById(jobId);
   if (!existing) {
     throw new AppError(`Job ${jobId} not found`, 404, "JOB_NOT_FOUND");
   }
 
+  if (existing.status === "RUNNING") {
+    throw new AppError(
+      "Cannot retry a RUNNING job. It is currently being processed by an active worker.",
+      400,
+      "INVALID_STATE_TRANSITION"
+    );
+  }
   if (existing.status === "COMPLETED") {
-    throw new AppError("Cannot retry a job that has already completed successfully", 400, "INVALID_STATE_TRANSITION");
+    throw new AppError(
+      "Cannot retry a job that has already completed successfully",
+      400,
+      "INVALID_STATE_TRANSITION"
+    );
   }
 
-  const now = new Date();
-  const job = await (prisma as any).backgroundJob.update({
-    where: { id: jobId },
-    data: {
-      status: "QUEUED",
-      attempts: 0,
-      lastError: null,
-      runAt: now,
-      completedAt: null,
-      workerId: null,
-      fencingToken: (existing.fencingToken || 0) + 1,
-      updatedAt: now,
-    },
-  });
+  // Conditional atomic update: strictly transitions from FAILED or CANCELLED to QUEUED
+  const rows: any[] = await prisma.$queryRawUnsafe(
+    `
+    UPDATE "background_jobs"
+    SET
+      "status" = 'QUEUED',
+      "attempts" = 0,
+      "lastError" = NULL,
+      "runAt" = (NOW() AT TIME ZONE 'UTC'),
+      "completedAt" = NULL,
+      "workerId" = NULL,
+      "fencingToken" = "fencingToken" + 1,
+      "updatedAt" = (NOW() AT TIME ZONE 'UTC')
+    WHERE "id"::text = $1
+      AND "status" IN ('FAILED', 'CANCELLED')
+    RETURNING *;
+    `,
+    jobId
+  );
 
-  return job;
+  if (rows.length === 0) {
+    const latest = await getJobById(jobId);
+    if (latest?.status === "RUNNING") {
+      throw new AppError(
+        "Cannot retry a RUNNING job. It is currently being processed by an active worker.",
+        400,
+        "INVALID_STATE_TRANSITION"
+      );
+    }
+    if (latest?.status === "COMPLETED") {
+      throw new AppError("Cannot retry a job that has already completed successfully", 400, "INVALID_STATE_TRANSITION");
+    }
+    return latest;
+  }
+
+  return rows[0];
 }
 
 export async function purgeCompletedJobs(): Promise<{ purgedCount: number }> {
@@ -339,6 +395,7 @@ export async function reclaimAbandonedJobs(): Promise<number> {
         END,
         "completedAt" = CASE WHEN "attempts" + 1 >= "maxAttempts" THEN (NOW() AT TIME ZONE 'UTC') ELSE NULL END,
         "workerId" = NULL,
+        "fencingToken" = "fencingToken" + 1,
         "runAt" = (NOW() AT TIME ZONE 'UTC'),
         "updatedAt" = (NOW() AT TIME ZONE 'UTC')
       WHERE "status" = 'RUNNING' AND "leaseExpiresAt" < (NOW() AT TIME ZONE 'UTC')
@@ -346,13 +403,19 @@ export async function reclaimAbandonedJobs(): Promise<number> {
       `
     );
     return rows.length;
-  } catch {
+  } catch (err: any) {
+    console.error("[JobWorker] Abandoned job recovery error:", err?.message || err);
     return 0;
   }
 }
 
 /**
- * Process next job from queue with atomic claiming and lease management
+ * Process next job from queue with atomic claiming and lease management.
+ *
+ * Invariant Note:
+ * External side effects (e.g. webhooks, third-party provider mutations) require idempotency
+ * and cooperative cancellation, because dispatched network side-effects cannot be rolled back
+ * solely via database transactions if a worker crashes or loses its lease mid-flight.
  */
 export async function processNextJob(
   filter?: { id?: string; type?: string },
@@ -375,11 +438,18 @@ export async function processNextJob(
   inFlightJobCount++;
 
   // 3. Setup periodic heartbeat / lease renewal during handler execution
+  let leaseLost = false;
   const heartbeatIntervalMs = Math.max(1000, Math.floor(leaseDurationMs / 3));
   let renewalTimer: NodeJS.Timeout | null = setInterval(async () => {
     try {
-      await renewJobLease(job.id, workerId, job.fencingToken, leaseDurationMs);
-    } catch {}
+      const renewed = await renewJobLease(job.id, workerId, job.fencingToken, leaseDurationMs);
+      if (!renewed) {
+        leaseLost = true;
+        console.warn(`[JobWorker ${workerId}] Lost lease for job ${job.id} (fencingToken ${job.fencingToken})`);
+      }
+    } catch (heartbeatErr: any) {
+      console.error(`[JobWorker ${workerId}] Heartbeat renewal error for job ${job.id}:`, heartbeatErr?.message || heartbeatErr);
+    }
   }, heartbeatIntervalMs);
 
   const cleanupTimer = () => {
@@ -420,7 +490,19 @@ export async function processNextJob(
 
     cleanupTimer();
 
-    // 7. Atomic complete with fencing token & worker verification
+    // 7. Check if heartbeat reported lease loss during execution
+    if (leaseLost) {
+      inFlightJobCount = Math.max(0, inFlightJobCount - 1);
+      return {
+        processed: true,
+        job,
+        result,
+        staleOrStolen: true,
+        error: "Worker lost ownership lease during execution",
+      };
+    }
+
+    // 8. Atomic complete with fencing token & worker verification
     const completed = await markJobCompleted(job, workerId);
     inFlightJobCount = Math.max(0, inFlightJobCount - 1);
 
