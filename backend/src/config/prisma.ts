@@ -81,6 +81,35 @@ export async function validateDatabaseSchema(): Promise<void> {
   }
   try {
     await prisma.$executeRawUnsafe(`
+      ALTER TABLE "websites" ADD COLUMN IF NOT EXISTS "moderationStatus" VARCHAR(50) DEFAULT 'ACTIVE';
+      ALTER TABLE "websites" ADD COLUMN IF NOT EXISTS "moderationReason" TEXT;
+      ALTER TABLE "websites" ADD COLUMN IF NOT EXISTS "moderatedAt" TIMESTAMPTZ(6);
+      ALTER TABLE "websites" ADD COLUMN IF NOT EXISTS "moderatedBy" UUID;
+      ALTER TABLE "websites" ADD COLUMN IF NOT EXISTS "version" INTEGER DEFAULT 1;
+    `);
+  } catch (e: any) {
+    console.log("Migration check websites moderation columns:", e?.message || e);
+  }
+  try {
+    await prisma.$executeRawUnsafe(`
+      ALTER TABLE "audit_logs" ADD COLUMN IF NOT EXISTS "actorRole" VARCHAR(50);
+      ALTER TABLE "audit_logs" ADD COLUMN IF NOT EXISTS "result" VARCHAR(20) DEFAULT 'SUCCESS';
+      ALTER TABLE "audit_logs" ADD COLUMN IF NOT EXISTS "reason" TEXT;
+      ALTER TABLE "audit_logs" ADD COLUMN IF NOT EXISTS "correlationId" VARCHAR(100);
+    `);
+  } catch (e: any) {
+    console.log("Migration check audit_logs columns:", e?.message || e);
+  }
+  try {
+    await prisma.$executeRawUnsafe(`
+      ALTER TABLE "developer_api_keys" ADD COLUMN IF NOT EXISTS "maskedKey" TEXT;
+      ALTER TABLE "developer_api_keys" ADD COLUMN IF NOT EXISTS "expiresAt" TIMESTAMPTZ(6);
+    `);
+  } catch (e: any) {
+    console.log("Migration check developer_api_keys columns:", e?.message || e);
+  }
+  try {
+    await prisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "payment_webhook_events" (
         "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         "eventId" VARCHAR(255) UNIQUE NOT NULL,
