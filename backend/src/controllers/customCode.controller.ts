@@ -1,172 +1,21 @@
-import { Request, Response } from 'express';
-import { prisma } from '../config/prisma.js';
-import * as acorn from 'acorn';
+import {templateById,templateConfigurationError} from '../services/code-manager-templates.js';
+import type {Request,Response} from 'express';
+import {prisma} from '../config/prisma.js';
+import {canUserAccessResource} from '../services/permission.service.js';
+import {snippetCreate,snippetUpdate,javascriptError} from '../services/custom-code-input.js';
+import {z} from 'zod';
+const db=prisma as any;
+async function allowed(res:Response,websiteId:string){if(await canUserAccessResource(res.locals.user.id,websiteId,'*','CUSTOM_CODE'))return true;res.status(403).json({success:false,message:'You do not have permission to manage custom code for this website.'});return false;}
+async function publishAllowed(res:Response,websiteId:string,status:string){if(!['PUBLISHED','SCHEDULED'].includes(status)||await canUserAccessResource(res.locals.user.id,websiteId,'*','PUBLISH'))return true;res.status(403).json({message:'Publishing permission is required to change live or scheduled custom code.'});return false;}
+function failure(res:Response,error:any){if(error?.code==='P2025'){res.status(409).json({success:false,message:'This snippet changed. Refresh before trying again.'});return;}res.status(503).json({success:false,message:'Custom code is temporarily unavailable. Please try again.'});}
+export async function getCustomCodeSnippets(req:Request,res:Response){try{const websiteId=req.params.websiteId as string;if(!z.uuid().safeParse(websiteId).success)return res.status(400).json({message:'Invalid website ID.'});if(!await allowed(res,websiteId))return;return res.json({success:true,snippets:await db.customCodeSnippet.findMany({where:{websiteId},orderBy:{createdAt:'asc'}})});}catch(e){failure(res,e);}}
+export async function createCustomCodeSnippet(req:Request,res:Response){try{const websiteId=req.params.websiteId as string;if(!z.uuid().safeParse(websiteId).success)return res.status(400).json({message:'Invalid website ID.'});if(!await allowed(res,websiteId))return;const parsed=snippetCreate.safeParse(req.body);if(!parsed.success)return res.status(400).json({message:'Check title, code, language, location and snippet options.'});const {expectedUpdatedAt,templateId,...input}=parsed.data;if(!await publishAllowed(res,websiteId,input.status||'DRAFT'))return;const template=templateId?templateById(templateId):null;if(templateId&&!template)return res.status(400).json({message:'Unknown code template.'});const configError=input.isActive===false?null:templateConfigurationError(input.code,input.status||'DRAFT');if(configError)return res.status(400).json({message:configError});const syntax=javascriptError(input.language,input.code);if(syntax)return res.status(400).json({message:syntax});if(input.scope==='PAGE'&&!input.pageId)return res.status(400).json({message:'A page is required for page-scoped code.'});if(input.status==='SCHEDULED'&&!input.scheduledFor)return res.status(400).json({message:'A schedule is required.'});
+// Store aliases used by older editor clients without rewriting existing records.
+const snippet=await db.$transaction(async(tx:any)=>{const created=await tx.customCodeSnippet.create({data:{...input,websiteId,name:input.title,codeType:input.language,location:input.placement,status:input.status||'DRAFT',isDraft:!input.status||input.status==='DRAFT',isEnabled:input.isActive??true,scheduledFor:input.scheduledFor?new Date(input.scheduledFor):null}});if(template)await tx.$executeRaw`INSERT INTO dashboard_code_snippet_metadata ("snippetId",source,"templateId") VALUES (${created.id}::uuid,${template.source},${template.id})`;return created;});return res.status(201).json({success:true,snippet});}catch(e){failure(res,e);}}
+export async function updateCustomCodeSnippet(req:Request,res:Response){try{const id=req.params.id as string;if(!z.uuid().safeParse(id).success)return res.status(400).json({message:'Invalid snippet ID.'});const existing=await db.customCodeSnippet.findUnique({where:{id}});if(!existing)return res.status(404).json({message:'Snippet not found.'});if(!await allowed(res,existing.websiteId))return;const parsed=snippetUpdate.safeParse(req.body);if(!parsed.success)return res.status(400).json({message:'Check the snippet fields and try again.'});const {expectedUpdatedAt,templateId,...input}=parsed.data;const merged={...existing,...input};if(!await publishAllowed(res,existing.websiteId,existing.status)||!await publishAllowed(res,existing.websiteId,merged.status))return;if(templateId)return res.status(400).json({message:'Template origin cannot be changed.'});const configError=merged.isActive===false?null:templateConfigurationError(merged.code,merged.status);if(configError)return res.status(400).json({message:configError});const syntax=javascriptError(merged.language,merged.code);if(syntax)return res.status(400).json({message:syntax});if(merged.scope==='PAGE'&&!merged.pageId)return res.status(400).json({message:'A page is required for page-scoped code.'});if(merged.status==='SCHEDULED'&&!merged.scheduledFor)return res.status(400).json({message:'A schedule is required.'});if(expectedUpdatedAt&&new Date(expectedUpdatedAt).getTime()!==existing.updatedAt.getTime())return res.status(409).json({message:'This snippet changed. Close this form and refresh before editing again.'});
+const snippet=await db.$transaction(async(tx:any)=>{
+// Compare the version read above even for older clients, preventing overlapping writes.
+const result=await tx.customCodeSnippet.updateMany({where:{id,updatedAt:existing.updatedAt},data:{...input,...(input.title!==undefined?{name:input.title}:{}),...(input.language!==undefined?{codeType:input.language}:{}),...(input.placement!==undefined?{location:input.placement}:{}),...(input.status!==undefined?{isDraft:input.status==='DRAFT'}:{}),...(input.isActive!==undefined?{isEnabled:input.isActive}:{}),...(input.scheduledFor!==undefined?{scheduledFor:input.scheduledFor?new Date(input.scheduledFor):null}:{})}});if(!result.count)throw Object.assign(new Error('conflict'),{code:'P2025'});if(input.code!==undefined&&input.code!==existing.code)await tx.customCodeRevision.create({data:{snippetId:id,code:existing.code,authorId:res.locals.user.id}});return tx.customCodeSnippet.findUnique({where:{id}});});return res.json({success:true,snippet});}catch(e){failure(res,e);}}
+export async function deleteCustomCodeSnippet(req:Request,res:Response){try{const id=req.params.id as string;if(!z.uuid().safeParse(id).success)return res.status(400).json({message:'Invalid snippet ID.'});const existing=await db.customCodeSnippet.findUnique({where:{id}});if(!existing)return res.status(404).json({message:'Snippet not found.'});if(!await allowed(res,existing.websiteId))return;if(!await publishAllowed(res,existing.websiteId,existing.status))return;await db.customCodeSnippet.delete({where:{id}});return res.json({success:true,message:'Snippet deleted.'});}catch(e){failure(res,e);}}
 
-export const getCustomCodeSnippets = async (req: Request, res: Response) => {
-    try {
-        const { websiteId } = req.params;
-
-        if (!websiteId) {
-            return res.status(400).json({ success: false, message: 'Website ID is required' });
-        }
-
-        const customCodeSnippetModel = (prisma as any)?.customCodeSnippet;
-        if (!customCodeSnippetModel) {
-            return res.status(200).json({ success: true, snippets: [] });
-        }
-
-        const snippets = await customCodeSnippetModel.findMany({
-            where: {
-                websiteId: websiteId as string,
-                // Ensure implicit verification that user has access to website
-                website: {
-                    userId: res.locals.user?.id
-                }
-            },
-            orderBy: {
-                createdAt: 'asc'
-            }
-        });
-
-        res.status(200).json({ success: true, snippets });
-    } catch (error) {
-        console.error('Error fetching custom code snippets:', error);
-        res.status(500).json({ success: false, message: 'Internal server error' });
-    }
-};
-
-export const createCustomCodeSnippet = async (req: Request, res: Response) => {
-    try {
-        const { websiteId } = req.params;
-        const { title, language, code, placement, scope, pageId, isActive, conditions, priority, status, scheduledFor } = req.body;
-
-        if (!websiteId || !title || !language || !placement) {
-            return res.status(400).json({ success: false, message: 'Missing required parameters' });
-        }
-
-        if (language === 'JS' && code) {
-            try {
-                acorn.parse(code, { ecmaVersion: 2020 });
-            } catch (err: any) {
-                return res.status(400).json({ success: false, message: 'Syntax Error in JavaScript code: ' + err.message });
-            }
-        }
-
-        // Verify website ownership
-        const website = await prisma.website.findUnique({
-            where: { id: websiteId as string }
-        });
-
-        if (!website || website.userId !== res.locals.user?.id) {
-            return res.status(403).json({ success: false, message: 'Unauthorized access to website' });
-        }
-
-        const customCodeSnippetModel = (prisma as any)?.customCodeSnippet;
-        if (!customCodeSnippetModel) {
-            return res.status(500).json({ success: false, message: 'Custom code model not initialized' });
-        }
-
-        const newSnippet = await customCodeSnippetModel.create({
-            data: {
-                websiteId: websiteId as string,
-                title,
-                language,
-                code: code || "",
-                placement,
-                scope: scope || "GLOBAL",
-                pageId: pageId || null,
-                conditions: conditions || null,
-                priority: priority || 0,
-                status: status || "DRAFT",
-                scheduledFor: scheduledFor ? new Date(scheduledFor) : null,
-                isActive: isActive !== undefined ? isActive : true
-            }
-        });
-
-        res.status(201).json({ success: true, snippet: newSnippet });
-    } catch (error) {
-        console.error('Error creating custom code snippet:', error);
-        res.status(500).json({ success: false, message: 'Internal server error' });
-    }
-};
-
-export const updateCustomCodeSnippet = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params;
-        const { title, language, code, placement, scope, pageId, isActive, conditions, priority, status, scheduledFor } = req.body;
-
-        if (language === 'JS' && code) {
-            try {
-                acorn.parse(code, { ecmaVersion: 2020 });
-            } catch (err: any) {
-                return res.status(400).json({ success: false, message: 'Syntax Error in JavaScript code: ' + err.message });
-            }
-        }
-
-        const customCodeSnippetModel = (prisma as any)?.customCodeSnippet;
-        if (!customCodeSnippetModel) {
-            return res.status(500).json({ success: false, message: 'Custom code model not initialized' });
-        }
-
-        // Verify snippet exists and user owns it via website
-        const existingSnippet = await customCodeSnippetModel.findUnique({
-            where: { id: id as string },
-            include: { website: true }
-        });
-
-        if (!existingSnippet || existingSnippet.website.userId !== res.locals.user?.id) {
-            return res.status(403).json({ success: false, message: 'Unauthorized or snippet not found' });
-        }
-
-        const updatedSnippet = await customCodeSnippetModel.update({
-            where: { id: id as string },
-            data: {
-                title: title !== undefined ? title : existingSnippet.title,
-                language: language !== undefined ? language : existingSnippet.language,
-                code: code !== undefined ? code : existingSnippet.code,
-                placement: placement !== undefined ? placement : existingSnippet.placement,
-                scope: scope !== undefined ? scope : existingSnippet.scope,
-                pageId: pageId !== undefined ? pageId : existingSnippet.pageId,
-                conditions: conditions !== undefined ? conditions : existingSnippet.conditions,
-                priority: priority !== undefined ? priority : existingSnippet.priority,
-                status: status !== undefined ? status : existingSnippet.status,
-                scheduledFor: scheduledFor !== undefined ? (scheduledFor ? new Date(scheduledFor) : null) : existingSnippet.scheduledFor,
-                isActive: isActive !== undefined ? isActive : existingSnippet.isActive
-            }
-        });
-
-        res.status(200).json({ success: true, snippet: updatedSnippet });
-    } catch (error) {
-        console.error('Error updating custom code snippet:', error);
-        res.status(500).json({ success: false, message: 'Internal server error' });
-    }
-};
-
-export const deleteCustomCodeSnippet = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params;
-
-        const customCodeSnippetModel = (prisma as any)?.customCodeSnippet;
-        if (!customCodeSnippetModel) {
-            return res.status(500).json({ success: false, message: 'Custom code model not initialized' });
-        }
-
-        const existingSnippet = await customCodeSnippetModel.findUnique({
-            where: { id: id as string },
-            include: { website: true }
-        });
-
-        if (!existingSnippet || existingSnippet.website.userId !== res.locals.user?.id) {
-            return res.status(403).json({ success: false, message: 'Unauthorized or snippet not found' });
-        }
-
-        await customCodeSnippetModel.delete({
-            where: { id: id as string }
-        });
-
-        res.status(200).json({ success: true, message: 'Snippet deleted successfully' });
-    } catch (error) {
-        console.error('Error deleting custom code snippet:', error);
-        res.status(500).json({ success: false, message: 'Internal server error' });
-    }
-};
+export async function getManagerSnippets(req:Request,res:Response){try{const websiteId=req.params.websiteId as string;if(!z.uuid().safeParse(websiteId).success)return res.status(400).json({message:'Invalid website ID.'});if(!await allowed(res,websiteId))return;const snippets=await db.customCodeSnippet.findMany({where:{websiteId},orderBy:{createdAt:'asc'},include:{_count:{select:{revisions:true}}}});const metadata=await db.$queryRaw`SELECT m.* FROM dashboard_code_snippet_metadata m JOIN custom_code_snippets s ON s.id=m."snippetId" WHERE s."websiteId"=${websiteId}::uuid`;const sources=new Map(metadata.map((m:any)=>[m.snippetId,m]));return res.json({success:true,snippets:snippets.map((s:any)=>({...s,source:(sources.get(s.id) as any)?.source||'CUSTOM',templateId:(sources.get(s.id) as any)?.templateId||null,revisionCount:s._count.revisions}))});}catch(e){failure(res,e);}}

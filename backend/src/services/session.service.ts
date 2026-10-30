@@ -1,3 +1,5 @@
+import {dashboardSecurity} from './dashboard-security.js';
+import {AppError} from '../utils/app-error.js';
 import { prisma } from "../config/prisma.js";
 import {
   generateSessionToken,
@@ -8,37 +10,17 @@ import {
   createSession,
 } from "../repositories/session.repository.js";
 
-const SESSION_DURATION_DAYS = 30;
-
 export async function createUserSession(
-  userId: string
+  userId: string, userAgent = ''
 ) {
-  const rawToken = generateSessionToken();
-
-  const tokenHash = hashSessionToken(rawToken);
-
-  const expiresAt = new Date();
-
-  expiresAt.setDate(
-    expiresAt.getDate() + SESSION_DURATION_DAYS
-  );
-
-  await createSession({
-    userId,
-    tokenHash,
-    expiresAt,
-  });
-
-  return {
-    token: rawToken,
-    expiresAt,
-  };
+  return dashboardSecurity.issueSession(userId, userAgent);
 }
 
 export async function createSupportSession(
   userId: string,
   durationMinutes: number = 120
 ) {
+  if(await dashboardSecurity.needsFactor(userId))throw new AppError('Temporary support access is unavailable while authenticator 2FA is enabled.',403,'TWO_FACTOR_REQUIRED');
   const rawToken = `supp_${generateSessionToken()}`;
   const tokenHash = hashSessionToken(rawToken);
 

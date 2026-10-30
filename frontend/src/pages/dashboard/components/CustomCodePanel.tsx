@@ -1,186 +1,29 @@
-import React, { useState, useEffect } from "react";
-
-const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
-
-type Placement = "HEAD" | "BODY_START" | "BODY_END";
-type Language = "JS" | "CSS" | "HTML";
-
-interface CustomCodeEntry {
-    id: string;
-    websiteId: string;
-    placement: Placement;
-    language: Language;
-    code: string;
-    title: string;
-    isActive: boolean;
-    createdAt: string;
-}
-
-export default function CustomCodePanel() {
-    const [entries, setEntries] = useState<CustomCodeEntry[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [websites, setWebsites] = useState<any[]>([]);
-    const [selectedSite, setSelectedSite] = useState<string>("");
-    const [showForm, setShowForm] = useState(false);
-    const [form, setForm] = useState({ title: "", placement: "HEAD" as Placement, language: "HTML" as Language, code: "" });
-    const [saving, setSaving] = useState(false);
-
-    useEffect(() => { fetchWebsites(); }, []);
-    useEffect(() => { if (selectedSite) fetchEntries(); }, [selectedSite]);
-
-    const fetchWebsites = async () => {
-        try {
-            const res = await fetch(`${apiUrl}/api/websites`, { credentials: "include" });
-            const data = await res.json();
-            if (res.ok && data.websites) {
-                setWebsites(data.websites);
-                if (data.websites.length > 0) setSelectedSite(data.websites[0].id);
-            }
-        } catch { setError("Could not load websites."); }
-    };
-
-    const fetchEntries = async () => {
-        setLoading(true); setError(null);
-        try {
-            const res = await fetch(`${apiUrl}/api/custom-code/website/${selectedSite}`, { credentials: "include" });
-            const data = await res.json();
-            if (res.ok) setEntries(data.snippets || []);
-            else setError(data?.message || "Failed to load custom code.");
-        } catch { setError("Network error loading custom code."); }
-        finally { setLoading(false); }
-    };
-
-    const handleSave = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!form.code.trim()) return;
-        setSaving(true);
-        try {
-            const payload = {
-                title: form.title || "Untitled Snippet",
-                placement: form.placement,
-                language: form.language,
-                code: form.code,
-                status: "PUBLISHED",
-                isActive: true,
-            };
-
-            const res = await fetch(`${apiUrl}/api/custom-code/website/${selectedSite}`, {
-                method: "POST", credentials: "include",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-            });
-
-            const data = await res.json();
-            if (res.ok) {
-                setShowForm(false);
-                setForm({ title: "", placement: "HEAD", language: "HTML", code: "" });
-                fetchEntries();
-            } else {
-                setError(data?.message || "Failed to save.");
-            }
-        } catch { setError("Network error."); }
-        finally { setSaving(false); }
-    };
-
-    const handleDelete = async (id: string) => {
-        if (!confirm("Delete this code snippet?")) return;
-        try {
-            const res = await fetch(`${apiUrl}/api/custom-code/${id}`, {
-                method: "DELETE", credentials: "include",
-            });
-            if (res.ok) setEntries((prev) => prev.filter((e) => e.id !== id));
-            else alert("Failed to delete snippet.");
-        } catch { alert("Network error deleting snippet."); }
-    };
-
-    const PLACEMENTS: { value: Placement; label: string; color: string }[] = [
-        { value: "HEAD", label: "<head>", color: "bg-violet-100 text-violet-700" },
-        { value: "BODY_START", label: "<body> start", color: "bg-sky-100 text-sky-700" },
-        { value: "BODY_END", label: "</body> end", color: "bg-amber-100 text-amber-700" },
-    ];
-
-    return (
-        <div className="space-y-6">
-            <div className="flex items-start justify-between">
-                <div>
-                    <h2 className="text-xl font-bold text-slate-900">Custom Code Injector</h2>
-                    <p className="text-sm text-slate-500 mt-1">Inject global scripts, styles, or HTML snippets into your sites.</p>
-                </div>
-                <div className="flex gap-2">
-                    {websites.length > 1 && (
-                        <select value={selectedSite} onChange={(e) => setSelectedSite(e.target.value)} className="h-9 rounded-xl border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 shadow-sm focus:outline-none">
-                            {websites.map((w) => <option key={w.id} value={w.id}>{w.name}</option>)}
-                        </select>
-                    )}
-                    <button onClick={() => setShowForm(true)} className="inline-flex h-9 items-center gap-2 rounded-xl bg-slate-900 px-4 text-xs font-bold text-white shadow hover:bg-slate-700 transition">+ Add Snippet</button>
-                </div>
-            </div>
-
-            {error && <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold text-red-700">{error}</div>}
-
-            {showForm && (
-                <form onSubmit={handleSave} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
-                    <h3 className="text-sm font-bold text-slate-800">New Code Snippet</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div>
-                            <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-500 mb-1">Title</label>
-                            <input type="text" value={form.title} onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))} placeholder="e.g. Google Analytics" className="h-9 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-300" />
-                        </div>
-                        <div>
-                            <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-500 mb-1">Language</label>
-                            <select value={form.language} onChange={(e) => setForm((p) => ({ ...p, language: e.target.value as Language }))} className="h-9 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs font-semibold text-slate-800 focus:outline-none">
-                                <option value="HTML">HTML (Scripts, tags)</option>
-                                <option value="JS">JavaScript</option>
-                                <option value="CSS">CSS</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-500 mb-1">Location</label>
-                            <select value={form.placement} onChange={(e) => setForm((p) => ({ ...p, placement: e.target.value as Placement }))} className="h-9 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs font-semibold text-slate-800 focus:outline-none">
-                                {PLACEMENTS.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
-                            </select>
-                        </div>
-                    </div>
-                    <div>
-                        <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-500 mb-1">Code snippet</label>
-                        <textarea value={form.code} onChange={(e) => setForm((p) => ({ ...p, code: e.target.value }))} rows={6} placeholder="<script>...</script>" className="w-full rounded-xl border border-slate-200 bg-[#1E1E1E] text-slate-300 px-4 py-3 text-xs font-mono leading-relaxed focus:outline-none focus:ring-2 focus:ring-indigo-500" required />
-                    </div>
-                    <div className="flex justify-end gap-3 pt-2">
-                        <button type="button" onClick={() => setShowForm(false)} className="h-9 px-4 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 transition">Cancel</button>
-                        <button type="submit" disabled={saving} className="h-9 px-5 rounded-xl bg-slate-900 text-xs font-bold text-white hover:bg-slate-700 transition disabled:opacity-50">{saving ? "Saving…" : "Save Snippet"}</button>
-                    </div>
-                </form>
-            )}
-
-            {loading ? (
-                <div className="text-xs text-slate-400 font-semibold text-center py-12">Loading snippets…</div>
-            ) : entries.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16 rounded-2xl border border-dashed border-slate-200 bg-slate-50 text-center">
-                    <div className="text-3xl mb-3">⚡</div>
-                    <p className="text-sm font-bold text-slate-700">No custom code yet</p>
-                    <p className="text-xs text-slate-400 mt-1">Easily inject global scripts and styles into your site.</p>
-                </div>
-            ) : (
-                <div className="space-y-3">
-                    {entries.map((entry) => {
-                        const placeMeta = PLACEMENTS.find(p => p.value === entry.placement) || PLACEMENTS[0];
-                        return (
-                            <div key={entry.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm flex items-start justify-between gap-4 transition-all">
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <span className="text-sm font-bold text-slate-800 truncate">{entry.title}</span>
-                                        <span className="rounded bg-slate-100 text-slate-600 px-2 py-0.5 text-[10px] font-bold">{entry.language}</span>
-                                        <span className={`rounded px-2 py-0.5 text-[10px] font-bold ${placeMeta.color}`}>{placeMeta.label}</span>
-                                    </div>
-                                    <pre className="text-[11px] font-mono text-slate-500 truncate max-w-full overflow-hidden">{entry.code.slice(0, 150)}{entry.code.length > 150 ? "…" : ""}</pre>
-                                </div>
-                                <button onClick={() => handleDelete(entry.id)} className="shrink-0 h-7 px-3 rounded-lg border border-red-200 text-[11px] font-bold text-red-500 hover:bg-red-50 transition">Delete</button>
-                            </div>
-                        );
-                    })}
-                </div>
-            )}
-        </div>
-    );
+import {useEffect,useRef,useState} from 'react';
+import type {FormEvent} from 'react';
+import {CodeXml,Plus,Zap,Pencil,Power,RefreshCw} from 'lucide-react';
+import DeveloperToolsShell from './DeveloperToolsShell';
+import './CustomCodePanel.css';
+const base=(import.meta.env.VITE_API_URL||'http://localhost:5000').replace(/\/$/,'');
+type Site={id:string;name:string};
+type Entry={id:string;websiteId:string;title:string|null;name?:string|null;language:string;placement:string;code:string;status:string;isActive:boolean;updatedAt:string};
+type Draft={title:string;language:string;placement:string;code:string;status:string};
+const empty:Draft={title:'',language:'HTML',placement:'HEAD',code:'',status:'DRAFT'};
+async function request(path:string,options:RequestInit={}){const r=await fetch(`${base}/api/${path}`,{...options,credentials:'include'});const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.message||d.error?.message||'Request failed. Please try again.');return d;}
+export default function CustomCodePanel(){
+ const [sites,setSites]=useState<Site[]>([]),[selected,setSelected]=useState(''),[sitesLoading,setSitesLoading]=useState(true),[sitesError,setSitesError]=useState(''),[revision,reload]=useState(0),[entries,setEntries]=useState<Entry[]>([]),[loading,setLoading]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState(''),[formError,setFormError]=useState(''),[form,setForm]=useState<Draft>({...empty}),[editing,setEditing]=useState<Entry|null>(null),[open,setOpen]=useState(false),[saving,setSaving]=useState(false),[acting,setActing]=useState<string|null>(null);
+ const dialog=useRef<HTMLDialogElement>(null),add=useRef<HTMLButtonElement>(null);
+ async function loadSites(){setSitesLoading(true);setSitesError('');try{const data=await request('websites');const list=data.websites||[];setSites(list);setSelected(current=>list.some((s:Site)=>s.id===current)?current:list[0]?.id||'');}catch(e){setSitesError((e as Error).message);}finally{setSitesLoading(false);}}
+ useEffect(()=>{void loadSites();},[]);
+ useEffect(()=>{setEntries([]);setError('');if(!selected){setLoading(false);return;}const controller=new AbortController();setLoading(true);request(`custom-code/website/${selected}`,{signal:controller.signal}).then(d=>{if(!controller.signal.aborted)setEntries(d.snippets||[]);}).catch(e=>{if(!controller.signal.aborted)setError(e.message);}).finally(()=>{if(!controller.signal.aborted)setLoading(false);});return()=>controller.abort();},[selected,revision]);
+ useEffect(()=>{if(open)dialog.current?.showModal();else dialog.current?.close();},[open]);
+ const title=(entry:Entry)=>entry.title||entry.name||'Untitled snippet';
+ function start(entry?:Entry){setEditing(entry||null);setForm(entry?{title:title(entry),language:entry.language,placement:entry.placement,code:entry.code,status:entry.status}:{...empty});setFormError('');setOpen(true);}
+ function close(){if(saving)return;setOpen(false);setFormError('');add.current?.focus();}
+ async function save(e:FormEvent){e.preventDefault();if(!selected||saving)return;setSaving(true);setFormError('');try{await request(editing?`custom-code/${editing.id}`:`custom-code/website/${selected}`,{method:editing?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...form,title:form.title.trim(),...(!editing?{isActive:true}:{expectedUpdatedAt:editing.updatedAt})})});setOpen(false);setNotice('Snippet saved.');reload(v=>v+1);add.current?.focus();}catch(e){setFormError((e as Error).message);}finally{setSaving(false);}}
+ async function toggle(entry:Entry){setActing(entry.id);setError('');try{await request(`custom-code/${entry.id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({isActive:!entry.isActive,expectedUpdatedAt:entry.updatedAt})});setNotice(entry.isActive?'Snippet deactivated. Its code is preserved.':'Snippet activated.');reload(v=>v+1);}catch(e){setError((e as Error).message);}finally{setActing(null);}}
+ return <DeveloperToolsShell active="custom-code"><main className="dev-api-main custom-code-main"><div className="custom-code-kicker"><span><Zap size={23}/></span><h1>Custom <em>Code</em></h1></div><header className="custom-code-heading"><div><h2>Custom Code Injector</h2><p>Inject global scripts, styles, or HTML snippets into your sites.</p></div><div className="custom-code-controls"><select aria-label="Website" value={selected} disabled={sitesLoading||open||acting!==null} onChange={e=>{setSelected(e.target.value);setNotice('');}}>{sitesLoading?<option>Loading websites...</option>:!sites.length?<option value="">No websites available</option>:sites.map(site=><option key={site.id} value={site.id}>{site.name}</option>)}</select><button ref={add} className="dev-api-primary" onClick={()=>start()} disabled={!selected||sitesLoading||!!sitesError||loading||!!error}><Plus size={20}/>Add Snippet</button></div></header>
+ {sitesError&&<div role="alert" className="custom-code-error">{sitesError}<button onClick={()=>void loadSites()}>Retry websites</button></div>}{error&&<div role="alert" className="custom-code-error">{error}<button onClick={()=>reload(v=>v+1)}>Retry snippets</button></div>}{notice&&<p className="custom-code-notice" role="status">{notice}</p>}
+ <section className={`custom-code-surface ${!entries.length?'is-empty':''}`} aria-label="Custom code snippets" aria-busy={sitesLoading||loading}>{sitesLoading||loading?<p className="custom-code-state" role="status">Loading custom code...</p>:sitesError||error?<p className="custom-code-state">Custom code could not be loaded. Please retry above.</p>:!selected?<div className="custom-code-empty"><CodeXml size={42}/><h3>No websites yet</h3><p>Create a website in your dashboard to add custom code.</p><a href="/dashboard">Go to dashboard</a></div>:!entries.length?<div className="custom-code-empty"><div className="custom-code-illustration" aria-hidden="true"><small><i/><i/><i/><span>script.js</span></small><strong>&gt;_ &lt;&gt;</strong><b/></div><h3>No <em>custom code</em> yet</h3><p>Easily inject global scripts and styles into your site.</p></div>:<div className="custom-code-list"><div className="custom-code-list-heading"><span>{entries.length} snippet{entries.length===1?'':'s'}</span><button aria-label="Refresh snippets" disabled={acting!==null} onClick={()=>reload(v=>v+1)}><RefreshCw size={15}/>Refresh</button></div>{entries.map(entry=><article className="custom-code-card" key={entry.id}><div className="custom-code-card-heading"><div><h3>{title(entry)}</h3><div className="custom-code-tags"><span>{entry.language}</span><span>{entry.placement}</span><span>{entry.status}</span><span className={entry.isActive?'enabled':'disabled'}>{entry.isActive?'Active':'Inactive'}</span></div></div><div className="custom-code-card-actions"><button disabled={acting!==null} onClick={()=>start(entry)} aria-label={`Edit ${title(entry)}`}><Pencil size={15}/>Edit</button><button disabled={acting!==null} onClick={()=>void toggle(entry)} aria-label={`${entry.isActive?'Deactivate':'Activate'} ${title(entry)}`}><Power size={15}/>{acting===entry.id?'Saving...':entry.isActive?'Deactivate':'Activate'}</button></div></div><pre>{entry.code.slice(0,400)}{entry.code.length>400?'...':''}</pre></article>)}</div>}</section>
+ <dialog ref={dialog} className="custom-code-dialog" onCancel={e=>{e.preventDefault();close();}} onClose={()=>{if(!saving)setOpen(false);}}><form onSubmit={save}><header><h2>{editing?'Edit Code Snippet':'New Code Snippet'}</h2><button type="button" onClick={close} disabled={saving} aria-label="Close snippet form">Close</button></header><p>Choose Draft to save without running code on your published site.</p>{formError&&<div role="alert" className="custom-code-error">{formError}</div>}<fieldset disabled={saving}><label>Title<input autoFocus aria-label="Snippet title" required maxLength={150} value={form.title} onChange={e=>setForm({...form,title:e.target.value})}/></label><div className="custom-code-form-options"><label>Language<select aria-label="Language" value={form.language} onChange={e=>setForm({...form,language:e.target.value})}><option value="HTML">HTML</option><option value="CSS">CSS</option><option value="JS">JavaScript</option></select></label><label>Location<select aria-label="Location" value={form.placement} onChange={e=>setForm({...form,placement:e.target.value})}><option value="HEAD">&lt;head&gt;</option><option value="BODY_START">&lt;body&gt; start</option><option value="BODY_END">&lt;/body&gt; end</option>{['BODY_TOP','BODY_BOTTOM'].includes(form.placement)&&<option value={form.placement}>{form.placement}</option>}</select></label><label>Status<select aria-label="Snippet status" value={form.status} onChange={e=>setForm({...form,status:e.target.value})}><option value="DRAFT">Draft</option><option value="PUBLISHED">Published</option>{form.status==='SCHEDULED'&&<option value="SCHEDULED">Scheduled</option>}</select></label></div><label>Code snippet<textarea aria-label="Code snippet" required maxLength={200000} spellCheck={false} rows={12} value={form.code} onChange={e=>setForm({...form,code:e.target.value})}/></label></fieldset><footer><button type="button" onClick={close} disabled={saving}>Cancel</button><button className="dev-api-primary" disabled={saving||!form.title.trim()||!form.code.trim()}>{saving?'Saving...':'Save Snippet'}</button></footer></form></dialog>
+ </main></DeveloperToolsShell>;
 }

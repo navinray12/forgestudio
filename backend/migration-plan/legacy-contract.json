@@ -1,0 +1,3007 @@
+{
+  "migration": "20260929000000_complete_legacy_core",
+  "checksum": "8c2298897091d349b9944dbad7ee7c569370941da00a74a12c86d06d7b0c55d6",
+  "columns": [
+    {
+      "table_name": "audit_logs",
+      "column_name": "id",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "audit_logs",
+      "column_name": "userId",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "audit_logs",
+      "column_name": "action",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "audit_logs",
+      "column_name": "targetResource",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "audit_logs",
+      "column_name": "details",
+      "data_type": "jsonb",
+      "udt_name": "jsonb",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "audit_logs",
+      "column_name": "ipAddress",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "audit_logs",
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "component_accesses",
+      "column_name": "id",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "component_accesses",
+      "column_name": "websiteId",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "component_accesses",
+      "column_name": "componentId",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "component_accesses",
+      "column_name": "elementId",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": "''::text",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "component_accesses",
+      "column_name": "userId",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "component_accesses",
+      "column_name": "permission",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": "'VIEW'::text",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "component_accesses",
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "component_accesses",
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_code_revisions",
+      "column_name": "id",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_code_revisions",
+      "column_name": "snippetId",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_code_revisions",
+      "column_name": "code",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_code_revisions",
+      "column_name": "authorId",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_code_revisions",
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_code_snippets",
+      "column_name": "id",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_code_snippets",
+      "column_name": "websiteId",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_code_snippets",
+      "column_name": "name",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_code_snippets",
+      "column_name": "title",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_code_snippets",
+      "column_name": "language",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": "'JS'::text",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_code_snippets",
+      "column_name": "codeType",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": "'JS'::text",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_code_snippets",
+      "column_name": "code",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_code_snippets",
+      "column_name": "placement",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": "'HEAD'::text",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_code_snippets",
+      "column_name": "location",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": "'HEAD'::text",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_code_snippets",
+      "column_name": "scope",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": "'GLOBAL'::text",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_code_snippets",
+      "column_name": "pageId",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_code_snippets",
+      "column_name": "conditions",
+      "data_type": "jsonb",
+      "udt_name": "jsonb",
+      "is_nullable": "YES",
+      "column_default": "'[]'::jsonb",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_code_snippets",
+      "column_name": "priority",
+      "data_type": "integer",
+      "udt_name": "int4",
+      "is_nullable": "NO",
+      "column_default": "10",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_code_snippets",
+      "column_name": "status",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": "'PUBLISHED'::text",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_code_snippets",
+      "column_name": "scheduledFor",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_code_snippets",
+      "column_name": "isEnabled",
+      "data_type": "boolean",
+      "udt_name": "bool",
+      "is_nullable": "NO",
+      "column_default": "true",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_code_snippets",
+      "column_name": "isActive",
+      "data_type": "boolean",
+      "udt_name": "bool",
+      "is_nullable": "NO",
+      "column_default": "true",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_code_snippets",
+      "column_name": "isDraft",
+      "data_type": "boolean",
+      "udt_name": "bool",
+      "is_nullable": "NO",
+      "column_default": "false",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_code_snippets",
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_code_snippets",
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_entries",
+      "column_name": "id",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_entries",
+      "column_name": "postTypeId",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_entries",
+      "column_name": "title",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_entries",
+      "column_name": "slug",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_entries",
+      "column_name": "data",
+      "data_type": "jsonb",
+      "udt_name": "jsonb",
+      "is_nullable": "NO",
+      "column_default": "'{}'::jsonb",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_entries",
+      "column_name": "status",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": "'PUBLISHED'::text",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_entries",
+      "column_name": "authorId",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_entries",
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_entries",
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_fields",
+      "column_name": "id",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_fields",
+      "column_name": "postTypeId",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_fields",
+      "column_name": "name",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_fields",
+      "column_name": "slug",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_fields",
+      "column_name": "type",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": "'text'::text",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_fields",
+      "column_name": "order",
+      "data_type": "integer",
+      "udt_name": "int4",
+      "is_nullable": "NO",
+      "column_default": "0",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_fields",
+      "column_name": "config",
+      "data_type": "jsonb",
+      "udt_name": "jsonb",
+      "is_nullable": "NO",
+      "column_default": "'{}'::jsonb",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_fields",
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_fields",
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_post_types",
+      "column_name": "id",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_post_types",
+      "column_name": "websiteId",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_post_types",
+      "column_name": "name",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_post_types",
+      "column_name": "slug",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_post_types",
+      "column_name": "description",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_post_types",
+      "column_name": "supports",
+      "data_type": "jsonb",
+      "udt_name": "jsonb",
+      "is_nullable": "NO",
+      "column_default": "'[\"title\", \"editor\", \"thumbnail\"]'::jsonb",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_post_types",
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "custom_post_types",
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "design_notes",
+      "column_name": "id",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "design_notes",
+      "column_name": "websiteId",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "design_notes",
+      "column_name": "elementId",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "design_notes",
+      "column_name": "authorId",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "design_notes",
+      "column_name": "content",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "design_notes",
+      "column_name": "resolved",
+      "data_type": "boolean",
+      "udt_name": "bool",
+      "is_nullable": "NO",
+      "column_default": "false",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "design_notes",
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "design_notes",
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "developer_api_keys",
+      "column_name": "id",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "developer_api_keys",
+      "column_name": "userId",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "developer_api_keys",
+      "column_name": "name",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "developer_api_keys",
+      "column_name": "tokenHash",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "developer_api_keys",
+      "column_name": "scopes",
+      "data_type": "jsonb",
+      "udt_name": "jsonb",
+      "is_nullable": "NO",
+      "column_default": "'[\"websites:read\"]'::jsonb",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "developer_api_keys",
+      "column_name": "lastUsedAt",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "developer_api_keys",
+      "column_name": "revokedAt",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "developer_api_keys",
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "developer_api_keys",
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "form_submissions",
+      "column_name": "id",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "form_submissions",
+      "column_name": "websiteId",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "form_submissions",
+      "column_name": "formId",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "form_submissions",
+      "column_name": "data",
+      "data_type": "jsonb",
+      "udt_name": "jsonb",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "form_submissions",
+      "column_name": "ipAddress",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "form_submissions",
+      "column_name": "status",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": "'NEW'::text",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "form_submissions",
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "multisite_networks",
+      "column_name": "id",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "multisite_networks",
+      "column_name": "name",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "multisite_networks",
+      "column_name": "domain",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "multisite_networks",
+      "column_name": "networkType",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": "'SUBDIRECTORY'::text",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "multisite_networks",
+      "column_name": "config",
+      "data_type": "jsonb",
+      "udt_name": "jsonb",
+      "is_nullable": "NO",
+      "column_default": "'{}'::jsonb",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "multisite_networks",
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "multisite_networks",
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "plugin_compatibilities",
+      "column_name": "id",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "plugin_compatibilities",
+      "column_name": "name",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "plugin_compatibilities",
+      "column_name": "slug",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "plugin_compatibilities",
+      "column_name": "category",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "plugin_compatibilities",
+      "column_name": "compatibilityStatus",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": "'SUPPORTED'::text",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "plugin_compatibilities",
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "plugin_compatibilities",
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "plugin_integrations",
+      "column_name": "id",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "plugin_integrations",
+      "column_name": "websiteId",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "plugin_integrations",
+      "column_name": "pluginSlug",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "plugin_integrations",
+      "column_name": "config",
+      "data_type": "jsonb",
+      "udt_name": "jsonb",
+      "is_nullable": "NO",
+      "column_default": "'{}'::jsonb",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "plugin_integrations",
+      "column_name": "isEnabled",
+      "data_type": "boolean",
+      "udt_name": "bool",
+      "is_nullable": "NO",
+      "column_default": "true",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "plugin_integrations",
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "plugin_integrations",
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "sftp_connections",
+      "column_name": "id",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "sftp_connections",
+      "column_name": "websiteId",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "sftp_connections",
+      "column_name": "host",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "sftp_connections",
+      "column_name": "port",
+      "data_type": "integer",
+      "udt_name": "int4",
+      "is_nullable": "NO",
+      "column_default": "22",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "sftp_connections",
+      "column_name": "username",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "sftp_connections",
+      "column_name": "remotePath",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": "'/var/www/html'::text",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "sftp_connections",
+      "column_name": "isActive",
+      "data_type": "boolean",
+      "udt_name": "bool",
+      "is_nullable": "NO",
+      "column_default": "true",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "sftp_connections",
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "sftp_connections",
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "subscription_plans",
+      "column_name": "id",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "subscription_plans",
+      "column_name": "name",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "subscription_plans",
+      "column_name": "slug",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "subscription_plans",
+      "column_name": "price",
+      "data_type": "integer",
+      "udt_name": "int4",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "subscription_plans",
+      "column_name": "currency",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": "'INR'::text",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "subscription_plans",
+      "column_name": "billingInterval",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": "'monthly'::text",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "subscription_plans",
+      "column_name": "websiteLimit",
+      "data_type": "integer",
+      "udt_name": "int4",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "subscription_plans",
+      "column_name": "storageLimitMb",
+      "data_type": "integer",
+      "udt_name": "int4",
+      "is_nullable": "NO",
+      "column_default": "100",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "subscription_plans",
+      "column_name": "aiCreditLimit",
+      "data_type": "integer",
+      "udt_name": "int4",
+      "is_nullable": "NO",
+      "column_default": "0",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "subscription_plans",
+      "column_name": "features",
+      "data_type": "jsonb",
+      "udt_name": "jsonb",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "subscription_plans",
+      "column_name": "isActive",
+      "data_type": "boolean",
+      "udt_name": "bool",
+      "is_nullable": "NO",
+      "column_default": "true",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "subscription_plans",
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "subscription_plans",
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "templates",
+      "column_name": "id",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "templates",
+      "column_name": "userId",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "templates",
+      "column_name": "name",
+      "data_type": "character varying",
+      "udt_name": "varchar",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 255
+    },
+    {
+      "table_name": "templates",
+      "column_name": "description",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "templates",
+      "column_name": "type",
+      "data_type": "character varying",
+      "udt_name": "varchar",
+      "is_nullable": "NO",
+      "column_default": "'PAGE'::character varying",
+      "character_maximum_length": 50
+    },
+    {
+      "table_name": "templates",
+      "column_name": "templateData",
+      "data_type": "jsonb",
+      "udt_name": "jsonb",
+      "is_nullable": "NO",
+      "column_default": "'{\"elements\": [], \"pageSettings\": {}}'::jsonb",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "templates",
+      "column_name": "createdAt",
+      "data_type": "timestamp with time zone",
+      "udt_name": "timestamptz",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "templates",
+      "column_name": "updatedAt",
+      "data_type": "timestamp with time zone",
+      "udt_name": "timestamptz",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "templates",
+      "column_name": "category",
+      "data_type": "character varying",
+      "udt_name": "varchar",
+      "is_nullable": "NO",
+      "column_default": "'Other'::character varying",
+      "character_maximum_length": 100
+    },
+    {
+      "table_name": "templates",
+      "column_name": "isFavorite",
+      "data_type": "boolean",
+      "udt_name": "bool",
+      "is_nullable": "NO",
+      "column_default": "false",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "templates",
+      "column_name": "isShared",
+      "data_type": "boolean",
+      "udt_name": "bool",
+      "is_nullable": "NO",
+      "column_default": "false",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "templates",
+      "column_name": "shareToken",
+      "data_type": "character varying",
+      "udt_name": "varchar",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": 255
+    },
+    {
+      "table_name": "theme_location_rules",
+      "column_name": "id",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "theme_location_rules",
+      "column_name": "websiteId",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "theme_location_rules",
+      "column_name": "locationType",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "theme_location_rules",
+      "column_name": "templateId",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "theme_location_rules",
+      "column_name": "conditions",
+      "data_type": "jsonb",
+      "udt_name": "jsonb",
+      "is_nullable": "NO",
+      "column_default": "'[]'::jsonb",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "theme_location_rules",
+      "column_name": "isActive",
+      "data_type": "boolean",
+      "udt_name": "bool",
+      "is_nullable": "NO",
+      "column_default": "true",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "theme_location_rules",
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "theme_location_rules",
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "user_subscriptions",
+      "column_name": "id",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "user_subscriptions",
+      "column_name": "userId",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "user_subscriptions",
+      "column_name": "planId",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "user_subscriptions",
+      "column_name": "status",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": "'ACTIVE'::text",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "user_subscriptions",
+      "column_name": "currentPeriodStart",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "user_subscriptions",
+      "column_name": "currentPeriodEnd",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "user_subscriptions",
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "user_subscriptions",
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "website_collaborators",
+      "column_name": "id",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "website_collaborators",
+      "column_name": "websiteId",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "website_collaborators",
+      "column_name": "userId",
+      "data_type": "uuid",
+      "udt_name": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "website_collaborators",
+      "column_name": "permission",
+      "data_type": "text",
+      "udt_name": "text",
+      "is_nullable": "NO",
+      "column_default": "'EDITOR'::text",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "website_collaborators",
+      "column_name": "createdAt",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "website_collaborators",
+      "column_name": "updatedAt",
+      "data_type": "timestamp without time zone",
+      "udt_name": "timestamp",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    }
+  ],
+  "constraints": [
+    {
+      "conname": "audit_logs_action_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "audit_logs",
+      "definition": "NOT NULL action"
+    },
+    {
+      "conname": "audit_logs_createdAt_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "audit_logs",
+      "definition": "NOT NULL \"createdAt\""
+    },
+    {
+      "conname": "audit_logs_id_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "audit_logs",
+      "definition": "NOT NULL id"
+    },
+    {
+      "conname": "audit_logs_pkey",
+      "contype": "p",
+      "convalidated": true,
+      "table_name": "audit_logs",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "conname": "audit_logs_targetResource_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "audit_logs",
+      "definition": "NOT NULL \"targetResource\""
+    },
+    {
+      "conname": "audit_logs_userId_fkey",
+      "contype": "f",
+      "convalidated": true,
+      "table_name": "audit_logs",
+      "definition": "FOREIGN KEY (\"userId\") REFERENCES users(id) ON UPDATE CASCADE ON DELETE SET NULL"
+    },
+    {
+      "conname": "component_accesses_componentId_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "component_accesses",
+      "definition": "NOT NULL \"componentId\""
+    },
+    {
+      "conname": "component_accesses_createdAt_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "component_accesses",
+      "definition": "NOT NULL \"createdAt\""
+    },
+    {
+      "conname": "component_accesses_elementId_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "component_accesses",
+      "definition": "NOT NULL \"elementId\""
+    },
+    {
+      "conname": "component_accesses_id_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "component_accesses",
+      "definition": "NOT NULL id"
+    },
+    {
+      "conname": "component_accesses_permission_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "component_accesses",
+      "definition": "NOT NULL permission"
+    },
+    {
+      "conname": "component_accesses_pkey",
+      "contype": "p",
+      "convalidated": true,
+      "table_name": "component_accesses",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "conname": "component_accesses_updatedAt_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "component_accesses",
+      "definition": "NOT NULL \"updatedAt\""
+    },
+    {
+      "conname": "component_accesses_userId_fkey",
+      "contype": "f",
+      "convalidated": true,
+      "table_name": "component_accesses",
+      "definition": "FOREIGN KEY (\"userId\") REFERENCES users(id) ON UPDATE CASCADE ON DELETE SET NULL"
+    },
+    {
+      "conname": "component_accesses_websiteId_fkey",
+      "contype": "f",
+      "convalidated": true,
+      "table_name": "component_accesses",
+      "definition": "FOREIGN KEY (\"websiteId\") REFERENCES websites(id) ON UPDATE CASCADE ON DELETE CASCADE"
+    },
+    {
+      "conname": "component_accesses_websiteId_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "component_accesses",
+      "definition": "NOT NULL \"websiteId\""
+    },
+    {
+      "conname": "custom_code_revisions_authorId_fkey",
+      "contype": "f",
+      "convalidated": true,
+      "table_name": "custom_code_revisions",
+      "definition": "FOREIGN KEY (\"authorId\") REFERENCES users(id) ON UPDATE CASCADE ON DELETE SET NULL"
+    },
+    {
+      "conname": "custom_code_revisions_code_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_code_revisions",
+      "definition": "NOT NULL code"
+    },
+    {
+      "conname": "custom_code_revisions_createdAt_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_code_revisions",
+      "definition": "NOT NULL \"createdAt\""
+    },
+    {
+      "conname": "custom_code_revisions_id_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_code_revisions",
+      "definition": "NOT NULL id"
+    },
+    {
+      "conname": "custom_code_revisions_pkey",
+      "contype": "p",
+      "convalidated": true,
+      "table_name": "custom_code_revisions",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "conname": "custom_code_revisions_snippetId_fkey",
+      "contype": "f",
+      "convalidated": true,
+      "table_name": "custom_code_revisions",
+      "definition": "FOREIGN KEY (\"snippetId\") REFERENCES custom_code_snippets(id) ON UPDATE CASCADE ON DELETE CASCADE"
+    },
+    {
+      "conname": "custom_code_revisions_snippetId_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_code_revisions",
+      "definition": "NOT NULL \"snippetId\""
+    },
+    {
+      "conname": "custom_code_snippets_codeType_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_code_snippets",
+      "definition": "NOT NULL \"codeType\""
+    },
+    {
+      "conname": "custom_code_snippets_code_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_code_snippets",
+      "definition": "NOT NULL code"
+    },
+    {
+      "conname": "custom_code_snippets_createdAt_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_code_snippets",
+      "definition": "NOT NULL \"createdAt\""
+    },
+    {
+      "conname": "custom_code_snippets_id_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_code_snippets",
+      "definition": "NOT NULL id"
+    },
+    {
+      "conname": "custom_code_snippets_isActive_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_code_snippets",
+      "definition": "NOT NULL \"isActive\""
+    },
+    {
+      "conname": "custom_code_snippets_isDraft_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_code_snippets",
+      "definition": "NOT NULL \"isDraft\""
+    },
+    {
+      "conname": "custom_code_snippets_isEnabled_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_code_snippets",
+      "definition": "NOT NULL \"isEnabled\""
+    },
+    {
+      "conname": "custom_code_snippets_language_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_code_snippets",
+      "definition": "NOT NULL language"
+    },
+    {
+      "conname": "custom_code_snippets_location_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_code_snippets",
+      "definition": "NOT NULL location"
+    },
+    {
+      "conname": "custom_code_snippets_pkey",
+      "contype": "p",
+      "convalidated": true,
+      "table_name": "custom_code_snippets",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "conname": "custom_code_snippets_placement_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_code_snippets",
+      "definition": "NOT NULL placement"
+    },
+    {
+      "conname": "custom_code_snippets_priority_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_code_snippets",
+      "definition": "NOT NULL priority"
+    },
+    {
+      "conname": "custom_code_snippets_scope_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_code_snippets",
+      "definition": "NOT NULL scope"
+    },
+    {
+      "conname": "custom_code_snippets_status_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_code_snippets",
+      "definition": "NOT NULL status"
+    },
+    {
+      "conname": "custom_code_snippets_updatedAt_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_code_snippets",
+      "definition": "NOT NULL \"updatedAt\""
+    },
+    {
+      "conname": "custom_code_snippets_websiteId_fkey",
+      "contype": "f",
+      "convalidated": true,
+      "table_name": "custom_code_snippets",
+      "definition": "FOREIGN KEY (\"websiteId\") REFERENCES websites(id) ON UPDATE CASCADE ON DELETE CASCADE"
+    },
+    {
+      "conname": "custom_code_snippets_websiteId_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_code_snippets",
+      "definition": "NOT NULL \"websiteId\""
+    },
+    {
+      "conname": "custom_entries_authorId_fkey",
+      "contype": "f",
+      "convalidated": true,
+      "table_name": "custom_entries",
+      "definition": "FOREIGN KEY (\"authorId\") REFERENCES users(id) ON UPDATE CASCADE ON DELETE SET NULL"
+    },
+    {
+      "conname": "custom_entries_createdAt_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_entries",
+      "definition": "NOT NULL \"createdAt\""
+    },
+    {
+      "conname": "custom_entries_data_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_entries",
+      "definition": "NOT NULL data"
+    },
+    {
+      "conname": "custom_entries_id_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_entries",
+      "definition": "NOT NULL id"
+    },
+    {
+      "conname": "custom_entries_pkey",
+      "contype": "p",
+      "convalidated": true,
+      "table_name": "custom_entries",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "conname": "custom_entries_postTypeId_fkey",
+      "contype": "f",
+      "convalidated": true,
+      "table_name": "custom_entries",
+      "definition": "FOREIGN KEY (\"postTypeId\") REFERENCES custom_post_types(id) ON UPDATE CASCADE ON DELETE CASCADE"
+    },
+    {
+      "conname": "custom_entries_postTypeId_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_entries",
+      "definition": "NOT NULL \"postTypeId\""
+    },
+    {
+      "conname": "custom_entries_status_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_entries",
+      "definition": "NOT NULL status"
+    },
+    {
+      "conname": "custom_entries_title_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_entries",
+      "definition": "NOT NULL title"
+    },
+    {
+      "conname": "custom_entries_updatedAt_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_entries",
+      "definition": "NOT NULL \"updatedAt\""
+    },
+    {
+      "conname": "custom_fields_config_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_fields",
+      "definition": "NOT NULL config"
+    },
+    {
+      "conname": "custom_fields_createdAt_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_fields",
+      "definition": "NOT NULL \"createdAt\""
+    },
+    {
+      "conname": "custom_fields_id_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_fields",
+      "definition": "NOT NULL id"
+    },
+    {
+      "conname": "custom_fields_name_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_fields",
+      "definition": "NOT NULL name"
+    },
+    {
+      "conname": "custom_fields_order_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_fields",
+      "definition": "NOT NULL \"order\""
+    },
+    {
+      "conname": "custom_fields_pkey",
+      "contype": "p",
+      "convalidated": true,
+      "table_name": "custom_fields",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "conname": "custom_fields_postTypeId_fkey",
+      "contype": "f",
+      "convalidated": true,
+      "table_name": "custom_fields",
+      "definition": "FOREIGN KEY (\"postTypeId\") REFERENCES custom_post_types(id) ON UPDATE CASCADE ON DELETE CASCADE"
+    },
+    {
+      "conname": "custom_fields_postTypeId_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_fields",
+      "definition": "NOT NULL \"postTypeId\""
+    },
+    {
+      "conname": "custom_fields_slug_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_fields",
+      "definition": "NOT NULL slug"
+    },
+    {
+      "conname": "custom_fields_type_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_fields",
+      "definition": "NOT NULL type"
+    },
+    {
+      "conname": "custom_fields_updatedAt_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_fields",
+      "definition": "NOT NULL \"updatedAt\""
+    },
+    {
+      "conname": "custom_post_types_createdAt_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_post_types",
+      "definition": "NOT NULL \"createdAt\""
+    },
+    {
+      "conname": "custom_post_types_id_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_post_types",
+      "definition": "NOT NULL id"
+    },
+    {
+      "conname": "custom_post_types_name_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_post_types",
+      "definition": "NOT NULL name"
+    },
+    {
+      "conname": "custom_post_types_pkey",
+      "contype": "p",
+      "convalidated": true,
+      "table_name": "custom_post_types",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "conname": "custom_post_types_slug_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_post_types",
+      "definition": "NOT NULL slug"
+    },
+    {
+      "conname": "custom_post_types_supports_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_post_types",
+      "definition": "NOT NULL supports"
+    },
+    {
+      "conname": "custom_post_types_updatedAt_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_post_types",
+      "definition": "NOT NULL \"updatedAt\""
+    },
+    {
+      "conname": "custom_post_types_websiteId_fkey",
+      "contype": "f",
+      "convalidated": true,
+      "table_name": "custom_post_types",
+      "definition": "FOREIGN KEY (\"websiteId\") REFERENCES websites(id) ON UPDATE CASCADE ON DELETE CASCADE"
+    },
+    {
+      "conname": "custom_post_types_websiteId_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "custom_post_types",
+      "definition": "NOT NULL \"websiteId\""
+    },
+    {
+      "conname": "design_notes_authorId_fkey",
+      "contype": "f",
+      "convalidated": true,
+      "table_name": "design_notes",
+      "definition": "FOREIGN KEY (\"authorId\") REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE"
+    },
+    {
+      "conname": "design_notes_authorId_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "design_notes",
+      "definition": "NOT NULL \"authorId\""
+    },
+    {
+      "conname": "design_notes_content_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "design_notes",
+      "definition": "NOT NULL content"
+    },
+    {
+      "conname": "design_notes_createdAt_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "design_notes",
+      "definition": "NOT NULL \"createdAt\""
+    },
+    {
+      "conname": "design_notes_id_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "design_notes",
+      "definition": "NOT NULL id"
+    },
+    {
+      "conname": "design_notes_pkey",
+      "contype": "p",
+      "convalidated": true,
+      "table_name": "design_notes",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "conname": "design_notes_resolved_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "design_notes",
+      "definition": "NOT NULL resolved"
+    },
+    {
+      "conname": "design_notes_updatedAt_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "design_notes",
+      "definition": "NOT NULL \"updatedAt\""
+    },
+    {
+      "conname": "design_notes_websiteId_fkey",
+      "contype": "f",
+      "convalidated": true,
+      "table_name": "design_notes",
+      "definition": "FOREIGN KEY (\"websiteId\") REFERENCES websites(id) ON UPDATE CASCADE ON DELETE CASCADE"
+    },
+    {
+      "conname": "design_notes_websiteId_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "design_notes",
+      "definition": "NOT NULL \"websiteId\""
+    },
+    {
+      "conname": "developer_api_keys_createdAt_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "developer_api_keys",
+      "definition": "NOT NULL \"createdAt\""
+    },
+    {
+      "conname": "developer_api_keys_id_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "developer_api_keys",
+      "definition": "NOT NULL id"
+    },
+    {
+      "conname": "developer_api_keys_name_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "developer_api_keys",
+      "definition": "NOT NULL name"
+    },
+    {
+      "conname": "developer_api_keys_pkey",
+      "contype": "p",
+      "convalidated": true,
+      "table_name": "developer_api_keys",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "conname": "developer_api_keys_scopes_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "developer_api_keys",
+      "definition": "NOT NULL scopes"
+    },
+    {
+      "conname": "developer_api_keys_tokenHash_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "developer_api_keys",
+      "definition": "NOT NULL \"tokenHash\""
+    },
+    {
+      "conname": "developer_api_keys_updatedAt_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "developer_api_keys",
+      "definition": "NOT NULL \"updatedAt\""
+    },
+    {
+      "conname": "developer_api_keys_userId_fkey",
+      "contype": "f",
+      "convalidated": true,
+      "table_name": "developer_api_keys",
+      "definition": "FOREIGN KEY (\"userId\") REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE"
+    },
+    {
+      "conname": "developer_api_keys_userId_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "developer_api_keys",
+      "definition": "NOT NULL \"userId\""
+    },
+    {
+      "conname": "form_submissions_createdAt_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "form_submissions",
+      "definition": "NOT NULL \"createdAt\""
+    },
+    {
+      "conname": "form_submissions_data_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "form_submissions",
+      "definition": "NOT NULL data"
+    },
+    {
+      "conname": "form_submissions_formId_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "form_submissions",
+      "definition": "NOT NULL \"formId\""
+    },
+    {
+      "conname": "form_submissions_id_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "form_submissions",
+      "definition": "NOT NULL id"
+    },
+    {
+      "conname": "form_submissions_pkey",
+      "contype": "p",
+      "convalidated": true,
+      "table_name": "form_submissions",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "conname": "form_submissions_status_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "form_submissions",
+      "definition": "NOT NULL status"
+    },
+    {
+      "conname": "form_submissions_websiteId_fkey",
+      "contype": "f",
+      "convalidated": true,
+      "table_name": "form_submissions",
+      "definition": "FOREIGN KEY (\"websiteId\") REFERENCES websites(id) ON UPDATE CASCADE ON DELETE CASCADE"
+    },
+    {
+      "conname": "form_submissions_websiteId_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "form_submissions",
+      "definition": "NOT NULL \"websiteId\""
+    },
+    {
+      "conname": "multisite_networks_config_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "multisite_networks",
+      "definition": "NOT NULL config"
+    },
+    {
+      "conname": "multisite_networks_createdAt_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "multisite_networks",
+      "definition": "NOT NULL \"createdAt\""
+    },
+    {
+      "conname": "multisite_networks_domain_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "multisite_networks",
+      "definition": "NOT NULL domain"
+    },
+    {
+      "conname": "multisite_networks_id_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "multisite_networks",
+      "definition": "NOT NULL id"
+    },
+    {
+      "conname": "multisite_networks_name_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "multisite_networks",
+      "definition": "NOT NULL name"
+    },
+    {
+      "conname": "multisite_networks_networkType_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "multisite_networks",
+      "definition": "NOT NULL \"networkType\""
+    },
+    {
+      "conname": "multisite_networks_pkey",
+      "contype": "p",
+      "convalidated": true,
+      "table_name": "multisite_networks",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "conname": "multisite_networks_updatedAt_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "multisite_networks",
+      "definition": "NOT NULL \"updatedAt\""
+    },
+    {
+      "conname": "plugin_compatibilities_compatibilityStatus_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "plugin_compatibilities",
+      "definition": "NOT NULL \"compatibilityStatus\""
+    },
+    {
+      "conname": "plugin_compatibilities_createdAt_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "plugin_compatibilities",
+      "definition": "NOT NULL \"createdAt\""
+    },
+    {
+      "conname": "plugin_compatibilities_id_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "plugin_compatibilities",
+      "definition": "NOT NULL id"
+    },
+    {
+      "conname": "plugin_compatibilities_name_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "plugin_compatibilities",
+      "definition": "NOT NULL name"
+    },
+    {
+      "conname": "plugin_compatibilities_pkey",
+      "contype": "p",
+      "convalidated": true,
+      "table_name": "plugin_compatibilities",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "conname": "plugin_compatibilities_slug_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "plugin_compatibilities",
+      "definition": "NOT NULL slug"
+    },
+    {
+      "conname": "plugin_compatibilities_updatedAt_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "plugin_compatibilities",
+      "definition": "NOT NULL \"updatedAt\""
+    },
+    {
+      "conname": "plugin_integrations_config_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "plugin_integrations",
+      "definition": "NOT NULL config"
+    },
+    {
+      "conname": "plugin_integrations_createdAt_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "plugin_integrations",
+      "definition": "NOT NULL \"createdAt\""
+    },
+    {
+      "conname": "plugin_integrations_id_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "plugin_integrations",
+      "definition": "NOT NULL id"
+    },
+    {
+      "conname": "plugin_integrations_isEnabled_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "plugin_integrations",
+      "definition": "NOT NULL \"isEnabled\""
+    },
+    {
+      "conname": "plugin_integrations_pkey",
+      "contype": "p",
+      "convalidated": true,
+      "table_name": "plugin_integrations",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "conname": "plugin_integrations_pluginSlug_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "plugin_integrations",
+      "definition": "NOT NULL \"pluginSlug\""
+    },
+    {
+      "conname": "plugin_integrations_updatedAt_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "plugin_integrations",
+      "definition": "NOT NULL \"updatedAt\""
+    },
+    {
+      "conname": "plugin_integrations_websiteId_fkey",
+      "contype": "f",
+      "convalidated": true,
+      "table_name": "plugin_integrations",
+      "definition": "FOREIGN KEY (\"websiteId\") REFERENCES websites(id) ON UPDATE CASCADE ON DELETE CASCADE"
+    },
+    {
+      "conname": "plugin_integrations_websiteId_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "plugin_integrations",
+      "definition": "NOT NULL \"websiteId\""
+    },
+    {
+      "conname": "sftp_connections_createdAt_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "sftp_connections",
+      "definition": "NOT NULL \"createdAt\""
+    },
+    {
+      "conname": "sftp_connections_host_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "sftp_connections",
+      "definition": "NOT NULL host"
+    },
+    {
+      "conname": "sftp_connections_id_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "sftp_connections",
+      "definition": "NOT NULL id"
+    },
+    {
+      "conname": "sftp_connections_isActive_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "sftp_connections",
+      "definition": "NOT NULL \"isActive\""
+    },
+    {
+      "conname": "sftp_connections_pkey",
+      "contype": "p",
+      "convalidated": true,
+      "table_name": "sftp_connections",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "conname": "sftp_connections_port_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "sftp_connections",
+      "definition": "NOT NULL port"
+    },
+    {
+      "conname": "sftp_connections_remotePath_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "sftp_connections",
+      "definition": "NOT NULL \"remotePath\""
+    },
+    {
+      "conname": "sftp_connections_updatedAt_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "sftp_connections",
+      "definition": "NOT NULL \"updatedAt\""
+    },
+    {
+      "conname": "sftp_connections_username_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "sftp_connections",
+      "definition": "NOT NULL username"
+    },
+    {
+      "conname": "sftp_connections_websiteId_fkey",
+      "contype": "f",
+      "convalidated": true,
+      "table_name": "sftp_connections",
+      "definition": "FOREIGN KEY (\"websiteId\") REFERENCES websites(id) ON UPDATE CASCADE ON DELETE CASCADE"
+    },
+    {
+      "conname": "sftp_connections_websiteId_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "sftp_connections",
+      "definition": "NOT NULL \"websiteId\""
+    },
+    {
+      "conname": "subscription_plans_aiCreditLimit_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "subscription_plans",
+      "definition": "NOT NULL \"aiCreditLimit\""
+    },
+    {
+      "conname": "subscription_plans_billingInterval_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "subscription_plans",
+      "definition": "NOT NULL \"billingInterval\""
+    },
+    {
+      "conname": "subscription_plans_createdAt_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "subscription_plans",
+      "definition": "NOT NULL \"createdAt\""
+    },
+    {
+      "conname": "subscription_plans_currency_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "subscription_plans",
+      "definition": "NOT NULL currency"
+    },
+    {
+      "conname": "subscription_plans_features_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "subscription_plans",
+      "definition": "NOT NULL features"
+    },
+    {
+      "conname": "subscription_plans_id_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "subscription_plans",
+      "definition": "NOT NULL id"
+    },
+    {
+      "conname": "subscription_plans_isActive_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "subscription_plans",
+      "definition": "NOT NULL \"isActive\""
+    },
+    {
+      "conname": "subscription_plans_name_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "subscription_plans",
+      "definition": "NOT NULL name"
+    },
+    {
+      "conname": "subscription_plans_pkey",
+      "contype": "p",
+      "convalidated": true,
+      "table_name": "subscription_plans",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "conname": "subscription_plans_price_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "subscription_plans",
+      "definition": "NOT NULL price"
+    },
+    {
+      "conname": "subscription_plans_slug_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "subscription_plans",
+      "definition": "NOT NULL slug"
+    },
+    {
+      "conname": "subscription_plans_storageLimitMb_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "subscription_plans",
+      "definition": "NOT NULL \"storageLimitMb\""
+    },
+    {
+      "conname": "subscription_plans_updatedAt_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "subscription_plans",
+      "definition": "NOT NULL \"updatedAt\""
+    },
+    {
+      "conname": "subscription_plans_websiteLimit_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "subscription_plans",
+      "definition": "NOT NULL \"websiteLimit\""
+    },
+    {
+      "conname": "templates_category_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "templates",
+      "definition": "NOT NULL category"
+    },
+    {
+      "conname": "templates_createdAt_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "templates",
+      "definition": "NOT NULL \"createdAt\""
+    },
+    {
+      "conname": "templates_id_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "templates",
+      "definition": "NOT NULL id"
+    },
+    {
+      "conname": "templates_isFavorite_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "templates",
+      "definition": "NOT NULL \"isFavorite\""
+    },
+    {
+      "conname": "templates_isShared_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "templates",
+      "definition": "NOT NULL \"isShared\""
+    },
+    {
+      "conname": "templates_name_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "templates",
+      "definition": "NOT NULL name"
+    },
+    {
+      "conname": "templates_pkey",
+      "contype": "p",
+      "convalidated": true,
+      "table_name": "templates",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "conname": "templates_templateData_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "templates",
+      "definition": "NOT NULL \"templateData\""
+    },
+    {
+      "conname": "templates_type_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "templates",
+      "definition": "NOT NULL type"
+    },
+    {
+      "conname": "templates_updatedAt_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "templates",
+      "definition": "NOT NULL \"updatedAt\""
+    },
+    {
+      "conname": "templates_userId_fkey",
+      "contype": "f",
+      "convalidated": true,
+      "table_name": "templates",
+      "definition": "FOREIGN KEY (\"userId\") REFERENCES users(id) ON DELETE CASCADE"
+    },
+    {
+      "conname": "templates_userId_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "templates",
+      "definition": "NOT NULL \"userId\""
+    },
+    {
+      "conname": "theme_location_rules_conditions_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "theme_location_rules",
+      "definition": "NOT NULL conditions"
+    },
+    {
+      "conname": "theme_location_rules_createdAt_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "theme_location_rules",
+      "definition": "NOT NULL \"createdAt\""
+    },
+    {
+      "conname": "theme_location_rules_id_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "theme_location_rules",
+      "definition": "NOT NULL id"
+    },
+    {
+      "conname": "theme_location_rules_isActive_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "theme_location_rules",
+      "definition": "NOT NULL \"isActive\""
+    },
+    {
+      "conname": "theme_location_rules_locationType_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "theme_location_rules",
+      "definition": "NOT NULL \"locationType\""
+    },
+    {
+      "conname": "theme_location_rules_pkey",
+      "contype": "p",
+      "convalidated": true,
+      "table_name": "theme_location_rules",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "conname": "theme_location_rules_templateId_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "theme_location_rules",
+      "definition": "NOT NULL \"templateId\""
+    },
+    {
+      "conname": "theme_location_rules_updatedAt_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "theme_location_rules",
+      "definition": "NOT NULL \"updatedAt\""
+    },
+    {
+      "conname": "theme_location_rules_websiteId_fkey",
+      "contype": "f",
+      "convalidated": true,
+      "table_name": "theme_location_rules",
+      "definition": "FOREIGN KEY (\"websiteId\") REFERENCES websites(id) ON UPDATE CASCADE ON DELETE CASCADE"
+    },
+    {
+      "conname": "theme_location_rules_websiteId_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "theme_location_rules",
+      "definition": "NOT NULL \"websiteId\""
+    },
+    {
+      "conname": "user_subscriptions_createdAt_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "user_subscriptions",
+      "definition": "NOT NULL \"createdAt\""
+    },
+    {
+      "conname": "user_subscriptions_currentPeriodStart_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "user_subscriptions",
+      "definition": "NOT NULL \"currentPeriodStart\""
+    },
+    {
+      "conname": "user_subscriptions_id_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "user_subscriptions",
+      "definition": "NOT NULL id"
+    },
+    {
+      "conname": "user_subscriptions_pkey",
+      "contype": "p",
+      "convalidated": true,
+      "table_name": "user_subscriptions",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "conname": "user_subscriptions_planId_fkey",
+      "contype": "f",
+      "convalidated": true,
+      "table_name": "user_subscriptions",
+      "definition": "FOREIGN KEY (\"planId\") REFERENCES subscription_plans(id) ON UPDATE CASCADE ON DELETE RESTRICT"
+    },
+    {
+      "conname": "user_subscriptions_planId_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "user_subscriptions",
+      "definition": "NOT NULL \"planId\""
+    },
+    {
+      "conname": "user_subscriptions_status_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "user_subscriptions",
+      "definition": "NOT NULL status"
+    },
+    {
+      "conname": "user_subscriptions_updatedAt_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "user_subscriptions",
+      "definition": "NOT NULL \"updatedAt\""
+    },
+    {
+      "conname": "user_subscriptions_userId_fkey",
+      "contype": "f",
+      "convalidated": true,
+      "table_name": "user_subscriptions",
+      "definition": "FOREIGN KEY (\"userId\") REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE"
+    },
+    {
+      "conname": "user_subscriptions_userId_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "user_subscriptions",
+      "definition": "NOT NULL \"userId\""
+    },
+    {
+      "conname": "website_collaborators_createdAt_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "website_collaborators",
+      "definition": "NOT NULL \"createdAt\""
+    },
+    {
+      "conname": "website_collaborators_id_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "website_collaborators",
+      "definition": "NOT NULL id"
+    },
+    {
+      "conname": "website_collaborators_permission_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "website_collaborators",
+      "definition": "NOT NULL permission"
+    },
+    {
+      "conname": "website_collaborators_pkey",
+      "contype": "p",
+      "convalidated": true,
+      "table_name": "website_collaborators",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "conname": "website_collaborators_updatedAt_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "website_collaborators",
+      "definition": "NOT NULL \"updatedAt\""
+    },
+    {
+      "conname": "website_collaborators_userId_fkey",
+      "contype": "f",
+      "convalidated": true,
+      "table_name": "website_collaborators",
+      "definition": "FOREIGN KEY (\"userId\") REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE"
+    },
+    {
+      "conname": "website_collaborators_userId_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "website_collaborators",
+      "definition": "NOT NULL \"userId\""
+    },
+    {
+      "conname": "website_collaborators_websiteId_fkey",
+      "contype": "f",
+      "convalidated": true,
+      "table_name": "website_collaborators",
+      "definition": "FOREIGN KEY (\"websiteId\") REFERENCES websites(id) ON UPDATE CASCADE ON DELETE CASCADE"
+    },
+    {
+      "conname": "website_collaborators_websiteId_not_null",
+      "contype": "n",
+      "convalidated": true,
+      "table_name": "website_collaborators",
+      "definition": "NOT NULL \"websiteId\""
+    }
+  ],
+  "indexes": [
+    {
+      "tablename": "audit_logs",
+      "indexname": "audit_logs_action_idx",
+      "indexdef": "CREATE INDEX audit_logs_action_idx ON public.audit_logs USING btree (action)"
+    },
+    {
+      "tablename": "audit_logs",
+      "indexname": "audit_logs_pkey",
+      "indexdef": "CREATE UNIQUE INDEX audit_logs_pkey ON public.audit_logs USING btree (id)"
+    },
+    {
+      "tablename": "audit_logs",
+      "indexname": "audit_logs_userId_idx",
+      "indexdef": "CREATE INDEX \"audit_logs_userId_idx\" ON public.audit_logs USING btree (\"userId\")"
+    },
+    {
+      "tablename": "component_accesses",
+      "indexname": "component_accesses_pkey",
+      "indexdef": "CREATE UNIQUE INDEX component_accesses_pkey ON public.component_accesses USING btree (id)"
+    },
+    {
+      "tablename": "component_accesses",
+      "indexname": "component_accesses_websiteId_componentId_key",
+      "indexdef": "CREATE UNIQUE INDEX \"component_accesses_websiteId_componentId_key\" ON public.component_accesses USING btree (\"websiteId\", \"componentId\")"
+    },
+    {
+      "tablename": "custom_code_revisions",
+      "indexname": "custom_code_revisions_pkey",
+      "indexdef": "CREATE UNIQUE INDEX custom_code_revisions_pkey ON public.custom_code_revisions USING btree (id)"
+    },
+    {
+      "tablename": "custom_code_revisions",
+      "indexname": "custom_code_revisions_snippetId_idx",
+      "indexdef": "CREATE INDEX \"custom_code_revisions_snippetId_idx\" ON public.custom_code_revisions USING btree (\"snippetId\")"
+    },
+    {
+      "tablename": "custom_code_snippets",
+      "indexname": "custom_code_snippets_pkey",
+      "indexdef": "CREATE UNIQUE INDEX custom_code_snippets_pkey ON public.custom_code_snippets USING btree (id)"
+    },
+    {
+      "tablename": "custom_code_snippets",
+      "indexname": "custom_code_snippets_websiteId_idx",
+      "indexdef": "CREATE INDEX \"custom_code_snippets_websiteId_idx\" ON public.custom_code_snippets USING btree (\"websiteId\")"
+    },
+    {
+      "tablename": "custom_entries",
+      "indexname": "custom_entries_pkey",
+      "indexdef": "CREATE UNIQUE INDEX custom_entries_pkey ON public.custom_entries USING btree (id)"
+    },
+    {
+      "tablename": "custom_fields",
+      "indexname": "custom_fields_pkey",
+      "indexdef": "CREATE UNIQUE INDEX custom_fields_pkey ON public.custom_fields USING btree (id)"
+    },
+    {
+      "tablename": "custom_post_types",
+      "indexname": "custom_post_types_pkey",
+      "indexdef": "CREATE UNIQUE INDEX custom_post_types_pkey ON public.custom_post_types USING btree (id)"
+    },
+    {
+      "tablename": "custom_post_types",
+      "indexname": "custom_post_types_websiteId_slug_key",
+      "indexdef": "CREATE UNIQUE INDEX \"custom_post_types_websiteId_slug_key\" ON public.custom_post_types USING btree (\"websiteId\", slug)"
+    },
+    {
+      "tablename": "design_notes",
+      "indexname": "design_notes_pkey",
+      "indexdef": "CREATE UNIQUE INDEX design_notes_pkey ON public.design_notes USING btree (id)"
+    },
+    {
+      "tablename": "developer_api_keys",
+      "indexname": "developer_api_keys_pkey",
+      "indexdef": "CREATE UNIQUE INDEX developer_api_keys_pkey ON public.developer_api_keys USING btree (id)"
+    },
+    {
+      "tablename": "developer_api_keys",
+      "indexname": "developer_api_keys_tokenHash_key",
+      "indexdef": "CREATE UNIQUE INDEX \"developer_api_keys_tokenHash_key\" ON public.developer_api_keys USING btree (\"tokenHash\")"
+    },
+    {
+      "tablename": "form_submissions",
+      "indexname": "form_submissions_formId_idx",
+      "indexdef": "CREATE INDEX \"form_submissions_formId_idx\" ON public.form_submissions USING btree (\"formId\")"
+    },
+    {
+      "tablename": "form_submissions",
+      "indexname": "form_submissions_pkey",
+      "indexdef": "CREATE UNIQUE INDEX form_submissions_pkey ON public.form_submissions USING btree (id)"
+    },
+    {
+      "tablename": "form_submissions",
+      "indexname": "form_submissions_websiteId_idx",
+      "indexdef": "CREATE INDEX \"form_submissions_websiteId_idx\" ON public.form_submissions USING btree (\"websiteId\")"
+    },
+    {
+      "tablename": "multisite_networks",
+      "indexname": "multisite_networks_domain_key",
+      "indexdef": "CREATE UNIQUE INDEX multisite_networks_domain_key ON public.multisite_networks USING btree (domain)"
+    },
+    {
+      "tablename": "multisite_networks",
+      "indexname": "multisite_networks_pkey",
+      "indexdef": "CREATE UNIQUE INDEX multisite_networks_pkey ON public.multisite_networks USING btree (id)"
+    },
+    {
+      "tablename": "plugin_compatibilities",
+      "indexname": "plugin_compatibilities_pkey",
+      "indexdef": "CREATE UNIQUE INDEX plugin_compatibilities_pkey ON public.plugin_compatibilities USING btree (id)"
+    },
+    {
+      "tablename": "plugin_compatibilities",
+      "indexname": "plugin_compatibilities_slug_key",
+      "indexdef": "CREATE UNIQUE INDEX plugin_compatibilities_slug_key ON public.plugin_compatibilities USING btree (slug)"
+    },
+    {
+      "tablename": "plugin_integrations",
+      "indexname": "plugin_integrations_pkey",
+      "indexdef": "CREATE UNIQUE INDEX plugin_integrations_pkey ON public.plugin_integrations USING btree (id)"
+    },
+    {
+      "tablename": "plugin_integrations",
+      "indexname": "plugin_integrations_websiteId_pluginSlug_key",
+      "indexdef": "CREATE UNIQUE INDEX \"plugin_integrations_websiteId_pluginSlug_key\" ON public.plugin_integrations USING btree (\"websiteId\", \"pluginSlug\")"
+    },
+    {
+      "tablename": "sftp_connections",
+      "indexname": "sftp_connections_pkey",
+      "indexdef": "CREATE UNIQUE INDEX sftp_connections_pkey ON public.sftp_connections USING btree (id)"
+    },
+    {
+      "tablename": "subscription_plans",
+      "indexname": "subscription_plans_pkey",
+      "indexdef": "CREATE UNIQUE INDEX subscription_plans_pkey ON public.subscription_plans USING btree (id)"
+    },
+    {
+      "tablename": "subscription_plans",
+      "indexname": "subscription_plans_slug_key",
+      "indexdef": "CREATE UNIQUE INDEX subscription_plans_slug_key ON public.subscription_plans USING btree (slug)"
+    },
+    {
+      "tablename": "templates",
+      "indexname": "idx_templates_share_token",
+      "indexdef": "CREATE INDEX idx_templates_share_token ON public.templates USING btree (\"shareToken\")"
+    },
+    {
+      "tablename": "templates",
+      "indexname": "idx_templates_user_id",
+      "indexdef": "CREATE INDEX idx_templates_user_id ON public.templates USING btree (\"userId\")"
+    },
+    {
+      "tablename": "templates",
+      "indexname": "templates_pkey",
+      "indexdef": "CREATE UNIQUE INDEX templates_pkey ON public.templates USING btree (id)"
+    },
+    {
+      "tablename": "theme_location_rules",
+      "indexname": "theme_location_rules_pkey",
+      "indexdef": "CREATE UNIQUE INDEX theme_location_rules_pkey ON public.theme_location_rules USING btree (id)"
+    },
+    {
+      "tablename": "theme_location_rules",
+      "indexname": "theme_location_rules_websiteId_locationType_idx",
+      "indexdef": "CREATE INDEX \"theme_location_rules_websiteId_locationType_idx\" ON public.theme_location_rules USING btree (\"websiteId\", \"locationType\")"
+    },
+    {
+      "tablename": "user_subscriptions",
+      "indexname": "user_subscriptions_pkey",
+      "indexdef": "CREATE UNIQUE INDEX user_subscriptions_pkey ON public.user_subscriptions USING btree (id)"
+    },
+    {
+      "tablename": "user_subscriptions",
+      "indexname": "user_subscriptions_userId_key",
+      "indexdef": "CREATE UNIQUE INDEX \"user_subscriptions_userId_key\" ON public.user_subscriptions USING btree (\"userId\")"
+    },
+    {
+      "tablename": "website_collaborators",
+      "indexname": "website_collaborators_pkey",
+      "indexdef": "CREATE UNIQUE INDEX website_collaborators_pkey ON public.website_collaborators USING btree (id)"
+    },
+    {
+      "tablename": "website_collaborators",
+      "indexname": "website_collaborators_websiteId_userId_key",
+      "indexdef": "CREATE UNIQUE INDEX \"website_collaborators_websiteId_userId_key\" ON public.website_collaborators USING btree (\"websiteId\", \"userId\")"
+    }
+  ]
+}

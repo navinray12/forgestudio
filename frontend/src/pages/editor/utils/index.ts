@@ -147,7 +147,7 @@ export function getMergedStyles(el: EditorElement, device: DeviceMode, state: El
     "backgroundImage", "backgroundPosition", "backgroundSize", "backgroundRepeat",
     "borderStyle", "borderWidth", "borderColor",
     "borderTopLeftRadius", "borderTopRightRadius", "borderBottomRightRadius", "borderBottomLeftRadius",
-    "boxShadow", "position", "top", "right", "bottom", "left", "zIndex"
+    "boxShadow", "opacity", "filter", "cursor", "minWidth", "minHeight", "maxWidth", "maxHeight", "position", "top", "right", "bottom", "left", "zIndex"
   ];
   const res: ElementStyles = { ...el.styles };
   for (const k of styleKeys) {
@@ -207,7 +207,7 @@ export function generateElementsHoverCSS(elementsList: EditorElement[], device: 
         "backgroundImage", "backgroundPosition", "backgroundSize", "backgroundRepeat",
         "borderStyle", "borderWidth", "borderColor",
         "borderTopLeftRadius", "borderTopRightRadius", "borderBottomRightRadius", "borderBottomLeftRadius",
-        "boxShadow", "position", "top", "right", "bottom", "left", "zIndex"
+        "boxShadow", "opacity", "filter", "cursor", "minWidth", "minHeight", "maxWidth", "maxHeight", "position", "top", "right", "bottom", "left", "zIndex"
       ];
 
       const hoverRuleProps: string[] = [];
@@ -946,6 +946,21 @@ export function resolveMotionAttrs(el: EditorElement): Record<string, string> {
       const offset = String(rawOffset);
       attrs["data-sticky-offset"] = offset.endsWith("px") || offset.endsWith("rem") || offset.endsWith("%") ? offset : `${offset}px`;
     }
+  }
+
+  if (motion?.text?.enabled) attrs["data-studio-text"] = motion.text.durationMs || "900";
+  if (motion?.press?.enabled) {
+    attrs["data-studio-press"] = motion.press.scale || "0.95";
+    attrs["data-studio-press-duration"] = motion.press.durationMs || "150";
+  }
+  if (motion?.loop?.enabled) {
+    attrs["data-studio-loop"] = motion.loop.variant || "float";
+    attrs["data-studio-loop-duration"] = motion.loop.durationMs || "1800";
+  }
+  if (motion?.drag?.enabled) attrs["data-studio-drag"] = motion.drag.axis || "both";
+  if (motion?.overlay?.enabled) {
+    attrs["data-studio-overlay"] = motion.overlay.color || "#9b45e8";
+    attrs["data-studio-overlay-opacity"] = motion.overlay.opacity || "0.2";
   }
 
   // 7. Interactions

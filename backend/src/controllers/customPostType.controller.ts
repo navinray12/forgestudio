@@ -1,133 +1,21 @@
-import type { Request, Response, NextFunction } from "express";
-import { prisma } from "../config/prisma.js";
-
-// ====== CPT Management ======
-export async function getCustomPostTypesHandler(req: Request, res: Response, next: NextFunction) {
-    try {
-        const websiteId = req.params.websiteId as string;
-        const cpts = await prisma.customPostType.findMany({
-            where: { websiteId },
-            include: { _count: { select: { entries: true, fields: true } } },
-            orderBy: { createdAt: 'desc' }
-        });
-        res.status(200).json({ success: true, data: cpts });
-    } catch (e) { next(e); }
-}
-
-export async function createCustomPostTypeHandler(req: Request, res: Response, next: NextFunction) {
-    try {
-        const websiteId = req.params.websiteId as string;
-        const { name, singular, plural, slug, description, hasArchive } = req.body;
-
-        const existing = await prisma.customPostType.findFirst({ where: { websiteId, slug } });
-        if (existing) {
-            return res.status(409).json({ success: false, error: { message: "Slug already exists" } });
-        }
-
-        const cpt = await prisma.customPostType.create({
-            data: { websiteId, name, singular, plural, slug, description, hasArchive }
-        });
-        res.status(201).json({ success: true, data: cpt });
-    } catch (e) { next(e); }
-}
-
-export async function deleteCustomPostTypeHandler(req: Request, res: Response, next: NextFunction) {
-    try {
-        const cptId = req.params.cptId as string;
-        // Cascade-delete all related fields and entries first (if Prisma schema doesn't cascade automatically)
-        await prisma.customField.deleteMany({ where: { postTypeId: cptId } });
-        await prisma.customEntry.deleteMany({ where: { postTypeId: cptId } });
-        await prisma.customPostType.delete({ where: { id: cptId } });
-        res.status(200).json({ success: true, message: "Custom Post Type deleted successfully." });
-    } catch (e) { next(e); }
-}
-
-// ====== Custom Fields ======
-export async function getCustomFieldsHandler(req: Request, res: Response, next: NextFunction) {
-    try {
-        const cptId = req.params.cptId as string;
-        const fields = await prisma.customField.findMany({
-            where: { postTypeId: cptId },
-            orderBy: { order: 'asc' }
-        });
-        res.status(200).json({ success: true, data: fields });
-    } catch (e) { next(e); }
-}
-
-export async function saveCustomFieldsHandler(req: Request, res: Response, next: NextFunction) {
-    try {
-        const cptId = req.params.cptId as string;
-        const { fields } = req.body; // Array of fields from drag-and-drop
-
-        await prisma.$transaction(async (tx) => {
-            await tx.customField.deleteMany({ where: { postTypeId: cptId } });
-            if (fields && fields.length > 0) {
-                await tx.customField.createMany({
-                    data: fields.map((f: any, idx: number) => ({
-                        postTypeId: cptId,
-                        name: f.name,
-                        key: f.key,
-                        type: f.type,
-                        required: f.required || false,
-                        order: idx,
-                        options: f.options || {}
-                    }))
-                });
-            }
-        });
-
-        res.status(200).json({ success: true });
-    } catch (e) { next(e); }
-}
-
-// ====== Custom Entries ======
-export async function getCustomEntriesHandler(req: Request, res: Response, next: NextFunction) {
-    try {
-        const cptId = req.params.cptId as string;
-        const entries = await prisma.customEntry.findMany({
-            where: { postTypeId: cptId },
-            include: { author: { select: { fullName: true, email: true } } },
-            orderBy: { updatedAt: 'desc' }
-        });
-        res.status(200).json({ success: true, data: entries });
-    } catch (e) { next(e); }
-}
-
-export async function createCustomEntryHandler(req: Request, res: Response, next: NextFunction) {
-    try {
-        const cptId = req.params.cptId as string;
-        const { title, slug, status, values } = req.body;
-        const authorId = res.locals.user.id; // From requireAuth
-
-        const existing = await prisma.customEntry.findFirst({ where: { postTypeId: cptId, slug } });
-        if (existing) {
-            return res.status(409).json({ success: false, error: { message: "Slug already exists" } });
-        }
-
-        const entry = await prisma.customEntry.create({
-            data: { postTypeId: cptId, title, slug, status, values, authorId }
-        });
-        res.status(201).json({ success: true, data: entry });
-    } catch (e) { next(e); }
-}
-
-export async function updateCustomEntryHandler(req: Request, res: Response, next: NextFunction) {
-    try {
-        const entryId = req.params.entryId as string;
-        const { title, slug, status, values } = req.body;
-
-        const entry = await prisma.customEntry.update({
-            where: { id: entryId },
-            data: { title, slug, status, values }
-        });
-        res.status(200).json({ success: true, data: entry });
-    } catch (e) { next(e); }
-}
-
-export async function deleteCustomEntryHandler(req: Request, res: Response, next: NextFunction) {
-    try {
-        const entryId = req.params.entryId as string;
-        await prisma.customEntry.delete({ where: { id: entryId } });
-        res.status(200).json({ success: true });
-    } catch (e) { next(e); }
-}
+import type {Request,Response,NextFunction} from 'express';
+import {prisma} from '../config/prisma.js';import {canUserAccessResource} from '../services/permission.service.js';import {AppError} from '../utils/app-error.js';import {z} from 'zod';import {typeInput,fieldsInput,entryInput,fieldValueError} from '../services/post-types-input.js';
+const db=prisma as any;
+const handle=(fn:(req:Request,res:Response)=>Promise<any>)=>async(req:Request,res:Response,next:NextFunction)=>{try{await fn(req,res);}catch(e:any){if(e?.code==='P2025')next(new AppError('This content changed. Reload before trying again.',409,'CONFLICT'));else if(e?.code==='P2002')next(new AppError('This slug already exists.',409,'CONFLICT'));else if(e?.code==='P2021'||['42P01','42703'].includes(e?.meta?.code))next(new AppError('Post type storage is temporarily unavailable.',503,'UNAVAILABLE'));else next(e);}};
+function id(value:unknown){if(!z.uuid().safeParse(value).success)throw new AppError('Invalid content identifier.',400,'INVALID_REQUEST');return value as string;}
+function input(schema:z.ZodType,value:unknown):any{const p=schema.safeParse(value);if(!p.success)throw new AppError('Check the content fields and try again.',400,'INVALID_REQUEST');return p.data;}
+async function permission(res:Response,websiteId:string,capability:string){if(!await canUserAccessResource(res.locals.user.id,websiteId,'*',capability))throw new AppError('You do not have permission for this website content.',403,'FORBIDDEN');}
+async function type(req:Request,res:Response,capability:string){const row=await db.customPostType.findUnique({where:{id:id(req.params.cptId)}});if(!row)throw new AppError('Post type not found.',404,'NOT_FOUND');await permission(res,row.websiteId,capability);return row;}
+async function entry(req:Request,res:Response,capability:string){const row=await db.customEntry.findUnique({where:{id:id(req.params.entryId)},include:{postType:true}});if(!row)throw new AppError('Entry not found.',404,'NOT_FOUND');await permission(res,row.postType.websiteId,capability);return row;}
+const lock=async(tx:any,cptId:string)=>tx.$queryRaw`SELECT id FROM custom_post_types WHERE id=${cptId}::uuid FOR UPDATE`;
+export const getCustomPostTypesHandler=handle(async(req,res)=>{const websiteId=id(req.params.websiteId);await permission(res,websiteId,'VIEW');const rows=await db.customPostType.findMany({where:{websiteId},include:{_count:{select:{entries:true,fields:true}}},orderBy:{createdAt:'desc'}});const settings:any[]=await db.$queryRaw`SELECT s.* FROM dashboard_post_type_settings s JOIN custom_post_types p ON p.id=s."postTypeId" WHERE p."websiteId"=${websiteId}::uuid`;const mapped=new Map(settings.map(s=>[s.postTypeId,s]));res.json({success:true,data:rows.map((row:any)=>({...row,singular:mapped.get(row.id)?.singular||row.name,plural:mapped.get(row.id)?.plural||row.name,hasArchive:mapped.get(row.id)?.hasArchive||false}))});});
+export const createCustomPostTypeHandler=handle(async(req,res)=>{const websiteId=id(req.params.websiteId);await permission(res,websiteId,'MANAGE_SETTINGS');const v=input(typeInput,req.body);const row=await db.$transaction(async(tx:any)=>{const row=await tx.customPostType.create({data:{websiteId,name:v.name,slug:v.slug,description:v.description}});await tx.$executeRaw`INSERT INTO dashboard_post_type_settings ("postTypeId",singular,plural,"hasArchive") VALUES (${row.id}::uuid,${v.singular},${v.plural},${v.hasArchive})`;return row;});res.status(201).json({success:true,data:{...row,...v}});});
+export const deleteCustomPostTypeHandler=handle(async(req,res)=>{const row=await type(req,res,'DELETE');await permission(res,row.websiteId,'MANAGE_SETTINGS');if(await db.customEntry.count({where:{postTypeId:row.id,status:'PUBLISHED'}}))await permission(res,row.websiteId,'PUBLISH');await db.customPostType.delete({where:{id:row.id}});res.json({success:true});});
+export const getCustomFieldsHandler=handle(async(req,res)=>{const row=await type(req,res,'VIEW');const fields=await db.customField.findMany({where:{postTypeId:row.id},orderBy:{order:'asc'}});res.json({success:true,updatedAt:row.updatedAt,data:fields.map((f:any)=>({...f,key:f.slug,required:!!f.config?.required,options:f.config?.options||{}}))});});
+export const saveCustomFieldsHandler=handle(async(req,res)=>{const row=await type(req,res,'MANAGE_SETTINGS'),v=input(fieldsInput,req.body);await db.$transaction(async(tx:any)=>{await lock(tx,row.id);const current=await tx.customPostType.findUnique({where:{id:row.id}});if(v.expectedUpdatedAt&&new Date(v.expectedUpdatedAt).getTime()!==current.updatedAt.getTime())throw new AppError('Fields changed. Reload them before saving.',409,'CONFLICT');const existing=await tx.customField.findMany({where:{postTypeId:row.id}}),entries=await tx.customEntry.findMany({where:{postTypeId:row.id},select:{data:true}}),kept=new Set<string>();
+for(const [order,f]of v.fields.entries()){const old=f.id?existing.find((o:any)=>o.id===f.id):existing.find((o:any)=>o.slug===f.key);if(f.id&&!old)throw new AppError('A field does not belong to this post type.',400,'INVALID_REQUEST');if(old&&kept.has(old.id))throw new AppError('Duplicate field.',400,'INVALID_REQUEST');if(old&&(old.slug!==f.key||old.type!==f.type)&&entries.some((e:any)=>Object.hasOwn(e.data||{},old.slug)))throw new AppError('A field with stored entry values cannot change key or type.',409,'CONFLICT');const data={name:f.name,slug:f.key,type:f.type,order,config:{...(old?.config||{}),required:f.required,options:f.options||old?.config?.options||{}}};if(old){await tx.customField.update({where:{id:old.id},data});kept.add(old.id);}else{const added=await tx.customField.create({data:{...data,postTypeId:row.id}});kept.add(added.id);}}
+for(const old of existing)if(!kept.has(old.id)){if(entries.some((e:any)=>Object.hasOwn(e.data||{},old.slug)))throw new AppError('A field with stored entry values cannot be removed.',409,'CONFLICT');await tx.customField.delete({where:{id:old.id}});}await tx.customPostType.update({where:{id:row.id},data:{updatedAt:new Date(Math.max(Date.now(),current.updatedAt.getTime()+1))}});});res.json({success:true});});
+export const getCustomEntriesHandler=handle(async(req,res)=>{const row=await type(req,res,'VIEW');const rows=await db.customEntry.findMany({where:{postTypeId:row.id},include:{author:{select:{fullName:true,email:true}}},orderBy:{updatedAt:'desc'}});res.json({success:true,data:rows.map((e:any)=>({...e,values:e.data}))});});
+export const createCustomEntryHandler=handle(async(req,res)=>{const row=await type(req,res,'EDIT_CONTENT'),v=input(entryInput,req.body);if(v.status==='PUBLISHED')await permission(res,row.websiteId,'PUBLISH');const added=await db.$transaction(async(tx:any)=>{await lock(tx,row.id);if(await tx.customEntry.findFirst({where:{postTypeId:row.id,slug:v.slug}}))throw new AppError('Entry slug already exists.',409,'CONFLICT');const fields=await tx.customField.findMany({where:{postTypeId:row.id}}),error=fieldValueError(fields,v.values);if(error)throw new AppError(error,400,'INVALID_REQUEST');return tx.customEntry.create({data:{postTypeId:row.id,title:v.title,slug:v.slug,status:v.status,data:v.values,authorId:res.locals.user.id}});});res.status(201).json({success:true,data:{...added,values:added.data}});});
+export const updateCustomEntryHandler=handle(async(req,res)=>{const row=await entry(req,res,'EDIT_CONTENT'),v=input(entryInput,{title:row.title,slug:row.slug,status:row.status,values:{},...req.body});if(row.status==='PUBLISHED'||v.status==='PUBLISHED')await permission(res,row.postType.websiteId,'PUBLISH');const updated=await db.$transaction(async(tx:any)=>{await lock(tx,row.postTypeId);const current=await tx.customEntry.findUnique({where:{id:row.id}});if(v.expectedUpdatedAt&&new Date(v.expectedUpdatedAt).getTime()!==current.updatedAt.getTime())throw new AppError('Entry changed. Reload it before saving.',409,'CONFLICT');if(await tx.customEntry.findFirst({where:{postTypeId:row.postTypeId,slug:v.slug,NOT:{id:row.id}}}))throw new AppError('Entry slug already exists.',409,'CONFLICT');const values={...current.data,...v.values},fields=await tx.customField.findMany({where:{postTypeId:row.postTypeId}}),error=fieldValueError(fields,values);if(error)throw new AppError(error,400,'INVALID_REQUEST');return tx.customEntry.update({where:{id:row.id},data:{title:v.title,slug:v.slug,status:v.status,data:values,updatedAt:new Date(Math.max(Date.now(),current.updatedAt.getTime()+1))}});});res.json({success:true,data:{...updated,values:updated.data}});});
+export const deleteCustomEntryHandler=handle(async(req,res)=>{const row=await entry(req,res,'DELETE');if(row.status==='PUBLISHED')await permission(res,row.postType.websiteId,'PUBLISH');await db.customEntry.delete({where:{id:row.id}});res.json({success:true});});

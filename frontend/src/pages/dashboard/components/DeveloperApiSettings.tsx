@@ -1,393 +1,47 @@
-import React, { useState, useEffect } from "react";
-
-const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
-
-const AVAILABLE_SCOPES = [
-  { id: "websites:read", label: "Websites: Read", description: "Read website configuration, pages, and metadata" },
-  { id: "websites:write", label: "Websites: Write", description: "Create and update websites, page trees, and contents" },
-  { id: "publish:write", label: "Publish: Write", description: "Trigger production deployments and non-destructive rollbacks" },
-];
-
-export default function DeveloperApiSettings() {
-  const [keys, setKeys] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [creating, setCreating] = useState(false);
-  const [newKeyName, setNewKeyName] = useState("");
-  const [selectedScopes, setSelectedScopes] = useState<string[]>([
-    "websites:read",
-    "websites:write",
-    "publish:write",
-  ]);
-  const [generatedSecret, setGeneratedSecret] = useState<string | null>(null);
-  const [copiedKey, setCopiedKey] = useState(false);
-  const [copiedSnippet, setCopiedSnippet] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [snippetTab, setSnippetTab] = useState<"curl" | "sdk" | "fetch">("curl");
-
-  useEffect(() => {
-    fetchKeys();
-  }, []);
-
-  const fetchKeys = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const res = await fetch(`${apiUrl}/api/v1/apikeys`, {
-        credentials: "include",
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setKeys(data.keys || []);
-      } else {
-        setError(data?.error?.message || data?.message || "Failed to load API keys.");
-      }
-    } catch (err) {
-      console.error("Failed to load API keys", err);
-      setError("Network error loading API keys.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const toggleScope = (scopeId: string) => {
-    setSelectedScopes((prev) =>
-      prev.includes(scopeId) ? prev.filter((s) => s !== scopeId) : [...prev, scopeId]
-    );
-  };
-
-  const handleCreateKey = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (selectedScopes.length === 0) {
-      setError("Please select at least one permission scope.");
-      return;
-    }
-    try {
-      setCreating(true);
-      setError(null);
-      const res = await fetch(`${apiUrl}/api/v1/apikeys`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          name: newKeyName.trim(),
-          scopes: selectedScopes,
-        }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setGeneratedSecret(data.rawSecret);
-        setNewKeyName("");
-        fetchKeys();
-      } else {
-        setError(data?.error?.message || "Failed to create API key.");
-      }
-    } catch (err) {
-      console.error("Failed to create key", err);
-      setError("Network error creating API key.");
-    } finally {
-      setCreating(false);
-    }
-  };
-
-  const handleRevoke = async (id: string) => {
-    if (!window.confirm("Are you sure you want to revoke this API key? Existing integrations using it will fail immediately.")) return;
-    try {
-      const res = await fetch(`${apiUrl}/api/v1/apikeys/${id}/revoke`, {
-        method: "POST",
-        credentials: "include",
-      });
-      if (res.ok) {
-        fetchKeys();
-      } else {
-        alert("Failed to revoke key.");
-      }
-    } catch (err) {
-      alert("Failed to revoke key.");
-    }
-  };
-
-  const copyToClipboard = (text: string, type: "key" | "snippet") => {
-    navigator.clipboard.writeText(text);
-    if (type === "key") {
-      setCopiedKey(true);
-      setTimeout(() => setCopiedKey(false), 2500);
-    } else {
-      setCopiedSnippet(type);
-      setTimeout(() => setCopiedSnippet(null), 2500);
-    }
-  };
-
-  const activeKeySample = generatedSecret || "fsk_your_api_key_secret";
-
-  const curlSnippet = `curl -X GET "${apiUrl}/api/v1/websites" \\
-  -H "Authorization: Bearer ${activeKeySample}" \\
-  -H "Content-Type: application/json"`;
-
-  const sdkSnippet = `import { ForgeStudioClient } from "@forgestudio/sdk";
-
+import {useEffect,useRef,useState} from 'react';
+import type {FormEvent} from 'react';
+import {ArrowLeft,ArrowRight,CodeXml,Cloud,FileCode,Globe,Home,KeyRound,Link as LinkIcon,Lock,Plus,Puzzle,ShieldCheck,Sparkles,BookOpen,Activity,Download} from 'lucide-react';
+import {Link,useNavigate} from 'react-router-dom';
+import {HeaderUserDropdown} from '../../../components/HeaderUserDropdown';
+import NotificationBell from '../../../features/notifications/NotificationBell';
+import {NotificationProvider} from '../../../features/notifications/NotificationContext';
+import './DeveloperApiSettings.css';
+const base=(import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/,'');
+const scopes=[{id:'websites:read',label:'Websites: Read',text:'Read website configurations, pages, and metadata.',Icon:Globe},{id:'websites:write',label:'Websites: Write',text:'Create and update websites, page trees, and contents.',Icon:FileCode},{id:'publish:write',label:'Publish: Write',text:'Trigger production deployments and non-destructive rollbacks.',Icon:Sparkles}];
+type ApiKey={id:string;name:string;scopes:string[];createdAt:string;lastUsedAt:string|null;isRevoked:boolean};
+async function request(path:string,options:RequestInit={}) { const r=await fetch(`${base}/api/v1/${path}`,{...options,credentials:'include'}); const d=await r.json().catch(()=>({}));if(!r.ok) throw new Error(d.error?.message||d.message||'API request failed. Please try again.');return d; }
+export default function DeveloperApiSettings(){return <NotificationProvider><DeveloperApiContent/></NotificationProvider>;}
+function DeveloperApiContent(){
+ const navigate=useNavigate(),input=useRef<HTMLInputElement>(null);
+ const [keys,setKeys]=useState<ApiKey[]>([]),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[revoking,setRevoking]=useState<string|null>(null),[name,setName]=useState(''),[selected,setSelected]=useState(scopes.map(s=>s.id)),[secret,setSecret]=useState<string|null>(null),[error,setError]=useState(''),[loadError,setLoadError]=useState(''),[notice,setNotice]=useState(''),[tab,setTab]=useState('curl'),[dialog,setDialog]=useState<'docs'|'sdk'|'repository'|'status'|null>(null),[status,setStatus]=useState('');
+ const load=async()=>{setLoading(true);setLoadError('');try{const d=await request('apikeys');setKeys(d.keys);}catch(e){setLoadError((e as Error).message);}finally{setLoading(false);}};
+ useEffect(()=>{void load();},[]);
+ useEffect(()=>{if(!dialog)return;const previous=document.activeElement as HTMLElement|null;const close=(e:KeyboardEvent)=>{if(e.key==='Escape')setDialog(null);if(e.key==='Tab'){const nodes=Array.from(document.querySelectorAll<HTMLElement>('.dev-api-modal button:not(:disabled),.dev-api-modal a[href]'));const first=nodes[0],last=nodes[nodes.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}}};document.addEventListener('keydown',close);return()=>{document.removeEventListener('keydown',close);previous?.focus();};},[dialog]);
+ async function create(e:FormEvent){e.preventDefault();setBusy(true);setError('');setNotice('');try{const d=await request('apikeys',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:name.trim(),scopes:selected})});setSecret(d.rawSecret);setName('');await load();}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
+ async function revoke(k:ApiKey){if(!window.confirm(`Revoke "${k.name}"? Integrations using this key will stop working immediately.`))return;setRevoking(k.id);setError('');try{await request(`apikeys/${encodeURIComponent(k.id)}/revoke`,{method:'POST'});setSecret(null);setNotice('API key revoked. Your websites are unchanged.');await load();}catch(e){setError((e as Error).message);}finally{setRevoking(null);}}
+ async function copy(value:string){try{await navigator.clipboard.writeText(value);setNotice('Copied to clipboard.');}catch{setError('Clipboard is unavailable. Select and copy the text manually.');}}
+ const token='fsk_your_api_key_secret';
+ const snippet=tab==='curl'?`curl -X GET "${base}/api/v1/websites" \\
+  -H "Authorization: Bearer ${token}" \\
+  -H "Content-Type: application/json"`:tab==='sdk'?`// Download client.ts below, then import locally.
+import { ForgeStudioClient } from "./client";
 const client = new ForgeStudioClient({
-  baseUrl: "${apiUrl}/api/v1",
-  apiKey: "${activeKeySample}",
+  baseUrl: "${base}/api/v1",
+  apiKey: "${token}"
 });
-
-// List all managed websites
-const { websites, meta } = await client.listWebsites({ page: 1, limit: 10 });
-console.log("Websites:", websites);`;
-
-  const fetchSnippet = `const response = await fetch("${apiUrl}/api/v1/websites", {
-  method: "GET",
-  headers: {
-    "Authorization": "Bearer ${activeKeySample}",
-    "Content-Type": "application/json",
-  },
+const result = await client.listWebsites({page:1, limit:10});`:`const response = await fetch("${base}/api/v1/websites", {
+  headers: { Authorization: "Bearer ${token}" }
 });
-const data = await response.json();
-console.log("Data:", data.data);`;
-
-  return (
-    <div className="mt-8 space-y-8">
-      {/* Header Banner */}
-      <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm">
-        <div className="flex items-start justify-between flex-wrap gap-4">
-          <div>
-            <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-purple-50 text-purple-600 text-xl mb-3 font-mono">
-              ⚡
-            </div>
-            <h2 className="text-xl font-bold text-slate-800 tracking-tight">Developer API & SDK Platform</h2>
-            <p className="text-sm text-slate-500 mt-2 max-w-2xl leading-relaxed">
-              Programmatic REST endpoints and isomorphic TypeScript SDK client for automated CI/CD pipelines, headless deployments, and external content synchronization.
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="px-3 py-1 rounded-full text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200">
-              API v1 Stable
-            </span>
-          </div>
-        </div>
-
-        {error && (
-          <div className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-xs font-semibold text-red-700 flex items-center justify-between">
-            <span>{error}</span>
-            <button onClick={() => setError(null)} className="text-red-500 hover:text-red-800 font-bold ml-4">✕</button>
-          </div>
-        )}
-
-        {/* Generated API Secret Reveal Alert */}
-        {generatedSecret && (
-          <div className="mt-6 rounded-2xl border-2 border-amber-300 bg-amber-50/80 p-6 space-y-3">
-            <div className="flex items-center justify-between">
-              <h4 className="text-sm font-bold text-amber-900 flex items-center gap-2">
-                <span>🔑</span> API Key Generated Successfully
-              </h4>
-              <button
-                onClick={() => setGeneratedSecret(null)}
-                className="text-xs font-bold text-amber-700 hover:text-amber-900 underline"
-              >
-                Dismiss
-              </button>
-            </div>
-            <p className="text-xs text-amber-800">
-              Copy this secret token now. For security purposes, it is hashed with SHA-256 and cannot be retrieved again.
-            </p>
-            <div className="flex items-center gap-2">
-              <code className="flex-1 rounded-xl bg-white border border-amber-200 px-4 py-3 text-xs font-mono text-amber-950 break-all select-all shadow-inner">
-                {generatedSecret}
-              </code>
-              <button
-                type="button"
-                onClick={() => copyToClipboard(generatedSecret, "key")}
-                className="px-4 py-3 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition shadow-sm shrink-0"
-              >
-                {copiedKey ? "✓ Copied!" : "Copy Token"}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Key Creation Form with Scope Selectors */}
-        <div className="mt-8 pt-8 border-t border-slate-100">
-          <h3 className="text-sm font-bold text-slate-800 mb-2">Generate New API Token</h3>
-          <p className="text-xs text-slate-500 mb-4">
-            Select the granular access scopes required for your integration.
-          </p>
-
-          <form onSubmit={handleCreateKey} className="space-y-4">
-            <div className="flex flex-col sm:flex-row gap-3">
-              <input
-                type="text"
-                required
-                maxLength={50}
-                value={newKeyName}
-                onChange={(e) => setNewKeyName(e.target.value)}
-                placeholder="Key label (e.g. GitHub Actions Deployer, Headless Sync)"
-                className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:border-purple-500 focus:outline-none"
-                disabled={creating}
-              />
-              <button
-                type="submit"
-                disabled={creating || !newKeyName.trim() || selectedScopes.length === 0}
-                className="rounded-xl bg-purple-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-purple-700 shadow-md transition disabled:opacity-50 shrink-0"
-              >
-                {creating ? "Generating..." : "Generate API Key"}
-              </button>
-            </div>
-
-            {/* Scope Checkboxes */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
-              {AVAILABLE_SCOPES.map((scope) => {
-                const isSelected = selectedScopes.includes(scope.id);
-                return (
-                  <label
-                    key={scope.id}
-                    onClick={() => toggleScope(scope.id)}
-                    className={`flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition select-none ${
-                      isSelected
-                        ? "border-purple-300 bg-purple-50/50 text-purple-950"
-                        : "border-slate-200 bg-slate-50/50 text-slate-600 hover:bg-slate-100/50"
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      onChange={() => {}}
-                      className="mt-0.5 rounded border-slate-300 text-purple-600 focus:ring-purple-500"
-                    />
-                    <div>
-                      <div className="text-xs font-bold">{scope.label}</div>
-                      <div className="text-[11px] text-slate-500 mt-0.5">{scope.description}</div>
-                    </div>
-                  </label>
-                );
-              })}
-            </div>
-          </form>
-        </div>
-
-        {/* Existing API Keys Table */}
-        <div className="mt-8 pt-8 border-t border-slate-100">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-bold text-slate-800">Your Active API Keys</h3>
-            <button
-              onClick={fetchKeys}
-              className="text-xs font-semibold text-purple-600 hover:text-purple-700"
-            >
-              Refresh
-            </button>
-          </div>
-
-          <div className="space-y-3">
-            {loading ? (
-              <div className="text-sm text-slate-400 py-4 text-center">Loading API keys...</div>
-            ) : keys.length === 0 ? (
-              <div className="text-xs text-slate-400 py-6 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                No active API keys found. Generate one above to get started.
-              </div>
-            ) : (
-              keys.map((key) => (
-                <div
-                  key={key.id}
-                  className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-4 transition hover:border-slate-200"
-                >
-                  <div className="space-y-1">
-                    <div className="font-bold text-slate-800 text-sm flex items-center gap-2">
-                      <span>{key.name}</span>
-                      {key.isRevoked ? (
-                        <span className="bg-red-100 text-red-700 text-[9px] uppercase px-2 py-0.5 rounded-full font-bold">
-                          Revoked
-                        </span>
-                      ) : (
-                        <span className="bg-emerald-100 text-emerald-700 text-[9px] uppercase px-2 py-0.5 rounded-full font-bold">
-                          Active
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex flex-wrap gap-1.5 pt-0.5">
-                      {Array.isArray(key.scopes) &&
-                        key.scopes.map((scope: string) => (
-                          <span
-                            key={scope}
-                            className="inline-block px-2 py-0.5 rounded bg-white text-slate-600 border border-slate-200 text-[10px] font-mono font-medium"
-                          >
-                            {scope}
-                          </span>
-                        ))}
-                    </div>
-                    <div className="text-[11px] text-slate-400 pt-1 flex gap-4">
-                      <span>Created: {new Date(key.createdAt).toLocaleDateString()}</span>
-                      <span>Last used: {key.lastUsedAt ? new Date(key.lastUsedAt).toLocaleDateString() : "Never"}</span>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => handleRevoke(key.id)}
-                    disabled={key.isRevoked}
-                    className="text-xs font-bold text-red-500 hover:text-red-700 disabled:opacity-30 transition px-3 py-1.5 rounded-lg hover:bg-red-50"
-                  >
-                    Revoke Key
-                  </button>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Integration Code Snippets Sandbox */}
-      <div className="bg-slate-900 rounded-3xl p-8 border border-slate-800 text-slate-100 shadow-md">
-        <div className="flex items-center justify-between flex-wrap gap-4 mb-4">
-          <div>
-            <h3 className="text-base font-bold text-white">SDK & cURL Quickstart</h3>
-            <p className="text-xs text-slate-400 mt-1">
-              Test your authenticated endpoints in terminal or TypeScript application.
-            </p>
-          </div>
-          {/* Tabs */}
-          <div className="flex items-center bg-slate-800 p-1 rounded-xl border border-slate-700">
-            <button
-              onClick={() => setSnippetTab("curl")}
-              className={`px-3 py-1 text-xs font-semibold rounded-lg transition ${
-                snippetTab === "curl" ? "bg-purple-600 text-white" : "text-slate-400 hover:text-white"
-              }`}
-            >
-              cURL
-            </button>
-            <button
-              onClick={() => setSnippetTab("sdk")}
-              className={`px-3 py-1 text-xs font-semibold rounded-lg transition ${
-                snippetTab === "sdk" ? "bg-purple-600 text-white" : "text-slate-400 hover:text-white"
-              }`}
-            >
-              TypeScript SDK
-            </button>
-            <button
-              onClick={() => setSnippetTab("fetch")}
-              className={`px-3 py-1 text-xs font-semibold rounded-lg transition ${
-                snippetTab === "fetch" ? "bg-purple-600 text-white" : "text-slate-400 hover:text-white"
-              }`}
-            >
-              Fetch API
-            </button>
-          </div>
-        </div>
-
-        {/* Code Content */}
-        <div className="relative">
-          <pre className="p-4 rounded-2xl bg-slate-950 border border-slate-800 font-mono text-xs text-slate-300 overflow-x-auto leading-relaxed">
-            {snippetTab === "curl" ? curlSnippet : snippetTab === "sdk" ? sdkSnippet : fetchSnippet}
-          </pre>
-          <button
-            onClick={() =>
-              copyToClipboard(
-                snippetTab === "curl" ? curlSnippet : snippetTab === "sdk" ? sdkSnippet : fetchSnippet,
-                "snippet"
-              )
-            }
-            className="absolute top-3 right-3 px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] font-bold text-slate-200 border border-slate-700 transition"
-          >
-            {copiedSnippet ? "✓ Copied!" : "Copy"}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+if (!response.ok) throw new Error("Request failed");
+const result = await response.json();`;
+ const openStatus=async()=>{setDialog('status');setStatus('Checking API...');try{const d=await request('health');setStatus(d.success?'API is responding normally.':'API health could not be confirmed.');}catch{setStatus('API is unavailable. Please try again later.');}};
+ return <div className="dev-api-shell"><header className="dev-api-header"><Link to="/dashboard" aria-label="Back to dashboard" className="dev-api-back"><ArrowLeft size={17}/></Link><Link to="/dashboard" className="dev-api-brand">web studio</Link><span className="dev-api-divider"/><div className="dev-api-header-actions"><NotificationBell compact onSettings={()=>navigate("/dashboard?section=notifications")}/><Link className="dev-api-upgrade" to="/subscriptions">Upgrade <ArrowRight size={15}/></Link><HeaderUserDropdown onSettings={p=>navigate(`/dashboard?section=${p==='help-support'?'help':p}`)}/></div></header>
+ <div className="dev-api-body"><nav className="dev-api-nav" aria-label="Developer tools">{[['developer-api','API',Home],['plugin-hub','Plugin Hub',Puzzle],['custom-code','Custom Code',CodeXml],['advanced-code','Code manager',Lock],['cpts','Custom post types',Lock],['composer-installation','Composer',Lock]].map(([id,label,Icon])=>{const Symbol=Icon as typeof Home;return <Link key={id as string} className={id==='developer-api'?'active':''} to={`/dashboard/tools?tab=${id}`} aria-current={id==='developer-api'?'page':undefined}><Symbol size={16}/>{label as string}</Link>;})}</nav>
+ <main className="dev-api-main"><section className="dev-api-hero"><div><span className="dev-api-eyebrow">DEVELOPER TOOLS</span><h1>Developer <span>API & SDK Platform</span></h1><p>Programmatic REST endpoints and isomorphic TypeScript SDK client for automated CI/CD pipelines, headless deployments, and external content synchronization.</p><div className="dev-api-benefits">{[[ShieldCheck,'Fast & Secure'],[BookOpen,'Well Documented'],[CodeXml,'Developer Friendly'],[LinkIcon,'Flexible Integration']].map(([Icon,label])=>{const Symbol=Icon as typeof Home;return <span key={label as string}><Symbol size={15}/>{label as string}</span>;})}</div></div><div className="dev-api-art" aria-hidden="true"><span className="dev-api-art-tag">API</span><div><small><i/><i/><i/><b>api.forge.ts</b></small><strong>&lt;/&gt;</strong><footer>POST /deploy <em>200 OK</em></footer></div><Cloud size={26}/></div></section>
+ {error&&<div className="dev-api-error" role="alert">{error}<button onClick={()=>setError('')} aria-label="Dismiss error">Close</button></div>}{notice&&<p className="dev-api-notice" role="status">{notice}</p>}
+ {secret&&<section className="dev-api-secret"><h2>API key generated</h2><p>Copy this token now. It is stored as a hash and cannot be shown again. Keep it out of browser applications and source control.</p><code>{secret}</code><div><button onClick={()=>void copy(secret)}>Copy token</button><button onClick={()=>setSecret(null)}>Dismiss secret</button></div></section>}
+ <section className="dev-api-panel dev-api-generator"><div className="dev-api-section-title"><span className="dev-api-key-icon"><KeyRound size={20}/></span><div><h2>Generate New API Token</h2><p>Select the granular access scopes required for your integration.</p></div></div><form onSubmit={create}><div className="dev-api-create-row"><input ref={input} aria-label="Key label" required maxLength={50} value={name} onChange={e=>setName(e.target.value)} placeholder="Key label (e.g. GitHub Actions Deployment, Headless Sync)" disabled={busy}/><button className="dev-api-primary" disabled={busy||!name.trim()||!selected.length}><Sparkles size={17}/>{busy?'Generating...':'Generate API Key'}</button></div><div className="dev-api-scopes">{scopes.map(({id,label,text,Icon},i)=><label key={id} className={`dev-api-scope scope-${i} ${selected.includes(id)?'selected':''}`}><input type="checkbox" checked={selected.includes(id)} disabled={busy} onChange={()=>setSelected(s=>s.includes(id)?s.filter(x=>x!==id):[...s,id])}/><Icon size={23}/><span><b>{label}</b><small>{text}</small></span></label>)}</div></form></section>
+ <div className="dev-api-columns"><div><section className="dev-api-panel dev-api-keys"><div className="dev-api-section-title"><span className="dev-api-key-icon"><KeyRound size={20}/></span><div><h2>Your API Keys</h2><p>Manage and view your existing API keys.</p></div><button onClick={()=>{input.current?.focus();input.current?.scrollIntoView({block:'center',behavior:'smooth'});}}><Plus size={16}/>New Key</button></div><div className="dev-api-table-scroll"><table><thead><tr><th>Label</th><th>Scopes</th><th>Created</th><th>Status</th><th>Actions</th></tr></thead><tbody>{loading?<tr><td colSpan={5}>Loading API keys...</td></tr>:loadError?<tr><td colSpan={5} role="alert">{loadError} <button onClick={()=>void load()}>Retry</button></td></tr>:!keys.length?<tr><td colSpan={5}>No API keys yet. Generate a token above to get started.</td></tr>:keys.map(k=><tr key={k.id}><td>{k.name}</td><td><div className="dev-api-scope-tags">{k.scopes.map(s=><code key={s} className={s.split(':')[0]}>{s==='publish:write'?'publish':s.split(':')[1]}</code>)}</div></td><td>{new Date(k.createdAt).toLocaleDateString(undefined,{month:'short',day:'2-digit',year:'numeric'})}</td><td><span className={k.isRevoked?'dev-api-inactive':'dev-api-active'}>{k.isRevoked?'Inactive':'Active'}</span></td><td><button disabled={k.isRevoked||revoking!==null} onClick={()=>void revoke(k)} aria-label={`Revoke ${k.name}`}>{revoking===k.id?'Revoking...':'Revoke'}</button></td></tr>)}</tbody></table></div><button className="dev-api-refresh" disabled={loading} onClick={()=>void load()}>Refresh keys</button></section><section className="dev-api-panel dev-api-help"><CodeXml size={23}/><div><h3>Need More Help?</h3><p>Explore our comprehensive documentation or reach out to our support team.</p></div><button onClick={()=>setDialog('docs')}>View Documentation <ArrowRight size={15}/></button><Link className="dev-api-primary" to="/dashboard?section=help">Contact Support <ArrowRight size={15}/></Link></section></div>
+ <aside className="dev-api-panel dev-api-quickstart"><div className="dev-api-section-title"><CodeXml size={26}/><div><h2>SDK & URL Quickstart</h2><p>Test your authenticated endpoints in terminal or TypeScript application.</p></div></div><div className="dev-api-tabs" role="tablist" aria-label="Quickstart examples">{[['curl','URL'],['sdk','TypeScript SDK'],['fetch','Fetch API']].map(([id,label])=><button role="tab" aria-selected={id===tab} className={id===tab?'active':''} key={id} onClick={()=>setTab(id)}>{label}</button>)}</div><div className="dev-api-code"><button onClick={()=>void copy(snippet)}>Copy</button><pre>{snippet}</pre></div><h3 className="dev-api-links-heading"><LinkIcon size={15}/>Quick Links</h3><div className="dev-api-links"><button onClick={()=>setDialog('docs')}><FileCode size={17}/>API Documentation <ArrowRight size={14}/></button><button onClick={()=>setDialog('sdk')}><CodeXml size={17}/>TypeScript SDK <ArrowRight size={14}/></button><button onClick={()=>setDialog('repository')}><BookOpen size={17}/>GitHub Repository <ArrowRight size={14}/></button><button onClick={()=>void openStatus()}><Activity size={17}/>Status Page <ArrowRight size={14}/></button></div></aside></div>
+ </main></div>{dialog&&<div className="dev-api-modal-backdrop" onClick={()=>setDialog(null)}><section className="dev-api-modal" role="dialog" aria-modal="true" aria-label="Developer resources" onClick={e=>e.stopPropagation()}><button className="dev-api-modal-close" autoFocus onClick={()=>setDialog(null)} aria-label="Close developer resources">Close</button>{dialog==='status'?<><h2>API Status</h2><p role="status">{status}</p><button onClick={()=>void openStatus()}>Check again</button></>:dialog==='repository'?<><h2>GitHub Repository</h2><p>A public repository has not been configured for this installation. Download the bundled TypeScript client below.</p><a href={`${base}/api/v1/apikeys/sdk`} download>Download TypeScript SDK</a></>:dialog==='sdk'?<><h2>TypeScript SDK</h2><p>Download the actual bundled client as client.ts and import it locally. Supply a token from a server environment variable; keep secrets outside frontend bundles.</p><a href={`${base}/api/v1/apikeys/sdk`} download><Download size={16}/>Download client.ts</a></>:<><h2>API Documentation</h2><p>Base URL: <code>{base}/api/v1</code></p><p>Authenticate using Authorization: Bearer YOUR_TOKEN. Only selected scopes are granted; all website requests enforce account access.</p><ul><li>GET /websites - websites:read</li><li>POST /websites - websites:write</li><li>GET /websites/:id and /websites/:id/pages - websites:read</li><li>PUT /websites/:id and /websites/:id/pages - websites:write</li><li>POST /websites/:id/publish - publish:write</li><li>GET /websites/:id/deployments - websites:read</li><li>POST /websites/:id/deployments/:deploymentId/rollback - publish:write</li></ul><p>401: invalid/revoked token. 403: missing scope or permission. Revoking a token does not remove websites or deployments.</p></>}</section></div>}</div>;
 }

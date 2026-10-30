@@ -28,7 +28,7 @@ export function requireApiScope(requiredScope: string) {
                 throw new AppError("Invalid API key.", 401, "UNAUTHORIZED");
             }
 
-            if (apiKeyRecord.revokedAt) {
+            if (apiKeyRecord.revokedAt || apiKeyRecord.user.status !== "ACTIVE") {
                 throw new AppError("API key has been revoked.", 401, "UNAUTHORIZED");
             }
 

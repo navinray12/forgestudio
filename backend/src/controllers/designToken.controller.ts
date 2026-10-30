@@ -1,3 +1,4 @@
+import { canUserAccessResource } from "../services/permission.service.js";
 import { Request, Response } from "express";
 import { prisma } from "../config/prisma.js";
 import {
@@ -81,6 +82,10 @@ export async function updateDesignSystem(req: Request, res: Response) {
     if (!website) {
       return res.status(404).json({ success: false, message: "Website not found or unauthorized" });
     }
+    if (!userId || !await canUserAccessResource(userId, websiteId, "*", "EDIT_DESIGN")) {
+      return res.status(403).json({success:false,message:"Design permission is required to manage tokens and global classes."});
+    }
+
 
     // Role-based class management (F-340):
     if (userId && website.userId !== userId) {
@@ -179,6 +184,10 @@ export async function importDesignSystemPayload(req: Request, res: Response) {
     if (!website) {
       return res.status(404).json({ success: false, message: "Website not found or unauthorized" });
     }
+    if (!userId || !await canUserAccessResource(userId, websiteId, "*", "EDIT_DESIGN")) {
+      return res.status(403).json({success:false,message:"Design permission is required to manage tokens and global classes."});
+    }
+
 
     if (!payload) {
       return res.status(400).json({ success: false, message: "Design system payload is required" });

@@ -1,0 +1,7 @@
+export type NotificationPreferences={desktop:boolean;badge:boolean;timeoutMinutes:number;communicationEmails:boolean;announcementEmails:boolean;muteSounds:boolean;version:number};
+export type InboxNotification={id:string;title:string;body:string;href:string;createdAt:string;readAt:string|null;category:string};
+export type Inbox={notifications:InboxNotification[];unread:number;total:number;page:number;pageSize:number;serverTime:string;preferences:NotificationPreferences};
+export const notificationTimeouts=[1,5,10,15,30,60];
+export function notificationHref(value:string){return /^\/dashboard(?:\?|$)/.test(value)&&!/[\r\n\\]/.test(value)?value:'/dashboard';}
+export function preferencePayload(p:NotificationPreferences){return{desktop:p.desktop,badge:p.badge,timeoutMinutes:p.timeoutMinutes,communicationEmails:p.communicationEmails,announcementEmails:p.announcementEmails,muteSounds:p.muteSounds,version:p.version};}
+export async function notificationRequest<T>(path='',options:RequestInit={}):Promise<T>{const r=await fetch(`${import.meta.env.VITE_API_URL||'http://localhost:5000'}/api/dashboard/notifications${path}`,{...options,credentials:'include',headers:{'Content-Type':'application/json',...options.headers}});const data=await r.json().catch(()=>null);if(!r.ok){const e=new Error(r.status===401?'Your session has expired. Please sign in again.':data?.error?.message||data?.message||'Unable to load notifications. Please try again.')as Error&{status:number};e.status=r.status;throw e;}return data;}

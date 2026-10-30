@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-27",
+  "historyArtifactBlockerResolved": true,
+  "unrecoveredMigrations": [],
+  "stagedMigrations": 18,
+  "phase2SHA256": "ff98b7eeb0f058a3361e9751d6c81304583904a34df62569ed4f2efe69a5c017",
+  "rehearsalReused": true,
+  "legacyContractTables": 19,
+  "originalCloneDataUnchanged": true,
+  "targetMissingColumns": 0,
+  "targetMissingConstraints": 0,
+  "targetMissingIndexes": 0,
+  "targetMissingEnumValues": 0,
+  "sharedDatabaseWritesByThisWork": false,
+  "migrationRecordChangesByThisWork": false,
+  "safeToActivateNow": false,
+  "remainingGates": [
+    "Disable import-time schema/migration repair and admin password seeding; prepared patch is not applied.",
+    "Pause external writers; init_auth.finished_at changed after the saved audit.",
+    "Take and verify a fresh cutover backup.",
+    "Explicit approval for legacy resolve --applied and Phase 2 migrate deploy.",
+    "Configure and validate SMTP and stable invitation signing key.",
+    "Validate production runtime database role and real invitation flow in staging."
+  ]
+}

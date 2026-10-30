@@ -1,3 +1,4 @@
+import { AppError } from "../utils/app-error.js";
 import nodemailer from "nodemailer";
 
 export async function sendOtpEmail(
@@ -89,4 +90,21 @@ If you did not request this code, please ignore this email.
     console.error("[EMAIL SERVICE] Failed to send email:", error);
     throw error;
   }
+}
+// Invitations require real delivery configuration; they never use the OTP development simulation.
+export function assertInvitationSmtpConfigured(): void {
+  const port = Number(process.env.SMTP_PORT || 587);
+  if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASSWORD || !(process.env.SMTP_FROM || process.env.SMTP_USER) ||
+      !Number.isInteger(port) || port < 1 || port > 65535)
+    throw new AppError("Configure SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD and SMTP_FROM before sending invitations", 503, "INVITATION_DELIVERY_UNAVAILABLE");
+}
+export async function sendWorkspaceInvitationMessage(message: { to: string; subject: string; text: string; messageId: string }): Promise<void> {
+  assertInvitationSmtpConfigured();
+  const port = Number(process.env.SMTP_PORT || 587);
+  const transport = nodemailer.createTransport({
+    host: process.env.SMTP_HOST, port, secure: port === 465,
+    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASSWORD },
+    connectionTimeout: 10000, greetingTimeout: 10000, socketTimeout: 20000,
+  });
+  await transport.sendMail({ ...message, from: process.env.SMTP_FROM || process.env.SMTP_USER });
 }

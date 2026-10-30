@@ -1,3 +1,4 @@
+import { invitationReturnFromAuth, invitationReturnFromDashboard, invitationAuthLink, markInvitationManagedAuthentication } from "../../features/workspaces/invitation-context";
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { PhoneInput, type PhoneInputValue } from "../../components/phone-input";
@@ -60,6 +61,7 @@ function SignupPage() {
   // Google OAuth
   // =========================
   const handleGoogleLogin = () => {
+    markInvitationManagedAuthentication(window.location.search);
     window.location.href = `${apiUrl}/api/v1/auth/google`;
   };
 
@@ -67,6 +69,7 @@ function SignupPage() {
   // GitHub OAuth
   // =========================
   const handleGithubLogin = () => {
+    markInvitationManagedAuthentication(window.location.search);
     window.location.href = `${apiUrl}/api/v1/auth/github`;
   };
 
@@ -152,7 +155,7 @@ function SignupPage() {
       }
 
       console.log("Signup successful:", data);
-      window.location.href = "/dashboard";
+      window.location.href = invitationReturnFromAuth(window.location.search) || invitationReturnFromDashboard() || "/dashboard";
     } catch (error) {
       setError(
         error instanceof Error
@@ -208,7 +211,7 @@ function SignupPage() {
       }
 
       console.log("Signup OTP Verification successful:", data);
-      window.location.href = "/dashboard";
+      window.location.href = invitationReturnFromAuth(window.location.search) || invitationReturnFromDashboard() || "/dashboard";
     } catch (error) {
       setError(
         error instanceof Error
@@ -368,7 +371,7 @@ function SignupPage() {
                   <p className="mt-3 text-[13px] text-slate-500">
                     Already have an account?{" "}
                     <a
-                      href="/login"
+                      href={invitationAuthLink("login", window.location.search)}
                       className="font-semibold text-blue-600 hover:text-blue-700"
                     >
                       Sign in

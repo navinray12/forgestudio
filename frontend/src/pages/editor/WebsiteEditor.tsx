@@ -1,3 +1,14 @@
+import { StudioAdvancedPanel } from "./inspector/StudioAdvancedPanel";
+import { studioTokenCss, studioClassCss, normalizeStudioDesign, applyStudioDesign, tokenValue, type StudioDesignSettings } from "./utils/studioDesignSystem";
+import { useAccessibility } from "../../context/AccessibilityContext";
+import { StudioAnimationInspector } from "./inspector/StudioAnimationInspector";
+import { StudioAssetsPanel, type StudioAsset } from "./components/StudioAssetsPanel";
+import { StudioBlocksPanel } from "./components/StudioBlocksPanel";
+import { createStudioBlock, STUDIO_BLOCKS, type StudioBlockId } from "./defaults/studioBlocks";
+import { createSummerLanding } from "./defaults/summerLanding";
+import { MediaLibraryModal } from "./components/media/MediaLibraryModal";
+import { StudioHeader, StudioRail, StudioPages, StudioStyleInspector, type StudioSection } from "./components/StudioChrome";
+import "./StudioEditor.css";
 
 import PopupManagerModal from "./components/PopupManagerModal";
 import IconPickerModal from "./components/IconPickerModal";
@@ -324,6 +335,8 @@ import {
 } from "./navigation/navigationDefaults";
 
 export default function WebsiteEditor() {
+  const {prefs:studioA11yPrefs}=useAccessibility();
+  const pendingStudioSave = useRef<any>(null);
   const { websiteId } = useParams<{ websiteId: string }>();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -848,6 +861,17 @@ export default function WebsiteEditor() {
   const importFileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Navigator & Sidebar State
+  const [showStudioTools, setShowStudioTools] = useState(false);
+  const [studioMediaOpen, setStudioMediaOpen] = useState(false);
+  const [studioSection, setStudioSection] = useState<StudioSection>("pages");
+  const [studioInspector, setStudioInspector] = useState("style");
+  const [studioZoom, setStudioZoom] = useState(100);
+  const selectStudioSection = (section: StudioSection) => {
+    setStudioSection(section);
+    if (section === "elements" || section === "assets") setLeftSidebarTab("elements");
+    if (section === "blocks" || section === "templates") setLeftSidebarTab("templates");
+    if (section === "settings") { setSelectedId(null); setSelectedIds([]); }
+  };
   const [leftSidebarTab, setLeftSidebarTab] = useState<"elements" | "navigator" | "templates">("elements");
   const [collapsedContainers, setCollapsedContainers] = useState<Record<string, boolean>>({});
   const [structureSearchQuery, setStructureSearchQuery] = useState("");
@@ -2373,24 +2397,30 @@ export default function WebsiteEditor() {
   const handleSave = async () => {
     if (!websiteId) return;
 
+    const saveState=pendingStudioSave.current||{};
+    const saveVariables=saveState.globalVariables||globalVariables;
+    const saveSettings=saveState.globalSettings||globalSettings;
+    const sourceSiteParts=saveState.siteParts||siteParts;
+    const saveElements:EditorElement[]=saveState.elements||elements;
+    const savePages:PageConfig[]=saveState.pages||pages;
     try {
       setSaving(true);
       setSaveMessage("");
       setErrorMessage("");
 
-      const canonicalHeaderElements = canvasMode === "header" ? elements : (siteParts.header?.elements || []);
-      const canonicalFooterElements = canvasMode === "footer" ? elements : (siteParts.footer?.elements || []);
-      const canonicalSingleElements = canvasMode === "single" ? elements : (siteParts.single?.elements || []);
-      const canonicalArchiveElements = canvasMode === "archive" ? elements : (siteParts.archive?.elements || []);
-      const canonical404Elements = canvasMode === "404" ? elements : (siteParts.notFound404?.elements || []);
-      const canonicalSearchResultsElements = canvasMode === "search-results" ? elements : (siteParts.searchResults?.elements || []);
-      const canonicalPageElements = canvasMode === "page" ? elements : (pages.find(p => p.id === activePageId)?.elements || []);
+      const canonicalHeaderElements = canvasMode === "header" ? saveElements : (sourceSiteParts.header?.elements || []);
+      const canonicalFooterElements = canvasMode === "footer" ? saveElements : (sourceSiteParts.footer?.elements || []);
+      const canonicalSingleElements = canvasMode === "single" ? saveElements : (sourceSiteParts.single?.elements || []);
+      const canonicalArchiveElements = canvasMode === "archive" ? saveElements : (sourceSiteParts.archive?.elements || []);
+      const canonical404Elements = canvasMode === "404" ? saveElements : (sourceSiteParts.notFound404?.elements || []);
+      const canonicalSearchResultsElements = canvasMode === "search-results" ? saveElements : (sourceSiteParts.searchResults?.elements || []);
+      const canonicalPageElements = canvasMode === "page" ? saveElements : (savePages.find(p => p.id === activePageId)?.elements || []);
 
       const payload = {
         editorData: {
           version: 1,
           elements: canonicalPageElements,
-          pages: pages.map((p) =>
+          pages: savePages.map((p) =>
             p.id === activePageId && canvasMode === "page"
               ? { ...p, elements: canonicalPageElements, pageSettings }
               : p
@@ -2398,37 +2428,37 @@ export default function WebsiteEditor() {
           homePageId,
           siteParts: {
             header: {
-              enabled: siteParts.header?.enabled ?? true,
+              enabled: sourceSiteParts.header?.enabled ?? true,
               elements: canonicalHeaderElements,
             },
             footer: {
-              enabled: siteParts.footer?.enabled ?? true,
+              enabled: sourceSiteParts.footer?.enabled ?? true,
               elements: canonicalFooterElements,
             },
             single: {
-              enabled: siteParts.single?.enabled ?? true,
+              enabled: sourceSiteParts.single?.enabled ?? true,
               elements: canonicalSingleElements,
             },
             archive: {
-              enabled: siteParts.archive?.enabled ?? true,
+              enabled: sourceSiteParts.archive?.enabled ?? true,
               elements: canonicalArchiveElements,
             },
             notFound404: {
-              enabled: siteParts.notFound404?.enabled ?? true,
+              enabled: sourceSiteParts.notFound404?.enabled ?? true,
               elements: canonical404Elements,
             },
             searchResults: {
-              enabled: siteParts.searchResults?.enabled ?? true,
+              enabled: sourceSiteParts.searchResults?.enabled ?? true,
               elements: canonicalSearchResultsElements,
             },
           },
           publishing,
           deployment,
           breakpoints,
-          globalSettings,
-          globalStyles: globalSettings?.globalStyles,
-          globalVariables,
-          globalClasses,
+          globalSettings: saveSettings,
+          globalStyles: saveSettings?.globalStyles,
+          globalVariables: saveVariables,
+          globalClasses: saveState.globalClasses||globalClasses,
           popups,
           pageCss,
           pageSettings,
@@ -2444,6 +2474,7 @@ export default function WebsiteEditor() {
       }
 
       // 2. Attempt backend API save
+      let savedToBackend = false;
       try {
         const res = await fetch(`${apiUrl}/api/websites/${websiteId}`, {
           method: "PUT",
@@ -2454,6 +2485,7 @@ export default function WebsiteEditor() {
           body: JSON.stringify(payload),
         });
 
+        savedToBackend = res.ok;
         if (!res.ok) {
           console.warn("Backend save returned non-OK status, saved locally.");
         }
@@ -2467,9 +2499,9 @@ export default function WebsiteEditor() {
         pageSettings,
         payload.editorData.pages,
         homePageId,
-        siteParts,
-        globalSettings,
-        globalSettings?.globalStyles,
+        sourceSiteParts,
+        saveSettings,
+        saveSettings?.globalStyles,
         publishing,
         deployment,
         breakpoints,
@@ -2477,14 +2509,34 @@ export default function WebsiteEditor() {
         pageCss
       );
 
-      setSaveMessage("Saved successfully!");
+      setSaveMessage(savedToBackend ? "Saved to server" : "Saved locally (server unavailable)");
       setTimeout(() => setSaveMessage(""), 3000);
+      return savedToBackend;
     } catch (err: any) {
       setSaveMessage("Saved locally!");
       setTimeout(() => setSaveMessage(""), 3000);
+      return false;
     } finally {
+      pendingStudioSave.current=null;
       setSaving(false);
     }
+  };
+
+  const handleSaveStudioTokens = async (variables:any[], design:StudioDesignSettings, apply:boolean) => {
+    if(isRestrictedMode) return false;
+    const normalized=normalizeStudioDesign(design);
+    const family=tokenValue(variables,'--studio-font-family',design.theme);
+    const settings={...globalSettings,studioDesignSystem:normalized,...(apply?{globalStyles:{...globalSettings?.globalStyles,primaryColor:tokenValue(variables,'--studio-primary-500',design.theme),headingFont:family,bodyFont:family}}:{})};
+    const overrides:any={globalVariables:variables,globalSettings:settings};
+    if(apply){
+      overrides.elements=applyStudioDesign(elements,variables,normalized);
+      overrides.pages=pages.map(page=>({...page,elements:applyStudioDesign(page.id===activePageId&&canvasMode==='page'?elements:page.elements,variables,normalized)}));
+      overrides.siteParts=Object.fromEntries(Object.entries(siteParts).map(([key,value]:[string,any])=>[key,value?.elements?{...value,elements:applyStudioDesign(value.elements,variables,normalized)}:value]));
+      setElements(overrides.elements);setPages(overrides.pages);setSiteParts(overrides.siteParts);
+      void FontService.loadFont(family);
+    }
+    setGlobalVariables(variables);setGlobalSettings(settings);pendingStudioSave.current=overrides;
+    return await handleSave();
   };
 
   // Element Actions
@@ -2508,6 +2560,37 @@ export default function WebsiteEditor() {
     setSelectedIds([newEl.id]);
   };
 
+  const handleInsertStudioAsset = (asset: StudioAsset) => {
+    if (isRestrictedMode) return;
+    const type: ElementType = asset.mimeType.startsWith("image/") ? "image" : asset.mimeType.startsWith("video/") ? "video" : "button";
+    if (disabledWidgets.includes(type)) return;
+    const element = createDefaultElement(type);
+    element.content = asset.originalName;
+    element.customAttributes = [{name:"data-media-id",value:asset.id}];
+    if (type === "image" || type === "video") {
+      element.src = asset.url;
+      element.alt = asset.altText || asset.originalName;
+    } else {
+      element.href = asset.url;
+      element.linkUrl = asset.url;
+      element.destinationType = "url";
+      element.download = true;
+      element.target = "_blank";
+    }
+    setElements(prev => insertTreeElement(prev, selectedId, element));
+    handleSelectElement(element.id);
+  };
+
+  const handleInsertStudioBlock = (id: StudioBlockId) => {
+    if (isRestrictedMode) return;
+    const definition = STUDIO_BLOCKS.find(block => block.id === id);
+    if (!definition || disabledWidgets.includes(definition.type)) return;
+    const block = createStudioBlock(id, createDefaultElement);
+    if (!block) return;
+    setElements(prev => insertTreeElement(prev, selectedId, block));
+    handleSelectElement(block.id);
+  };
+
   const handleDropElement = (
     e: React.DragEvent,
     targetId: string | null = null,
@@ -2515,6 +2598,7 @@ export default function WebsiteEditor() {
   ) => {
     e.preventDefault();
     e.stopPropagation();
+    if (isRestrictedMode) return;
 
     const dataString = e.dataTransfer.getData("application/json") || e.dataTransfer.getData("text/plain");
 
@@ -2554,7 +2638,14 @@ export default function WebsiteEditor() {
 
     try {
       const data = JSON.parse(dataString);
-      if (data.type === "new" && data.widgetType) {
+      if (data.type === "studio-block") {
+        const definition = STUDIO_BLOCKS.find(block => block.id === data.blockId);
+        if (!definition || disabledWidgets.includes(definition.type)) return;
+        const block = createStudioBlock(definition.id, createDefaultElement);
+        if (!block) return;
+        setElements(prev => insertTreeElementAtPosition(prev, effectiveTargetId, effectivePosition, block));
+        handleSelectElement(block.id);
+      } else if (data.type === "new" && data.widgetType) {
         if (disabledWidgets.includes(data.widgetType as ElementType)) return;
         const newEl = createDefaultElement(data.widgetType as ElementType);
         if (newEl.type === "button") {
@@ -2835,12 +2926,12 @@ export default function WebsiteEditor() {
   // F-102 - F-141: Preview Mode Motion & Interaction Runtime
   useEffect(() => {
     if (isPreview) {
-      const controller = initMotionRuntime(document);
+      const controller = initMotionRuntime(document, studioA11yPrefs.pauseAnimations);
       return () => {
         controller.cleanup();
       };
     }
-  }, [isPreview, elements]);
+  }, [isPreview, elements, studioA11yPrefs.pauseAnimations]);
 
   useEffect(() => {
     if (selectedElement && selectedElement.componentId) {
@@ -3894,7 +3985,7 @@ export default function WebsiteEditor() {
       styles.backgroundColor = mergedStyles.backgroundColor;
     }
     if (mergedStyles.backgroundImage) {
-      const bgImg = mergedStyles.backgroundImage.startsWith("url(")
+      const bgImg = /^(url\(|(?:repeating-)?(?:linear|radial|conic)-gradient\()/i.test(mergedStyles.backgroundImage)
         ? mergedStyles.backgroundImage
         : `url('${resolveImageUrl(mergedStyles.backgroundImage, apiUrl)}')`;
       styles.backgroundImage = bgImg;
@@ -3929,6 +4020,8 @@ export default function WebsiteEditor() {
       styles.borderRadius = mergedStyles.borderRadius;
     }
 
+    if (mergedStyles.filter) styles.filter = mergedStyles.filter;
+    if (mergedStyles.cursor) styles.cursor = mergedStyles.cursor;
     if (mergedStyles.boxShadow) {
       styles.boxShadow = mergedStyles.boxShadow;
     }
@@ -5180,6 +5273,7 @@ export default function WebsiteEditor() {
           }`}
         style={{
           ...stickyStyles,
+          ...(el.layout || el.responsiveLayout ? {display: "flex",flexDirection:getMergedLayout(el,activeDevice).direction,justifyContent:getMergedLayout(el,activeDevice).justifyContent,alignItems:getMergedLayout(el,activeDevice).alignItems,gap:getMergedLayout(el,activeDevice).gap} : {}),
           boxSizing: "border-box",
           width: mergedStyles.width,
           height: mergedStyles.height,
@@ -6282,7 +6376,7 @@ export default function WebsiteEditor() {
         )}
 
         {el.type === "form" && (
-          <FormWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
+          <FormWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} websiteId={websiteId} />
         )}
 
         {el.type === "login" && (
@@ -6893,11 +6987,12 @@ export default function WebsiteEditor() {
 
   return (
     <WooCommerceProvider websiteId={websiteId}>
-    <div className="flex h-screen flex-col overflow-hidden bg-[#f1f5f9] text-slate-800 font-sans">
+    <div className="studio-editor flex h-screen flex-col overflow-hidden bg-[#f1f5f9] text-slate-800 font-sans">
       {/* ========================================== */}
       {/* Top Header Bar */}
       {/* ========================================== */}
-      {!isFullScreenCanvas && (
+      {!isFullScreenCanvas && <StudioHeader name={website?.name || "Untitled website"} page={pages.find(p => p.id === activePageId)?.name || "Homepage"} device={activeDevice} setDevice={setActiveDevice} zoom={studioZoom} setZoom={setStudioZoom} back={handleQuitEditor} undo={handleUndo} redo={handleRedo} preview={() => setIsPreview(!isPreview)} isPreview={isPreview} save={handleSave} saving={saving} publish={() => setIsPublishModalOpen(true)} status={saveMessage} tools={() => setShowStudioTools(v => !v)}/> }
+      {showStudioTools && !isFullScreenCanvas && (
         <header
           className={`relative w-full h-13 shrink-0 flex items-center justify-between px-3 md:px-4 shadow-md transition overflow-x-auto ${userPreferences.themeMode === "light"
             ? "bg-white border-b border-slate-200 text-slate-800"
@@ -7397,15 +7492,34 @@ export default function WebsiteEditor() {
         </header>
       )}
 
+      {showStudioTools && !isFullScreenCanvas && <nav className="studio-extra-tools" aria-label="Previous editor tools">
+        <button disabled={isRestrictedMode} onClick={()=>setIsElementManagerOpen(true)}>Element Manager</button>
+        <button disabled={isRestrictedMode} onClick={()=>setIsImportWebsiteKitOpen(true)}>Import Website Kit</button>
+        <button onClick={()=>setIsRevisionHistoryOpen(true)}>Revision History</button>
+        <button onClick={()=>setIsShortcutsHelpOpen(true)}>Keyboard Shortcuts</button>
+        <button onClick={()=>setIsPageManagerModalOpen(true)}>Manage Pages</button>
+        <button disabled={isRestrictedMode} onClick={()=>handleOpenFontPicker()}>Manage Fonts</button>
+        <button disabled={isRestrictedMode} onClick={()=>setIsPopupManagerOpen(true)}>Popup Manager</button>
+        <button disabled={isRestrictedMode} onClick={()=>setIsComponentAccessOpen(true)}>Component Permissions</button>
+        <button onClick={()=>setIsSeoAnalyzerOpen(true)}>SEO and Accessibility Audit</button>
+        <button disabled={isRestrictedMode} onClick={()=>setIsMultilingualModalOpen(true)}>Multilingual Export</button>
+        <button onClick={()=>{setStudioInspector('advanced');requestAnimationFrame(()=>document.querySelector<HTMLDetailsElement>('.studio-legacy-inspector')?.setAttribute('open',''));}}>All Element Settings</button>
+      </nav>}
+
       {/* ========================================== */}
       {/* Main Workspace Body                         */}
       {/* ========================================== */}
-      <div className="flex flex-1 overflow-hidden">
+      <MediaLibraryModal isOpen={studioMediaOpen} onClose={() => setStudioMediaOpen(false)} websiteId={websiteId} onSelect={(url, alt) => { if (isRestrictedMode) return; const image = {...createDefaultElement("image"), src:url, alt:alt || ""}; setElements(prev => [...prev, image]); handleSelectElement(image.id); setStudioMediaOpen(false); }}/>
+      <div className="studio-workspace flex flex-1 overflow-hidden">
+        {!isPreview && !isFullScreenCanvas && <StudioRail section={studioSection} select={selectStudioSection}/>}
+        {!isPreview && !isFullScreenCanvas && studioSection === "pages" && <aside className="studio-pages"><StudioPages insertReference={isRestrictedMode ? undefined : () => { const next = createSummerLanding(generateId); setElements(prev => [...prev, ...next]); handleSelectElement(next[2].children![1].id); }} pages={pages} active={activePageId} switchPage={handleSwitchEditingPage} add={() => setIsPageManagerModalOpen(true)} elements={elements} selected={selectedId} select={handleSelectElement} section={studioSection} setSection={selectStudioSection}/></aside>}
+        {!isPreview && !isFullScreenCanvas && studioSection === "assets" && <StudioAssetsPanel websiteId={websiteId} selectSection={selectStudioSection} insert={handleInsertStudioAsset} restricted={isRestrictedMode}/>}
+        {!isPreview && !isFullScreenCanvas && studioSection === "blocks" && <StudioBlocksPanel selectSection={selectStudioSection} insert={handleInsertStudioBlock} disabledWidgets={disabledWidgets} restricted={isRestrictedMode}/>}
         {/* ========================================== */}
         {/* Left Sidebar: ELEMENTS                     */}
         {/* ========================================== */}
-        {!isPreview && !isFullScreenCanvas && (
-          <aside className="w-64 md:w-72 shrink-0 border-r border-slate-200 bg-white p-3.5 overflow-y-auto shadow-sm flex flex-col">
+        {!isPreview && !isFullScreenCanvas && studioSection !== "pages" && studioSection !== "blocks" && studioSection !== "assets" && (
+          <aside className="studio-library w-64 md:w-72 shrink-0 border-r border-slate-200 bg-white p-3.5 overflow-y-auto shadow-sm flex flex-col">
             <div className="flex flex-wrap items-center gap-1 border-b border-slate-200 pb-2 mb-3">
               <button
                 type="button"
@@ -8788,6 +8902,7 @@ export default function WebsiteEditor() {
         {/* Center: White Canvas Container              */}
         {/* ========================================== */}
         <main
+          data-studio-canvas
           data-theme={canvasTheme}
           onClick={() => handleSelectElement(null)}
           onMouseMove={(e) => {
@@ -8861,6 +8976,7 @@ export default function WebsiteEditor() {
             }}
             onDrop={(e) => handleDropElement(e, null, "after")}
             style={{
+              zoom: studioZoom / 100,
               backgroundColor: pageSettings.backgroundColor || "#ffffff",
               backgroundImage: userPreferences.gridOverlay
                 ? "linear-gradient(to right, #e2e8f0 1px, transparent 1px), linear-gradient(to bottom, #e2e8f0 1px, transparent 1px)"
@@ -8869,9 +8985,10 @@ export default function WebsiteEditor() {
               width: activeDevice === "mobile" ? "380px" : activeDevice === "tablet" ? "520px" : "100%",
               maxWidth: activeDevice === "mobile" ? "380px" : activeDevice === "tablet" ? "min(520px, 90%)" : "100%",
             }}
-            className={`relative transition-all duration-300 ease-in-out min-h-[750px] h-auto shrink-0 my-2 rounded-2xl border border-slate-200 p-6 sm:p-8 pb-20 box-border overflow-x-hidden ${activeDevice !== "desktop" ? "ring-1 ring-slate-300 shadow-md" : "shadow-sm"
+            className={`studio-page relative transition-all duration-300 ease-in-out min-h-[750px] h-auto shrink-0 my-2 rounded-2xl border border-slate-200 p-6 sm:p-8 pb-20 box-border overflow-x-hidden ${activeDevice !== "desktop" ? "ring-1 ring-slate-300 shadow-md" : "shadow-sm"
               }`}
           >
+            <style>{studioTokenCss(globalVariables, ".studio-page", globalSettings?.studioDesignSystem?.theme||"light")+studioClassCss(globalClasses)}</style>
             {/* Global Design Tokens / CSS Variables (Comment 14) */}
             <style>{`
               :root {
@@ -9328,7 +9445,13 @@ export default function WebsiteEditor() {
         {/* Right Sidebar: SETTINGS & STYLING           */}
         {/* ========================================== */}
         {!isPreview && (
-          <aside className="w-80 shrink-0 border-l border-slate-200 bg-white p-5 overflow-y-auto shadow-sm">
+          <aside className="studio-inspector w-80 shrink-0 border-l border-slate-200 bg-white p-5 overflow-y-auto shadow-sm">
+            <div className="studio-panel-tabs">{["style", "animation", "advanced"].map(tab => <button key={tab} className={studioInspector === tab ? "active" : ""} onClick={() => setStudioInspector(tab)}>{tab}</button>)}</div>
+            {!isRestrictedMode && studioInspector === "style" && <StudioStyleInspector element={selectedElement} styles={selectedElement ? getMergedStyles(selectedElement, activeDevice) : {}} update={updateSelectedStyle}/>}
+            {!isRestrictedMode && studioInspector === "animation" && (selectedElementAny ? <StudioAnimationInspector key={selectedElementAny.id} element={selectedElementAny} styles={getMergedStyles(selectedElementAny, activeDevice)} layout={getMergedLayout(selectedElementAny, activeDevice)} updateMotion={value => updateSelectedProp("motionConfig", value)} updateStyle={updateSelectedStyle} updateLayout={updateSelectedLayout}/> : <p className="studio-empty">Select an element to edit its animation.</p>)}
+            {!isRestrictedMode && studioInspector === "advanced" && <StudioAdvancedPanel variables={globalVariables} settings={globalSettings?.studioDesignSystem} onSave={handleSaveStudioTokens} manageFonts={handleOpenFontPicker}/>}
+            <div className={studioInspector === "advanced" || isRestrictedMode || studioSection === "settings" ? "studio-existing-inspector" : "hidden"}>
+            <details className="studio-legacy-inspector" open={isRestrictedMode || studioSection === "settings"}><summary>All element settings (previous editor)</summary>
             <h2 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3">
               {isRestrictedMode ? "CONTENT-ONLY SANDBOX" : "SETTINGS & STYLING"}
             </h2>
@@ -18999,6 +19122,8 @@ export default function WebsiteEditor() {
                 )}
               </>
             )}
+            </details>
+          </div>
           </aside>
         )}
       </div>
@@ -20087,7 +20212,8 @@ export default function WebsiteEditor() {
         variables={globalVariables}
         onSaveVariables={(updated) => {
           setGlobalVariables(updated);
-          handleSave();
+          pendingStudioSave.current={globalVariables:updated};
+          void handleSave();
         }}
       />
 
@@ -20096,10 +20222,11 @@ export default function WebsiteEditor() {
         isOpen={isClassModalOpen}
         onClose={() => setIsClassModalOpen(false)}
         classes={globalClasses}
-        userRole="OWNER"
+        userRole={isRestrictedMode ? "CONTENT_EDITOR" : "OWNER"}
         onSaveClasses={(updated) => {
           setGlobalClasses(updated);
-          handleSave();
+          pendingStudioSave.current={globalClasses:updated};
+          void handleSave();
         }}
       />
 

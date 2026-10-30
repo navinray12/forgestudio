@@ -1,3 +1,4 @@
+import {customCodePayload} from './custom-code-payload';
 const API_URL = `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/v1`;
 
 export interface CustomCodeSnippet {
@@ -42,7 +43,7 @@ export async function createCustomCodeSnippet(websiteId: string, snippetData: Pa
                 "Content-Type": "application/json",
             },
             credentials: "include",
-            body: JSON.stringify(snippetData),
+            body: JSON.stringify(customCodePayload(snippetData)),
         });
 
         return await response.json();
@@ -60,7 +61,7 @@ export async function updateCustomCodeSnippet(snippetId: string, snippetData: Pa
                 "Content-Type": "application/json",
             },
             credentials: "include",
-            body: JSON.stringify(snippetData),
+            body: JSON.stringify(customCodePayload(snippetData,true)),
         });
 
         return await response.json();

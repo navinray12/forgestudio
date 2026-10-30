@@ -1,3 +1,4 @@
+import {dashboardSecurity} from '../services/dashboard-security.js';
 import type { Request, Response, NextFunction } from "express";
 import { loginSchema } from "../validators/login.validator.js";
 import { loginUser } from "../services/login.service.js";
@@ -154,7 +155,11 @@ export async function verifyLoginOtpController(
       throw new AppError("User account not found.", 404, "USER_NOT_FOUND");
     }
 
-    const session = await createUserSession(user.id);
+    if (await dashboardSecurity.needsFactor(user.id)) {
+      res.setHeader('Cache-Control', 'private, no-store');
+      return res.json(await dashboardSecurity.challenge(user.id, req.get('user-agent') || ''));
+    }
+    const session = await createUserSession(user.id, req.get('user-agent') || '');
     res.cookie(AUTH_COOKIE_NAME, session.token, AUTH_COOKIE_OPTIONS);
 
     return res.status(200).json({

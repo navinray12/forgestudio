@@ -1,3 +1,5 @@
+import { isDeepStrictEqual } from "node:util";
+import { validateVariables, validateClasses } from "./tokens/designToken.service.js";
 import { prisma } from "../config/prisma.js";
 import { AppError } from "../utils/app-error.js";
 import { checkWebsiteLimit } from "./subscription.service.js";
@@ -703,19 +705,21 @@ export async function getWebsiteById(websiteId: string, userId: string) {
  * Create a new website with subscription limit check
  */
 export async function createWebsite(
-  userIdOrOptions: string | { userId: string; name: string; slug?: string; editorData?: any; templateId?: string },
+  userIdOrOptions: string | { userId: string; name: string; slug?: string; editorData?: any; templateId?: string; workspaceId?: string | null },
   nameArg?: string
 ) {
   let userId: string;
   let rawName: string;
   let customSlug: string | undefined;
   let customEditorData: any | undefined;
+  let workspaceId: string | null = null;
 
   if (typeof userIdOrOptions === "object" && userIdOrOptions !== null) {
     userId = userIdOrOptions.userId;
     rawName = userIdOrOptions.name;
     customSlug = userIdOrOptions.slug;
     customEditorData = userIdOrOptions.editorData;
+    workspaceId = userIdOrOptions.workspaceId ?? null;
   } else {
     userId = userIdOrOptions;
     rawName = nameArg || "";
@@ -754,6 +758,7 @@ export async function createWebsite(
         data: {
           userId,
           name: trimmedName,
+          workspaceId,
           slug,
           status: "DRAFT",
           editorData: initialEditorData,
@@ -765,8 +770,8 @@ export async function createWebsite(
     // Raw SQL Fallback
     const initialJsonStr = JSON.stringify(initialEditorData);
     const created: any[] = await prisma.$queryRaw`
-      INSERT INTO websites (id, "userId", name, slug, status, "editorData", "createdAt", "updatedAt")
-      VALUES (gen_random_uuid(), ${userId}::uuid, ${trimmedName}, ${slug}, 'DRAFT', ${initialJsonStr}::jsonb, NOW(), NOW())
+      INSERT INTO websites (id, "userId", "workspaceId", name, slug, status, "editorData", "createdAt", "updatedAt")
+      VALUES (gen_random_uuid(), ${userId}::uuid, ${workspaceId}::uuid, ${trimmedName}, ${slug}, 'DRAFT', ${initialJsonStr}::jsonb, NOW(), NOW())
       RETURNING id, "userId", name, slug, status, "editorData", "createdAt", "updatedAt"
     `;
 
@@ -888,6 +893,16 @@ export async function updateWebsiteEditorData(
   const allowedComponentIds = new Set(explicitAccesses.map(a => a.componentId));
 
   const currentEditorData = typeof website.editorData === "string" ? JSON.parse(website.editorData) : website.editorData;
+  if (!canEditDesign) {
+    const designChanges = [
+      [editorData.globalVariables ?? currentEditorData?.globalVariables ?? [], currentEditorData?.globalVariables ?? []],
+      [editorData.globalClasses ?? currentEditorData?.globalClasses ?? [], currentEditorData?.globalClasses ?? []],
+      [editorData.globalSettings?.globalStyles ?? editorData.globalStyles ?? currentEditorData?.globalSettings?.globalStyles ?? currentEditorData?.globalStyles ?? {}, currentEditorData?.globalSettings?.globalStyles ?? currentEditorData?.globalStyles ?? {}],
+      [editorData.globalSettings?.studioDesignSystem ?? currentEditorData?.globalSettings?.studioDesignSystem ?? null, currentEditorData?.globalSettings?.studioDesignSystem ?? null],
+    ];
+    if (designChanges.some(([incoming,current])=>!isDeepStrictEqual(incoming,current))) throw new AppError("Design permission is required to modify global tokens or styles.",403,"FORBIDDEN");
+  }
+
 
   const safeMerge = (currentEls: any[], newEls: any[]): any[] => {
     // 1. We must retain ALL protected components from currentEls, even if newEls omitted them (prevent unauthorized deletion).
@@ -1401,6 +1416,8 @@ export interface PublicWebsiteDTO {
     elements: any[];
     siteParts?: any;
     globalStyles?: any;
+    globalVariables?: any[];
+    globalClasses?: any[];
     breakpoints?: any[];
     popups?: any[];
     pageCss?: string;
@@ -1681,6 +1698,7 @@ export async function getPublicWebsiteById(websiteId: string): Promise<PublicWeb
       customCodeSnippets: {
         where: {
           status: "PUBLISHED",
+          isActive: true,
         },
         select: {
           id: true,
@@ -1689,6 +1707,11 @@ export async function getPublicWebsiteById(websiteId: string): Promise<PublicWeb
           code: true,
           priority: true,
           language: true,
+          status: true,
+          isActive: true,
+          scope: true,
+          pageId: true,
+          conditions: true,
         },
       },
     },
@@ -1774,6 +1797,8 @@ export async function getPublicWebsiteById(websiteId: string): Promise<PublicWeb
     elements: resolvedElements,
     siteParts: resolvedSiteParts,
     globalStyles: sourceData.globalStyles || undefined,
+    globalVariables: validateVariables(sourceData.globalVariables || []),
+    globalClasses: validateClasses(sourceData.globalClasses || []),
     breakpoints: sourceData.breakpoints || undefined,
     popups: sourceData.popups || undefined,
     pageCss: sourceData.pageCss || undefined,

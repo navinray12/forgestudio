@@ -1,3 +1,5 @@
+import { ensureStudioAssets } from "./studio-assets.service.js";
+import { pgPool } from "../config/prisma.js";
 import fs from "fs";
 import path from "path";
 import { prisma } from "../config/prisma.js";
@@ -245,7 +247,9 @@ export async function listMediaAssets(
   const limit = Math.min(100, Math.max(1, options.limit || 50));
   const skip = (page - 1) * limit;
 
-  const where: any = { userId };
+  await ensureStudioAssets();
+  const trashed = await pgPool.query('SELECT m."assetId" FROM studio_asset_metadata m JOIN media_assets a ON a.id=m."assetId" WHERE a."userId"=$1 AND m."deletedAt" IS NOT NULL',[userId]);
+  const where: any = { userId, id: {notIn: trashed.rows.map(row => row.assetId)} };
 
   if (options.websiteId) {
     where.OR = [{ websiteId: options.websiteId }, { websiteId: null }];

@@ -145,12 +145,14 @@ export async function createOAuthPasswordController(
       throw new AppError("User account not found.", 404, "USER_NOT_FOUND");
     }
 
+    if (user.passwordHash) throw new AppError('A password already exists. Change it from authenticated Security settings.',409,'PASSWORD_EXISTS');
     const passwordHash = await hashPassword(password.trim());
 
-    await prisma.user.update({
-      where: { id: userId },
+    const created = await prisma.user.updateMany({
+      where: { id: userId, passwordHash: null },
       data: { passwordHash },
     });
+    if (created.count !== 1) throw new AppError('A password already exists. Change it from authenticated Security settings.',409,'PASSWORD_EXISTS');
 
     if (user.email) {
       await generateAndSendOtp({

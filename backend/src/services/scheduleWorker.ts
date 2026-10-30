@@ -1,3 +1,4 @@
+import {publishDueCodeSnippets} from './code-snippet-scheduler.js';
 import { prisma } from "../config/prisma.js";
 import { initJobHandlers } from "./jobs/handlers.js";
 import { startJobWorker } from "./jobs/jobRunner.js";
@@ -15,26 +16,7 @@ async function processScheduledPublications() {
             return;
         }
 
-        const now = new Date();
-
-        const pendingSnippets = await customCodeSnippetModel.findMany({
-            where: {
-                status: 'SCHEDULED',
-                scheduledFor: { lte: now }
-            }
-        });
-
-        if (pendingSnippets.length === 0) return;
-
-        for (const snippet of pendingSnippets) {
-            await customCodeSnippetModel.update({
-                where: { id: snippet.id },
-                data: {
-                    status: 'PUBLISHED'
-                }
-            });
-            console.log(`[Scheduler] Executed pending snippet: ${snippet.title} (${snippet.id}) into PUBLISHED mode.`);
-        }
+        await publishDueCodeSnippets(prisma);
     } catch (error: any) {
         if (error?.code === 'P2021' || error?.message?.includes("does not exist")) {
             console.log("[Scheduler] Table 'custom_code_snippets' does not exist in database yet. Skipping scheduled publication check.");

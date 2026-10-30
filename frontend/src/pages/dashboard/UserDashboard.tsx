@@ -271,10 +271,10 @@ function UserDashboard() {
   };
 
   const query = new URLSearchParams(location.search);
-  const activeTab = (query.get("tab") as Tab) || "websites";
+  const activeTab = (query.get("tab") as Tab) || (location.pathname === "/dashboard/tools" ? "developer-api" : "websites");
 
   const setTab = (tab: Tab) => {
-    navigate(tab === "websites" ? "/dashboard" : `/dashboard?tab=${tab}`);
+    navigate(tab === "websites" ? "/dashboard" : `/dashboard/tools?tab=${tab}`);
     setSidebarOpen(false);
   };
 
@@ -553,6 +553,12 @@ function UserDashboard() {
       </div>
     );
   }
+
+  if (activeTab === "developer-api") return <DeveloperApiSettings />;
+  if (activeTab === "custom-code") return <CustomCodePanel />;
+  if (activeTab === "advanced-code") return <AdvancedCodePanel />;
+  if (activeTab === "cpts") return <CustomPostTypesPanel />;
+  if (activeTab === "composer-installation") return <ComposerPanel />;
 
   return (
     <div className="min-h-screen bg-[#F5F5F7] font-sans text-slate-900 flex flex-col">

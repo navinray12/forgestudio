@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X, Plus, Trash2, Download, Upload, Palette, Type, Move, Layers, Sparkles, Check, Sun, Moon } from "lucide-react";
 
 export interface VariableModeValue {
@@ -47,6 +47,8 @@ export const VariablesManagerModal: React.FC<VariablesManagerModalProps> = ({
     const [newVarToken, setNewVarToken] = useState("");
     const [importError, setImportError] = useState<string | null>(null);
     const [saveSuccess, setSaveSuccess] = useState(false);
+
+    useEffect(() => { if (isOpen) { setLocalVars(variables); setSaveSuccess(false); setImportError(null); } }, [isOpen, variables]);
 
     if (!isOpen) return null;
 

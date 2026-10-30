@@ -130,12 +130,7 @@ async function ensureAdminAccounts() {
   }
 }
 
-ensureDbSchema().catch((err) => {
-  console.error("Failed to run schema auto-migration:", err);
-});
-
-ensureAdminAccounts().catch((err) => {
-  console.error("Admin seeding check failed:", err);
-});
+// Schema changes and account provisioning are explicit operational tasks.
+// Importing this client must not rewrite migration history or reset passwords.
 
 export default prisma;

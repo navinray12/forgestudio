@@ -1,6 +1,9 @@
 import type { Request, Response, NextFunction } from "express";
 import { prisma as db } from "../config/prisma.js";
-import crypto from "crypto";
+import { createApiKey } from "../services/apiKey.service.js";
+import { apiKeyInput } from "../services/api-key-input.js";
+import {z} from "zod";
+import { AppError } from "../utils/app-error.js";
 
 export async function listApiKeysHandler(req: Request, res: Response, next: NextFunction) {
     try {
@@ -27,20 +30,9 @@ export async function listApiKeysHandler(req: Request, res: Response, next: Next
 export async function createApiKeyHandler(req: Request, res: Response, next: NextFunction) {
     try {
         const user = res.locals.user;
-        const { name, scopes } = req.body;
-
-        // Masked generation
-        const rawSecret = crypto.randomBytes(32).toString('hex');
-        const tokenHash = crypto.createHash('sha256').update(rawSecret).digest('hex');
-
-        const key = await db.developerApiKey.create({
-            data: {
-                userId: user.id,
-                name: name || "Developer Key",
-                tokenHash,
-                scopes: scopes || ["websites:read"]
-            }
-        });
+        const parsed = apiKeyInput.safeParse(req.body);
+        if (!parsed.success) throw new AppError("Enter a label (1-50 characters) and select valid API scopes.", 400, "INVALID_REQUEST");
+        const {rawSecret, apiKey: key} = await createApiKey(user.id, parsed.data.name, parsed.data.scopes);
 
         res.status(201).json({
             success: true,
@@ -55,9 +47,12 @@ export async function revokeApiKeyHandler(req: Request, res: Response, next: Nex
     try {
         const user = res.locals.user;
         const keyId = req.params.id as string;
+        if (!z.uuid().safeParse(keyId).success) throw new AppError("Invalid API key identifier.", 400, "INVALID_REQUEST");
 
+        const existing = await db.developerApiKey.findFirst({where: {id: keyId, userId: user.id}});
+        if (!existing) throw new AppError("API key not found.", 404, "NOT_FOUND");
         await db.developerApiKey.updateMany({
-            where: { id: keyId, userId: user.id },
+            where: { id: keyId, userId: user.id, revokedAt: null },
             data: { revokedAt: new Date() }
         });
 

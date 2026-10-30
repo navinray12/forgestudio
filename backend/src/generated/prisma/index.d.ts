@@ -263,6 +263,11 @@ export type WhiteLabelConfig = $Result.DefaultSelection<Prisma.$WhiteLabelConfig
  * 
  */
 export type BillingInvoice = $Result.DefaultSelection<Prisma.$BillingInvoicePayload>
+/**
+ * Model WorkspaceEmailInvitation
+ * 
+ */
+export type WorkspaceEmailInvitation = $Result.DefaultSelection<Prisma.$WorkspaceEmailInvitationPayload>
 
 /**
  * Enums
@@ -974,6 +979,16 @@ export class PrismaClient<
     * ```
     */
   get billingInvoice(): Prisma.BillingInvoiceDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.workspaceEmailInvitation`: Exposes CRUD operations for the **WorkspaceEmailInvitation** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more WorkspaceEmailInvitations
+    * const workspaceEmailInvitations = await prisma.workspaceEmailInvitation.findMany()
+    * ```
+    */
+  get workspaceEmailInvitation(): Prisma.WorkspaceEmailInvitationDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1470,7 +1485,8 @@ export namespace Prisma {
     License: 'License',
     LicenseActivation: 'LicenseActivation',
     WhiteLabelConfig: 'WhiteLabelConfig',
-    BillingInvoice: 'BillingInvoice'
+    BillingInvoice: 'BillingInvoice',
+    WorkspaceEmailInvitation: 'WorkspaceEmailInvitation'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1486,7 +1502,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "website" | "otpVerification" | "identity" | "session" | "passwordResetToken" | "subscriptionPlan" | "userSubscription" | "templates" | "customCodeSnippet" | "customCodeRevision" | "formSubmission" | "customPostType" | "themeLocationRule" | "auditLog" | "sftpConnection" | "pluginIntegration" | "multisiteNetwork" | "customField" | "customEntry" | "designNote" | "pluginCompatibility" | "developerApiKey" | "componentAccess" | "websiteCollaborator" | "websiteRevision" | "deployment" | "wordPressConnection" | "wordPressPageMapping" | "granularPermission" | "team" | "teamMember" | "teamInvitation" | "websiteInvitation" | "workspace" | "organization" | "organizationMember" | "workspaceMember" | "publishApprovalRequest" | "backgroundJob" | "mediaAsset" | "siteMailerConfig" | "emailDeliveryLog" | "sitePerformanceMetric" | "mediaOptimizationAsset" | "optimizationCreditLedger" | "license" | "licenseActivation" | "whiteLabelConfig" | "billingInvoice"
+      modelProps: "user" | "website" | "otpVerification" | "identity" | "session" | "passwordResetToken" | "subscriptionPlan" | "userSubscription" | "templates" | "customCodeSnippet" | "customCodeRevision" | "formSubmission" | "customPostType" | "themeLocationRule" | "auditLog" | "sftpConnection" | "pluginIntegration" | "multisiteNetwork" | "customField" | "customEntry" | "designNote" | "pluginCompatibility" | "developerApiKey" | "componentAccess" | "websiteCollaborator" | "websiteRevision" | "deployment" | "wordPressConnection" | "wordPressPageMapping" | "granularPermission" | "team" | "teamMember" | "teamInvitation" | "websiteInvitation" | "workspace" | "organization" | "organizationMember" | "workspaceMember" | "publishApprovalRequest" | "backgroundJob" | "mediaAsset" | "siteMailerConfig" | "emailDeliveryLog" | "sitePerformanceMetric" | "mediaOptimizationAsset" | "optimizationCreditLedger" | "license" | "licenseActivation" | "whiteLabelConfig" | "billingInvoice" | "workspaceEmailInvitation"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -5190,6 +5206,80 @@ export namespace Prisma {
           }
         }
       }
+      WorkspaceEmailInvitation: {
+        payload: Prisma.$WorkspaceEmailInvitationPayload<ExtArgs>
+        fields: Prisma.WorkspaceEmailInvitationFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.WorkspaceEmailInvitationFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceEmailInvitationPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.WorkspaceEmailInvitationFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceEmailInvitationPayload>
+          }
+          findFirst: {
+            args: Prisma.WorkspaceEmailInvitationFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceEmailInvitationPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.WorkspaceEmailInvitationFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceEmailInvitationPayload>
+          }
+          findMany: {
+            args: Prisma.WorkspaceEmailInvitationFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceEmailInvitationPayload>[]
+          }
+          create: {
+            args: Prisma.WorkspaceEmailInvitationCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceEmailInvitationPayload>
+          }
+          createMany: {
+            args: Prisma.WorkspaceEmailInvitationCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.WorkspaceEmailInvitationCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceEmailInvitationPayload>[]
+          }
+          delete: {
+            args: Prisma.WorkspaceEmailInvitationDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceEmailInvitationPayload>
+          }
+          update: {
+            args: Prisma.WorkspaceEmailInvitationUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceEmailInvitationPayload>
+          }
+          deleteMany: {
+            args: Prisma.WorkspaceEmailInvitationDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.WorkspaceEmailInvitationUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.WorkspaceEmailInvitationUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceEmailInvitationPayload>[]
+          }
+          upsert: {
+            args: Prisma.WorkspaceEmailInvitationUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceEmailInvitationPayload>
+          }
+          aggregate: {
+            args: Prisma.WorkspaceEmailInvitationAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateWorkspaceEmailInvitation>
+          }
+          groupBy: {
+            args: Prisma.WorkspaceEmailInvitationGroupByArgs<ExtArgs>
+            result: $Utils.Optional<WorkspaceEmailInvitationGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.WorkspaceEmailInvitationCountArgs<ExtArgs>
+            result: $Utils.Optional<WorkspaceEmailInvitationCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -5363,6 +5453,7 @@ export namespace Prisma {
     licenseActivation?: LicenseActivationOmit
     whiteLabelConfig?: WhiteLabelConfigOmit
     billingInvoice?: BillingInvoiceOmit
+    workspaceEmailInvitation?: WorkspaceEmailInvitationOmit
   }
 
   /* Types for Logging */
@@ -5468,6 +5559,8 @@ export namespace Prisma {
     ownedOrganizations: number
     organizationMemberships: number
     workspaceMemberships: number
+    sentWorkspaceEmailInvitations: number
+    receivedWorkspaceEmailInvitations: number
     approvalRequests: number
     reviewedApprovals: number
     mediaAssets: number
@@ -5502,6 +5595,8 @@ export namespace Prisma {
     ownedOrganizations?: boolean | UserCountOutputTypeCountOwnedOrganizationsArgs
     organizationMemberships?: boolean | UserCountOutputTypeCountOrganizationMembershipsArgs
     workspaceMemberships?: boolean | UserCountOutputTypeCountWorkspaceMembershipsArgs
+    sentWorkspaceEmailInvitations?: boolean | UserCountOutputTypeCountSentWorkspaceEmailInvitationsArgs
+    receivedWorkspaceEmailInvitations?: boolean | UserCountOutputTypeCountReceivedWorkspaceEmailInvitationsArgs
     approvalRequests?: boolean | UserCountOutputTypeCountApprovalRequestsArgs
     reviewedApprovals?: boolean | UserCountOutputTypeCountReviewedApprovalsArgs
     mediaAssets?: boolean | UserCountOutputTypeCountMediaAssetsArgs
@@ -5694,6 +5789,20 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountWorkspaceMembershipsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: WorkspaceMemberWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountSentWorkspaceEmailInvitationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WorkspaceEmailInvitationWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountReceivedWorkspaceEmailInvitationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WorkspaceEmailInvitationWhereInput
   }
 
   /**
@@ -6088,11 +6197,13 @@ export namespace Prisma {
    */
 
   export type WorkspaceCountOutputType = {
+    emailInvitations: number
     members: number
     websites: number
   }
 
   export type WorkspaceCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    emailInvitations?: boolean | WorkspaceCountOutputTypeCountEmailInvitationsArgs
     members?: boolean | WorkspaceCountOutputTypeCountMembersArgs
     websites?: boolean | WorkspaceCountOutputTypeCountWebsitesArgs
   }
@@ -6106,6 +6217,13 @@ export namespace Prisma {
      * Select specific fields to fetch from the WorkspaceCountOutputType
      */
     select?: WorkspaceCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * WorkspaceCountOutputType without action
+   */
+  export type WorkspaceCountOutputTypeCountEmailInvitationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WorkspaceEmailInvitationWhereInput
   }
 
   /**
@@ -6503,6 +6621,8 @@ export namespace Prisma {
     ownedOrganizations?: boolean | User$ownedOrganizationsArgs<ExtArgs>
     organizationMemberships?: boolean | User$organizationMembershipsArgs<ExtArgs>
     workspaceMemberships?: boolean | User$workspaceMembershipsArgs<ExtArgs>
+    sentWorkspaceEmailInvitations?: boolean | User$sentWorkspaceEmailInvitationsArgs<ExtArgs>
+    receivedWorkspaceEmailInvitations?: boolean | User$receivedWorkspaceEmailInvitationsArgs<ExtArgs>
     approvalRequests?: boolean | User$approvalRequestsArgs<ExtArgs>
     reviewedApprovals?: boolean | User$reviewedApprovalsArgs<ExtArgs>
     mediaAssets?: boolean | User$mediaAssetsArgs<ExtArgs>
@@ -6592,6 +6712,8 @@ export namespace Prisma {
     ownedOrganizations?: boolean | User$ownedOrganizationsArgs<ExtArgs>
     organizationMemberships?: boolean | User$organizationMembershipsArgs<ExtArgs>
     workspaceMemberships?: boolean | User$workspaceMembershipsArgs<ExtArgs>
+    sentWorkspaceEmailInvitations?: boolean | User$sentWorkspaceEmailInvitationsArgs<ExtArgs>
+    receivedWorkspaceEmailInvitations?: boolean | User$receivedWorkspaceEmailInvitationsArgs<ExtArgs>
     approvalRequests?: boolean | User$approvalRequestsArgs<ExtArgs>
     reviewedApprovals?: boolean | User$reviewedApprovalsArgs<ExtArgs>
     mediaAssets?: boolean | User$mediaAssetsArgs<ExtArgs>
@@ -6633,6 +6755,8 @@ export namespace Prisma {
       ownedOrganizations: Prisma.$OrganizationPayload<ExtArgs>[]
       organizationMemberships: Prisma.$OrganizationMemberPayload<ExtArgs>[]
       workspaceMemberships: Prisma.$WorkspaceMemberPayload<ExtArgs>[]
+      sentWorkspaceEmailInvitations: Prisma.$WorkspaceEmailInvitationPayload<ExtArgs>[]
+      receivedWorkspaceEmailInvitations: Prisma.$WorkspaceEmailInvitationPayload<ExtArgs>[]
       approvalRequests: Prisma.$PublishApprovalRequestPayload<ExtArgs>[]
       reviewedApprovals: Prisma.$PublishApprovalRequestPayload<ExtArgs>[]
       mediaAssets: Prisma.$MediaAssetPayload<ExtArgs>[]
@@ -7076,6 +7200,8 @@ export namespace Prisma {
     ownedOrganizations<T extends User$ownedOrganizationsArgs<ExtArgs> = {}>(args?: Subset<T, User$ownedOrganizationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     organizationMemberships<T extends User$organizationMembershipsArgs<ExtArgs> = {}>(args?: Subset<T, User$organizationMembershipsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrganizationMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     workspaceMemberships<T extends User$workspaceMembershipsArgs<ExtArgs> = {}>(args?: Subset<T, User$workspaceMembershipsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    sentWorkspaceEmailInvitations<T extends User$sentWorkspaceEmailInvitationsArgs<ExtArgs> = {}>(args?: Subset<T, User$sentWorkspaceEmailInvitationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceEmailInvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    receivedWorkspaceEmailInvitations<T extends User$receivedWorkspaceEmailInvitationsArgs<ExtArgs> = {}>(args?: Subset<T, User$receivedWorkspaceEmailInvitationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceEmailInvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     approvalRequests<T extends User$approvalRequestsArgs<ExtArgs> = {}>(args?: Subset<T, User$approvalRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PublishApprovalRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     reviewedApprovals<T extends User$reviewedApprovalsArgs<ExtArgs> = {}>(args?: Subset<T, User$reviewedApprovalsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PublishApprovalRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     mediaAssets<T extends User$mediaAssetsArgs<ExtArgs> = {}>(args?: Subset<T, User$mediaAssetsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MediaAssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -8138,6 +8264,54 @@ export namespace Prisma {
   }
 
   /**
+   * User.sentWorkspaceEmailInvitations
+   */
+  export type User$sentWorkspaceEmailInvitationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceEmailInvitation
+     */
+    select?: WorkspaceEmailInvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceEmailInvitation
+     */
+    omit?: WorkspaceEmailInvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceEmailInvitationInclude<ExtArgs> | null
+    where?: WorkspaceEmailInvitationWhereInput
+    orderBy?: WorkspaceEmailInvitationOrderByWithRelationInput | WorkspaceEmailInvitationOrderByWithRelationInput[]
+    cursor?: WorkspaceEmailInvitationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: WorkspaceEmailInvitationScalarFieldEnum | WorkspaceEmailInvitationScalarFieldEnum[]
+  }
+
+  /**
+   * User.receivedWorkspaceEmailInvitations
+   */
+  export type User$receivedWorkspaceEmailInvitationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceEmailInvitation
+     */
+    select?: WorkspaceEmailInvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceEmailInvitation
+     */
+    omit?: WorkspaceEmailInvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceEmailInvitationInclude<ExtArgs> | null
+    where?: WorkspaceEmailInvitationWhereInput
+    orderBy?: WorkspaceEmailInvitationOrderByWithRelationInput | WorkspaceEmailInvitationOrderByWithRelationInput[]
+    cursor?: WorkspaceEmailInvitationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: WorkspaceEmailInvitationScalarFieldEnum | WorkspaceEmailInvitationScalarFieldEnum[]
+  }
+
+  /**
    * User.approvalRequests
    */
   export type User$approvalRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -8335,6 +8509,7 @@ export namespace Prisma {
     name: string | null
     slug: string | null
     status: string | null
+    archivedAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
     teamId: string | null
@@ -8349,6 +8524,7 @@ export namespace Prisma {
     name: string | null
     slug: string | null
     status: string | null
+    archivedAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
     teamId: string | null
@@ -8363,6 +8539,7 @@ export namespace Prisma {
     name: number
     slug: number
     status: number
+    archivedAt: number
     editorData: number
     createdAt: number
     updatedAt: number
@@ -8380,6 +8557,7 @@ export namespace Prisma {
     name?: true
     slug?: true
     status?: true
+    archivedAt?: true
     createdAt?: true
     updatedAt?: true
     teamId?: true
@@ -8394,6 +8572,7 @@ export namespace Prisma {
     name?: true
     slug?: true
     status?: true
+    archivedAt?: true
     createdAt?: true
     updatedAt?: true
     teamId?: true
@@ -8408,6 +8587,7 @@ export namespace Prisma {
     name?: true
     slug?: true
     status?: true
+    archivedAt?: true
     editorData?: true
     createdAt?: true
     updatedAt?: true
@@ -8496,6 +8676,7 @@ export namespace Prisma {
     name: string
     slug: string
     status: string
+    archivedAt: Date | null
     editorData: JsonValue
     createdAt: Date
     updatedAt: Date
@@ -8528,6 +8709,7 @@ export namespace Prisma {
     name?: boolean
     slug?: boolean
     status?: boolean
+    archivedAt?: boolean
     editorData?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -8569,6 +8751,7 @@ export namespace Prisma {
     name?: boolean
     slug?: boolean
     status?: boolean
+    archivedAt?: boolean
     editorData?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -8588,6 +8771,7 @@ export namespace Prisma {
     name?: boolean
     slug?: boolean
     status?: boolean
+    archivedAt?: boolean
     editorData?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -8607,6 +8791,7 @@ export namespace Prisma {
     name?: boolean
     slug?: boolean
     status?: boolean
+    archivedAt?: boolean
     editorData?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -8616,7 +8801,7 @@ export namespace Prisma {
     approvalWorkflowEnabled?: boolean
   }
 
-  export type WebsiteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "name" | "slug" | "status" | "editorData" | "createdAt" | "updatedAt" | "teamId" | "workspaceId" | "organizationId" | "approvalWorkflowEnabled", ExtArgs["result"]["website"]>
+  export type WebsiteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "name" | "slug" | "status" | "archivedAt" | "editorData" | "createdAt" | "updatedAt" | "teamId" | "workspaceId" | "organizationId" | "approvalWorkflowEnabled", ExtArgs["result"]["website"]>
   export type WebsiteInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     customCodeSnippets?: boolean | Website$customCodeSnippetsArgs<ExtArgs>
@@ -8693,6 +8878,7 @@ export namespace Prisma {
       name: string
       slug: string
       status: string
+      archivedAt: Date | null
       editorData: Prisma.JsonValue
       createdAt: Date
       updatedAt: Date
@@ -9153,6 +9339,7 @@ export namespace Prisma {
     readonly name: FieldRef<"Website", 'String'>
     readonly slug: FieldRef<"Website", 'String'>
     readonly status: FieldRef<"Website", 'String'>
+    readonly archivedAt: FieldRef<"Website", 'DateTime'>
     readonly editorData: FieldRef<"Website", 'Json'>
     readonly createdAt: FieldRef<"Website", 'DateTime'>
     readonly updatedAt: FieldRef<"Website", 'DateTime'>
@@ -46290,8 +46477,18 @@ export namespace Prisma {
 
   export type AggregateWorkspace = {
     _count: WorkspaceCountAggregateOutputType | null
+    _avg: WorkspaceAvgAggregateOutputType | null
+    _sum: WorkspaceSumAggregateOutputType | null
     _min: WorkspaceMinAggregateOutputType | null
     _max: WorkspaceMaxAggregateOutputType | null
+  }
+
+  export type WorkspaceAvgAggregateOutputType = {
+    membersVersion: number | null
+  }
+
+  export type WorkspaceSumAggregateOutputType = {
+    membersVersion: number | null
   }
 
   export type WorkspaceMinAggregateOutputType = {
@@ -46302,6 +46499,8 @@ export namespace Prisma {
     ownerId: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    membersVersion: number | null
+    lifecycleStatus: string | null
   }
 
   export type WorkspaceMaxAggregateOutputType = {
@@ -46312,6 +46511,8 @@ export namespace Prisma {
     ownerId: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    membersVersion: number | null
+    lifecycleStatus: string | null
   }
 
   export type WorkspaceCountAggregateOutputType = {
@@ -46323,9 +46524,19 @@ export namespace Prisma {
     settings: number
     createdAt: number
     updatedAt: number
+    membersVersion: number
+    lifecycleStatus: number
     _all: number
   }
 
+
+  export type WorkspaceAvgAggregateInputType = {
+    membersVersion?: true
+  }
+
+  export type WorkspaceSumAggregateInputType = {
+    membersVersion?: true
+  }
 
   export type WorkspaceMinAggregateInputType = {
     id?: true
@@ -46335,6 +46546,8 @@ export namespace Prisma {
     ownerId?: true
     createdAt?: true
     updatedAt?: true
+    membersVersion?: true
+    lifecycleStatus?: true
   }
 
   export type WorkspaceMaxAggregateInputType = {
@@ -46345,6 +46558,8 @@ export namespace Prisma {
     ownerId?: true
     createdAt?: true
     updatedAt?: true
+    membersVersion?: true
+    lifecycleStatus?: true
   }
 
   export type WorkspaceCountAggregateInputType = {
@@ -46356,6 +46571,8 @@ export namespace Prisma {
     settings?: true
     createdAt?: true
     updatedAt?: true
+    membersVersion?: true
+    lifecycleStatus?: true
     _all?: true
   }
 
@@ -46397,6 +46614,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: WorkspaceAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: WorkspaceSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: WorkspaceMinAggregateInputType
@@ -46427,6 +46656,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: WorkspaceCountAggregateInputType | true
+    _avg?: WorkspaceAvgAggregateInputType
+    _sum?: WorkspaceSumAggregateInputType
     _min?: WorkspaceMinAggregateInputType
     _max?: WorkspaceMaxAggregateInputType
   }
@@ -46440,7 +46671,11 @@ export namespace Prisma {
     settings: JsonValue | null
     createdAt: Date
     updatedAt: Date
+    membersVersion: number
+    lifecycleStatus: string
     _count: WorkspaceCountAggregateOutputType | null
+    _avg: WorkspaceAvgAggregateOutputType | null
+    _sum: WorkspaceSumAggregateOutputType | null
     _min: WorkspaceMinAggregateOutputType | null
     _max: WorkspaceMaxAggregateOutputType | null
   }
@@ -46468,8 +46703,11 @@ export namespace Prisma {
     settings?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    membersVersion?: boolean
+    lifecycleStatus?: boolean
     organization?: boolean | Workspace$organizationArgs<ExtArgs>
     owner?: boolean | UserDefaultArgs<ExtArgs>
+    emailInvitations?: boolean | Workspace$emailInvitationsArgs<ExtArgs>
     members?: boolean | Workspace$membersArgs<ExtArgs>
     websites?: boolean | Workspace$websitesArgs<ExtArgs>
     _count?: boolean | WorkspaceCountOutputTypeDefaultArgs<ExtArgs>
@@ -46484,6 +46722,8 @@ export namespace Prisma {
     settings?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    membersVersion?: boolean
+    lifecycleStatus?: boolean
     organization?: boolean | Workspace$organizationArgs<ExtArgs>
     owner?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["workspace"]>
@@ -46497,6 +46737,8 @@ export namespace Prisma {
     settings?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    membersVersion?: boolean
+    lifecycleStatus?: boolean
     organization?: boolean | Workspace$organizationArgs<ExtArgs>
     owner?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["workspace"]>
@@ -46510,12 +46752,15 @@ export namespace Prisma {
     settings?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    membersVersion?: boolean
+    lifecycleStatus?: boolean
   }
 
-  export type WorkspaceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "name" | "slug" | "ownerId" | "settings" | "createdAt" | "updatedAt", ExtArgs["result"]["workspace"]>
+  export type WorkspaceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "name" | "slug" | "ownerId" | "settings" | "createdAt" | "updatedAt" | "membersVersion" | "lifecycleStatus", ExtArgs["result"]["workspace"]>
   export type WorkspaceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     organization?: boolean | Workspace$organizationArgs<ExtArgs>
     owner?: boolean | UserDefaultArgs<ExtArgs>
+    emailInvitations?: boolean | Workspace$emailInvitationsArgs<ExtArgs>
     members?: boolean | Workspace$membersArgs<ExtArgs>
     websites?: boolean | Workspace$websitesArgs<ExtArgs>
     _count?: boolean | WorkspaceCountOutputTypeDefaultArgs<ExtArgs>
@@ -46534,6 +46779,7 @@ export namespace Prisma {
     objects: {
       organization: Prisma.$OrganizationPayload<ExtArgs> | null
       owner: Prisma.$UserPayload<ExtArgs>
+      emailInvitations: Prisma.$WorkspaceEmailInvitationPayload<ExtArgs>[]
       members: Prisma.$WorkspaceMemberPayload<ExtArgs>[]
       websites: Prisma.$WebsitePayload<ExtArgs>[]
     }
@@ -46546,6 +46792,8 @@ export namespace Prisma {
       settings: Prisma.JsonValue | null
       createdAt: Date
       updatedAt: Date
+      membersVersion: number
+      lifecycleStatus: string
     }, ExtArgs["result"]["workspace"]>
     composites: {}
   }
@@ -46942,6 +47190,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     organization<T extends Workspace$organizationArgs<ExtArgs> = {}>(args?: Subset<T, Workspace$organizationArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     owner<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    emailInvitations<T extends Workspace$emailInvitationsArgs<ExtArgs> = {}>(args?: Subset<T, Workspace$emailInvitationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceEmailInvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     members<T extends Workspace$membersArgs<ExtArgs> = {}>(args?: Subset<T, Workspace$membersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     websites<T extends Workspace$websitesArgs<ExtArgs> = {}>(args?: Subset<T, Workspace$websitesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WebsitePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
@@ -46981,6 +47230,8 @@ export namespace Prisma {
     readonly settings: FieldRef<"Workspace", 'Json'>
     readonly createdAt: FieldRef<"Workspace", 'DateTime'>
     readonly updatedAt: FieldRef<"Workspace", 'DateTime'>
+    readonly membersVersion: FieldRef<"Workspace", 'Int'>
+    readonly lifecycleStatus: FieldRef<"Workspace", 'String'>
   }
     
 
@@ -47398,6 +47649,30 @@ export namespace Prisma {
      */
     include?: OrganizationInclude<ExtArgs> | null
     where?: OrganizationWhereInput
+  }
+
+  /**
+   * Workspace.emailInvitations
+   */
+  export type Workspace$emailInvitationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceEmailInvitation
+     */
+    select?: WorkspaceEmailInvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceEmailInvitation
+     */
+    omit?: WorkspaceEmailInvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceEmailInvitationInclude<ExtArgs> | null
+    where?: WorkspaceEmailInvitationWhereInput
+    orderBy?: WorkspaceEmailInvitationOrderByWithRelationInput | WorkspaceEmailInvitationOrderByWithRelationInput[]
+    cursor?: WorkspaceEmailInvitationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: WorkspaceEmailInvitationScalarFieldEnum | WorkspaceEmailInvitationScalarFieldEnum[]
   }
 
   /**
@@ -64685,6 +64960,1376 @@ export namespace Prisma {
 
 
   /**
+   * Model WorkspaceEmailInvitation
+   */
+
+  export type AggregateWorkspaceEmailInvitation = {
+    _count: WorkspaceEmailInvitationCountAggregateOutputType | null
+    _avg: WorkspaceEmailInvitationAvgAggregateOutputType | null
+    _sum: WorkspaceEmailInvitationSumAggregateOutputType | null
+    _min: WorkspaceEmailInvitationMinAggregateOutputType | null
+    _max: WorkspaceEmailInvitationMaxAggregateOutputType | null
+  }
+
+  export type WorkspaceEmailInvitationAvgAggregateOutputType = {
+    version: number | null
+    emailAttempts: number | null
+  }
+
+  export type WorkspaceEmailInvitationSumAggregateOutputType = {
+    version: number | null
+    emailAttempts: number | null
+  }
+
+  export type WorkspaceEmailInvitationMinAggregateOutputType = {
+    id: string | null
+    workspaceId: string | null
+    invitedBy: string | null
+    recipientUserId: string | null
+    invitedEmail: string | null
+    role: string | null
+    status: string | null
+    version: number | null
+    tokenHash: string | null
+    expiresAt: Date | null
+    acceptedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    createRequestKey: string | null
+    lastCommandKey: string | null
+    lastCommandAction: string | null
+    emailStatus: string | null
+    emailQueuedAt: Date | null
+    emailSentAt: Date | null
+    emailAttempts: number | null
+    nextAttemptAt: Date | null
+    leaseUntil: Date | null
+    leaseToken: string | null
+  }
+
+  export type WorkspaceEmailInvitationMaxAggregateOutputType = {
+    id: string | null
+    workspaceId: string | null
+    invitedBy: string | null
+    recipientUserId: string | null
+    invitedEmail: string | null
+    role: string | null
+    status: string | null
+    version: number | null
+    tokenHash: string | null
+    expiresAt: Date | null
+    acceptedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    createRequestKey: string | null
+    lastCommandKey: string | null
+    lastCommandAction: string | null
+    emailStatus: string | null
+    emailQueuedAt: Date | null
+    emailSentAt: Date | null
+    emailAttempts: number | null
+    nextAttemptAt: Date | null
+    leaseUntil: Date | null
+    leaseToken: string | null
+  }
+
+  export type WorkspaceEmailInvitationCountAggregateOutputType = {
+    id: number
+    workspaceId: number
+    invitedBy: number
+    recipientUserId: number
+    invitedEmail: number
+    role: number
+    status: number
+    version: number
+    tokenHash: number
+    expiresAt: number
+    acceptedAt: number
+    createdAt: number
+    updatedAt: number
+    createRequestKey: number
+    lastCommandKey: number
+    lastCommandAction: number
+    emailStatus: number
+    emailQueuedAt: number
+    emailSentAt: number
+    emailAttempts: number
+    nextAttemptAt: number
+    leaseUntil: number
+    leaseToken: number
+    _all: number
+  }
+
+
+  export type WorkspaceEmailInvitationAvgAggregateInputType = {
+    version?: true
+    emailAttempts?: true
+  }
+
+  export type WorkspaceEmailInvitationSumAggregateInputType = {
+    version?: true
+    emailAttempts?: true
+  }
+
+  export type WorkspaceEmailInvitationMinAggregateInputType = {
+    id?: true
+    workspaceId?: true
+    invitedBy?: true
+    recipientUserId?: true
+    invitedEmail?: true
+    role?: true
+    status?: true
+    version?: true
+    tokenHash?: true
+    expiresAt?: true
+    acceptedAt?: true
+    createdAt?: true
+    updatedAt?: true
+    createRequestKey?: true
+    lastCommandKey?: true
+    lastCommandAction?: true
+    emailStatus?: true
+    emailQueuedAt?: true
+    emailSentAt?: true
+    emailAttempts?: true
+    nextAttemptAt?: true
+    leaseUntil?: true
+    leaseToken?: true
+  }
+
+  export type WorkspaceEmailInvitationMaxAggregateInputType = {
+    id?: true
+    workspaceId?: true
+    invitedBy?: true
+    recipientUserId?: true
+    invitedEmail?: true
+    role?: true
+    status?: true
+    version?: true
+    tokenHash?: true
+    expiresAt?: true
+    acceptedAt?: true
+    createdAt?: true
+    updatedAt?: true
+    createRequestKey?: true
+    lastCommandKey?: true
+    lastCommandAction?: true
+    emailStatus?: true
+    emailQueuedAt?: true
+    emailSentAt?: true
+    emailAttempts?: true
+    nextAttemptAt?: true
+    leaseUntil?: true
+    leaseToken?: true
+  }
+
+  export type WorkspaceEmailInvitationCountAggregateInputType = {
+    id?: true
+    workspaceId?: true
+    invitedBy?: true
+    recipientUserId?: true
+    invitedEmail?: true
+    role?: true
+    status?: true
+    version?: true
+    tokenHash?: true
+    expiresAt?: true
+    acceptedAt?: true
+    createdAt?: true
+    updatedAt?: true
+    createRequestKey?: true
+    lastCommandKey?: true
+    lastCommandAction?: true
+    emailStatus?: true
+    emailQueuedAt?: true
+    emailSentAt?: true
+    emailAttempts?: true
+    nextAttemptAt?: true
+    leaseUntil?: true
+    leaseToken?: true
+    _all?: true
+  }
+
+  export type WorkspaceEmailInvitationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WorkspaceEmailInvitation to aggregate.
+     */
+    where?: WorkspaceEmailInvitationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WorkspaceEmailInvitations to fetch.
+     */
+    orderBy?: WorkspaceEmailInvitationOrderByWithRelationInput | WorkspaceEmailInvitationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: WorkspaceEmailInvitationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WorkspaceEmailInvitations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WorkspaceEmailInvitations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned WorkspaceEmailInvitations
+    **/
+    _count?: true | WorkspaceEmailInvitationCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: WorkspaceEmailInvitationAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: WorkspaceEmailInvitationSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: WorkspaceEmailInvitationMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: WorkspaceEmailInvitationMaxAggregateInputType
+  }
+
+  export type GetWorkspaceEmailInvitationAggregateType<T extends WorkspaceEmailInvitationAggregateArgs> = {
+        [P in keyof T & keyof AggregateWorkspaceEmailInvitation]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateWorkspaceEmailInvitation[P]>
+      : GetScalarType<T[P], AggregateWorkspaceEmailInvitation[P]>
+  }
+
+
+
+
+  export type WorkspaceEmailInvitationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WorkspaceEmailInvitationWhereInput
+    orderBy?: WorkspaceEmailInvitationOrderByWithAggregationInput | WorkspaceEmailInvitationOrderByWithAggregationInput[]
+    by: WorkspaceEmailInvitationScalarFieldEnum[] | WorkspaceEmailInvitationScalarFieldEnum
+    having?: WorkspaceEmailInvitationScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: WorkspaceEmailInvitationCountAggregateInputType | true
+    _avg?: WorkspaceEmailInvitationAvgAggregateInputType
+    _sum?: WorkspaceEmailInvitationSumAggregateInputType
+    _min?: WorkspaceEmailInvitationMinAggregateInputType
+    _max?: WorkspaceEmailInvitationMaxAggregateInputType
+  }
+
+  export type WorkspaceEmailInvitationGroupByOutputType = {
+    id: string
+    workspaceId: string
+    invitedBy: string
+    recipientUserId: string | null
+    invitedEmail: string
+    role: string
+    status: string
+    version: number
+    tokenHash: string
+    expiresAt: Date
+    acceptedAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    createRequestKey: string
+    lastCommandKey: string | null
+    lastCommandAction: string | null
+    emailStatus: string
+    emailQueuedAt: Date
+    emailSentAt: Date | null
+    emailAttempts: number
+    nextAttemptAt: Date
+    leaseUntil: Date | null
+    leaseToken: string | null
+    _count: WorkspaceEmailInvitationCountAggregateOutputType | null
+    _avg: WorkspaceEmailInvitationAvgAggregateOutputType | null
+    _sum: WorkspaceEmailInvitationSumAggregateOutputType | null
+    _min: WorkspaceEmailInvitationMinAggregateOutputType | null
+    _max: WorkspaceEmailInvitationMaxAggregateOutputType | null
+  }
+
+  type GetWorkspaceEmailInvitationGroupByPayload<T extends WorkspaceEmailInvitationGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<WorkspaceEmailInvitationGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof WorkspaceEmailInvitationGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], WorkspaceEmailInvitationGroupByOutputType[P]>
+            : GetScalarType<T[P], WorkspaceEmailInvitationGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type WorkspaceEmailInvitationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    workspaceId?: boolean
+    invitedBy?: boolean
+    recipientUserId?: boolean
+    invitedEmail?: boolean
+    role?: boolean
+    status?: boolean
+    version?: boolean
+    tokenHash?: boolean
+    expiresAt?: boolean
+    acceptedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    createRequestKey?: boolean
+    lastCommandKey?: boolean
+    lastCommandAction?: boolean
+    emailStatus?: boolean
+    emailQueuedAt?: boolean
+    emailSentAt?: boolean
+    emailAttempts?: boolean
+    nextAttemptAt?: boolean
+    leaseUntil?: boolean
+    leaseToken?: boolean
+    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
+    inviter?: boolean | UserDefaultArgs<ExtArgs>
+    recipient?: boolean | WorkspaceEmailInvitation$recipientArgs<ExtArgs>
+  }, ExtArgs["result"]["workspaceEmailInvitation"]>
+
+  export type WorkspaceEmailInvitationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    workspaceId?: boolean
+    invitedBy?: boolean
+    recipientUserId?: boolean
+    invitedEmail?: boolean
+    role?: boolean
+    status?: boolean
+    version?: boolean
+    tokenHash?: boolean
+    expiresAt?: boolean
+    acceptedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    createRequestKey?: boolean
+    lastCommandKey?: boolean
+    lastCommandAction?: boolean
+    emailStatus?: boolean
+    emailQueuedAt?: boolean
+    emailSentAt?: boolean
+    emailAttempts?: boolean
+    nextAttemptAt?: boolean
+    leaseUntil?: boolean
+    leaseToken?: boolean
+    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
+    inviter?: boolean | UserDefaultArgs<ExtArgs>
+    recipient?: boolean | WorkspaceEmailInvitation$recipientArgs<ExtArgs>
+  }, ExtArgs["result"]["workspaceEmailInvitation"]>
+
+  export type WorkspaceEmailInvitationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    workspaceId?: boolean
+    invitedBy?: boolean
+    recipientUserId?: boolean
+    invitedEmail?: boolean
+    role?: boolean
+    status?: boolean
+    version?: boolean
+    tokenHash?: boolean
+    expiresAt?: boolean
+    acceptedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    createRequestKey?: boolean
+    lastCommandKey?: boolean
+    lastCommandAction?: boolean
+    emailStatus?: boolean
+    emailQueuedAt?: boolean
+    emailSentAt?: boolean
+    emailAttempts?: boolean
+    nextAttemptAt?: boolean
+    leaseUntil?: boolean
+    leaseToken?: boolean
+    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
+    inviter?: boolean | UserDefaultArgs<ExtArgs>
+    recipient?: boolean | WorkspaceEmailInvitation$recipientArgs<ExtArgs>
+  }, ExtArgs["result"]["workspaceEmailInvitation"]>
+
+  export type WorkspaceEmailInvitationSelectScalar = {
+    id?: boolean
+    workspaceId?: boolean
+    invitedBy?: boolean
+    recipientUserId?: boolean
+    invitedEmail?: boolean
+    role?: boolean
+    status?: boolean
+    version?: boolean
+    tokenHash?: boolean
+    expiresAt?: boolean
+    acceptedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    createRequestKey?: boolean
+    lastCommandKey?: boolean
+    lastCommandAction?: boolean
+    emailStatus?: boolean
+    emailQueuedAt?: boolean
+    emailSentAt?: boolean
+    emailAttempts?: boolean
+    nextAttemptAt?: boolean
+    leaseUntil?: boolean
+    leaseToken?: boolean
+  }
+
+  export type WorkspaceEmailInvitationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "workspaceId" | "invitedBy" | "recipientUserId" | "invitedEmail" | "role" | "status" | "version" | "tokenHash" | "expiresAt" | "acceptedAt" | "createdAt" | "updatedAt" | "createRequestKey" | "lastCommandKey" | "lastCommandAction" | "emailStatus" | "emailQueuedAt" | "emailSentAt" | "emailAttempts" | "nextAttemptAt" | "leaseUntil" | "leaseToken", ExtArgs["result"]["workspaceEmailInvitation"]>
+  export type WorkspaceEmailInvitationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
+    inviter?: boolean | UserDefaultArgs<ExtArgs>
+    recipient?: boolean | WorkspaceEmailInvitation$recipientArgs<ExtArgs>
+  }
+  export type WorkspaceEmailInvitationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
+    inviter?: boolean | UserDefaultArgs<ExtArgs>
+    recipient?: boolean | WorkspaceEmailInvitation$recipientArgs<ExtArgs>
+  }
+  export type WorkspaceEmailInvitationIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
+    inviter?: boolean | UserDefaultArgs<ExtArgs>
+    recipient?: boolean | WorkspaceEmailInvitation$recipientArgs<ExtArgs>
+  }
+
+  export type $WorkspaceEmailInvitationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "WorkspaceEmailInvitation"
+    objects: {
+      workspace: Prisma.$WorkspacePayload<ExtArgs>
+      inviter: Prisma.$UserPayload<ExtArgs>
+      recipient: Prisma.$UserPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      workspaceId: string
+      invitedBy: string
+      recipientUserId: string | null
+      invitedEmail: string
+      role: string
+      status: string
+      version: number
+      tokenHash: string
+      expiresAt: Date
+      acceptedAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+      createRequestKey: string
+      lastCommandKey: string | null
+      lastCommandAction: string | null
+      emailStatus: string
+      emailQueuedAt: Date
+      emailSentAt: Date | null
+      emailAttempts: number
+      nextAttemptAt: Date
+      leaseUntil: Date | null
+      leaseToken: string | null
+    }, ExtArgs["result"]["workspaceEmailInvitation"]>
+    composites: {}
+  }
+
+  type WorkspaceEmailInvitationGetPayload<S extends boolean | null | undefined | WorkspaceEmailInvitationDefaultArgs> = $Result.GetResult<Prisma.$WorkspaceEmailInvitationPayload, S>
+
+  type WorkspaceEmailInvitationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<WorkspaceEmailInvitationFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: WorkspaceEmailInvitationCountAggregateInputType | true
+    }
+
+  export interface WorkspaceEmailInvitationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['WorkspaceEmailInvitation'], meta: { name: 'WorkspaceEmailInvitation' } }
+    /**
+     * Find zero or one WorkspaceEmailInvitation that matches the filter.
+     * @param {WorkspaceEmailInvitationFindUniqueArgs} args - Arguments to find a WorkspaceEmailInvitation
+     * @example
+     * // Get one WorkspaceEmailInvitation
+     * const workspaceEmailInvitation = await prisma.workspaceEmailInvitation.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends WorkspaceEmailInvitationFindUniqueArgs>(args: SelectSubset<T, WorkspaceEmailInvitationFindUniqueArgs<ExtArgs>>): Prisma__WorkspaceEmailInvitationClient<$Result.GetResult<Prisma.$WorkspaceEmailInvitationPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one WorkspaceEmailInvitation that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {WorkspaceEmailInvitationFindUniqueOrThrowArgs} args - Arguments to find a WorkspaceEmailInvitation
+     * @example
+     * // Get one WorkspaceEmailInvitation
+     * const workspaceEmailInvitation = await prisma.workspaceEmailInvitation.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends WorkspaceEmailInvitationFindUniqueOrThrowArgs>(args: SelectSubset<T, WorkspaceEmailInvitationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__WorkspaceEmailInvitationClient<$Result.GetResult<Prisma.$WorkspaceEmailInvitationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first WorkspaceEmailInvitation that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkspaceEmailInvitationFindFirstArgs} args - Arguments to find a WorkspaceEmailInvitation
+     * @example
+     * // Get one WorkspaceEmailInvitation
+     * const workspaceEmailInvitation = await prisma.workspaceEmailInvitation.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends WorkspaceEmailInvitationFindFirstArgs>(args?: SelectSubset<T, WorkspaceEmailInvitationFindFirstArgs<ExtArgs>>): Prisma__WorkspaceEmailInvitationClient<$Result.GetResult<Prisma.$WorkspaceEmailInvitationPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first WorkspaceEmailInvitation that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkspaceEmailInvitationFindFirstOrThrowArgs} args - Arguments to find a WorkspaceEmailInvitation
+     * @example
+     * // Get one WorkspaceEmailInvitation
+     * const workspaceEmailInvitation = await prisma.workspaceEmailInvitation.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends WorkspaceEmailInvitationFindFirstOrThrowArgs>(args?: SelectSubset<T, WorkspaceEmailInvitationFindFirstOrThrowArgs<ExtArgs>>): Prisma__WorkspaceEmailInvitationClient<$Result.GetResult<Prisma.$WorkspaceEmailInvitationPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more WorkspaceEmailInvitations that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkspaceEmailInvitationFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all WorkspaceEmailInvitations
+     * const workspaceEmailInvitations = await prisma.workspaceEmailInvitation.findMany()
+     * 
+     * // Get first 10 WorkspaceEmailInvitations
+     * const workspaceEmailInvitations = await prisma.workspaceEmailInvitation.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const workspaceEmailInvitationWithIdOnly = await prisma.workspaceEmailInvitation.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends WorkspaceEmailInvitationFindManyArgs>(args?: SelectSubset<T, WorkspaceEmailInvitationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceEmailInvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a WorkspaceEmailInvitation.
+     * @param {WorkspaceEmailInvitationCreateArgs} args - Arguments to create a WorkspaceEmailInvitation.
+     * @example
+     * // Create one WorkspaceEmailInvitation
+     * const WorkspaceEmailInvitation = await prisma.workspaceEmailInvitation.create({
+     *   data: {
+     *     // ... data to create a WorkspaceEmailInvitation
+     *   }
+     * })
+     * 
+     */
+    create<T extends WorkspaceEmailInvitationCreateArgs>(args: SelectSubset<T, WorkspaceEmailInvitationCreateArgs<ExtArgs>>): Prisma__WorkspaceEmailInvitationClient<$Result.GetResult<Prisma.$WorkspaceEmailInvitationPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many WorkspaceEmailInvitations.
+     * @param {WorkspaceEmailInvitationCreateManyArgs} args - Arguments to create many WorkspaceEmailInvitations.
+     * @example
+     * // Create many WorkspaceEmailInvitations
+     * const workspaceEmailInvitation = await prisma.workspaceEmailInvitation.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends WorkspaceEmailInvitationCreateManyArgs>(args?: SelectSubset<T, WorkspaceEmailInvitationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many WorkspaceEmailInvitations and returns the data saved in the database.
+     * @param {WorkspaceEmailInvitationCreateManyAndReturnArgs} args - Arguments to create many WorkspaceEmailInvitations.
+     * @example
+     * // Create many WorkspaceEmailInvitations
+     * const workspaceEmailInvitation = await prisma.workspaceEmailInvitation.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many WorkspaceEmailInvitations and only return the `id`
+     * const workspaceEmailInvitationWithIdOnly = await prisma.workspaceEmailInvitation.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends WorkspaceEmailInvitationCreateManyAndReturnArgs>(args?: SelectSubset<T, WorkspaceEmailInvitationCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceEmailInvitationPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a WorkspaceEmailInvitation.
+     * @param {WorkspaceEmailInvitationDeleteArgs} args - Arguments to delete one WorkspaceEmailInvitation.
+     * @example
+     * // Delete one WorkspaceEmailInvitation
+     * const WorkspaceEmailInvitation = await prisma.workspaceEmailInvitation.delete({
+     *   where: {
+     *     // ... filter to delete one WorkspaceEmailInvitation
+     *   }
+     * })
+     * 
+     */
+    delete<T extends WorkspaceEmailInvitationDeleteArgs>(args: SelectSubset<T, WorkspaceEmailInvitationDeleteArgs<ExtArgs>>): Prisma__WorkspaceEmailInvitationClient<$Result.GetResult<Prisma.$WorkspaceEmailInvitationPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one WorkspaceEmailInvitation.
+     * @param {WorkspaceEmailInvitationUpdateArgs} args - Arguments to update one WorkspaceEmailInvitation.
+     * @example
+     * // Update one WorkspaceEmailInvitation
+     * const workspaceEmailInvitation = await prisma.workspaceEmailInvitation.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends WorkspaceEmailInvitationUpdateArgs>(args: SelectSubset<T, WorkspaceEmailInvitationUpdateArgs<ExtArgs>>): Prisma__WorkspaceEmailInvitationClient<$Result.GetResult<Prisma.$WorkspaceEmailInvitationPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more WorkspaceEmailInvitations.
+     * @param {WorkspaceEmailInvitationDeleteManyArgs} args - Arguments to filter WorkspaceEmailInvitations to delete.
+     * @example
+     * // Delete a few WorkspaceEmailInvitations
+     * const { count } = await prisma.workspaceEmailInvitation.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends WorkspaceEmailInvitationDeleteManyArgs>(args?: SelectSubset<T, WorkspaceEmailInvitationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more WorkspaceEmailInvitations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkspaceEmailInvitationUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many WorkspaceEmailInvitations
+     * const workspaceEmailInvitation = await prisma.workspaceEmailInvitation.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends WorkspaceEmailInvitationUpdateManyArgs>(args: SelectSubset<T, WorkspaceEmailInvitationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more WorkspaceEmailInvitations and returns the data updated in the database.
+     * @param {WorkspaceEmailInvitationUpdateManyAndReturnArgs} args - Arguments to update many WorkspaceEmailInvitations.
+     * @example
+     * // Update many WorkspaceEmailInvitations
+     * const workspaceEmailInvitation = await prisma.workspaceEmailInvitation.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more WorkspaceEmailInvitations and only return the `id`
+     * const workspaceEmailInvitationWithIdOnly = await prisma.workspaceEmailInvitation.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends WorkspaceEmailInvitationUpdateManyAndReturnArgs>(args: SelectSubset<T, WorkspaceEmailInvitationUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceEmailInvitationPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one WorkspaceEmailInvitation.
+     * @param {WorkspaceEmailInvitationUpsertArgs} args - Arguments to update or create a WorkspaceEmailInvitation.
+     * @example
+     * // Update or create a WorkspaceEmailInvitation
+     * const workspaceEmailInvitation = await prisma.workspaceEmailInvitation.upsert({
+     *   create: {
+     *     // ... data to create a WorkspaceEmailInvitation
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the WorkspaceEmailInvitation we want to update
+     *   }
+     * })
+     */
+    upsert<T extends WorkspaceEmailInvitationUpsertArgs>(args: SelectSubset<T, WorkspaceEmailInvitationUpsertArgs<ExtArgs>>): Prisma__WorkspaceEmailInvitationClient<$Result.GetResult<Prisma.$WorkspaceEmailInvitationPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of WorkspaceEmailInvitations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkspaceEmailInvitationCountArgs} args - Arguments to filter WorkspaceEmailInvitations to count.
+     * @example
+     * // Count the number of WorkspaceEmailInvitations
+     * const count = await prisma.workspaceEmailInvitation.count({
+     *   where: {
+     *     // ... the filter for the WorkspaceEmailInvitations we want to count
+     *   }
+     * })
+    **/
+    count<T extends WorkspaceEmailInvitationCountArgs>(
+      args?: Subset<T, WorkspaceEmailInvitationCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], WorkspaceEmailInvitationCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a WorkspaceEmailInvitation.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkspaceEmailInvitationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends WorkspaceEmailInvitationAggregateArgs>(args: Subset<T, WorkspaceEmailInvitationAggregateArgs>): Prisma.PrismaPromise<GetWorkspaceEmailInvitationAggregateType<T>>
+
+    /**
+     * Group by WorkspaceEmailInvitation.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkspaceEmailInvitationGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends WorkspaceEmailInvitationGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: WorkspaceEmailInvitationGroupByArgs['orderBy'] }
+        : { orderBy?: WorkspaceEmailInvitationGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, WorkspaceEmailInvitationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetWorkspaceEmailInvitationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the WorkspaceEmailInvitation model
+   */
+  readonly fields: WorkspaceEmailInvitationFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for WorkspaceEmailInvitation.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__WorkspaceEmailInvitationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    workspace<T extends WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Subset<T, WorkspaceDefaultArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    inviter<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    recipient<T extends WorkspaceEmailInvitation$recipientArgs<ExtArgs> = {}>(args?: Subset<T, WorkspaceEmailInvitation$recipientArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the WorkspaceEmailInvitation model
+   */
+  interface WorkspaceEmailInvitationFieldRefs {
+    readonly id: FieldRef<"WorkspaceEmailInvitation", 'String'>
+    readonly workspaceId: FieldRef<"WorkspaceEmailInvitation", 'String'>
+    readonly invitedBy: FieldRef<"WorkspaceEmailInvitation", 'String'>
+    readonly recipientUserId: FieldRef<"WorkspaceEmailInvitation", 'String'>
+    readonly invitedEmail: FieldRef<"WorkspaceEmailInvitation", 'String'>
+    readonly role: FieldRef<"WorkspaceEmailInvitation", 'String'>
+    readonly status: FieldRef<"WorkspaceEmailInvitation", 'String'>
+    readonly version: FieldRef<"WorkspaceEmailInvitation", 'Int'>
+    readonly tokenHash: FieldRef<"WorkspaceEmailInvitation", 'String'>
+    readonly expiresAt: FieldRef<"WorkspaceEmailInvitation", 'DateTime'>
+    readonly acceptedAt: FieldRef<"WorkspaceEmailInvitation", 'DateTime'>
+    readonly createdAt: FieldRef<"WorkspaceEmailInvitation", 'DateTime'>
+    readonly updatedAt: FieldRef<"WorkspaceEmailInvitation", 'DateTime'>
+    readonly createRequestKey: FieldRef<"WorkspaceEmailInvitation", 'String'>
+    readonly lastCommandKey: FieldRef<"WorkspaceEmailInvitation", 'String'>
+    readonly lastCommandAction: FieldRef<"WorkspaceEmailInvitation", 'String'>
+    readonly emailStatus: FieldRef<"WorkspaceEmailInvitation", 'String'>
+    readonly emailQueuedAt: FieldRef<"WorkspaceEmailInvitation", 'DateTime'>
+    readonly emailSentAt: FieldRef<"WorkspaceEmailInvitation", 'DateTime'>
+    readonly emailAttempts: FieldRef<"WorkspaceEmailInvitation", 'Int'>
+    readonly nextAttemptAt: FieldRef<"WorkspaceEmailInvitation", 'DateTime'>
+    readonly leaseUntil: FieldRef<"WorkspaceEmailInvitation", 'DateTime'>
+    readonly leaseToken: FieldRef<"WorkspaceEmailInvitation", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * WorkspaceEmailInvitation findUnique
+   */
+  export type WorkspaceEmailInvitationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceEmailInvitation
+     */
+    select?: WorkspaceEmailInvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceEmailInvitation
+     */
+    omit?: WorkspaceEmailInvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceEmailInvitationInclude<ExtArgs> | null
+    /**
+     * Filter, which WorkspaceEmailInvitation to fetch.
+     */
+    where: WorkspaceEmailInvitationWhereUniqueInput
+  }
+
+  /**
+   * WorkspaceEmailInvitation findUniqueOrThrow
+   */
+  export type WorkspaceEmailInvitationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceEmailInvitation
+     */
+    select?: WorkspaceEmailInvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceEmailInvitation
+     */
+    omit?: WorkspaceEmailInvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceEmailInvitationInclude<ExtArgs> | null
+    /**
+     * Filter, which WorkspaceEmailInvitation to fetch.
+     */
+    where: WorkspaceEmailInvitationWhereUniqueInput
+  }
+
+  /**
+   * WorkspaceEmailInvitation findFirst
+   */
+  export type WorkspaceEmailInvitationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceEmailInvitation
+     */
+    select?: WorkspaceEmailInvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceEmailInvitation
+     */
+    omit?: WorkspaceEmailInvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceEmailInvitationInclude<ExtArgs> | null
+    /**
+     * Filter, which WorkspaceEmailInvitation to fetch.
+     */
+    where?: WorkspaceEmailInvitationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WorkspaceEmailInvitations to fetch.
+     */
+    orderBy?: WorkspaceEmailInvitationOrderByWithRelationInput | WorkspaceEmailInvitationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WorkspaceEmailInvitations.
+     */
+    cursor?: WorkspaceEmailInvitationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WorkspaceEmailInvitations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WorkspaceEmailInvitations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WorkspaceEmailInvitations.
+     */
+    distinct?: WorkspaceEmailInvitationScalarFieldEnum | WorkspaceEmailInvitationScalarFieldEnum[]
+  }
+
+  /**
+   * WorkspaceEmailInvitation findFirstOrThrow
+   */
+  export type WorkspaceEmailInvitationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceEmailInvitation
+     */
+    select?: WorkspaceEmailInvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceEmailInvitation
+     */
+    omit?: WorkspaceEmailInvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceEmailInvitationInclude<ExtArgs> | null
+    /**
+     * Filter, which WorkspaceEmailInvitation to fetch.
+     */
+    where?: WorkspaceEmailInvitationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WorkspaceEmailInvitations to fetch.
+     */
+    orderBy?: WorkspaceEmailInvitationOrderByWithRelationInput | WorkspaceEmailInvitationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WorkspaceEmailInvitations.
+     */
+    cursor?: WorkspaceEmailInvitationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WorkspaceEmailInvitations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WorkspaceEmailInvitations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WorkspaceEmailInvitations.
+     */
+    distinct?: WorkspaceEmailInvitationScalarFieldEnum | WorkspaceEmailInvitationScalarFieldEnum[]
+  }
+
+  /**
+   * WorkspaceEmailInvitation findMany
+   */
+  export type WorkspaceEmailInvitationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceEmailInvitation
+     */
+    select?: WorkspaceEmailInvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceEmailInvitation
+     */
+    omit?: WorkspaceEmailInvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceEmailInvitationInclude<ExtArgs> | null
+    /**
+     * Filter, which WorkspaceEmailInvitations to fetch.
+     */
+    where?: WorkspaceEmailInvitationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WorkspaceEmailInvitations to fetch.
+     */
+    orderBy?: WorkspaceEmailInvitationOrderByWithRelationInput | WorkspaceEmailInvitationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing WorkspaceEmailInvitations.
+     */
+    cursor?: WorkspaceEmailInvitationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WorkspaceEmailInvitations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WorkspaceEmailInvitations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WorkspaceEmailInvitations.
+     */
+    distinct?: WorkspaceEmailInvitationScalarFieldEnum | WorkspaceEmailInvitationScalarFieldEnum[]
+  }
+
+  /**
+   * WorkspaceEmailInvitation create
+   */
+  export type WorkspaceEmailInvitationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceEmailInvitation
+     */
+    select?: WorkspaceEmailInvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceEmailInvitation
+     */
+    omit?: WorkspaceEmailInvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceEmailInvitationInclude<ExtArgs> | null
+    /**
+     * The data needed to create a WorkspaceEmailInvitation.
+     */
+    data: XOR<WorkspaceEmailInvitationCreateInput, WorkspaceEmailInvitationUncheckedCreateInput>
+  }
+
+  /**
+   * WorkspaceEmailInvitation createMany
+   */
+  export type WorkspaceEmailInvitationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many WorkspaceEmailInvitations.
+     */
+    data: WorkspaceEmailInvitationCreateManyInput | WorkspaceEmailInvitationCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * WorkspaceEmailInvitation createManyAndReturn
+   */
+  export type WorkspaceEmailInvitationCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceEmailInvitation
+     */
+    select?: WorkspaceEmailInvitationSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceEmailInvitation
+     */
+    omit?: WorkspaceEmailInvitationOmit<ExtArgs> | null
+    /**
+     * The data used to create many WorkspaceEmailInvitations.
+     */
+    data: WorkspaceEmailInvitationCreateManyInput | WorkspaceEmailInvitationCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceEmailInvitationIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * WorkspaceEmailInvitation update
+   */
+  export type WorkspaceEmailInvitationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceEmailInvitation
+     */
+    select?: WorkspaceEmailInvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceEmailInvitation
+     */
+    omit?: WorkspaceEmailInvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceEmailInvitationInclude<ExtArgs> | null
+    /**
+     * The data needed to update a WorkspaceEmailInvitation.
+     */
+    data: XOR<WorkspaceEmailInvitationUpdateInput, WorkspaceEmailInvitationUncheckedUpdateInput>
+    /**
+     * Choose, which WorkspaceEmailInvitation to update.
+     */
+    where: WorkspaceEmailInvitationWhereUniqueInput
+  }
+
+  /**
+   * WorkspaceEmailInvitation updateMany
+   */
+  export type WorkspaceEmailInvitationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update WorkspaceEmailInvitations.
+     */
+    data: XOR<WorkspaceEmailInvitationUpdateManyMutationInput, WorkspaceEmailInvitationUncheckedUpdateManyInput>
+    /**
+     * Filter which WorkspaceEmailInvitations to update
+     */
+    where?: WorkspaceEmailInvitationWhereInput
+    /**
+     * Limit how many WorkspaceEmailInvitations to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * WorkspaceEmailInvitation updateManyAndReturn
+   */
+  export type WorkspaceEmailInvitationUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceEmailInvitation
+     */
+    select?: WorkspaceEmailInvitationSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceEmailInvitation
+     */
+    omit?: WorkspaceEmailInvitationOmit<ExtArgs> | null
+    /**
+     * The data used to update WorkspaceEmailInvitations.
+     */
+    data: XOR<WorkspaceEmailInvitationUpdateManyMutationInput, WorkspaceEmailInvitationUncheckedUpdateManyInput>
+    /**
+     * Filter which WorkspaceEmailInvitations to update
+     */
+    where?: WorkspaceEmailInvitationWhereInput
+    /**
+     * Limit how many WorkspaceEmailInvitations to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceEmailInvitationIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * WorkspaceEmailInvitation upsert
+   */
+  export type WorkspaceEmailInvitationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceEmailInvitation
+     */
+    select?: WorkspaceEmailInvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceEmailInvitation
+     */
+    omit?: WorkspaceEmailInvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceEmailInvitationInclude<ExtArgs> | null
+    /**
+     * The filter to search for the WorkspaceEmailInvitation to update in case it exists.
+     */
+    where: WorkspaceEmailInvitationWhereUniqueInput
+    /**
+     * In case the WorkspaceEmailInvitation found by the `where` argument doesn't exist, create a new WorkspaceEmailInvitation with this data.
+     */
+    create: XOR<WorkspaceEmailInvitationCreateInput, WorkspaceEmailInvitationUncheckedCreateInput>
+    /**
+     * In case the WorkspaceEmailInvitation was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<WorkspaceEmailInvitationUpdateInput, WorkspaceEmailInvitationUncheckedUpdateInput>
+  }
+
+  /**
+   * WorkspaceEmailInvitation delete
+   */
+  export type WorkspaceEmailInvitationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceEmailInvitation
+     */
+    select?: WorkspaceEmailInvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceEmailInvitation
+     */
+    omit?: WorkspaceEmailInvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceEmailInvitationInclude<ExtArgs> | null
+    /**
+     * Filter which WorkspaceEmailInvitation to delete.
+     */
+    where: WorkspaceEmailInvitationWhereUniqueInput
+  }
+
+  /**
+   * WorkspaceEmailInvitation deleteMany
+   */
+  export type WorkspaceEmailInvitationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WorkspaceEmailInvitations to delete
+     */
+    where?: WorkspaceEmailInvitationWhereInput
+    /**
+     * Limit how many WorkspaceEmailInvitations to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * WorkspaceEmailInvitation.recipient
+   */
+  export type WorkspaceEmailInvitation$recipientArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * WorkspaceEmailInvitation without action
+   */
+  export type WorkspaceEmailInvitationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceEmailInvitation
+     */
+    select?: WorkspaceEmailInvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceEmailInvitation
+     */
+    omit?: WorkspaceEmailInvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceEmailInvitationInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -64724,6 +66369,7 @@ export namespace Prisma {
     name: 'name',
     slug: 'slug',
     status: 'status',
+    archivedAt: 'archivedAt',
     editorData: 'editorData',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
@@ -65221,7 +66867,9 @@ export namespace Prisma {
     ownerId: 'ownerId',
     settings: 'settings',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    membersVersion: 'membersVersion',
+    lifecycleStatus: 'lifecycleStatus'
   };
 
   export type WorkspaceScalarFieldEnum = (typeof WorkspaceScalarFieldEnum)[keyof typeof WorkspaceScalarFieldEnum]
@@ -65453,6 +67101,35 @@ export namespace Prisma {
   };
 
   export type BillingInvoiceScalarFieldEnum = (typeof BillingInvoiceScalarFieldEnum)[keyof typeof BillingInvoiceScalarFieldEnum]
+
+
+  export const WorkspaceEmailInvitationScalarFieldEnum: {
+    id: 'id',
+    workspaceId: 'workspaceId',
+    invitedBy: 'invitedBy',
+    recipientUserId: 'recipientUserId',
+    invitedEmail: 'invitedEmail',
+    role: 'role',
+    status: 'status',
+    version: 'version',
+    tokenHash: 'tokenHash',
+    expiresAt: 'expiresAt',
+    acceptedAt: 'acceptedAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+    createRequestKey: 'createRequestKey',
+    lastCommandKey: 'lastCommandKey',
+    lastCommandAction: 'lastCommandAction',
+    emailStatus: 'emailStatus',
+    emailQueuedAt: 'emailQueuedAt',
+    emailSentAt: 'emailSentAt',
+    emailAttempts: 'emailAttempts',
+    nextAttemptAt: 'nextAttemptAt',
+    leaseUntil: 'leaseUntil',
+    leaseToken: 'leaseToken'
+  };
+
+  export type WorkspaceEmailInvitationScalarFieldEnum = (typeof WorkspaceEmailInvitationScalarFieldEnum)[keyof typeof WorkspaceEmailInvitationScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -65716,6 +67393,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationListRelationFilter
     organizationMemberships?: OrganizationMemberListRelationFilter
     workspaceMemberships?: WorkspaceMemberListRelationFilter
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationListRelationFilter
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationListRelationFilter
     approvalRequests?: PublishApprovalRequestListRelationFilter
     reviewedApprovals?: PublishApprovalRequestListRelationFilter
     mediaAssets?: MediaAssetListRelationFilter
@@ -65766,6 +67445,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationOrderByRelationAggregateInput
     organizationMemberships?: OrganizationMemberOrderByRelationAggregateInput
     workspaceMemberships?: WorkspaceMemberOrderByRelationAggregateInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationOrderByRelationAggregateInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationOrderByRelationAggregateInput
     approvalRequests?: PublishApprovalRequestOrderByRelationAggregateInput
     reviewedApprovals?: PublishApprovalRequestOrderByRelationAggregateInput
     mediaAssets?: MediaAssetOrderByRelationAggregateInput
@@ -65819,6 +67500,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationListRelationFilter
     organizationMemberships?: OrganizationMemberListRelationFilter
     workspaceMemberships?: WorkspaceMemberListRelationFilter
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationListRelationFilter
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationListRelationFilter
     approvalRequests?: PublishApprovalRequestListRelationFilter
     reviewedApprovals?: PublishApprovalRequestListRelationFilter
     mediaAssets?: MediaAssetListRelationFilter
@@ -65879,6 +67562,7 @@ export namespace Prisma {
     name?: StringFilter<"Website"> | string
     slug?: StringFilter<"Website"> | string
     status?: StringFilter<"Website"> | string
+    archivedAt?: DateTimeNullableFilter<"Website"> | Date | string | null
     editorData?: JsonFilter<"Website">
     createdAt?: DateTimeFilter<"Website"> | Date | string
     updatedAt?: DateTimeFilter<"Website"> | Date | string
@@ -65919,6 +67603,7 @@ export namespace Prisma {
     name?: SortOrder
     slug?: SortOrder
     status?: SortOrder
+    archivedAt?: SortOrderInput | SortOrder
     editorData?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -65962,6 +67647,7 @@ export namespace Prisma {
     name?: StringFilter<"Website"> | string
     slug?: StringFilter<"Website"> | string
     status?: StringFilter<"Website"> | string
+    archivedAt?: DateTimeNullableFilter<"Website"> | Date | string | null
     editorData?: JsonFilter<"Website">
     createdAt?: DateTimeFilter<"Website"> | Date | string
     updatedAt?: DateTimeFilter<"Website"> | Date | string
@@ -66002,6 +67688,7 @@ export namespace Prisma {
     name?: SortOrder
     slug?: SortOrder
     status?: SortOrder
+    archivedAt?: SortOrderInput | SortOrder
     editorData?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -66023,6 +67710,7 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"Website"> | string
     slug?: StringWithAggregatesFilter<"Website"> | string
     status?: StringWithAggregatesFilter<"Website"> | string
+    archivedAt?: DateTimeNullableWithAggregatesFilter<"Website"> | Date | string | null
     editorData?: JsonWithAggregatesFilter<"Website">
     createdAt?: DateTimeWithAggregatesFilter<"Website"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Website"> | Date | string
@@ -68505,8 +70193,11 @@ export namespace Prisma {
     settings?: JsonNullableFilter<"Workspace">
     createdAt?: DateTimeFilter<"Workspace"> | Date | string
     updatedAt?: DateTimeFilter<"Workspace"> | Date | string
+    membersVersion?: IntFilter<"Workspace"> | number
+    lifecycleStatus?: StringFilter<"Workspace"> | string
     organization?: XOR<OrganizationNullableScalarRelationFilter, OrganizationWhereInput> | null
     owner?: XOR<UserScalarRelationFilter, UserWhereInput>
+    emailInvitations?: WorkspaceEmailInvitationListRelationFilter
     members?: WorkspaceMemberListRelationFilter
     websites?: WebsiteListRelationFilter
   }
@@ -68520,8 +70211,11 @@ export namespace Prisma {
     settings?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    membersVersion?: SortOrder
+    lifecycleStatus?: SortOrder
     organization?: OrganizationOrderByWithRelationInput
     owner?: UserOrderByWithRelationInput
+    emailInvitations?: WorkspaceEmailInvitationOrderByRelationAggregateInput
     members?: WorkspaceMemberOrderByRelationAggregateInput
     websites?: WebsiteOrderByRelationAggregateInput
   }
@@ -68538,8 +70232,11 @@ export namespace Prisma {
     settings?: JsonNullableFilter<"Workspace">
     createdAt?: DateTimeFilter<"Workspace"> | Date | string
     updatedAt?: DateTimeFilter<"Workspace"> | Date | string
+    membersVersion?: IntFilter<"Workspace"> | number
+    lifecycleStatus?: StringFilter<"Workspace"> | string
     organization?: XOR<OrganizationNullableScalarRelationFilter, OrganizationWhereInput> | null
     owner?: XOR<UserScalarRelationFilter, UserWhereInput>
+    emailInvitations?: WorkspaceEmailInvitationListRelationFilter
     members?: WorkspaceMemberListRelationFilter
     websites?: WebsiteListRelationFilter
   }, "id" | "slug">
@@ -68553,9 +70250,13 @@ export namespace Prisma {
     settings?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    membersVersion?: SortOrder
+    lifecycleStatus?: SortOrder
     _count?: WorkspaceCountOrderByAggregateInput
+    _avg?: WorkspaceAvgOrderByAggregateInput
     _max?: WorkspaceMaxOrderByAggregateInput
     _min?: WorkspaceMinOrderByAggregateInput
+    _sum?: WorkspaceSumOrderByAggregateInput
   }
 
   export type WorkspaceScalarWhereWithAggregatesInput = {
@@ -68570,6 +70271,8 @@ export namespace Prisma {
     settings?: JsonNullableWithAggregatesFilter<"Workspace">
     createdAt?: DateTimeWithAggregatesFilter<"Workspace"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Workspace"> | Date | string
+    membersVersion?: IntWithAggregatesFilter<"Workspace"> | number
+    lifecycleStatus?: StringWithAggregatesFilter<"Workspace"> | string
   }
 
   export type OrganizationWhereInput = {
@@ -69757,6 +71460,160 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"BillingInvoice"> | Date | string
   }
 
+  export type WorkspaceEmailInvitationWhereInput = {
+    AND?: WorkspaceEmailInvitationWhereInput | WorkspaceEmailInvitationWhereInput[]
+    OR?: WorkspaceEmailInvitationWhereInput[]
+    NOT?: WorkspaceEmailInvitationWhereInput | WorkspaceEmailInvitationWhereInput[]
+    id?: UuidFilter<"WorkspaceEmailInvitation"> | string
+    workspaceId?: UuidFilter<"WorkspaceEmailInvitation"> | string
+    invitedBy?: UuidFilter<"WorkspaceEmailInvitation"> | string
+    recipientUserId?: UuidNullableFilter<"WorkspaceEmailInvitation"> | string | null
+    invitedEmail?: StringFilter<"WorkspaceEmailInvitation"> | string
+    role?: StringFilter<"WorkspaceEmailInvitation"> | string
+    status?: StringFilter<"WorkspaceEmailInvitation"> | string
+    version?: IntFilter<"WorkspaceEmailInvitation"> | number
+    tokenHash?: StringFilter<"WorkspaceEmailInvitation"> | string
+    expiresAt?: DateTimeFilter<"WorkspaceEmailInvitation"> | Date | string
+    acceptedAt?: DateTimeNullableFilter<"WorkspaceEmailInvitation"> | Date | string | null
+    createdAt?: DateTimeFilter<"WorkspaceEmailInvitation"> | Date | string
+    updatedAt?: DateTimeFilter<"WorkspaceEmailInvitation"> | Date | string
+    createRequestKey?: UuidFilter<"WorkspaceEmailInvitation"> | string
+    lastCommandKey?: UuidNullableFilter<"WorkspaceEmailInvitation"> | string | null
+    lastCommandAction?: StringNullableFilter<"WorkspaceEmailInvitation"> | string | null
+    emailStatus?: StringFilter<"WorkspaceEmailInvitation"> | string
+    emailQueuedAt?: DateTimeFilter<"WorkspaceEmailInvitation"> | Date | string
+    emailSentAt?: DateTimeNullableFilter<"WorkspaceEmailInvitation"> | Date | string | null
+    emailAttempts?: IntFilter<"WorkspaceEmailInvitation"> | number
+    nextAttemptAt?: DateTimeFilter<"WorkspaceEmailInvitation"> | Date | string
+    leaseUntil?: DateTimeNullableFilter<"WorkspaceEmailInvitation"> | Date | string | null
+    leaseToken?: UuidNullableFilter<"WorkspaceEmailInvitation"> | string | null
+    workspace?: XOR<WorkspaceScalarRelationFilter, WorkspaceWhereInput>
+    inviter?: XOR<UserScalarRelationFilter, UserWhereInput>
+    recipient?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }
+
+  export type WorkspaceEmailInvitationOrderByWithRelationInput = {
+    id?: SortOrder
+    workspaceId?: SortOrder
+    invitedBy?: SortOrder
+    recipientUserId?: SortOrderInput | SortOrder
+    invitedEmail?: SortOrder
+    role?: SortOrder
+    status?: SortOrder
+    version?: SortOrder
+    tokenHash?: SortOrder
+    expiresAt?: SortOrder
+    acceptedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    createRequestKey?: SortOrder
+    lastCommandKey?: SortOrderInput | SortOrder
+    lastCommandAction?: SortOrderInput | SortOrder
+    emailStatus?: SortOrder
+    emailQueuedAt?: SortOrder
+    emailSentAt?: SortOrderInput | SortOrder
+    emailAttempts?: SortOrder
+    nextAttemptAt?: SortOrder
+    leaseUntil?: SortOrderInput | SortOrder
+    leaseToken?: SortOrderInput | SortOrder
+    workspace?: WorkspaceOrderByWithRelationInput
+    inviter?: UserOrderByWithRelationInput
+    recipient?: UserOrderByWithRelationInput
+  }
+
+  export type WorkspaceEmailInvitationWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    tokenHash?: string
+    workspaceId_createRequestKey?: WorkspaceEmailInvitationWorkspaceIdCreateRequestKeyCompoundUniqueInput
+    AND?: WorkspaceEmailInvitationWhereInput | WorkspaceEmailInvitationWhereInput[]
+    OR?: WorkspaceEmailInvitationWhereInput[]
+    NOT?: WorkspaceEmailInvitationWhereInput | WorkspaceEmailInvitationWhereInput[]
+    workspaceId?: UuidFilter<"WorkspaceEmailInvitation"> | string
+    invitedBy?: UuidFilter<"WorkspaceEmailInvitation"> | string
+    recipientUserId?: UuidNullableFilter<"WorkspaceEmailInvitation"> | string | null
+    invitedEmail?: StringFilter<"WorkspaceEmailInvitation"> | string
+    role?: StringFilter<"WorkspaceEmailInvitation"> | string
+    status?: StringFilter<"WorkspaceEmailInvitation"> | string
+    version?: IntFilter<"WorkspaceEmailInvitation"> | number
+    expiresAt?: DateTimeFilter<"WorkspaceEmailInvitation"> | Date | string
+    acceptedAt?: DateTimeNullableFilter<"WorkspaceEmailInvitation"> | Date | string | null
+    createdAt?: DateTimeFilter<"WorkspaceEmailInvitation"> | Date | string
+    updatedAt?: DateTimeFilter<"WorkspaceEmailInvitation"> | Date | string
+    createRequestKey?: UuidFilter<"WorkspaceEmailInvitation"> | string
+    lastCommandKey?: UuidNullableFilter<"WorkspaceEmailInvitation"> | string | null
+    lastCommandAction?: StringNullableFilter<"WorkspaceEmailInvitation"> | string | null
+    emailStatus?: StringFilter<"WorkspaceEmailInvitation"> | string
+    emailQueuedAt?: DateTimeFilter<"WorkspaceEmailInvitation"> | Date | string
+    emailSentAt?: DateTimeNullableFilter<"WorkspaceEmailInvitation"> | Date | string | null
+    emailAttempts?: IntFilter<"WorkspaceEmailInvitation"> | number
+    nextAttemptAt?: DateTimeFilter<"WorkspaceEmailInvitation"> | Date | string
+    leaseUntil?: DateTimeNullableFilter<"WorkspaceEmailInvitation"> | Date | string | null
+    leaseToken?: UuidNullableFilter<"WorkspaceEmailInvitation"> | string | null
+    workspace?: XOR<WorkspaceScalarRelationFilter, WorkspaceWhereInput>
+    inviter?: XOR<UserScalarRelationFilter, UserWhereInput>
+    recipient?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }, "id" | "tokenHash" | "workspaceId_createRequestKey">
+
+  export type WorkspaceEmailInvitationOrderByWithAggregationInput = {
+    id?: SortOrder
+    workspaceId?: SortOrder
+    invitedBy?: SortOrder
+    recipientUserId?: SortOrderInput | SortOrder
+    invitedEmail?: SortOrder
+    role?: SortOrder
+    status?: SortOrder
+    version?: SortOrder
+    tokenHash?: SortOrder
+    expiresAt?: SortOrder
+    acceptedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    createRequestKey?: SortOrder
+    lastCommandKey?: SortOrderInput | SortOrder
+    lastCommandAction?: SortOrderInput | SortOrder
+    emailStatus?: SortOrder
+    emailQueuedAt?: SortOrder
+    emailSentAt?: SortOrderInput | SortOrder
+    emailAttempts?: SortOrder
+    nextAttemptAt?: SortOrder
+    leaseUntil?: SortOrderInput | SortOrder
+    leaseToken?: SortOrderInput | SortOrder
+    _count?: WorkspaceEmailInvitationCountOrderByAggregateInput
+    _avg?: WorkspaceEmailInvitationAvgOrderByAggregateInput
+    _max?: WorkspaceEmailInvitationMaxOrderByAggregateInput
+    _min?: WorkspaceEmailInvitationMinOrderByAggregateInput
+    _sum?: WorkspaceEmailInvitationSumOrderByAggregateInput
+  }
+
+  export type WorkspaceEmailInvitationScalarWhereWithAggregatesInput = {
+    AND?: WorkspaceEmailInvitationScalarWhereWithAggregatesInput | WorkspaceEmailInvitationScalarWhereWithAggregatesInput[]
+    OR?: WorkspaceEmailInvitationScalarWhereWithAggregatesInput[]
+    NOT?: WorkspaceEmailInvitationScalarWhereWithAggregatesInput | WorkspaceEmailInvitationScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"WorkspaceEmailInvitation"> | string
+    workspaceId?: UuidWithAggregatesFilter<"WorkspaceEmailInvitation"> | string
+    invitedBy?: UuidWithAggregatesFilter<"WorkspaceEmailInvitation"> | string
+    recipientUserId?: UuidNullableWithAggregatesFilter<"WorkspaceEmailInvitation"> | string | null
+    invitedEmail?: StringWithAggregatesFilter<"WorkspaceEmailInvitation"> | string
+    role?: StringWithAggregatesFilter<"WorkspaceEmailInvitation"> | string
+    status?: StringWithAggregatesFilter<"WorkspaceEmailInvitation"> | string
+    version?: IntWithAggregatesFilter<"WorkspaceEmailInvitation"> | number
+    tokenHash?: StringWithAggregatesFilter<"WorkspaceEmailInvitation"> | string
+    expiresAt?: DateTimeWithAggregatesFilter<"WorkspaceEmailInvitation"> | Date | string
+    acceptedAt?: DateTimeNullableWithAggregatesFilter<"WorkspaceEmailInvitation"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"WorkspaceEmailInvitation"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"WorkspaceEmailInvitation"> | Date | string
+    createRequestKey?: UuidWithAggregatesFilter<"WorkspaceEmailInvitation"> | string
+    lastCommandKey?: UuidNullableWithAggregatesFilter<"WorkspaceEmailInvitation"> | string | null
+    lastCommandAction?: StringNullableWithAggregatesFilter<"WorkspaceEmailInvitation"> | string | null
+    emailStatus?: StringWithAggregatesFilter<"WorkspaceEmailInvitation"> | string
+    emailQueuedAt?: DateTimeWithAggregatesFilter<"WorkspaceEmailInvitation"> | Date | string
+    emailSentAt?: DateTimeNullableWithAggregatesFilter<"WorkspaceEmailInvitation"> | Date | string | null
+    emailAttempts?: IntWithAggregatesFilter<"WorkspaceEmailInvitation"> | number
+    nextAttemptAt?: DateTimeWithAggregatesFilter<"WorkspaceEmailInvitation"> | Date | string
+    leaseUntil?: DateTimeNullableWithAggregatesFilter<"WorkspaceEmailInvitation"> | Date | string | null
+    leaseToken?: UuidNullableWithAggregatesFilter<"WorkspaceEmailInvitation"> | string | null
+  }
+
   export type UserCreateInput = {
     id?: string
     fullName?: string | null
@@ -69798,6 +71655,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -69848,6 +71707,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -69898,6 +71759,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -69948,6 +71811,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -70013,6 +71878,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -70050,6 +71916,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -70085,6 +71952,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -70122,6 +71990,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -70158,6 +72027,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -70172,6 +72042,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -70184,6 +72055,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -72853,8 +74725,11 @@ export namespace Prisma {
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    membersVersion?: number
+    lifecycleStatus?: string
     organization?: OrganizationCreateNestedOneWithoutWorkspacesInput
     owner: UserCreateNestedOneWithoutOwnedWorkspacesInput
+    emailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutWorkspaceInput
     members?: WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
     websites?: WebsiteCreateNestedManyWithoutWorkspaceInput
   }
@@ -72868,6 +74743,9 @@ export namespace Prisma {
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    membersVersion?: number
+    lifecycleStatus?: string
+    emailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
     members?: WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
     websites?: WebsiteUncheckedCreateNestedManyWithoutWorkspaceInput
   }
@@ -72879,8 +74757,11 @@ export namespace Prisma {
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    membersVersion?: IntFieldUpdateOperationsInput | number
+    lifecycleStatus?: StringFieldUpdateOperationsInput | string
     organization?: OrganizationUpdateOneWithoutWorkspacesNestedInput
     owner?: UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
+    emailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutWorkspaceNestedInput
     members?: WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
     websites?: WebsiteUpdateManyWithoutWorkspaceNestedInput
   }
@@ -72894,6 +74775,9 @@ export namespace Prisma {
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    membersVersion?: IntFieldUpdateOperationsInput | number
+    lifecycleStatus?: StringFieldUpdateOperationsInput | string
+    emailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
     members?: WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
     websites?: WebsiteUncheckedUpdateManyWithoutWorkspaceNestedInput
   }
@@ -72907,6 +74791,8 @@ export namespace Prisma {
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    membersVersion?: number
+    lifecycleStatus?: string
   }
 
   export type WorkspaceUpdateManyMutationInput = {
@@ -72916,6 +74802,8 @@ export namespace Prisma {
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    membersVersion?: IntFieldUpdateOperationsInput | number
+    lifecycleStatus?: StringFieldUpdateOperationsInput | string
   }
 
   export type WorkspaceUncheckedUpdateManyInput = {
@@ -72927,6 +74815,8 @@ export namespace Prisma {
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    membersVersion?: IntFieldUpdateOperationsInput | number
+    lifecycleStatus?: StringFieldUpdateOperationsInput | string
   }
 
   export type OrganizationCreateInput = {
@@ -74207,6 +76097,185 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type WorkspaceEmailInvitationCreateInput = {
+    id?: string
+    invitedEmail: string
+    role: string
+    status?: string
+    version?: number
+    tokenHash: string
+    expiresAt: Date | string
+    acceptedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    createRequestKey: string
+    lastCommandKey?: string | null
+    lastCommandAction?: string | null
+    emailStatus?: string
+    emailQueuedAt?: Date | string
+    emailSentAt?: Date | string | null
+    emailAttempts?: number
+    nextAttemptAt?: Date | string
+    leaseUntil?: Date | string | null
+    leaseToken?: string | null
+    workspace: WorkspaceCreateNestedOneWithoutEmailInvitationsInput
+    inviter: UserCreateNestedOneWithoutSentWorkspaceEmailInvitationsInput
+    recipient?: UserCreateNestedOneWithoutReceivedWorkspaceEmailInvitationsInput
+  }
+
+  export type WorkspaceEmailInvitationUncheckedCreateInput = {
+    id?: string
+    workspaceId: string
+    invitedBy: string
+    recipientUserId?: string | null
+    invitedEmail: string
+    role: string
+    status?: string
+    version?: number
+    tokenHash: string
+    expiresAt: Date | string
+    acceptedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    createRequestKey: string
+    lastCommandKey?: string | null
+    lastCommandAction?: string | null
+    emailStatus?: string
+    emailQueuedAt?: Date | string
+    emailSentAt?: Date | string | null
+    emailAttempts?: number
+    nextAttemptAt?: Date | string
+    leaseUntil?: Date | string | null
+    leaseToken?: string | null
+  }
+
+  export type WorkspaceEmailInvitationUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    invitedEmail?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    tokenHash?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createRequestKey?: StringFieldUpdateOperationsInput | string
+    lastCommandKey?: NullableStringFieldUpdateOperationsInput | string | null
+    lastCommandAction?: NullableStringFieldUpdateOperationsInput | string | null
+    emailStatus?: StringFieldUpdateOperationsInput | string
+    emailQueuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailAttempts?: IntFieldUpdateOperationsInput | number
+    nextAttemptAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    leaseToken?: NullableStringFieldUpdateOperationsInput | string | null
+    workspace?: WorkspaceUpdateOneRequiredWithoutEmailInvitationsNestedInput
+    inviter?: UserUpdateOneRequiredWithoutSentWorkspaceEmailInvitationsNestedInput
+    recipient?: UserUpdateOneWithoutReceivedWorkspaceEmailInvitationsNestedInput
+  }
+
+  export type WorkspaceEmailInvitationUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceId?: StringFieldUpdateOperationsInput | string
+    invitedBy?: StringFieldUpdateOperationsInput | string
+    recipientUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    invitedEmail?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    tokenHash?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createRequestKey?: StringFieldUpdateOperationsInput | string
+    lastCommandKey?: NullableStringFieldUpdateOperationsInput | string | null
+    lastCommandAction?: NullableStringFieldUpdateOperationsInput | string | null
+    emailStatus?: StringFieldUpdateOperationsInput | string
+    emailQueuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailAttempts?: IntFieldUpdateOperationsInput | number
+    nextAttemptAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    leaseToken?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type WorkspaceEmailInvitationCreateManyInput = {
+    id?: string
+    workspaceId: string
+    invitedBy: string
+    recipientUserId?: string | null
+    invitedEmail: string
+    role: string
+    status?: string
+    version?: number
+    tokenHash: string
+    expiresAt: Date | string
+    acceptedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    createRequestKey: string
+    lastCommandKey?: string | null
+    lastCommandAction?: string | null
+    emailStatus?: string
+    emailQueuedAt?: Date | string
+    emailSentAt?: Date | string | null
+    emailAttempts?: number
+    nextAttemptAt?: Date | string
+    leaseUntil?: Date | string | null
+    leaseToken?: string | null
+  }
+
+  export type WorkspaceEmailInvitationUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    invitedEmail?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    tokenHash?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createRequestKey?: StringFieldUpdateOperationsInput | string
+    lastCommandKey?: NullableStringFieldUpdateOperationsInput | string | null
+    lastCommandAction?: NullableStringFieldUpdateOperationsInput | string | null
+    emailStatus?: StringFieldUpdateOperationsInput | string
+    emailQueuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailAttempts?: IntFieldUpdateOperationsInput | number
+    nextAttemptAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    leaseToken?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type WorkspaceEmailInvitationUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceId?: StringFieldUpdateOperationsInput | string
+    invitedBy?: StringFieldUpdateOperationsInput | string
+    recipientUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    invitedEmail?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    tokenHash?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createRequestKey?: StringFieldUpdateOperationsInput | string
+    lastCommandKey?: NullableStringFieldUpdateOperationsInput | string | null
+    lastCommandAction?: NullableStringFieldUpdateOperationsInput | string | null
+    emailStatus?: StringFieldUpdateOperationsInput | string
+    emailQueuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailAttempts?: IntFieldUpdateOperationsInput | number
+    nextAttemptAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    leaseToken?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
   export type UuidFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -74448,6 +76517,12 @@ export namespace Prisma {
     none?: WorkspaceMemberWhereInput
   }
 
+  export type WorkspaceEmailInvitationListRelationFilter = {
+    every?: WorkspaceEmailInvitationWhereInput
+    some?: WorkspaceEmailInvitationWhereInput
+    none?: WorkspaceEmailInvitationWhereInput
+  }
+
   export type PublishApprovalRequestListRelationFilter = {
     every?: PublishApprovalRequestWhereInput
     some?: PublishApprovalRequestWhereInput
@@ -74585,6 +76660,10 @@ export namespace Prisma {
   }
 
   export type WorkspaceMemberOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type WorkspaceEmailInvitationOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -74968,6 +77047,7 @@ export namespace Prisma {
     name?: SortOrder
     slug?: SortOrder
     status?: SortOrder
+    archivedAt?: SortOrder
     editorData?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -74983,6 +77063,7 @@ export namespace Prisma {
     name?: SortOrder
     slug?: SortOrder
     status?: SortOrder
+    archivedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     teamId?: SortOrder
@@ -74997,6 +77078,7 @@ export namespace Prisma {
     name?: SortOrder
     slug?: SortOrder
     status?: SortOrder
+    archivedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     teamId?: SortOrder
@@ -76449,6 +78531,12 @@ export namespace Prisma {
     settings?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    membersVersion?: SortOrder
+    lifecycleStatus?: SortOrder
+  }
+
+  export type WorkspaceAvgOrderByAggregateInput = {
+    membersVersion?: SortOrder
   }
 
   export type WorkspaceMaxOrderByAggregateInput = {
@@ -76459,6 +78547,8 @@ export namespace Prisma {
     ownerId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    membersVersion?: SortOrder
+    lifecycleStatus?: SortOrder
   }
 
   export type WorkspaceMinOrderByAggregateInput = {
@@ -76469,6 +78559,12 @@ export namespace Prisma {
     ownerId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    membersVersion?: SortOrder
+    lifecycleStatus?: SortOrder
+  }
+
+  export type WorkspaceSumOrderByAggregateInput = {
+    membersVersion?: SortOrder
   }
 
   export type OrganizationCountOrderByAggregateInput = {
@@ -77199,6 +79295,99 @@ export namespace Prisma {
     _max?: NestedFloatFilter<$PrismaModel>
   }
 
+  export type WorkspaceEmailInvitationWorkspaceIdCreateRequestKeyCompoundUniqueInput = {
+    workspaceId: string
+    createRequestKey: string
+  }
+
+  export type WorkspaceEmailInvitationCountOrderByAggregateInput = {
+    id?: SortOrder
+    workspaceId?: SortOrder
+    invitedBy?: SortOrder
+    recipientUserId?: SortOrder
+    invitedEmail?: SortOrder
+    role?: SortOrder
+    status?: SortOrder
+    version?: SortOrder
+    tokenHash?: SortOrder
+    expiresAt?: SortOrder
+    acceptedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    createRequestKey?: SortOrder
+    lastCommandKey?: SortOrder
+    lastCommandAction?: SortOrder
+    emailStatus?: SortOrder
+    emailQueuedAt?: SortOrder
+    emailSentAt?: SortOrder
+    emailAttempts?: SortOrder
+    nextAttemptAt?: SortOrder
+    leaseUntil?: SortOrder
+    leaseToken?: SortOrder
+  }
+
+  export type WorkspaceEmailInvitationAvgOrderByAggregateInput = {
+    version?: SortOrder
+    emailAttempts?: SortOrder
+  }
+
+  export type WorkspaceEmailInvitationMaxOrderByAggregateInput = {
+    id?: SortOrder
+    workspaceId?: SortOrder
+    invitedBy?: SortOrder
+    recipientUserId?: SortOrder
+    invitedEmail?: SortOrder
+    role?: SortOrder
+    status?: SortOrder
+    version?: SortOrder
+    tokenHash?: SortOrder
+    expiresAt?: SortOrder
+    acceptedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    createRequestKey?: SortOrder
+    lastCommandKey?: SortOrder
+    lastCommandAction?: SortOrder
+    emailStatus?: SortOrder
+    emailQueuedAt?: SortOrder
+    emailSentAt?: SortOrder
+    emailAttempts?: SortOrder
+    nextAttemptAt?: SortOrder
+    leaseUntil?: SortOrder
+    leaseToken?: SortOrder
+  }
+
+  export type WorkspaceEmailInvitationMinOrderByAggregateInput = {
+    id?: SortOrder
+    workspaceId?: SortOrder
+    invitedBy?: SortOrder
+    recipientUserId?: SortOrder
+    invitedEmail?: SortOrder
+    role?: SortOrder
+    status?: SortOrder
+    version?: SortOrder
+    tokenHash?: SortOrder
+    expiresAt?: SortOrder
+    acceptedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    createRequestKey?: SortOrder
+    lastCommandKey?: SortOrder
+    lastCommandAction?: SortOrder
+    emailStatus?: SortOrder
+    emailQueuedAt?: SortOrder
+    emailSentAt?: SortOrder
+    emailAttempts?: SortOrder
+    nextAttemptAt?: SortOrder
+    leaseUntil?: SortOrder
+    leaseToken?: SortOrder
+  }
+
+  export type WorkspaceEmailInvitationSumOrderByAggregateInput = {
+    version?: SortOrder
+    emailAttempts?: SortOrder
+  }
+
   export type IdentityCreateNestedManyWithoutUserInput = {
     create?: XOR<IdentityCreateWithoutUserInput, IdentityUncheckedCreateWithoutUserInput> | IdentityCreateWithoutUserInput[] | IdentityUncheckedCreateWithoutUserInput[]
     connectOrCreate?: IdentityCreateOrConnectWithoutUserInput | IdentityCreateOrConnectWithoutUserInput[]
@@ -77378,6 +79567,20 @@ export namespace Prisma {
     connectOrCreate?: WorkspaceMemberCreateOrConnectWithoutUserInput | WorkspaceMemberCreateOrConnectWithoutUserInput[]
     createMany?: WorkspaceMemberCreateManyUserInputEnvelope
     connect?: WorkspaceMemberWhereUniqueInput | WorkspaceMemberWhereUniqueInput[]
+  }
+
+  export type WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput = {
+    create?: XOR<WorkspaceEmailInvitationCreateWithoutInviterInput, WorkspaceEmailInvitationUncheckedCreateWithoutInviterInput> | WorkspaceEmailInvitationCreateWithoutInviterInput[] | WorkspaceEmailInvitationUncheckedCreateWithoutInviterInput[]
+    connectOrCreate?: WorkspaceEmailInvitationCreateOrConnectWithoutInviterInput | WorkspaceEmailInvitationCreateOrConnectWithoutInviterInput[]
+    createMany?: WorkspaceEmailInvitationCreateManyInviterInputEnvelope
+    connect?: WorkspaceEmailInvitationWhereUniqueInput | WorkspaceEmailInvitationWhereUniqueInput[]
+  }
+
+  export type WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput = {
+    create?: XOR<WorkspaceEmailInvitationCreateWithoutRecipientInput, WorkspaceEmailInvitationUncheckedCreateWithoutRecipientInput> | WorkspaceEmailInvitationCreateWithoutRecipientInput[] | WorkspaceEmailInvitationUncheckedCreateWithoutRecipientInput[]
+    connectOrCreate?: WorkspaceEmailInvitationCreateOrConnectWithoutRecipientInput | WorkspaceEmailInvitationCreateOrConnectWithoutRecipientInput[]
+    createMany?: WorkspaceEmailInvitationCreateManyRecipientInputEnvelope
+    connect?: WorkspaceEmailInvitationWhereUniqueInput | WorkspaceEmailInvitationWhereUniqueInput[]
   }
 
   export type PublishApprovalRequestCreateNestedManyWithoutRequesterInput = {
@@ -77607,6 +79810,20 @@ export namespace Prisma {
     connectOrCreate?: WorkspaceMemberCreateOrConnectWithoutUserInput | WorkspaceMemberCreateOrConnectWithoutUserInput[]
     createMany?: WorkspaceMemberCreateManyUserInputEnvelope
     connect?: WorkspaceMemberWhereUniqueInput | WorkspaceMemberWhereUniqueInput[]
+  }
+
+  export type WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput = {
+    create?: XOR<WorkspaceEmailInvitationCreateWithoutInviterInput, WorkspaceEmailInvitationUncheckedCreateWithoutInviterInput> | WorkspaceEmailInvitationCreateWithoutInviterInput[] | WorkspaceEmailInvitationUncheckedCreateWithoutInviterInput[]
+    connectOrCreate?: WorkspaceEmailInvitationCreateOrConnectWithoutInviterInput | WorkspaceEmailInvitationCreateOrConnectWithoutInviterInput[]
+    createMany?: WorkspaceEmailInvitationCreateManyInviterInputEnvelope
+    connect?: WorkspaceEmailInvitationWhereUniqueInput | WorkspaceEmailInvitationWhereUniqueInput[]
+  }
+
+  export type WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput = {
+    create?: XOR<WorkspaceEmailInvitationCreateWithoutRecipientInput, WorkspaceEmailInvitationUncheckedCreateWithoutRecipientInput> | WorkspaceEmailInvitationCreateWithoutRecipientInput[] | WorkspaceEmailInvitationUncheckedCreateWithoutRecipientInput[]
+    connectOrCreate?: WorkspaceEmailInvitationCreateOrConnectWithoutRecipientInput | WorkspaceEmailInvitationCreateOrConnectWithoutRecipientInput[]
+    createMany?: WorkspaceEmailInvitationCreateManyRecipientInputEnvelope
+    connect?: WorkspaceEmailInvitationWhereUniqueInput | WorkspaceEmailInvitationWhereUniqueInput[]
   }
 
   export type PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput = {
@@ -78055,6 +80272,34 @@ export namespace Prisma {
     update?: WorkspaceMemberUpdateWithWhereUniqueWithoutUserInput | WorkspaceMemberUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: WorkspaceMemberUpdateManyWithWhereWithoutUserInput | WorkspaceMemberUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: WorkspaceMemberScalarWhereInput | WorkspaceMemberScalarWhereInput[]
+  }
+
+  export type WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput = {
+    create?: XOR<WorkspaceEmailInvitationCreateWithoutInviterInput, WorkspaceEmailInvitationUncheckedCreateWithoutInviterInput> | WorkspaceEmailInvitationCreateWithoutInviterInput[] | WorkspaceEmailInvitationUncheckedCreateWithoutInviterInput[]
+    connectOrCreate?: WorkspaceEmailInvitationCreateOrConnectWithoutInviterInput | WorkspaceEmailInvitationCreateOrConnectWithoutInviterInput[]
+    upsert?: WorkspaceEmailInvitationUpsertWithWhereUniqueWithoutInviterInput | WorkspaceEmailInvitationUpsertWithWhereUniqueWithoutInviterInput[]
+    createMany?: WorkspaceEmailInvitationCreateManyInviterInputEnvelope
+    set?: WorkspaceEmailInvitationWhereUniqueInput | WorkspaceEmailInvitationWhereUniqueInput[]
+    disconnect?: WorkspaceEmailInvitationWhereUniqueInput | WorkspaceEmailInvitationWhereUniqueInput[]
+    delete?: WorkspaceEmailInvitationWhereUniqueInput | WorkspaceEmailInvitationWhereUniqueInput[]
+    connect?: WorkspaceEmailInvitationWhereUniqueInput | WorkspaceEmailInvitationWhereUniqueInput[]
+    update?: WorkspaceEmailInvitationUpdateWithWhereUniqueWithoutInviterInput | WorkspaceEmailInvitationUpdateWithWhereUniqueWithoutInviterInput[]
+    updateMany?: WorkspaceEmailInvitationUpdateManyWithWhereWithoutInviterInput | WorkspaceEmailInvitationUpdateManyWithWhereWithoutInviterInput[]
+    deleteMany?: WorkspaceEmailInvitationScalarWhereInput | WorkspaceEmailInvitationScalarWhereInput[]
+  }
+
+  export type WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput = {
+    create?: XOR<WorkspaceEmailInvitationCreateWithoutRecipientInput, WorkspaceEmailInvitationUncheckedCreateWithoutRecipientInput> | WorkspaceEmailInvitationCreateWithoutRecipientInput[] | WorkspaceEmailInvitationUncheckedCreateWithoutRecipientInput[]
+    connectOrCreate?: WorkspaceEmailInvitationCreateOrConnectWithoutRecipientInput | WorkspaceEmailInvitationCreateOrConnectWithoutRecipientInput[]
+    upsert?: WorkspaceEmailInvitationUpsertWithWhereUniqueWithoutRecipientInput | WorkspaceEmailInvitationUpsertWithWhereUniqueWithoutRecipientInput[]
+    createMany?: WorkspaceEmailInvitationCreateManyRecipientInputEnvelope
+    set?: WorkspaceEmailInvitationWhereUniqueInput | WorkspaceEmailInvitationWhereUniqueInput[]
+    disconnect?: WorkspaceEmailInvitationWhereUniqueInput | WorkspaceEmailInvitationWhereUniqueInput[]
+    delete?: WorkspaceEmailInvitationWhereUniqueInput | WorkspaceEmailInvitationWhereUniqueInput[]
+    connect?: WorkspaceEmailInvitationWhereUniqueInput | WorkspaceEmailInvitationWhereUniqueInput[]
+    update?: WorkspaceEmailInvitationUpdateWithWhereUniqueWithoutRecipientInput | WorkspaceEmailInvitationUpdateWithWhereUniqueWithoutRecipientInput[]
+    updateMany?: WorkspaceEmailInvitationUpdateManyWithWhereWithoutRecipientInput | WorkspaceEmailInvitationUpdateManyWithWhereWithoutRecipientInput[]
+    deleteMany?: WorkspaceEmailInvitationScalarWhereInput | WorkspaceEmailInvitationScalarWhereInput[]
   }
 
   export type PublishApprovalRequestUpdateManyWithoutRequesterNestedInput = {
@@ -78509,6 +80754,34 @@ export namespace Prisma {
     update?: WorkspaceMemberUpdateWithWhereUniqueWithoutUserInput | WorkspaceMemberUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: WorkspaceMemberUpdateManyWithWhereWithoutUserInput | WorkspaceMemberUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: WorkspaceMemberScalarWhereInput | WorkspaceMemberScalarWhereInput[]
+  }
+
+  export type WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput = {
+    create?: XOR<WorkspaceEmailInvitationCreateWithoutInviterInput, WorkspaceEmailInvitationUncheckedCreateWithoutInviterInput> | WorkspaceEmailInvitationCreateWithoutInviterInput[] | WorkspaceEmailInvitationUncheckedCreateWithoutInviterInput[]
+    connectOrCreate?: WorkspaceEmailInvitationCreateOrConnectWithoutInviterInput | WorkspaceEmailInvitationCreateOrConnectWithoutInviterInput[]
+    upsert?: WorkspaceEmailInvitationUpsertWithWhereUniqueWithoutInviterInput | WorkspaceEmailInvitationUpsertWithWhereUniqueWithoutInviterInput[]
+    createMany?: WorkspaceEmailInvitationCreateManyInviterInputEnvelope
+    set?: WorkspaceEmailInvitationWhereUniqueInput | WorkspaceEmailInvitationWhereUniqueInput[]
+    disconnect?: WorkspaceEmailInvitationWhereUniqueInput | WorkspaceEmailInvitationWhereUniqueInput[]
+    delete?: WorkspaceEmailInvitationWhereUniqueInput | WorkspaceEmailInvitationWhereUniqueInput[]
+    connect?: WorkspaceEmailInvitationWhereUniqueInput | WorkspaceEmailInvitationWhereUniqueInput[]
+    update?: WorkspaceEmailInvitationUpdateWithWhereUniqueWithoutInviterInput | WorkspaceEmailInvitationUpdateWithWhereUniqueWithoutInviterInput[]
+    updateMany?: WorkspaceEmailInvitationUpdateManyWithWhereWithoutInviterInput | WorkspaceEmailInvitationUpdateManyWithWhereWithoutInviterInput[]
+    deleteMany?: WorkspaceEmailInvitationScalarWhereInput | WorkspaceEmailInvitationScalarWhereInput[]
+  }
+
+  export type WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput = {
+    create?: XOR<WorkspaceEmailInvitationCreateWithoutRecipientInput, WorkspaceEmailInvitationUncheckedCreateWithoutRecipientInput> | WorkspaceEmailInvitationCreateWithoutRecipientInput[] | WorkspaceEmailInvitationUncheckedCreateWithoutRecipientInput[]
+    connectOrCreate?: WorkspaceEmailInvitationCreateOrConnectWithoutRecipientInput | WorkspaceEmailInvitationCreateOrConnectWithoutRecipientInput[]
+    upsert?: WorkspaceEmailInvitationUpsertWithWhereUniqueWithoutRecipientInput | WorkspaceEmailInvitationUpsertWithWhereUniqueWithoutRecipientInput[]
+    createMany?: WorkspaceEmailInvitationCreateManyRecipientInputEnvelope
+    set?: WorkspaceEmailInvitationWhereUniqueInput | WorkspaceEmailInvitationWhereUniqueInput[]
+    disconnect?: WorkspaceEmailInvitationWhereUniqueInput | WorkspaceEmailInvitationWhereUniqueInput[]
+    delete?: WorkspaceEmailInvitationWhereUniqueInput | WorkspaceEmailInvitationWhereUniqueInput[]
+    connect?: WorkspaceEmailInvitationWhereUniqueInput | WorkspaceEmailInvitationWhereUniqueInput[]
+    update?: WorkspaceEmailInvitationUpdateWithWhereUniqueWithoutRecipientInput | WorkspaceEmailInvitationUpdateWithWhereUniqueWithoutRecipientInput[]
+    updateMany?: WorkspaceEmailInvitationUpdateManyWithWhereWithoutRecipientInput | WorkspaceEmailInvitationUpdateManyWithWhereWithoutRecipientInput[]
+    deleteMany?: WorkspaceEmailInvitationScalarWhereInput | WorkspaceEmailInvitationScalarWhereInput[]
   }
 
   export type PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput = {
@@ -80449,6 +82722,13 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
+  export type WorkspaceEmailInvitationCreateNestedManyWithoutWorkspaceInput = {
+    create?: XOR<WorkspaceEmailInvitationCreateWithoutWorkspaceInput, WorkspaceEmailInvitationUncheckedCreateWithoutWorkspaceInput> | WorkspaceEmailInvitationCreateWithoutWorkspaceInput[] | WorkspaceEmailInvitationUncheckedCreateWithoutWorkspaceInput[]
+    connectOrCreate?: WorkspaceEmailInvitationCreateOrConnectWithoutWorkspaceInput | WorkspaceEmailInvitationCreateOrConnectWithoutWorkspaceInput[]
+    createMany?: WorkspaceEmailInvitationCreateManyWorkspaceInputEnvelope
+    connect?: WorkspaceEmailInvitationWhereUniqueInput | WorkspaceEmailInvitationWhereUniqueInput[]
+  }
+
   export type WorkspaceMemberCreateNestedManyWithoutWorkspaceInput = {
     create?: XOR<WorkspaceMemberCreateWithoutWorkspaceInput, WorkspaceMemberUncheckedCreateWithoutWorkspaceInput> | WorkspaceMemberCreateWithoutWorkspaceInput[] | WorkspaceMemberUncheckedCreateWithoutWorkspaceInput[]
     connectOrCreate?: WorkspaceMemberCreateOrConnectWithoutWorkspaceInput | WorkspaceMemberCreateOrConnectWithoutWorkspaceInput[]
@@ -80461,6 +82741,13 @@ export namespace Prisma {
     connectOrCreate?: WebsiteCreateOrConnectWithoutWorkspaceInput | WebsiteCreateOrConnectWithoutWorkspaceInput[]
     createMany?: WebsiteCreateManyWorkspaceInputEnvelope
     connect?: WebsiteWhereUniqueInput | WebsiteWhereUniqueInput[]
+  }
+
+  export type WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutWorkspaceInput = {
+    create?: XOR<WorkspaceEmailInvitationCreateWithoutWorkspaceInput, WorkspaceEmailInvitationUncheckedCreateWithoutWorkspaceInput> | WorkspaceEmailInvitationCreateWithoutWorkspaceInput[] | WorkspaceEmailInvitationUncheckedCreateWithoutWorkspaceInput[]
+    connectOrCreate?: WorkspaceEmailInvitationCreateOrConnectWithoutWorkspaceInput | WorkspaceEmailInvitationCreateOrConnectWithoutWorkspaceInput[]
+    createMany?: WorkspaceEmailInvitationCreateManyWorkspaceInputEnvelope
+    connect?: WorkspaceEmailInvitationWhereUniqueInput | WorkspaceEmailInvitationWhereUniqueInput[]
   }
 
   export type WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput = {
@@ -80495,6 +82782,20 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutOwnedWorkspacesInput, UserUpdateWithoutOwnedWorkspacesInput>, UserUncheckedUpdateWithoutOwnedWorkspacesInput>
   }
 
+  export type WorkspaceEmailInvitationUpdateManyWithoutWorkspaceNestedInput = {
+    create?: XOR<WorkspaceEmailInvitationCreateWithoutWorkspaceInput, WorkspaceEmailInvitationUncheckedCreateWithoutWorkspaceInput> | WorkspaceEmailInvitationCreateWithoutWorkspaceInput[] | WorkspaceEmailInvitationUncheckedCreateWithoutWorkspaceInput[]
+    connectOrCreate?: WorkspaceEmailInvitationCreateOrConnectWithoutWorkspaceInput | WorkspaceEmailInvitationCreateOrConnectWithoutWorkspaceInput[]
+    upsert?: WorkspaceEmailInvitationUpsertWithWhereUniqueWithoutWorkspaceInput | WorkspaceEmailInvitationUpsertWithWhereUniqueWithoutWorkspaceInput[]
+    createMany?: WorkspaceEmailInvitationCreateManyWorkspaceInputEnvelope
+    set?: WorkspaceEmailInvitationWhereUniqueInput | WorkspaceEmailInvitationWhereUniqueInput[]
+    disconnect?: WorkspaceEmailInvitationWhereUniqueInput | WorkspaceEmailInvitationWhereUniqueInput[]
+    delete?: WorkspaceEmailInvitationWhereUniqueInput | WorkspaceEmailInvitationWhereUniqueInput[]
+    connect?: WorkspaceEmailInvitationWhereUniqueInput | WorkspaceEmailInvitationWhereUniqueInput[]
+    update?: WorkspaceEmailInvitationUpdateWithWhereUniqueWithoutWorkspaceInput | WorkspaceEmailInvitationUpdateWithWhereUniqueWithoutWorkspaceInput[]
+    updateMany?: WorkspaceEmailInvitationUpdateManyWithWhereWithoutWorkspaceInput | WorkspaceEmailInvitationUpdateManyWithWhereWithoutWorkspaceInput[]
+    deleteMany?: WorkspaceEmailInvitationScalarWhereInput | WorkspaceEmailInvitationScalarWhereInput[]
+  }
+
   export type WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput = {
     create?: XOR<WorkspaceMemberCreateWithoutWorkspaceInput, WorkspaceMemberUncheckedCreateWithoutWorkspaceInput> | WorkspaceMemberCreateWithoutWorkspaceInput[] | WorkspaceMemberUncheckedCreateWithoutWorkspaceInput[]
     connectOrCreate?: WorkspaceMemberCreateOrConnectWithoutWorkspaceInput | WorkspaceMemberCreateOrConnectWithoutWorkspaceInput[]
@@ -80521,6 +82822,20 @@ export namespace Prisma {
     update?: WebsiteUpdateWithWhereUniqueWithoutWorkspaceInput | WebsiteUpdateWithWhereUniqueWithoutWorkspaceInput[]
     updateMany?: WebsiteUpdateManyWithWhereWithoutWorkspaceInput | WebsiteUpdateManyWithWhereWithoutWorkspaceInput[]
     deleteMany?: WebsiteScalarWhereInput | WebsiteScalarWhereInput[]
+  }
+
+  export type WorkspaceEmailInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput = {
+    create?: XOR<WorkspaceEmailInvitationCreateWithoutWorkspaceInput, WorkspaceEmailInvitationUncheckedCreateWithoutWorkspaceInput> | WorkspaceEmailInvitationCreateWithoutWorkspaceInput[] | WorkspaceEmailInvitationUncheckedCreateWithoutWorkspaceInput[]
+    connectOrCreate?: WorkspaceEmailInvitationCreateOrConnectWithoutWorkspaceInput | WorkspaceEmailInvitationCreateOrConnectWithoutWorkspaceInput[]
+    upsert?: WorkspaceEmailInvitationUpsertWithWhereUniqueWithoutWorkspaceInput | WorkspaceEmailInvitationUpsertWithWhereUniqueWithoutWorkspaceInput[]
+    createMany?: WorkspaceEmailInvitationCreateManyWorkspaceInputEnvelope
+    set?: WorkspaceEmailInvitationWhereUniqueInput | WorkspaceEmailInvitationWhereUniqueInput[]
+    disconnect?: WorkspaceEmailInvitationWhereUniqueInput | WorkspaceEmailInvitationWhereUniqueInput[]
+    delete?: WorkspaceEmailInvitationWhereUniqueInput | WorkspaceEmailInvitationWhereUniqueInput[]
+    connect?: WorkspaceEmailInvitationWhereUniqueInput | WorkspaceEmailInvitationWhereUniqueInput[]
+    update?: WorkspaceEmailInvitationUpdateWithWhereUniqueWithoutWorkspaceInput | WorkspaceEmailInvitationUpdateWithWhereUniqueWithoutWorkspaceInput[]
+    updateMany?: WorkspaceEmailInvitationUpdateManyWithWhereWithoutWorkspaceInput | WorkspaceEmailInvitationUpdateManyWithWhereWithoutWorkspaceInput[]
+    deleteMany?: WorkspaceEmailInvitationScalarWhereInput | WorkspaceEmailInvitationScalarWhereInput[]
   }
 
   export type WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput = {
@@ -81003,6 +83318,50 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutInvoicesInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutInvoicesInput, UserUpdateWithoutInvoicesInput>, UserUncheckedUpdateWithoutInvoicesInput>
+  }
+
+  export type WorkspaceCreateNestedOneWithoutEmailInvitationsInput = {
+    create?: XOR<WorkspaceCreateWithoutEmailInvitationsInput, WorkspaceUncheckedCreateWithoutEmailInvitationsInput>
+    connectOrCreate?: WorkspaceCreateOrConnectWithoutEmailInvitationsInput
+    connect?: WorkspaceWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutSentWorkspaceEmailInvitationsInput = {
+    create?: XOR<UserCreateWithoutSentWorkspaceEmailInvitationsInput, UserUncheckedCreateWithoutSentWorkspaceEmailInvitationsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutSentWorkspaceEmailInvitationsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutReceivedWorkspaceEmailInvitationsInput = {
+    create?: XOR<UserCreateWithoutReceivedWorkspaceEmailInvitationsInput, UserUncheckedCreateWithoutReceivedWorkspaceEmailInvitationsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutReceivedWorkspaceEmailInvitationsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type WorkspaceUpdateOneRequiredWithoutEmailInvitationsNestedInput = {
+    create?: XOR<WorkspaceCreateWithoutEmailInvitationsInput, WorkspaceUncheckedCreateWithoutEmailInvitationsInput>
+    connectOrCreate?: WorkspaceCreateOrConnectWithoutEmailInvitationsInput
+    upsert?: WorkspaceUpsertWithoutEmailInvitationsInput
+    connect?: WorkspaceWhereUniqueInput
+    update?: XOR<XOR<WorkspaceUpdateToOneWithWhereWithoutEmailInvitationsInput, WorkspaceUpdateWithoutEmailInvitationsInput>, WorkspaceUncheckedUpdateWithoutEmailInvitationsInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutSentWorkspaceEmailInvitationsNestedInput = {
+    create?: XOR<UserCreateWithoutSentWorkspaceEmailInvitationsInput, UserUncheckedCreateWithoutSentWorkspaceEmailInvitationsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutSentWorkspaceEmailInvitationsInput
+    upsert?: UserUpsertWithoutSentWorkspaceEmailInvitationsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutSentWorkspaceEmailInvitationsInput, UserUpdateWithoutSentWorkspaceEmailInvitationsInput>, UserUncheckedUpdateWithoutSentWorkspaceEmailInvitationsInput>
+  }
+
+  export type UserUpdateOneWithoutReceivedWorkspaceEmailInvitationsNestedInput = {
+    create?: XOR<UserCreateWithoutReceivedWorkspaceEmailInvitationsInput, UserUncheckedCreateWithoutReceivedWorkspaceEmailInvitationsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutReceivedWorkspaceEmailInvitationsInput
+    upsert?: UserUpsertWithoutReceivedWorkspaceEmailInvitationsInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutReceivedWorkspaceEmailInvitationsInput, UserUpdateWithoutReceivedWorkspaceEmailInvitationsInput>, UserUncheckedUpdateWithoutReceivedWorkspaceEmailInvitationsInput>
   }
 
   export type NestedUuidFilter<$PrismaModel = never> = {
@@ -81602,6 +83961,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -81637,6 +83997,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -82164,7 +84525,10 @@ export namespace Prisma {
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    membersVersion?: number
+    lifecycleStatus?: string
     organization?: OrganizationCreateNestedOneWithoutWorkspacesInput
+    emailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutWorkspaceInput
     members?: WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
     websites?: WebsiteCreateNestedManyWithoutWorkspaceInput
   }
@@ -82177,6 +84541,9 @@ export namespace Prisma {
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    membersVersion?: number
+    lifecycleStatus?: string
+    emailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
     members?: WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
     websites?: WebsiteUncheckedCreateNestedManyWithoutWorkspaceInput
   }
@@ -82274,6 +84641,126 @@ export namespace Prisma {
 
   export type WorkspaceMemberCreateManyUserInputEnvelope = {
     data: WorkspaceMemberCreateManyUserInput | WorkspaceMemberCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type WorkspaceEmailInvitationCreateWithoutInviterInput = {
+    id?: string
+    invitedEmail: string
+    role: string
+    status?: string
+    version?: number
+    tokenHash: string
+    expiresAt: Date | string
+    acceptedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    createRequestKey: string
+    lastCommandKey?: string | null
+    lastCommandAction?: string | null
+    emailStatus?: string
+    emailQueuedAt?: Date | string
+    emailSentAt?: Date | string | null
+    emailAttempts?: number
+    nextAttemptAt?: Date | string
+    leaseUntil?: Date | string | null
+    leaseToken?: string | null
+    workspace: WorkspaceCreateNestedOneWithoutEmailInvitationsInput
+    recipient?: UserCreateNestedOneWithoutReceivedWorkspaceEmailInvitationsInput
+  }
+
+  export type WorkspaceEmailInvitationUncheckedCreateWithoutInviterInput = {
+    id?: string
+    workspaceId: string
+    recipientUserId?: string | null
+    invitedEmail: string
+    role: string
+    status?: string
+    version?: number
+    tokenHash: string
+    expiresAt: Date | string
+    acceptedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    createRequestKey: string
+    lastCommandKey?: string | null
+    lastCommandAction?: string | null
+    emailStatus?: string
+    emailQueuedAt?: Date | string
+    emailSentAt?: Date | string | null
+    emailAttempts?: number
+    nextAttemptAt?: Date | string
+    leaseUntil?: Date | string | null
+    leaseToken?: string | null
+  }
+
+  export type WorkspaceEmailInvitationCreateOrConnectWithoutInviterInput = {
+    where: WorkspaceEmailInvitationWhereUniqueInput
+    create: XOR<WorkspaceEmailInvitationCreateWithoutInviterInput, WorkspaceEmailInvitationUncheckedCreateWithoutInviterInput>
+  }
+
+  export type WorkspaceEmailInvitationCreateManyInviterInputEnvelope = {
+    data: WorkspaceEmailInvitationCreateManyInviterInput | WorkspaceEmailInvitationCreateManyInviterInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type WorkspaceEmailInvitationCreateWithoutRecipientInput = {
+    id?: string
+    invitedEmail: string
+    role: string
+    status?: string
+    version?: number
+    tokenHash: string
+    expiresAt: Date | string
+    acceptedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    createRequestKey: string
+    lastCommandKey?: string | null
+    lastCommandAction?: string | null
+    emailStatus?: string
+    emailQueuedAt?: Date | string
+    emailSentAt?: Date | string | null
+    emailAttempts?: number
+    nextAttemptAt?: Date | string
+    leaseUntil?: Date | string | null
+    leaseToken?: string | null
+    workspace: WorkspaceCreateNestedOneWithoutEmailInvitationsInput
+    inviter: UserCreateNestedOneWithoutSentWorkspaceEmailInvitationsInput
+  }
+
+  export type WorkspaceEmailInvitationUncheckedCreateWithoutRecipientInput = {
+    id?: string
+    workspaceId: string
+    invitedBy: string
+    invitedEmail: string
+    role: string
+    status?: string
+    version?: number
+    tokenHash: string
+    expiresAt: Date | string
+    acceptedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    createRequestKey: string
+    lastCommandKey?: string | null
+    lastCommandAction?: string | null
+    emailStatus?: string
+    emailQueuedAt?: Date | string
+    emailSentAt?: Date | string | null
+    emailAttempts?: number
+    nextAttemptAt?: Date | string
+    leaseUntil?: Date | string | null
+    leaseToken?: string | null
+  }
+
+  export type WorkspaceEmailInvitationCreateOrConnectWithoutRecipientInput = {
+    where: WorkspaceEmailInvitationWhereUniqueInput
+    create: XOR<WorkspaceEmailInvitationCreateWithoutRecipientInput, WorkspaceEmailInvitationUncheckedCreateWithoutRecipientInput>
+  }
+
+  export type WorkspaceEmailInvitationCreateManyRecipientInputEnvelope = {
+    data: WorkspaceEmailInvitationCreateManyRecipientInput | WorkspaceEmailInvitationCreateManyRecipientInput[]
     skipDuplicates?: boolean
   }
 
@@ -82721,6 +85208,7 @@ export namespace Prisma {
     name?: StringFilter<"Website"> | string
     slug?: StringFilter<"Website"> | string
     status?: StringFilter<"Website"> | string
+    archivedAt?: DateTimeNullableFilter<"Website"> | Date | string | null
     editorData?: JsonFilter<"Website">
     createdAt?: DateTimeFilter<"Website"> | Date | string
     updatedAt?: DateTimeFilter<"Website"> | Date | string
@@ -83220,6 +85708,8 @@ export namespace Prisma {
     settings?: JsonNullableFilter<"Workspace">
     createdAt?: DateTimeFilter<"Workspace"> | Date | string
     updatedAt?: DateTimeFilter<"Workspace"> | Date | string
+    membersVersion?: IntFilter<"Workspace"> | number
+    lifecycleStatus?: StringFilter<"Workspace"> | string
   }
 
   export type OrganizationUpsertWithWhereUniqueWithoutOwnerInput = {
@@ -83305,6 +85795,67 @@ export namespace Prisma {
     role?: StringFilter<"WorkspaceMember"> | string
     createdAt?: DateTimeFilter<"WorkspaceMember"> | Date | string
     updatedAt?: DateTimeFilter<"WorkspaceMember"> | Date | string
+  }
+
+  export type WorkspaceEmailInvitationUpsertWithWhereUniqueWithoutInviterInput = {
+    where: WorkspaceEmailInvitationWhereUniqueInput
+    update: XOR<WorkspaceEmailInvitationUpdateWithoutInviterInput, WorkspaceEmailInvitationUncheckedUpdateWithoutInviterInput>
+    create: XOR<WorkspaceEmailInvitationCreateWithoutInviterInput, WorkspaceEmailInvitationUncheckedCreateWithoutInviterInput>
+  }
+
+  export type WorkspaceEmailInvitationUpdateWithWhereUniqueWithoutInviterInput = {
+    where: WorkspaceEmailInvitationWhereUniqueInput
+    data: XOR<WorkspaceEmailInvitationUpdateWithoutInviterInput, WorkspaceEmailInvitationUncheckedUpdateWithoutInviterInput>
+  }
+
+  export type WorkspaceEmailInvitationUpdateManyWithWhereWithoutInviterInput = {
+    where: WorkspaceEmailInvitationScalarWhereInput
+    data: XOR<WorkspaceEmailInvitationUpdateManyMutationInput, WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterInput>
+  }
+
+  export type WorkspaceEmailInvitationScalarWhereInput = {
+    AND?: WorkspaceEmailInvitationScalarWhereInput | WorkspaceEmailInvitationScalarWhereInput[]
+    OR?: WorkspaceEmailInvitationScalarWhereInput[]
+    NOT?: WorkspaceEmailInvitationScalarWhereInput | WorkspaceEmailInvitationScalarWhereInput[]
+    id?: UuidFilter<"WorkspaceEmailInvitation"> | string
+    workspaceId?: UuidFilter<"WorkspaceEmailInvitation"> | string
+    invitedBy?: UuidFilter<"WorkspaceEmailInvitation"> | string
+    recipientUserId?: UuidNullableFilter<"WorkspaceEmailInvitation"> | string | null
+    invitedEmail?: StringFilter<"WorkspaceEmailInvitation"> | string
+    role?: StringFilter<"WorkspaceEmailInvitation"> | string
+    status?: StringFilter<"WorkspaceEmailInvitation"> | string
+    version?: IntFilter<"WorkspaceEmailInvitation"> | number
+    tokenHash?: StringFilter<"WorkspaceEmailInvitation"> | string
+    expiresAt?: DateTimeFilter<"WorkspaceEmailInvitation"> | Date | string
+    acceptedAt?: DateTimeNullableFilter<"WorkspaceEmailInvitation"> | Date | string | null
+    createdAt?: DateTimeFilter<"WorkspaceEmailInvitation"> | Date | string
+    updatedAt?: DateTimeFilter<"WorkspaceEmailInvitation"> | Date | string
+    createRequestKey?: UuidFilter<"WorkspaceEmailInvitation"> | string
+    lastCommandKey?: UuidNullableFilter<"WorkspaceEmailInvitation"> | string | null
+    lastCommandAction?: StringNullableFilter<"WorkspaceEmailInvitation"> | string | null
+    emailStatus?: StringFilter<"WorkspaceEmailInvitation"> | string
+    emailQueuedAt?: DateTimeFilter<"WorkspaceEmailInvitation"> | Date | string
+    emailSentAt?: DateTimeNullableFilter<"WorkspaceEmailInvitation"> | Date | string | null
+    emailAttempts?: IntFilter<"WorkspaceEmailInvitation"> | number
+    nextAttemptAt?: DateTimeFilter<"WorkspaceEmailInvitation"> | Date | string
+    leaseUntil?: DateTimeNullableFilter<"WorkspaceEmailInvitation"> | Date | string | null
+    leaseToken?: UuidNullableFilter<"WorkspaceEmailInvitation"> | string | null
+  }
+
+  export type WorkspaceEmailInvitationUpsertWithWhereUniqueWithoutRecipientInput = {
+    where: WorkspaceEmailInvitationWhereUniqueInput
+    update: XOR<WorkspaceEmailInvitationUpdateWithoutRecipientInput, WorkspaceEmailInvitationUncheckedUpdateWithoutRecipientInput>
+    create: XOR<WorkspaceEmailInvitationCreateWithoutRecipientInput, WorkspaceEmailInvitationUncheckedCreateWithoutRecipientInput>
+  }
+
+  export type WorkspaceEmailInvitationUpdateWithWhereUniqueWithoutRecipientInput = {
+    where: WorkspaceEmailInvitationWhereUniqueInput
+    data: XOR<WorkspaceEmailInvitationUpdateWithoutRecipientInput, WorkspaceEmailInvitationUncheckedUpdateWithoutRecipientInput>
+  }
+
+  export type WorkspaceEmailInvitationUpdateManyWithWhereWithoutRecipientInput = {
+    where: WorkspaceEmailInvitationScalarWhereInput
+    data: XOR<WorkspaceEmailInvitationUpdateManyMutationInput, WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientInput>
   }
 
   export type PublishApprovalRequestUpsertWithWhereUniqueWithoutRequesterInput = {
@@ -83557,6 +86108,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -83606,6 +86159,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -84161,8 +86716,11 @@ export namespace Prisma {
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    membersVersion?: number
+    lifecycleStatus?: string
     organization?: OrganizationCreateNestedOneWithoutWorkspacesInput
     owner: UserCreateNestedOneWithoutOwnedWorkspacesInput
+    emailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutWorkspaceInput
     members?: WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
   }
 
@@ -84175,6 +86733,9 @@ export namespace Prisma {
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    membersVersion?: number
+    lifecycleStatus?: string
+    emailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
     members?: WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
   }
 
@@ -84470,6 +87031,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -84519,6 +87082,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -84962,8 +87527,11 @@ export namespace Prisma {
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    membersVersion?: IntFieldUpdateOperationsInput | number
+    lifecycleStatus?: StringFieldUpdateOperationsInput | string
     organization?: OrganizationUpdateOneWithoutWorkspacesNestedInput
     owner?: UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
+    emailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutWorkspaceNestedInput
     members?: WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
   }
 
@@ -84976,6 +87544,9 @@ export namespace Prisma {
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    membersVersion?: IntFieldUpdateOperationsInput | number
+    lifecycleStatus?: StringFieldUpdateOperationsInput | string
+    emailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
     members?: WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
   }
 
@@ -85217,6 +87788,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -85266,6 +87839,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -85331,6 +87906,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -85380,6 +87957,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -85429,6 +88008,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -85478,6 +88059,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -85543,6 +88126,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -85592,6 +88177,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -85641,6 +88228,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -85690,6 +88279,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -85755,6 +88346,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -85804,6 +88397,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -85853,6 +88448,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -85902,6 +88499,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -85967,6 +88566,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -86016,6 +88617,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -86162,6 +88765,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -86211,6 +88816,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -86319,6 +88926,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -86368,6 +88977,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -86417,6 +89028,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -86466,6 +89079,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -86531,6 +89146,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -86580,6 +89197,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -86594,6 +89213,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -86630,6 +89250,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -86704,6 +89325,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -86740,6 +89362,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -86876,6 +89499,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -86925,6 +89550,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -87047,6 +89674,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -87096,6 +89725,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -87110,6 +89741,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -87146,6 +89778,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -87196,6 +89829,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -87232,6 +89866,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -87266,6 +89901,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -87302,6 +89938,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -87416,6 +90053,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -87452,6 +90090,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -87533,6 +90172,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -87569,6 +90209,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -87619,6 +90260,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -87655,6 +90297,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -87724,6 +90367,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -87773,6 +90418,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -87838,6 +90485,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -87887,6 +90536,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -87901,6 +90552,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -87937,6 +90589,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -87987,6 +90640,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -88023,6 +90677,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -88057,6 +90712,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -88093,6 +90749,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -88143,6 +90800,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -88179,6 +90837,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -88341,6 +91000,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -88390,6 +91051,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -88490,6 +91153,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -88539,6 +91204,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -88553,6 +91220,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -88589,6 +91257,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -88663,6 +91332,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -88712,6 +91383,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -88742,6 +91415,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -88778,6 +91452,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -88858,6 +91533,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -88907,6 +91584,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -88956,6 +91635,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -89005,6 +91686,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -89070,6 +91753,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -89119,6 +91804,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -89133,6 +91820,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -89169,6 +91857,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -89243,6 +91932,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -89292,6 +91983,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -89322,6 +92015,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -89358,6 +92052,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -89438,6 +92133,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -89487,6 +92184,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -89501,6 +92200,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -89537,6 +92237,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -89611,6 +92312,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -89660,6 +92363,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -89690,6 +92395,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -89726,6 +92432,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -89806,6 +92513,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -89855,6 +92564,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -89869,6 +92580,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -89905,6 +92617,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -89979,6 +92692,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -90028,6 +92743,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -90058,6 +92775,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -90094,6 +92812,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -90174,6 +92893,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -90223,6 +92944,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -90237,6 +92960,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -90273,6 +92997,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -90347,6 +93072,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -90396,6 +93123,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -90426,6 +93155,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -90462,6 +93192,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -90542,6 +93273,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -90591,6 +93324,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -90605,6 +93340,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -90641,6 +93377,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -90715,6 +93452,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -90764,6 +93503,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -90794,6 +93535,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -90830,6 +93572,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -90910,6 +93653,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -90959,6 +93704,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -90973,6 +93720,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -91009,6 +93757,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -91059,6 +93808,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -91095,6 +93845,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -91129,6 +93880,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -91165,6 +93917,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -91239,6 +93992,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -91288,6 +94043,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -91318,6 +94075,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -91354,6 +94112,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -91434,6 +94193,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -91483,6 +94244,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -91532,6 +94295,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -91581,6 +94346,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -91626,6 +94393,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -91662,6 +94430,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -91786,6 +94555,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -91835,6 +94606,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -91959,6 +94732,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -92008,6 +94783,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -92106,6 +94883,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -92155,6 +94934,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -92231,6 +95012,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -92280,6 +95063,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -92378,6 +95163,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -92427,6 +95214,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -92441,6 +95230,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -92477,6 +95267,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -92551,6 +95342,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -92600,6 +95393,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -92630,6 +95425,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -92666,6 +95462,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -92746,6 +95543,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -92795,6 +95594,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -92873,6 +95674,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -92922,6 +95725,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -92934,6 +95739,66 @@ export namespace Prisma {
   export type UserCreateOrConnectWithoutOwnedWorkspacesInput = {
     where: UserWhereUniqueInput
     create: XOR<UserCreateWithoutOwnedWorkspacesInput, UserUncheckedCreateWithoutOwnedWorkspacesInput>
+  }
+
+  export type WorkspaceEmailInvitationCreateWithoutWorkspaceInput = {
+    id?: string
+    invitedEmail: string
+    role: string
+    status?: string
+    version?: number
+    tokenHash: string
+    expiresAt: Date | string
+    acceptedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    createRequestKey: string
+    lastCommandKey?: string | null
+    lastCommandAction?: string | null
+    emailStatus?: string
+    emailQueuedAt?: Date | string
+    emailSentAt?: Date | string | null
+    emailAttempts?: number
+    nextAttemptAt?: Date | string
+    leaseUntil?: Date | string | null
+    leaseToken?: string | null
+    inviter: UserCreateNestedOneWithoutSentWorkspaceEmailInvitationsInput
+    recipient?: UserCreateNestedOneWithoutReceivedWorkspaceEmailInvitationsInput
+  }
+
+  export type WorkspaceEmailInvitationUncheckedCreateWithoutWorkspaceInput = {
+    id?: string
+    invitedBy: string
+    recipientUserId?: string | null
+    invitedEmail: string
+    role: string
+    status?: string
+    version?: number
+    tokenHash: string
+    expiresAt: Date | string
+    acceptedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    createRequestKey: string
+    lastCommandKey?: string | null
+    lastCommandAction?: string | null
+    emailStatus?: string
+    emailQueuedAt?: Date | string
+    emailSentAt?: Date | string | null
+    emailAttempts?: number
+    nextAttemptAt?: Date | string
+    leaseUntil?: Date | string | null
+    leaseToken?: string | null
+  }
+
+  export type WorkspaceEmailInvitationCreateOrConnectWithoutWorkspaceInput = {
+    where: WorkspaceEmailInvitationWhereUniqueInput
+    create: XOR<WorkspaceEmailInvitationCreateWithoutWorkspaceInput, WorkspaceEmailInvitationUncheckedCreateWithoutWorkspaceInput>
+  }
+
+  export type WorkspaceEmailInvitationCreateManyWorkspaceInputEnvelope = {
+    data: WorkspaceEmailInvitationCreateManyWorkspaceInput | WorkspaceEmailInvitationCreateManyWorkspaceInput[]
+    skipDuplicates?: boolean
   }
 
   export type WorkspaceMemberCreateWithoutWorkspaceInput = {
@@ -92967,6 +95832,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -93003,6 +95869,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -93128,6 +95995,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -93177,6 +96046,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -93184,6 +96055,22 @@ export namespace Prisma {
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type WorkspaceEmailInvitationUpsertWithWhereUniqueWithoutWorkspaceInput = {
+    where: WorkspaceEmailInvitationWhereUniqueInput
+    update: XOR<WorkspaceEmailInvitationUpdateWithoutWorkspaceInput, WorkspaceEmailInvitationUncheckedUpdateWithoutWorkspaceInput>
+    create: XOR<WorkspaceEmailInvitationCreateWithoutWorkspaceInput, WorkspaceEmailInvitationUncheckedCreateWithoutWorkspaceInput>
+  }
+
+  export type WorkspaceEmailInvitationUpdateWithWhereUniqueWithoutWorkspaceInput = {
+    where: WorkspaceEmailInvitationWhereUniqueInput
+    data: XOR<WorkspaceEmailInvitationUpdateWithoutWorkspaceInput, WorkspaceEmailInvitationUncheckedUpdateWithoutWorkspaceInput>
+  }
+
+  export type WorkspaceEmailInvitationUpdateManyWithWhereWithoutWorkspaceInput = {
+    where: WorkspaceEmailInvitationScalarWhereInput
+    data: XOR<WorkspaceEmailInvitationUpdateManyMutationInput, WorkspaceEmailInvitationUncheckedUpdateManyWithoutWorkspaceInput>
   }
 
   export type WorkspaceMemberUpsertWithWhereUniqueWithoutWorkspaceInput = {
@@ -93258,6 +96145,8 @@ export namespace Prisma {
     ownedWorkspaces?: WorkspaceCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -93307,6 +96196,8 @@ export namespace Prisma {
     ownedWorkspaces?: WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -93354,7 +96245,10 @@ export namespace Prisma {
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    membersVersion?: number
+    lifecycleStatus?: string
     owner: UserCreateNestedOneWithoutOwnedWorkspacesInput
+    emailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutWorkspaceInput
     members?: WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
     websites?: WebsiteCreateNestedManyWithoutWorkspaceInput
   }
@@ -93367,6 +96261,9 @@ export namespace Prisma {
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    membersVersion?: number
+    lifecycleStatus?: string
+    emailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
     members?: WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
     websites?: WebsiteUncheckedCreateNestedManyWithoutWorkspaceInput
   }
@@ -93386,6 +96283,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -93422,6 +96320,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -93512,6 +96411,8 @@ export namespace Prisma {
     ownedWorkspaces?: WorkspaceUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -93561,6 +96462,8 @@ export namespace Prisma {
     ownedWorkspaces?: WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -93687,6 +96590,8 @@ export namespace Prisma {
     ownedWorkspaces?: WorkspaceCreateNestedManyWithoutOwnerInput
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -93736,6 +96641,8 @@ export namespace Prisma {
     ownedWorkspaces?: WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -93836,6 +96743,8 @@ export namespace Prisma {
     ownedWorkspaces?: WorkspaceUpdateManyWithoutOwnerNestedInput
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -93885,6 +96794,8 @@ export namespace Prisma {
     ownedWorkspaces?: WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -93901,8 +96812,11 @@ export namespace Prisma {
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    membersVersion?: number
+    lifecycleStatus?: string
     organization?: OrganizationCreateNestedOneWithoutWorkspacesInput
     owner: UserCreateNestedOneWithoutOwnedWorkspacesInput
+    emailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutWorkspaceInput
     websites?: WebsiteCreateNestedManyWithoutWorkspaceInput
   }
 
@@ -93915,6 +96829,9 @@ export namespace Prisma {
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    membersVersion?: number
+    lifecycleStatus?: string
+    emailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
     websites?: WebsiteUncheckedCreateNestedManyWithoutWorkspaceInput
   }
 
@@ -93963,6 +96880,8 @@ export namespace Prisma {
     ownedWorkspaces?: WorkspaceCreateNestedManyWithoutOwnerInput
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -94012,6 +96931,8 @@ export namespace Prisma {
     ownedWorkspaces?: WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -94044,8 +96965,11 @@ export namespace Prisma {
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    membersVersion?: IntFieldUpdateOperationsInput | number
+    lifecycleStatus?: StringFieldUpdateOperationsInput | string
     organization?: OrganizationUpdateOneWithoutWorkspacesNestedInput
     owner?: UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
+    emailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutWorkspaceNestedInput
     websites?: WebsiteUpdateManyWithoutWorkspaceNestedInput
   }
 
@@ -94058,6 +96982,9 @@ export namespace Prisma {
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    membersVersion?: IntFieldUpdateOperationsInput | number
+    lifecycleStatus?: StringFieldUpdateOperationsInput | string
+    emailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
     websites?: WebsiteUncheckedUpdateManyWithoutWorkspaceNestedInput
   }
 
@@ -94112,6 +97039,8 @@ export namespace Prisma {
     ownedWorkspaces?: WorkspaceUpdateManyWithoutOwnerNestedInput
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -94161,6 +97090,8 @@ export namespace Prisma {
     ownedWorkspaces?: WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -94175,6 +97106,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -94211,6 +97143,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -94286,6 +97219,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
@@ -94335,6 +97270,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
@@ -94389,6 +97326,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
@@ -94438,6 +97377,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
@@ -94467,6 +97408,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -94503,6 +97445,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -94584,6 +97527,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
@@ -94633,6 +97578,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
@@ -94693,6 +97640,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
@@ -94742,6 +97691,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
@@ -94791,6 +97742,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
@@ -94840,6 +97793,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
@@ -94858,6 +97813,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -94894,6 +97850,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -94980,6 +97937,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
@@ -95029,6 +97988,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
@@ -95053,6 +98014,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95089,6 +98051,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95123,6 +98086,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -95159,6 +98123,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -95209,6 +98174,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95245,6 +98211,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95279,6 +98246,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -95315,6 +98283,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -95365,6 +98334,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95401,6 +98371,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95435,6 +98406,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -95471,6 +98443,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -95521,6 +98494,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95557,6 +98531,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95591,6 +98566,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -95627,6 +98603,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -95677,6 +98654,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95713,6 +98691,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95783,6 +98762,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -95832,6 +98813,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -95897,6 +98880,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -95946,6 +98931,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -95995,6 +98982,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -96044,6 +99033,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -96139,6 +99130,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -96188,6 +99181,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -96331,6 +99326,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -96380,6 +99377,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -96445,6 +99444,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -96494,6 +99495,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -96543,6 +99546,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -96592,6 +99597,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -96657,6 +99664,8 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -96706,12 +99715,530 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+  }
+
+  export type WorkspaceCreateWithoutEmailInvitationsInput = {
+    id?: string
+    name: string
+    slug: string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    membersVersion?: number
+    lifecycleStatus?: string
+    organization?: OrganizationCreateNestedOneWithoutWorkspacesInput
+    owner: UserCreateNestedOneWithoutOwnedWorkspacesInput
+    members?: WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
+    websites?: WebsiteCreateNestedManyWithoutWorkspaceInput
+  }
+
+  export type WorkspaceUncheckedCreateWithoutEmailInvitationsInput = {
+    id?: string
+    organizationId?: string | null
+    name: string
+    slug: string
+    ownerId: string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    membersVersion?: number
+    lifecycleStatus?: string
+    members?: WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
+    websites?: WebsiteUncheckedCreateNestedManyWithoutWorkspaceInput
+  }
+
+  export type WorkspaceCreateOrConnectWithoutEmailInvitationsInput = {
+    where: WorkspaceWhereUniqueInput
+    create: XOR<WorkspaceCreateWithoutEmailInvitationsInput, WorkspaceUncheckedCreateWithoutEmailInvitationsInput>
+  }
+
+  export type UserCreateWithoutSentWorkspaceEmailInvitationsInput = {
+    id?: string
+    fullName?: string | null
+    email?: string | null
+    phone?: string | null
+    passwordHash?: string | null
+    verificationMethod?: $Enums.VerificationMethod | null
+    emailVerified?: boolean
+    phoneVerified?: boolean
+    status?: $Enums.UserStatus
+    role?: $Enums.UserRole
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    optimizationCredits?: number
+    identities?: IdentityCreateNestedManyWithoutUserInput
+    otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
+    passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    templates?: templatesCreateNestedManyWithoutUsersInput
+    subscription?: UserSubscriptionCreateNestedOneWithoutUserInput
+    websites?: WebsiteCreateNestedManyWithoutUserInput
+    codeRevisions?: CustomCodeRevisionCreateNestedManyWithoutAuthorInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    developerApiKeys?: DeveloperApiKeyCreateNestedManyWithoutUserInput
+    designNotes?: DesignNoteCreateNestedManyWithoutAuthorInput
+    collaborations?: WebsiteCollaboratorCreateNestedManyWithoutUserInput
+    componentAccesses?: ComponentAccessCreateNestedManyWithoutUserInput
+    customEntries?: CustomEntryCreateNestedManyWithoutAuthorInput
+    websiteRevisions?: WebsiteRevisionCreateNestedManyWithoutCreatorInput
+    deployments?: DeploymentCreateNestedManyWithoutCreatorInput
+    wpConnections?: WordPressConnectionCreateNestedManyWithoutUserInput
+    ownedTeams?: TeamCreateNestedManyWithoutOwnerInput
+    teamMemberships?: TeamMemberCreateNestedManyWithoutUserInput
+    sentTeamInvitations?: TeamInvitationCreateNestedManyWithoutInviterInput
+    sentWebsiteInvitations?: WebsiteInvitationCreateNestedManyWithoutInviterInput
+    granularPermissions?: GranularPermissionCreateNestedManyWithoutUserInput
+    ownedWorkspaces?: WorkspaceCreateNestedManyWithoutOwnerInput
+    ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
+    organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
+    workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
+    approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
+    reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutSentWorkspaceEmailInvitationsInput = {
+    id?: string
+    fullName?: string | null
+    email?: string | null
+    phone?: string | null
+    passwordHash?: string | null
+    verificationMethod?: $Enums.VerificationMethod | null
+    emailVerified?: boolean
+    phoneVerified?: boolean
+    status?: $Enums.UserStatus
+    role?: $Enums.UserRole
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    optimizationCredits?: number
+    identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
+    otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
+    passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    templates?: templatesUncheckedCreateNestedManyWithoutUsersInput
+    subscription?: UserSubscriptionUncheckedCreateNestedOneWithoutUserInput
+    websites?: WebsiteUncheckedCreateNestedManyWithoutUserInput
+    codeRevisions?: CustomCodeRevisionUncheckedCreateNestedManyWithoutAuthorInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    developerApiKeys?: DeveloperApiKeyUncheckedCreateNestedManyWithoutUserInput
+    designNotes?: DesignNoteUncheckedCreateNestedManyWithoutAuthorInput
+    collaborations?: WebsiteCollaboratorUncheckedCreateNestedManyWithoutUserInput
+    componentAccesses?: ComponentAccessUncheckedCreateNestedManyWithoutUserInput
+    customEntries?: CustomEntryUncheckedCreateNestedManyWithoutAuthorInput
+    websiteRevisions?: WebsiteRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    deployments?: DeploymentUncheckedCreateNestedManyWithoutCreatorInput
+    wpConnections?: WordPressConnectionUncheckedCreateNestedManyWithoutUserInput
+    ownedTeams?: TeamUncheckedCreateNestedManyWithoutOwnerInput
+    teamMemberships?: TeamMemberUncheckedCreateNestedManyWithoutUserInput
+    sentTeamInvitations?: TeamInvitationUncheckedCreateNestedManyWithoutInviterInput
+    sentWebsiteInvitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutInviterInput
+    granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutUserInput
+    ownedWorkspaces?: WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
+    ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
+    organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
+    workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
+    approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
+    reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutSentWorkspaceEmailInvitationsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutSentWorkspaceEmailInvitationsInput, UserUncheckedCreateWithoutSentWorkspaceEmailInvitationsInput>
+  }
+
+  export type UserCreateWithoutReceivedWorkspaceEmailInvitationsInput = {
+    id?: string
+    fullName?: string | null
+    email?: string | null
+    phone?: string | null
+    passwordHash?: string | null
+    verificationMethod?: $Enums.VerificationMethod | null
+    emailVerified?: boolean
+    phoneVerified?: boolean
+    status?: $Enums.UserStatus
+    role?: $Enums.UserRole
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    optimizationCredits?: number
+    identities?: IdentityCreateNestedManyWithoutUserInput
+    otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
+    passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    templates?: templatesCreateNestedManyWithoutUsersInput
+    subscription?: UserSubscriptionCreateNestedOneWithoutUserInput
+    websites?: WebsiteCreateNestedManyWithoutUserInput
+    codeRevisions?: CustomCodeRevisionCreateNestedManyWithoutAuthorInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    developerApiKeys?: DeveloperApiKeyCreateNestedManyWithoutUserInput
+    designNotes?: DesignNoteCreateNestedManyWithoutAuthorInput
+    collaborations?: WebsiteCollaboratorCreateNestedManyWithoutUserInput
+    componentAccesses?: ComponentAccessCreateNestedManyWithoutUserInput
+    customEntries?: CustomEntryCreateNestedManyWithoutAuthorInput
+    websiteRevisions?: WebsiteRevisionCreateNestedManyWithoutCreatorInput
+    deployments?: DeploymentCreateNestedManyWithoutCreatorInput
+    wpConnections?: WordPressConnectionCreateNestedManyWithoutUserInput
+    ownedTeams?: TeamCreateNestedManyWithoutOwnerInput
+    teamMemberships?: TeamMemberCreateNestedManyWithoutUserInput
+    sentTeamInvitations?: TeamInvitationCreateNestedManyWithoutInviterInput
+    sentWebsiteInvitations?: WebsiteInvitationCreateNestedManyWithoutInviterInput
+    granularPermissions?: GranularPermissionCreateNestedManyWithoutUserInput
+    ownedWorkspaces?: WorkspaceCreateNestedManyWithoutOwnerInput
+    ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
+    organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
+    workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput
+    approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
+    reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutReceivedWorkspaceEmailInvitationsInput = {
+    id?: string
+    fullName?: string | null
+    email?: string | null
+    phone?: string | null
+    passwordHash?: string | null
+    verificationMethod?: $Enums.VerificationMethod | null
+    emailVerified?: boolean
+    phoneVerified?: boolean
+    status?: $Enums.UserStatus
+    role?: $Enums.UserRole
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    optimizationCredits?: number
+    identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
+    otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
+    passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    templates?: templatesUncheckedCreateNestedManyWithoutUsersInput
+    subscription?: UserSubscriptionUncheckedCreateNestedOneWithoutUserInput
+    websites?: WebsiteUncheckedCreateNestedManyWithoutUserInput
+    codeRevisions?: CustomCodeRevisionUncheckedCreateNestedManyWithoutAuthorInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    developerApiKeys?: DeveloperApiKeyUncheckedCreateNestedManyWithoutUserInput
+    designNotes?: DesignNoteUncheckedCreateNestedManyWithoutAuthorInput
+    collaborations?: WebsiteCollaboratorUncheckedCreateNestedManyWithoutUserInput
+    componentAccesses?: ComponentAccessUncheckedCreateNestedManyWithoutUserInput
+    customEntries?: CustomEntryUncheckedCreateNestedManyWithoutAuthorInput
+    websiteRevisions?: WebsiteRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    deployments?: DeploymentUncheckedCreateNestedManyWithoutCreatorInput
+    wpConnections?: WordPressConnectionUncheckedCreateNestedManyWithoutUserInput
+    ownedTeams?: TeamUncheckedCreateNestedManyWithoutOwnerInput
+    teamMemberships?: TeamMemberUncheckedCreateNestedManyWithoutUserInput
+    sentTeamInvitations?: TeamInvitationUncheckedCreateNestedManyWithoutInviterInput
+    sentWebsiteInvitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutInviterInput
+    granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutUserInput
+    ownedWorkspaces?: WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
+    ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
+    organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
+    workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput
+    approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
+    reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutReceivedWorkspaceEmailInvitationsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutReceivedWorkspaceEmailInvitationsInput, UserUncheckedCreateWithoutReceivedWorkspaceEmailInvitationsInput>
+  }
+
+  export type WorkspaceUpsertWithoutEmailInvitationsInput = {
+    update: XOR<WorkspaceUpdateWithoutEmailInvitationsInput, WorkspaceUncheckedUpdateWithoutEmailInvitationsInput>
+    create: XOR<WorkspaceCreateWithoutEmailInvitationsInput, WorkspaceUncheckedCreateWithoutEmailInvitationsInput>
+    where?: WorkspaceWhereInput
+  }
+
+  export type WorkspaceUpdateToOneWithWhereWithoutEmailInvitationsInput = {
+    where?: WorkspaceWhereInput
+    data: XOR<WorkspaceUpdateWithoutEmailInvitationsInput, WorkspaceUncheckedUpdateWithoutEmailInvitationsInput>
+  }
+
+  export type WorkspaceUpdateWithoutEmailInvitationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    membersVersion?: IntFieldUpdateOperationsInput | number
+    lifecycleStatus?: StringFieldUpdateOperationsInput | string
+    organization?: OrganizationUpdateOneWithoutWorkspacesNestedInput
+    owner?: UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
+    members?: WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
+    websites?: WebsiteUpdateManyWithoutWorkspaceNestedInput
+  }
+
+  export type WorkspaceUncheckedUpdateWithoutEmailInvitationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    ownerId?: StringFieldUpdateOperationsInput | string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    membersVersion?: IntFieldUpdateOperationsInput | number
+    lifecycleStatus?: StringFieldUpdateOperationsInput | string
+    members?: WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
+    websites?: WebsiteUncheckedUpdateManyWithoutWorkspaceNestedInput
+  }
+
+  export type UserUpsertWithoutSentWorkspaceEmailInvitationsInput = {
+    update: XOR<UserUpdateWithoutSentWorkspaceEmailInvitationsInput, UserUncheckedUpdateWithoutSentWorkspaceEmailInvitationsInput>
+    create: XOR<UserCreateWithoutSentWorkspaceEmailInvitationsInput, UserUncheckedCreateWithoutSentWorkspaceEmailInvitationsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutSentWorkspaceEmailInvitationsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutSentWorkspaceEmailInvitationsInput, UserUncheckedUpdateWithoutSentWorkspaceEmailInvitationsInput>
+  }
+
+  export type UserUpdateWithoutSentWorkspaceEmailInvitationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
+    identities?: IdentityUpdateManyWithoutUserNestedInput
+    otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
+    passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    templates?: templatesUpdateManyWithoutUsersNestedInput
+    subscription?: UserSubscriptionUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUpdateManyWithoutUserNestedInput
+    codeRevisions?: CustomCodeRevisionUpdateManyWithoutAuthorNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    developerApiKeys?: DeveloperApiKeyUpdateManyWithoutUserNestedInput
+    designNotes?: DesignNoteUpdateManyWithoutAuthorNestedInput
+    collaborations?: WebsiteCollaboratorUpdateManyWithoutUserNestedInput
+    componentAccesses?: ComponentAccessUpdateManyWithoutUserNestedInput
+    customEntries?: CustomEntryUpdateManyWithoutAuthorNestedInput
+    websiteRevisions?: WebsiteRevisionUpdateManyWithoutCreatorNestedInput
+    deployments?: DeploymentUpdateManyWithoutCreatorNestedInput
+    wpConnections?: WordPressConnectionUpdateManyWithoutUserNestedInput
+    ownedTeams?: TeamUpdateManyWithoutOwnerNestedInput
+    teamMemberships?: TeamMemberUpdateManyWithoutUserNestedInput
+    sentTeamInvitations?: TeamInvitationUpdateManyWithoutInviterNestedInput
+    sentWebsiteInvitations?: WebsiteInvitationUpdateManyWithoutInviterNestedInput
+    granularPermissions?: GranularPermissionUpdateManyWithoutUserNestedInput
+    ownedWorkspaces?: WorkspaceUpdateManyWithoutOwnerNestedInput
+    ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
+    organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
+    workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
+    approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
+    reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutSentWorkspaceEmailInvitationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
+    identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
+    otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
+    passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    templates?: templatesUncheckedUpdateManyWithoutUsersNestedInput
+    subscription?: UserSubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUncheckedUpdateManyWithoutUserNestedInput
+    codeRevisions?: CustomCodeRevisionUncheckedUpdateManyWithoutAuthorNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    developerApiKeys?: DeveloperApiKeyUncheckedUpdateManyWithoutUserNestedInput
+    designNotes?: DesignNoteUncheckedUpdateManyWithoutAuthorNestedInput
+    collaborations?: WebsiteCollaboratorUncheckedUpdateManyWithoutUserNestedInput
+    componentAccesses?: ComponentAccessUncheckedUpdateManyWithoutUserNestedInput
+    customEntries?: CustomEntryUncheckedUpdateManyWithoutAuthorNestedInput
+    websiteRevisions?: WebsiteRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    deployments?: DeploymentUncheckedUpdateManyWithoutCreatorNestedInput
+    wpConnections?: WordPressConnectionUncheckedUpdateManyWithoutUserNestedInput
+    ownedTeams?: TeamUncheckedUpdateManyWithoutOwnerNestedInput
+    teamMemberships?: TeamMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentTeamInvitations?: TeamInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    sentWebsiteInvitations?: WebsiteInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutUserNestedInput
+    ownedWorkspaces?: WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
+    ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
+    organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
+    workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
+    approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
+    reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUpsertWithoutReceivedWorkspaceEmailInvitationsInput = {
+    update: XOR<UserUpdateWithoutReceivedWorkspaceEmailInvitationsInput, UserUncheckedUpdateWithoutReceivedWorkspaceEmailInvitationsInput>
+    create: XOR<UserCreateWithoutReceivedWorkspaceEmailInvitationsInput, UserUncheckedCreateWithoutReceivedWorkspaceEmailInvitationsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutReceivedWorkspaceEmailInvitationsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutReceivedWorkspaceEmailInvitationsInput, UserUncheckedUpdateWithoutReceivedWorkspaceEmailInvitationsInput>
+  }
+
+  export type UserUpdateWithoutReceivedWorkspaceEmailInvitationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
+    identities?: IdentityUpdateManyWithoutUserNestedInput
+    otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
+    passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    templates?: templatesUpdateManyWithoutUsersNestedInput
+    subscription?: UserSubscriptionUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUpdateManyWithoutUserNestedInput
+    codeRevisions?: CustomCodeRevisionUpdateManyWithoutAuthorNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    developerApiKeys?: DeveloperApiKeyUpdateManyWithoutUserNestedInput
+    designNotes?: DesignNoteUpdateManyWithoutAuthorNestedInput
+    collaborations?: WebsiteCollaboratorUpdateManyWithoutUserNestedInput
+    componentAccesses?: ComponentAccessUpdateManyWithoutUserNestedInput
+    customEntries?: CustomEntryUpdateManyWithoutAuthorNestedInput
+    websiteRevisions?: WebsiteRevisionUpdateManyWithoutCreatorNestedInput
+    deployments?: DeploymentUpdateManyWithoutCreatorNestedInput
+    wpConnections?: WordPressConnectionUpdateManyWithoutUserNestedInput
+    ownedTeams?: TeamUpdateManyWithoutOwnerNestedInput
+    teamMemberships?: TeamMemberUpdateManyWithoutUserNestedInput
+    sentTeamInvitations?: TeamInvitationUpdateManyWithoutInviterNestedInput
+    sentWebsiteInvitations?: WebsiteInvitationUpdateManyWithoutInviterNestedInput
+    granularPermissions?: GranularPermissionUpdateManyWithoutUserNestedInput
+    ownedWorkspaces?: WorkspaceUpdateManyWithoutOwnerNestedInput
+    ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
+    organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
+    workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput
+    approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
+    reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutReceivedWorkspaceEmailInvitationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
+    identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
+    otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
+    passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    templates?: templatesUncheckedUpdateManyWithoutUsersNestedInput
+    subscription?: UserSubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUncheckedUpdateManyWithoutUserNestedInput
+    codeRevisions?: CustomCodeRevisionUncheckedUpdateManyWithoutAuthorNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    developerApiKeys?: DeveloperApiKeyUncheckedUpdateManyWithoutUserNestedInput
+    designNotes?: DesignNoteUncheckedUpdateManyWithoutAuthorNestedInput
+    collaborations?: WebsiteCollaboratorUncheckedUpdateManyWithoutUserNestedInput
+    componentAccesses?: ComponentAccessUncheckedUpdateManyWithoutUserNestedInput
+    customEntries?: CustomEntryUncheckedUpdateManyWithoutAuthorNestedInput
+    websiteRevisions?: WebsiteRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    deployments?: DeploymentUncheckedUpdateManyWithoutCreatorNestedInput
+    wpConnections?: WordPressConnectionUncheckedUpdateManyWithoutUserNestedInput
+    ownedTeams?: TeamUncheckedUpdateManyWithoutOwnerNestedInput
+    teamMemberships?: TeamMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentTeamInvitations?: TeamInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    sentWebsiteInvitations?: WebsiteInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutUserNestedInput
+    ownedWorkspaces?: WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
+    ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
+    organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
+    workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
+    reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type IdentityCreateManyUserInput = {
@@ -96770,6 +100297,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -96949,6 +100477,8 @@ export namespace Prisma {
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    membersVersion?: number
+    lifecycleStatus?: string
   }
 
   export type OrganizationCreateManyOwnerInput = {
@@ -96974,6 +100504,56 @@ export namespace Prisma {
     role?: string
     createdAt?: Date | string
     updatedAt?: Date | string
+  }
+
+  export type WorkspaceEmailInvitationCreateManyInviterInput = {
+    id?: string
+    workspaceId: string
+    recipientUserId?: string | null
+    invitedEmail: string
+    role: string
+    status?: string
+    version?: number
+    tokenHash: string
+    expiresAt: Date | string
+    acceptedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    createRequestKey: string
+    lastCommandKey?: string | null
+    lastCommandAction?: string | null
+    emailStatus?: string
+    emailQueuedAt?: Date | string
+    emailSentAt?: Date | string | null
+    emailAttempts?: number
+    nextAttemptAt?: Date | string
+    leaseUntil?: Date | string | null
+    leaseToken?: string | null
+  }
+
+  export type WorkspaceEmailInvitationCreateManyRecipientInput = {
+    id?: string
+    workspaceId: string
+    invitedBy: string
+    invitedEmail: string
+    role: string
+    status?: string
+    version?: number
+    tokenHash: string
+    expiresAt: Date | string
+    acceptedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    createRequestKey: string
+    lastCommandKey?: string | null
+    lastCommandAction?: string | null
+    emailStatus?: string
+    emailQueuedAt?: Date | string
+    emailSentAt?: Date | string | null
+    emailAttempts?: number
+    nextAttemptAt?: Date | string
+    leaseUntil?: Date | string | null
+    leaseToken?: string | null
   }
 
   export type PublishApprovalRequestCreateManyRequesterInput = {
@@ -97208,6 +100788,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -97243,6 +100824,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -97278,6 +100860,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -97786,7 +101369,10 @@ export namespace Prisma {
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    membersVersion?: IntFieldUpdateOperationsInput | number
+    lifecycleStatus?: StringFieldUpdateOperationsInput | string
     organization?: OrganizationUpdateOneWithoutWorkspacesNestedInput
+    emailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutWorkspaceNestedInput
     members?: WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
     websites?: WebsiteUpdateManyWithoutWorkspaceNestedInput
   }
@@ -97799,6 +101385,9 @@ export namespace Prisma {
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    membersVersion?: IntFieldUpdateOperationsInput | number
+    lifecycleStatus?: StringFieldUpdateOperationsInput | string
+    emailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
     members?: WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
     websites?: WebsiteUncheckedUpdateManyWithoutWorkspaceNestedInput
   }
@@ -97811,6 +101400,8 @@ export namespace Prisma {
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    membersVersion?: IntFieldUpdateOperationsInput | number
+    lifecycleStatus?: StringFieldUpdateOperationsInput | string
   }
 
   export type OrganizationUpdateWithoutOwnerInput = {
@@ -97892,6 +101483,156 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WorkspaceEmailInvitationUpdateWithoutInviterInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    invitedEmail?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    tokenHash?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createRequestKey?: StringFieldUpdateOperationsInput | string
+    lastCommandKey?: NullableStringFieldUpdateOperationsInput | string | null
+    lastCommandAction?: NullableStringFieldUpdateOperationsInput | string | null
+    emailStatus?: StringFieldUpdateOperationsInput | string
+    emailQueuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailAttempts?: IntFieldUpdateOperationsInput | number
+    nextAttemptAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    leaseToken?: NullableStringFieldUpdateOperationsInput | string | null
+    workspace?: WorkspaceUpdateOneRequiredWithoutEmailInvitationsNestedInput
+    recipient?: UserUpdateOneWithoutReceivedWorkspaceEmailInvitationsNestedInput
+  }
+
+  export type WorkspaceEmailInvitationUncheckedUpdateWithoutInviterInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceId?: StringFieldUpdateOperationsInput | string
+    recipientUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    invitedEmail?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    tokenHash?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createRequestKey?: StringFieldUpdateOperationsInput | string
+    lastCommandKey?: NullableStringFieldUpdateOperationsInput | string | null
+    lastCommandAction?: NullableStringFieldUpdateOperationsInput | string | null
+    emailStatus?: StringFieldUpdateOperationsInput | string
+    emailQueuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailAttempts?: IntFieldUpdateOperationsInput | number
+    nextAttemptAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    leaseToken?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceId?: StringFieldUpdateOperationsInput | string
+    recipientUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    invitedEmail?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    tokenHash?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createRequestKey?: StringFieldUpdateOperationsInput | string
+    lastCommandKey?: NullableStringFieldUpdateOperationsInput | string | null
+    lastCommandAction?: NullableStringFieldUpdateOperationsInput | string | null
+    emailStatus?: StringFieldUpdateOperationsInput | string
+    emailQueuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailAttempts?: IntFieldUpdateOperationsInput | number
+    nextAttemptAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    leaseToken?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type WorkspaceEmailInvitationUpdateWithoutRecipientInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    invitedEmail?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    tokenHash?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createRequestKey?: StringFieldUpdateOperationsInput | string
+    lastCommandKey?: NullableStringFieldUpdateOperationsInput | string | null
+    lastCommandAction?: NullableStringFieldUpdateOperationsInput | string | null
+    emailStatus?: StringFieldUpdateOperationsInput | string
+    emailQueuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailAttempts?: IntFieldUpdateOperationsInput | number
+    nextAttemptAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    leaseToken?: NullableStringFieldUpdateOperationsInput | string | null
+    workspace?: WorkspaceUpdateOneRequiredWithoutEmailInvitationsNestedInput
+    inviter?: UserUpdateOneRequiredWithoutSentWorkspaceEmailInvitationsNestedInput
+  }
+
+  export type WorkspaceEmailInvitationUncheckedUpdateWithoutRecipientInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceId?: StringFieldUpdateOperationsInput | string
+    invitedBy?: StringFieldUpdateOperationsInput | string
+    invitedEmail?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    tokenHash?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createRequestKey?: StringFieldUpdateOperationsInput | string
+    lastCommandKey?: NullableStringFieldUpdateOperationsInput | string | null
+    lastCommandAction?: NullableStringFieldUpdateOperationsInput | string | null
+    emailStatus?: StringFieldUpdateOperationsInput | string
+    emailQueuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailAttempts?: IntFieldUpdateOperationsInput | number
+    nextAttemptAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    leaseToken?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceId?: StringFieldUpdateOperationsInput | string
+    invitedBy?: StringFieldUpdateOperationsInput | string
+    invitedEmail?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    tokenHash?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createRequestKey?: StringFieldUpdateOperationsInput | string
+    lastCommandKey?: NullableStringFieldUpdateOperationsInput | string | null
+    lastCommandAction?: NullableStringFieldUpdateOperationsInput | string | null
+    emailStatus?: StringFieldUpdateOperationsInput | string
+    emailQueuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailAttempts?: IntFieldUpdateOperationsInput | number
+    nextAttemptAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    leaseToken?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PublishApprovalRequestUpdateWithoutRequesterInput = {
@@ -99182,6 +102923,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -99231,6 +102973,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99267,6 +103010,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99302,6 +103046,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99346,6 +103091,31 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type WorkspaceEmailInvitationCreateManyWorkspaceInput = {
+    id?: string
+    invitedBy: string
+    recipientUserId?: string | null
+    invitedEmail: string
+    role: string
+    status?: string
+    version?: number
+    tokenHash: string
+    expiresAt: Date | string
+    acceptedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    createRequestKey: string
+    lastCommandKey?: string | null
+    lastCommandAction?: string | null
+    emailStatus?: string
+    emailQueuedAt?: Date | string
+    emailSentAt?: Date | string | null
+    emailAttempts?: number
+    nextAttemptAt?: Date | string
+    leaseUntil?: Date | string | null
+    leaseToken?: string | null
+  }
+
   export type WorkspaceMemberCreateManyWorkspaceInput = {
     id?: string
     userId: string
@@ -99360,12 +103130,88 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     teamId?: string | null
     organizationId?: string | null
     approvalWorkflowEnabled?: boolean
+  }
+
+  export type WorkspaceEmailInvitationUpdateWithoutWorkspaceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    invitedEmail?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    tokenHash?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createRequestKey?: StringFieldUpdateOperationsInput | string
+    lastCommandKey?: NullableStringFieldUpdateOperationsInput | string | null
+    lastCommandAction?: NullableStringFieldUpdateOperationsInput | string | null
+    emailStatus?: StringFieldUpdateOperationsInput | string
+    emailQueuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailAttempts?: IntFieldUpdateOperationsInput | number
+    nextAttemptAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    leaseToken?: NullableStringFieldUpdateOperationsInput | string | null
+    inviter?: UserUpdateOneRequiredWithoutSentWorkspaceEmailInvitationsNestedInput
+    recipient?: UserUpdateOneWithoutReceivedWorkspaceEmailInvitationsNestedInput
+  }
+
+  export type WorkspaceEmailInvitationUncheckedUpdateWithoutWorkspaceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    invitedBy?: StringFieldUpdateOperationsInput | string
+    recipientUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    invitedEmail?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    tokenHash?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createRequestKey?: StringFieldUpdateOperationsInput | string
+    lastCommandKey?: NullableStringFieldUpdateOperationsInput | string | null
+    lastCommandAction?: NullableStringFieldUpdateOperationsInput | string | null
+    emailStatus?: StringFieldUpdateOperationsInput | string
+    emailQueuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailAttempts?: IntFieldUpdateOperationsInput | number
+    nextAttemptAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    leaseToken?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type WorkspaceEmailInvitationUncheckedUpdateManyWithoutWorkspaceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    invitedBy?: StringFieldUpdateOperationsInput | string
+    recipientUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    invitedEmail?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    tokenHash?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createRequestKey?: StringFieldUpdateOperationsInput | string
+    lastCommandKey?: NullableStringFieldUpdateOperationsInput | string | null
+    lastCommandAction?: NullableStringFieldUpdateOperationsInput | string | null
+    emailStatus?: StringFieldUpdateOperationsInput | string
+    emailQueuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailAttempts?: IntFieldUpdateOperationsInput | number
+    nextAttemptAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    leaseToken?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type WorkspaceMemberUpdateWithoutWorkspaceInput = {
@@ -99397,6 +103243,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99433,6 +103280,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99468,6 +103316,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99492,6 +103341,8 @@ export namespace Prisma {
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    membersVersion?: number
+    lifecycleStatus?: string
   }
 
   export type WebsiteCreateManyOrganizationInput = {
@@ -99500,6 +103351,7 @@ export namespace Prisma {
     name: string
     slug: string
     status?: string
+    archivedAt?: Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -99539,7 +103391,10 @@ export namespace Prisma {
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    membersVersion?: IntFieldUpdateOperationsInput | number
+    lifecycleStatus?: StringFieldUpdateOperationsInput | string
     owner?: UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
+    emailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutWorkspaceNestedInput
     members?: WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
     websites?: WebsiteUpdateManyWithoutWorkspaceNestedInput
   }
@@ -99552,6 +103407,9 @@ export namespace Prisma {
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    membersVersion?: IntFieldUpdateOperationsInput | number
+    lifecycleStatus?: StringFieldUpdateOperationsInput | string
+    emailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
     members?: WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
     websites?: WebsiteUncheckedUpdateManyWithoutWorkspaceNestedInput
   }
@@ -99564,6 +103422,8 @@ export namespace Prisma {
     settings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    membersVersion?: IntFieldUpdateOperationsInput | number
+    lifecycleStatus?: StringFieldUpdateOperationsInput | string
   }
 
   export type WebsiteUpdateWithoutOrganizationInput = {
@@ -99571,6 +103431,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99607,6 +103468,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99642,6 +103504,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string

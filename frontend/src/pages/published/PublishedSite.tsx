@@ -1,3 +1,4 @@
+import { useAccessibility } from "../../context/AccessibilityContext";
 import React, { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import {
@@ -296,10 +297,14 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
 
     // Defer Background Image safely via F-355
     let finalMergedStyles: any = {
-        ...(optClass ? {} : resolvedStyles),
+        ...resolvedStyles,
         ...stickyStyles
     };
-    let finalInnerStyles: any = optClass ? {} : getInnerStyles(resolvedStyles);
+    if (el.type !== "container" && (el.layout || el.responsiveLayout)) {
+        const layout = getMergedLayout(el, activeBreakpointId === "mobile" || activeBreakpointId === "tablet" ? activeBreakpointId : "desktop");
+        Object.assign(finalMergedStyles,{display:"flex",flexDirection:layout.direction,justifyContent:layout.justifyContent,alignItems:layout.alignItems,gap:layout.gap});
+    }
+    let finalInnerStyles: any = getInnerStyles(resolvedStyles);
 
     // Keep backgroundImage strictly inline safely
     if (resolvedStyles.backgroundImage) {
@@ -344,7 +349,8 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
 
     if (el.type === "heading") {
         const resolvedHeading = resolveDynamicTokens(el.content || "", tokenContext);
-        return <React.Fragment key={el.id}><h2 ref={assignRefIfTracked as any} {...mergedProps} className={`${mergedProps.className} ${optInnerClass}`} style={{ fontSize: "32px", fontWeight: "700", color: "#0f172a", ...mergedProps.style, ...finalInnerStyles }}>{resolvedHeading}</h2></React.Fragment>;
+        const HeadingTag = (["h1","h2","h3","h4","h5","h6"].includes(el.headingLevel||"") ? el.headingLevel : "h2") as "h1"|"h2"|"h3"|"h4"|"h5"|"h6";
+        return <React.Fragment key={el.id}><HeadingTag ref={assignRefIfTracked as any} {...mergedProps} className={`${mergedProps.className} ${optInnerClass}`} style={{ fontSize: "32px", fontWeight: "700", color: "#0f172a", ...mergedProps.style, ...finalInnerStyles }}>{resolvedHeading}</HeadingTag></React.Fragment>;
     }
 
     if (el.type === "text") {
@@ -829,6 +835,7 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
 });
 
 function PublishedSite() {
+    const {prefs:studioA11yPrefs}=useAccessibility();
     const { websiteId, pageSlug } = useParams<{ websiteId: string; pageSlug?: string }>();
     const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -852,13 +859,12 @@ function PublishedSite() {
     const [statementOpen, setStatementOpen] = useState<boolean>(false);
     const [experiments, setExperiments] = useState<any[]>([]);
     const [assignedVariants, setAssignedVariants] = useState<Record<string, string>>({});
-    const [sitePartsState, setSitePartsState] = useState<any>(null);
 
     // F-339 & F-344: Compile Design System CSS Variables (:root) and Global Classes
     const compiledDesignTokensCss = useMemo(() => {
         let css = "";
         if (globalVariables && globalVariables.length > 0) {
-            css += "/* --- ForgeStudio Design Tokens (:root) --- */\n:root {\n";
+            css += "/* --- ForgeStudio Design Tokens (:root) --- */\n:root, [data-theme=\"light\"] {\n";
             for (const v of globalVariables) {
                 if (v && v.token) {
                     const lightVal = v.modes?.light || v.value;
@@ -1209,12 +1215,12 @@ function PublishedSite() {
     // F-102 - F-141: Initialize Motion & Interaction runtime
     useEffect(() => {
         if (!loading && elements && elements.length > 0) {
-            const controller = initMotionRuntime(document);
+            const controller = initMotionRuntime(document, studioA11yPrefs.pauseAnimations);
             return () => {
                 controller.cleanup();
             };
         }
-    }, [loading, elements, activePageId]);
+    }, [loading, elements, activePageId, studioA11yPrefs.pauseAnimations]);
 
     const { optimizedGlobalCss, elementClassMap } = useMemo(() => {
         const classMap = new Map<string, string>();
@@ -1305,7 +1311,7 @@ function PublishedSite() {
 
     return (
         <WooCommerceProvider websiteId={websiteId}>
-        <div data-website-id={websiteId} data-page-id={activePageId} className={`fs-global-canvas-${websiteId || 'default'} fs-page-canvas-${websiteId || 'default'} w-full min-h-screen font-sans bg-white relative m-auto`} style={{ maxWidth: '100%', overflowX: 'hidden' }}>
+        <div data-theme={globalSettings?.studioDesignSystem?.theme} data-website-id={websiteId} data-page-id={activePageId} className={`fs-global-canvas-${websiteId || 'default'} fs-page-canvas-${websiteId || 'default'} w-full min-h-screen font-sans bg-white relative m-auto`} style={{ maxWidth: '100%', overflowX: 'hidden' }}>
             {/* F-366: Keyboard Skip Link */}
             <SkipLinks targetId="main-content" />
 
@@ -1317,7 +1323,7 @@ function PublishedSite() {
             {optimizedGlobalCss && <style id="f353-optimized-styles">{optimizedGlobalCss}</style>}
             {customCodeSnippets && customCodeSnippets.length > 0 && (
                 <React.Suspense fallback={null}>
-                    <CodeInjectionRuntime snippets={customCodeSnippets} />
+                    <CodeInjectionRuntime snippets={customCodeSnippets} currentPageId={activePageId} />
                 </React.Suspense>
             )}
 

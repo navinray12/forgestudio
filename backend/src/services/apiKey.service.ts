@@ -45,7 +45,7 @@ export async function verifyApiKey(token: string) {
     return null;
   }
 
-  if (apiKeyRecord.revokedAt) {
+  if (apiKeyRecord.revokedAt || apiKeyRecord.user.status !== "ACTIVE") {
     return { error: "REVOKED", apiKey: apiKeyRecord };
   }
 

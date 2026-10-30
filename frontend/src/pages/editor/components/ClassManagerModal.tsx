@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X, Plus, Trash2, Download, Upload, Code2, Check, ShieldAlert, Eye } from "lucide-react";
 
 export interface GlobalClass {
@@ -36,6 +36,8 @@ export const ClassManagerModal: React.FC<ClassManagerModalProps> = ({
     const [newClassName, setNewClassName] = useState("");
     const [saveSuccess, setSaveSuccess] = useState(false);
     const [importError, setImportError] = useState<string | null>(null);
+
+    useEffect(() => { if (isOpen) { setLocalClasses(classes); setSaveSuccess(false); setImportError(null); } }, [isOpen, classes]);
 
     if (!isOpen) return null;
 
