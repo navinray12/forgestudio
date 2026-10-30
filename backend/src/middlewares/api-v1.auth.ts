@@ -118,9 +118,20 @@ export async function authenticateApiV1(
         res.locals.authType = "SESSION";
         return next();
       }
+
+      // If an explicit Bearer header was provided, it MUST be valid.
+      // Do NOT silently fall back to cookie session!
+      return res.status(401).json({
+        success: false,
+        error: {
+          code: "UNAUTHORIZED",
+          message: "Invalid API key or session token provided in Authorization header.",
+        },
+      });
     }
 
     // 3. Check Session Cookie fallback (First-party dashboard browser session)
+    // Only applied when NO explicit Authorization header was provided
     const cookieToken = req.cookies?.[AUTH_COOKIE_NAME];
     if (cookieToken) {
       const cookieHash = hashToken(cookieToken);
@@ -144,6 +155,22 @@ export async function authenticateApiV1(
           where: { id: cookieSession.id },
           data: { lastUsedAt: new Date() },
         }).catch(() => {});
+
+        // CSRF protection for cookie-based state-changing requests (POST, PUT, PATCH, DELETE)
+        const isMutation = ["POST", "PUT", "PATCH", "DELETE"].includes(req.method.toUpperCase());
+        if (isMutation) {
+          const customHeader = req.headers["x-requested-with"] || req.headers["x-forgestudio-client"];
+          const origin = req.headers.origin || req.headers.referer;
+          if (!customHeader && !origin) {
+            return res.status(403).json({
+              success: false,
+              error: {
+                code: "CSRF_VERIFICATION_FAILED",
+                message: "CSRF protection: Custom client header or valid Origin required for session mutation.",
+              },
+            });
+          }
+        }
 
         res.locals.user = cookieSession.user;
         res.locals.session = cookieSession;

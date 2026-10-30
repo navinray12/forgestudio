@@ -1,30 +1,31 @@
 import type { Request, Response, NextFunction } from "express";
 import crypto from "crypto";
+import { prisma } from "../config/prisma.js";
 
-interface RateLimitBucket {
-  count: number;
-  resetAt: number;
-}
+// Ensure shared rate limit table exists in PostgreSQL
+let tableInitialized = false;
+let initPromise: Promise<void> | null = null;
 
-const memoryStore = new Map<string, RateLimitBucket>();
-
-// Periodic garbage collection to prevent unbounded memory growth
-const GC_INTERVAL = 60 * 1000;
-let gcTimer: NodeJS.Timeout | null = null;
-
-function ensureGc() {
-  if (gcTimer) return;
-  gcTimer = setInterval(() => {
-    const now = Date.now();
-    for (const [key, bucket] of memoryStore.entries()) {
-      if (bucket.resetAt <= now) {
-        memoryStore.delete(key);
+async function ensureRateLimitTable() {
+  if (tableInitialized) return;
+  if (!initPromise) {
+    initPromise = (async () => {
+      try {
+        await prisma.$executeRawUnsafe(`
+          CREATE TABLE IF NOT EXISTS "api_rate_limits" (
+            "key" VARCHAR(255) PRIMARY KEY,
+            "count" INT NOT NULL DEFAULT 1,
+            "reset_at" TIMESTAMP WITH TIME ZONE NOT NULL
+          );
+          CREATE INDEX IF NOT EXISTS "idx_api_rate_limits_reset" ON "api_rate_limits" ("reset_at");
+        `);
+        tableInitialized = true;
+      } catch (err) {
+        console.warn("Failed to ensure api_rate_limits table:", err);
       }
-    }
-  }, GC_INTERVAL);
-  if (gcTimer && typeof gcTimer === "object" && "unref" in gcTimer) {
-    gcTimer.unref();
+    })();
   }
+  await initPromise;
 }
 
 export interface RateLimitOptions {
@@ -44,13 +45,14 @@ export function createApiV1RateLimiter(options: RateLimitOptions) {
     skipInTests = false,
   } = options;
 
-  ensureGc();
-
-  return (req: Request, res: Response, next: NextFunction) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
     // If explicitly configured to skip in test environment and not testing rate limiter
     if (skipInTests && process.env.NODE_ENV === "test" && !req.headers["x-test-rate-limit"]) {
       return next();
     }
+
+    // Ensure database table exists
+    await ensureRateLimitTable();
 
     // Determine client identifier:
     // 1. Bearer API Key Hash (if authenticated by API Key)
@@ -78,43 +80,62 @@ export function createApiV1RateLimiter(options: RateLimitOptions) {
     }
 
     const bucketKey = `${keyPrefix}:${clientKey}`;
-    const now = Date.now();
-    let bucket = memoryStore.get(bucketKey);
 
-    if (!bucket || bucket.resetAt <= now) {
-      bucket = {
-        count: 1,
-        resetAt: now + windowMs,
-      };
-      memoryStore.set(bucketKey, bucket);
-    } else {
-      bucket.count += 1;
+    try {
+      // Atomic upsert with Postgres:
+      // If bucket doesn't exist or expired, reset to 1 and new reset_at.
+      // If bucket exists and active, atomically increment count.
+      const rows: any[] = await prisma.$queryRawUnsafe(`
+        INSERT INTO "api_rate_limits" ("key", "count", "reset_at")
+        VALUES (
+          $1, 
+          1, 
+          NOW() + ($2 || ' milliseconds')::interval
+        )
+        ON CONFLICT ("key") DO UPDATE
+        SET 
+          "count" = CASE 
+            WHEN "api_rate_limits"."reset_at" <= NOW() THEN 1 
+            ELSE "api_rate_limits"."count" + 1 
+          END,
+          "reset_at" = CASE 
+            WHEN "api_rate_limits"."reset_at" <= NOW() THEN NOW() + ($2 || ' milliseconds')::interval 
+            ELSE "api_rate_limits"."reset_at" 
+          END
+        RETURNING "count", EXTRACT(EPOCH FROM ("reset_at" - NOW()))::int AS "ttl_seconds";
+      `, bucketKey, windowMs);
+
+      const record = rows[0] || { count: 1, ttl_seconds: Math.ceil(windowMs / 1000) };
+      const currentCount = Number(record.count);
+      const resetSeconds = Math.max(1, Number(record.ttl_seconds));
+      const remaining = Math.max(0, max - currentCount);
+
+      // Standard RFC RateLimit headers
+      res.setHeader("RateLimit-Limit", max);
+      res.setHeader("RateLimit-Remaining", remaining);
+      res.setHeader("RateLimit-Reset", resetSeconds);
+      res.setHeader("X-RateLimit-Limit", max);
+      res.setHeader("X-RateLimit-Remaining", remaining);
+      res.setHeader("X-RateLimit-Reset", resetSeconds);
+
+      if (currentCount > max) {
+        res.setHeader("Retry-After", resetSeconds);
+        return res.status(429).json({
+          success: false,
+          error: {
+            code: "RATE_LIMITED",
+            message: errorMessage,
+            retryAfter: resetSeconds,
+          },
+        });
+      }
+
+      next();
+    } catch (dbErr) {
+      // Fail open gracefully or log if DB query fails to prevent whole API outage
+      console.error("Distributed rate limiter error:", dbErr);
+      next();
     }
-
-    const remaining = Math.max(0, max - bucket.count);
-    const resetSeconds = Math.ceil((bucket.resetAt - now) / 1000);
-
-    // Standard RFC RateLimit headers
-    res.setHeader("RateLimit-Limit", max);
-    res.setHeader("RateLimit-Remaining", remaining);
-    res.setHeader("RateLimit-Reset", resetSeconds);
-    res.setHeader("X-RateLimit-Limit", max);
-    res.setHeader("X-RateLimit-Remaining", remaining);
-    res.setHeader("X-RateLimit-Reset", resetSeconds);
-
-    if (bucket.count > max) {
-      res.setHeader("Retry-After", resetSeconds);
-      return res.status(429).json({
-        success: false,
-        error: {
-          code: "RATE_LIMITED",
-          message: errorMessage,
-          retryAfter: resetSeconds,
-        },
-      });
-    }
-
-    next();
   };
 }
 
