@@ -22,14 +22,38 @@ export function maskApiKey(rawSecret: string): string {
   return `${prefix}...${suffix}`;
 }
 
+/**
+ * Validates requested scopes strictly.
+ * Throws an error on unrecognized scope names or empty arrays.
+ */
 export function validateScopes(scopes: string[]): string[] {
   if (!Array.isArray(scopes) || scopes.length === 0) {
-    return ["websites:read"];
+    throw new Error("At least one valid scope is required.");
   }
 
-  // Filter against canonical registry
-  const valid = scopes.filter((s) => (CANONICAL_SCOPES as readonly string[]).includes(s));
-  return valid.length > 0 ? Array.from(new Set(valid)) : ["websites:read"];
+  for (const s of scopes) {
+    if (!(CANONICAL_SCOPES as readonly string[]).includes(s)) {
+      throw new Error(`Invalid scope: '${s}'. Allowed scopes: ${CANONICAL_SCOPES.join(", ")}`);
+    }
+  }
+
+  return Array.from(new Set(scopes));
+}
+
+/**
+ * Validates requested expiration in days.
+ * Must be null, undefined, or a positive integer between 1 and 365.
+ */
+export function validateExpirationDays(days?: number | null): number | null {
+  if (days === null || days === undefined || days === 0) {
+    return null;
+  }
+
+  if (typeof days !== "number" || isNaN(days) || !Number.isInteger(days) || days < 1 || days > 365) {
+    throw new Error("Expiration days must be an integer between 1 and 365 (or null for no expiration).");
+  }
+
+  return days;
 }
 
 export async function createApiKey(
@@ -38,18 +62,18 @@ export async function createApiKey(
   scopes: string[] = ["websites:read"],
   expiresInDays?: number | null
 ) {
-  // Enforce canonical validated scopes
+  // Enforce strict scope & expiration validation
   const validatedScopes = validateScopes(scopes);
+  const validatedDays = validateExpirationDays(expiresInDays);
 
-  // Generate random token with standard fsk_ prefix (cryptographically secure)
   const rawBytes = crypto.randomBytes(24).toString("hex");
   const rawSecret = `fsk_${rawBytes}`;
   const tokenHash = hashApiKey(rawSecret);
   const maskedKey = maskApiKey(rawSecret);
 
   let expiresAt: Date | null = null;
-  if (expiresInDays && expiresInDays > 0) {
-    expiresAt = new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000);
+  if (validatedDays) {
+    expiresAt = new Date(Date.now() + validatedDays * 24 * 60 * 60 * 1000);
   }
 
   const apiKey = await prisma.developerApiKey.create({
@@ -114,8 +138,8 @@ export async function verifyApiKey(token: string) {
     return { error: "EXPIRED", apiKey: apiKeyRecord };
   }
 
-  // 3. Check if owner user is suspended
-  if (apiKeyRecord.user && apiKeyRecord.user.status === "SUSPENDED") {
+  // 3. Check if owner user is inactive / suspended
+  if (apiKeyRecord.user && apiKeyRecord.user.status !== "ACTIVE") {
     return { error: "SUSPENDED", apiKey: apiKeyRecord, user: apiKeyRecord.user };
   }
 
@@ -188,10 +212,15 @@ export async function revokeApiKey(userId: string, keyId: string) {
   return true;
 }
 
+/**
+ * Atomically rotates an API key within a single database transaction.
+ * Ensures the creation of the new key and revocation of the old key succeed or fail together.
+ */
 export async function rotateApiKey(
   userId: string,
   keyId: string,
-  expiresInDays?: number | null
+  expiresInDays?: number | null,
+  simulateTxFailure?: boolean
 ) {
   const existing = await prisma.developerApiKey.findFirst({
     where: { id: keyId, userId },
@@ -201,61 +230,71 @@ export async function rotateApiKey(
     return null;
   }
 
-  // 1. Revoke the existing key immediately
-  if (!existing.revokedAt) {
-    await prisma.developerApiKey.update({
-      where: { id: keyId },
-      data: { revokedAt: new Date() },
-    });
-  }
+  const validatedDays = validateExpirationDays(expiresInDays);
 
-  // 2. Generate new key retaining previous name and scopes
+  // Generate new secret
   const rawBytes = crypto.randomBytes(24).toString("hex");
   const rawSecret = `fsk_${rawBytes}`;
   const tokenHash = hashApiKey(rawSecret);
   const maskedKey = maskApiKey(rawSecret);
 
   let expiresAt: Date | null = null;
-  if (expiresInDays && expiresInDays > 0) {
-    expiresAt = new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000);
-  } else if (existing.expiresAt && !expiresInDays) {
-    // Preserve remaining duration if not specified
+  if (validatedDays) {
+    expiresAt = new Date(Date.now() + validatedDays * 24 * 60 * 60 * 1000);
+  } else if (existing.expiresAt && !validatedDays) {
     expiresAt = existing.expiresAt;
   }
 
-  const newKey = await prisma.developerApiKey.create({
-    data: {
-      userId,
-      name: `${existing.name} (Rotated)`,
-      tokenHash,
-      maskedKey,
-      scopes: existing.scopes as any,
-      expiresAt,
-    },
-    include: {
-      user: true,
-    },
-  });
+  // Execute in Prisma Interactive Transaction
+  const result = await prisma.$transaction(async (tx) => {
+    // 1. Revoke the existing key
+    await tx.developerApiKey.update({
+      where: { id: keyId },
+      data: { revokedAt: new Date() },
+    });
 
-  // Persist Audit Record for API Key Rotation
-  await prisma.auditLog.create({
-    data: {
-      userId,
-      action: "API_KEY_ROTATE",
-      targetResource: `developer_api_key:${newKey.id}`,
-      details: {
-        oldKeyId: keyId,
-        newKeyId: newKey.id,
-        name: newKey.name,
+    // Simulated failure injection for QA verification
+    if (simulateTxFailure) {
+      throw new Error("SIMULATED_TRANSACTION_FAILURE");
+    }
+
+    // 2. Create the new key
+    const newKey = await tx.developerApiKey.create({
+      data: {
+        userId,
+        name: `${existing.name} (Rotated)`,
+        tokenHash,
         maskedKey,
+        scopes: existing.scopes as any,
+        expiresAt,
       },
-      result: "SUCCESS",
-    },
-  }).catch(() => {});
+      include: {
+        user: true,
+      },
+    });
+
+    // 3. Persist audit log within transaction
+    await tx.auditLog.create({
+      data: {
+        userId,
+        action: "API_KEY_ROTATE",
+        targetResource: `developer_api_key:${newKey.id}`,
+        details: {
+          oldKeyId: keyId,
+          newKeyId: newKey.id,
+          name: newKey.name,
+          maskedKey,
+        },
+        result: "SUCCESS",
+      },
+    });
+
+    return newKey;
+  });
 
   return {
     rawSecret,
-    newKey,
+    newKey: result,
     oldKeyId: keyId,
   };
 }

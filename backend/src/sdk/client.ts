@@ -193,7 +193,7 @@ export class ForgeStudioClient {
       // Handle Timeout & AbortSignal
       const requestTimeout = options.timeout ?? this.timeout;
       const controller = new AbortController();
-      let timeoutId: NodeJS.Timeout | null = null;
+      let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
       if (requestTimeout > 0) {
         timeoutId = setTimeout(() => {

@@ -82,6 +82,7 @@ const app = express();
 
 app.use(
   helmet({
+    contentSecurityPolicy: process.env.NODE_ENV === "test" ? false : undefined,
     crossOriginResourcePolicy: { policy: "cross-origin" },
   })
 );
@@ -90,7 +91,7 @@ app.use("/uploads", express.static(getUploadsDir()));
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL,
+    origin: process.env.NODE_ENV === "test" ? true : process.env.FRONTEND_URL,
     credentials: true,
     exposedHeaders: ["Content-Disposition"],
   })

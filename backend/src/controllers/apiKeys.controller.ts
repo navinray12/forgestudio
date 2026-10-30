@@ -41,7 +41,13 @@ export async function createApiKeyHandler(req: Request, res: Response, next: Nex
         createdAt: result.apiKey.createdAt,
       },
     });
-  } catch (e) {
+  } catch (e: any) {
+    if (e.message && (e.message.includes("scope") || e.message.includes("Expiration"))) {
+      return res.status(400).json({
+        success: false,
+        error: { code: "VALIDATION_ERROR", message: e.message },
+      });
+    }
     next(e);
   }
 }

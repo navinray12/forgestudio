@@ -69,7 +69,7 @@ export default function DeveloperApiSettings() {
       const days = parseInt(expiresInDays, 10);
       const res = await fetch(`${apiUrl}/api/v1/apikeys`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-requested-with": "XMLHttpRequest" },
         credentials: "include",
         body: JSON.stringify({
           name: newKeyName.trim(),
@@ -98,6 +98,7 @@ export default function DeveloperApiSettings() {
     try {
       const res = await fetch(`${apiUrl}/api/v1/apikeys/${id}/revoke`, {
         method: "POST",
+        headers: { "x-requested-with": "XMLHttpRequest" },
         credentials: "include",
       });
       if (res.ok) {
@@ -118,7 +119,7 @@ export default function DeveloperApiSettings() {
       const res = await fetch(`${apiUrl}/api/v1/apikeys/${id}/rotate`, {
         method: "POST",
         credentials: "include",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-requested-with": "XMLHttpRequest" },
         body: JSON.stringify({}),
       });
       const data = await res.json();
