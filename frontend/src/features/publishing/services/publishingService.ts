@@ -52,7 +52,7 @@ export const publishingService = {
     options: {
       editorData?: any;
       environment?: "PRODUCTION" | "STAGING" | "DEVELOPMENT";
-      destinationType?: "INTERNAL" | "WORDPRESS" | "STATIC";
+      destinationType?: "INTERNAL" | "WORDPRESS" | "STATIC" | "SFTP";
       metadata?: Record<string, any>;
     } = {},
     apiUrl?: string
@@ -88,6 +88,70 @@ export const publishingService = {
       throw new Error(data?.message || "Failed to fetch deployment history");
     }
     return data.deployments || [];
+  },
+
+  /**
+   * Idempotently verify an existing deployment
+   */
+  async verifyDeployment(
+    websiteId: string,
+    deploymentId: string,
+    apiUrl?: string
+  ): Promise<{
+    success: boolean;
+    verified: boolean;
+    deploymentId: string;
+    status: DeploymentStatus;
+    destinationType?: string;
+    statusCode?: number;
+    latencyMs?: number;
+    details?: any;
+    error?: string;
+  }> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/deployments/${deploymentId}/verify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.message || data?.error || "Failed to verify deployment");
+    }
+    return data;
+  },
+
+  /**
+   * Retry/recover a failed deployment
+   */
+  async retryDeployment(
+    websiteId: string,
+    deploymentId: string,
+    apiUrl?: string
+  ): Promise<{
+    success: boolean;
+    verified: boolean;
+    deploymentId: string;
+    status: DeploymentStatus;
+    destinationType?: string;
+    statusCode?: number;
+    latencyMs?: number;
+    details?: any;
+    error?: string;
+  }> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/deployments/${deploymentId}/retry`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.message || data?.error || "Failed to retry deployment");
+    }
+    return data;
   },
 
   /**
@@ -1642,6 +1706,108 @@ export const publishingService = {
     const data = await res.json();
     if (!res.ok) throw new Error(data?.message || "Failed to warm cache");
     return data;
+  },
+
+  /**
+   * Feature 22: Submit draft snapshot for publish approval
+   */
+  async submitApprovalRequest(
+    websiteId: string,
+    payload: { targetVersion: number; snapshot: any; notes?: string },
+    apiUrl?: string
+  ): Promise<{ success: boolean; request: any }> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/approval-requests`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        websiteId,
+        targetVersion: payload.targetVersion,
+        snapshot: payload.snapshot,
+        notes: payload.notes,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.message || data?.error || "Failed to submit publish approval request");
+    }
+    return data;
+  },
+
+  /**
+   * Feature 22: Fetch approval requests for a website
+   */
+  async getApprovalRequests(websiteId: string, apiUrl?: string): Promise<any[]> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/approval-requests`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.message || data?.error || "Failed to fetch approval requests");
+    }
+    return data.requests || [];
+  },
+
+  /**
+   * Feature 22: Cancel a pending approval request
+   */
+  async cancelApprovalRequest(requestId: string, apiUrl?: string): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/approval-requests/${requestId}/cancel`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.message || data?.error || "Failed to cancel approval request");
+    }
+    return data.request;
+  },
+
+  /**
+   * Feature 22: Review an approval request (APPROVE or REJECT)
+   */
+  async reviewApprovalRequest(
+    requestId: string,
+    decision: "APPROVED" | "REJECTED",
+    reviewNotes?: string,
+    apiUrl?: string
+  ): Promise<any> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/approval-requests/${requestId}/review`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ decision, reviewNotes }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.message || data?.error || "Failed to review approval request");
+    }
+    return data.request;
+  },
+
+  /**
+   * Feature 22: Toggle approval workflow setting for a website
+   */
+  async toggleApprovalWorkflow(websiteId: string, enabled: boolean, apiUrl?: string): Promise<boolean> {
+    const base = getBaseUrl(apiUrl);
+    const res = await fetch(`${base}/api/websites/${websiteId}/approval-workflow`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ enabled }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.message || data?.error || "Failed to update approval workflow setting");
+    }
+    return Boolean(data.approvalWorkflowEnabled);
   },
 };
 

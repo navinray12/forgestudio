@@ -7,7 +7,11 @@ import { ClassFormModal } from "./ClassFormModal";
 import { DeleteClassConfirmModal } from "./DeleteClassConfirmModal";
 import { ImportClassesModal } from "./ImportClassesModal";
 
-export const ClassesPanel: React.FC = () => {
+interface ClassesPanelProps {
+  websiteId?: string;
+}
+
+export const ClassesPanel: React.FC<ClassesPanelProps> = ({ websiteId }) => {
   const {
     classes,
     filteredClasses,
@@ -28,7 +32,7 @@ export const ClassesPanel: React.FC = () => {
     createClass,
     updateClass,
     deleteClass,
-  } = useClasses();
+  } = useClasses(websiteId);
 
   const [importError, setImportError] = useState<string | null>(null);
 

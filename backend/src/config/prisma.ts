@@ -79,6 +79,69 @@ async function ensureDbSchema() {
   } catch (e: any) {
     console.log("Migration check channel column:", e?.message || e);
   }
+  try {
+    await prisma.$executeRawUnsafe(`ALTER TABLE "workspaces" ADD COLUMN IF NOT EXISTS "lifecycleStatus" VARCHAR(50) DEFAULT 'ACTIVE';`);
+  } catch (e: any) {
+    console.log("Migration check workspaces lifecycleStatus:", e?.message || e);
+  }
+  try {
+    await prisma.$executeRawUnsafe(`ALTER TABLE "websites" ADD COLUMN IF NOT EXISTS "documentVersion" INTEGER DEFAULT 1;`);
+  } catch (e: any) {
+    console.log("Migration check websites documentVersion:", e?.message || e);
+  }
+  try {
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS "payment_webhook_events" (
+        "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        "eventId" VARCHAR(255) UNIQUE NOT NULL,
+        "provider" VARCHAR(50) NOT NULL DEFAULT 'stripe',
+        "eventType" VARCHAR(100) NOT NULL,
+        "checkoutSessionId" VARCHAR(255),
+        "userId" UUID,
+        "amount" DOUBLE PRECISION,
+        "currency" VARCHAR(10),
+        "createdAt" TIMESTAMPTZ(6) NOT NULL DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS "idx_payment_webhook_events_event_id" ON "payment_webhook_events" ("eventId");
+      CREATE INDEX IF NOT EXISTS "idx_payment_webhook_events_session_id" ON "payment_webhook_events" ("checkoutSessionId");
+    `);
+  } catch (e: any) {
+    console.log("Migration check payment_webhook_events:", e?.message || e);
+  }
+  try {
+    const colCheck: any[] = await prisma.$queryRaw`
+      SELECT data_type 
+      FROM information_schema.columns 
+      WHERE table_name = 'user_subscriptions' AND column_name = 'updatedAt'
+      LIMIT 1;
+    `;
+    if (colCheck && colCheck.length > 0 && colCheck[0].data_type !== "timestamp with time zone") {
+      await prisma.$executeRawUnsafe(`
+        ALTER TABLE "user_subscriptions" 
+        ALTER COLUMN "updatedAt" TYPE TIMESTAMPTZ(6) USING "updatedAt" AT TIME ZONE 'UTC',
+        ALTER COLUMN "createdAt" TYPE TIMESTAMPTZ(6) USING "createdAt" AT TIME ZONE 'UTC';
+      `);
+    }
+  } catch (e: any) {
+    console.log("Migration check user_subscriptions timestamptz:", e?.message || e);
+  }
+  try {
+    await prisma.$executeRawUnsafe(`
+      ALTER TABLE "user_subscriptions" 
+      ADD COLUMN IF NOT EXISTS "stripeCustomerId" VARCHAR(255),
+      ADD COLUMN IF NOT EXISTS "stripeSubscriptionId" VARCHAR(255);
+
+      CREATE UNIQUE INDEX IF NOT EXISTS "idx_user_subscriptions_stripe_sub_id" 
+      ON "user_subscriptions" ("stripeSubscriptionId") 
+      WHERE "stripeSubscriptionId" IS NOT NULL;
+
+      CREATE INDEX IF NOT EXISTS "idx_user_subscriptions_stripe_customer_id" 
+      ON "user_subscriptions" ("stripeCustomerId") 
+      WHERE "stripeCustomerId" IS NOT NULL;
+    `);
+  } catch (e: any) {
+    console.log("Migration check user_subscriptions stripe IDs:", e?.message || e);
+  }
 }
 
 async function ensureAdminAccounts() {

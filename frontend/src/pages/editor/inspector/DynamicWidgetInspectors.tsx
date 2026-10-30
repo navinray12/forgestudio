@@ -27,11 +27,28 @@ import type {
   ProductAddonItem
 } from "../types";
 
-// Programmatically opens the OS File Picker dialog (100% reliable click trigger)
-export const triggerImagePicker = (callback: (url: string) => void) => {
+export type MediaPickerCallback = (url: string, altText?: string) => void;
+let activeMediaPickerHandler: ((callback: MediaPickerCallback) => void) | null = null;
+
+export function registerMediaPickerHandler(handler: (callback: MediaPickerCallback) => void) {
+  activeMediaPickerHandler = handler;
+  return () => {
+    activeMediaPickerHandler = null;
+  };
+}
+
+// Programmatically opens the Media Library or falls back to upload
+export const triggerImagePicker = (callback: MediaPickerCallback) => {
+  // If the shared Media Library modal is registered, open it!
+  if (activeMediaPickerHandler) {
+    activeMediaPickerHandler(callback);
+    return;
+  }
+
+  // Direct upload fallback
   const input = document.createElement("input");
   input.type = "file";
-  input.accept = "image/*,video/*,application/json,.json";
+  input.accept = "image/*,.webp,.svg,.gif,.jpg,.jpeg,.png";
   input.onchange = async (e: Event) => {
     const target = e.target as HTMLInputElement;
     const file = target.files?.[0];
@@ -40,21 +57,29 @@ export const triggerImagePicker = (callback: (url: string) => void) => {
     // 1. Attempt server upload first for backend persistence
     try {
       const formData = new FormData();
-      formData.append("file", file);
-      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      formData.append("image", file);
+      const res = await fetch("/api/uploads/image", {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      });
       if (res.ok) {
         const data = await res.json();
-        const serverUrl = data.url || data?.data?.url;
+        const serverUrl = data.url || data?.asset?.url;
         if (serverUrl) {
           callback(serverUrl);
           return;
         }
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        alert(errData?.error?.message || errData?.message || "Failed to upload image: Invalid file or unsupported format.");
+        return;
       }
     } catch {
       // Backend upload endpoint unavailable or offline mode
     }
 
-    // 2. Fallback to instant local Data URL
+    // 2. Fallback to instant local Data URL if server upload unreachable
     const reader = new FileReader();
     reader.onload = (ev) => {
       if (ev.target?.result) {
@@ -94,10 +119,12 @@ export const PRESET_SAMPLE_IMAGES = [
 export function ImagePickerControl({
   value,
   onChange,
+  onSelectAsset,
   label = "Image Source URL"
 }: {
   value: string;
   onChange: (url: string) => void;
+  onSelectAsset?: (url: string, altText?: string) => void;
   label?: string;
 }) {
   const [showPresets, setShowPresets] = React.useState(false);
@@ -120,15 +147,22 @@ export function ImagePickerControl({
           type="text"
           value={value || ""}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="https://images.unsplash.com/... or click select image"
+          placeholder="https://... or choose from Media Library"
           className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 shadow-xs"
         />
         <button
           type="button"
-          onClick={() => triggerImagePicker(onChange)}
+          onClick={() => triggerImagePicker((url, altText) => {
+            if (onSelectAsset) {
+              onSelectAsset(url, altText);
+            } else {
+              onChange(url);
+            }
+          })}
           className="shrink-0 flex items-center gap-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 text-xs font-bold shadow-xs transition active:scale-95 cursor-pointer"
+          title="Open Media Library"
         >
-          <span>📁 Select Image</span>
+          <span>📁 Media Library</span>
         </button>
       </div>
 
@@ -473,6 +507,10 @@ export function ImageWidgetInspector({
         label="Image Source URL"
         value={el.src || ""}
         onChange={(url) => updateProp("src", url)}
+        onSelectAsset={(url, altText) => {
+          updateProp("src", url);
+          if (altText !== undefined) updateProp("alt", altText);
+        }}
       />
 
       {el.src && (
@@ -1658,6 +1696,7 @@ export function FormWidgetInspector({
                   <option value="email">Email</option>
                   <option value="tel">Phone (Tel)</option>
                   <option value="number">Number</option>
+                  <option value="url">Website / URL</option>
                   <option value="textarea">Textarea</option>
                   <option value="select">Select Dropdown</option>
                   <option value="checkbox">Checkbox</option>
@@ -1715,7 +1754,7 @@ export function FormWidgetInspector({
                   onChange={(e) => updateItem({ required: e.target.checked })}
                   className="rounded border-slate-300 text-blue-600"
                 />
-                <span>Required Field</span>
+                <span className="font-semibold text-slate-800">Required Field</span>
               </label>
 
               <div className="flex items-center gap-1.5 text-xs">
@@ -1728,6 +1767,43 @@ export function FormWidgetInspector({
                   <option value="full">Full (100%)</option>
                   <option value="half">Half (50%)</option>
                 </select>
+              </div>
+            </div>
+
+            {/* Validation Rules & Custom Error */}
+            <div className="pt-2 border-t border-slate-100 space-y-2">
+              <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Validation Rules</span>
+              <div className="space-y-1.5">
+                <div>
+                  <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Custom Error Message</label>
+                  <input
+                    type="text"
+                    value={item.customErrorMessage || ""}
+                    onChange={(e) => updateItem({ customErrorMessage: e.target.value })}
+                    placeholder={
+                      item.type === "email"
+                        ? "e.g. Please enter a valid email address"
+                        : item.type === "tel"
+                        ? "e.g. Please enter a valid telephone number"
+                        : item.type === "url"
+                        ? "e.g. Please enter a valid website URL"
+                        : item.type === "number"
+                        ? "e.g. Please enter a valid number"
+                        : "e.g. This field is required"
+                    }
+                    className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Validation Pattern (Regex)</label>
+                  <input
+                    type="text"
+                    value={item.validationRegex || ""}
+                    onChange={(e) => updateItem({ validationRegex: e.target.value })}
+                    placeholder="e.g. ^[0-9]{5}$ (Optional regex pattern)"
+                    className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-mono text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
+                  />
+                </div>
               </div>
             </div>
           </div>

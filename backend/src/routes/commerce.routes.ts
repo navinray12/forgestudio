@@ -19,6 +19,8 @@ import {
   listOrders,
   createOrder,
   updateOrderStatus,
+  createCheckoutSession,
+  verifyPayment,
 } from "../controllers/commerce.controller.js";
 
 const router = Router({ mergeParams: true });
@@ -44,9 +46,14 @@ router.post("/:websiteId/commerce/cart/calculate", calculateCart);
 // WooCommerce export
 router.get("/:websiteId/commerce/wc-export", requireAuth, wcExport);
 
-// Orders
+// Orders & Checkout
 router.get("/:websiteId/commerce/orders", requireAuth, listOrders);
 router.post("/:websiteId/commerce/orders", createOrder);
 router.patch("/:websiteId/commerce/orders/:orderId/status", requireAuth, updateOrderStatus);
+
+// Storefront Real Stripe Checkout & Payment Verification
+router.post("/:websiteId/commerce/checkout-session", createCheckoutSession);
+router.get("/:websiteId/commerce/checkout-session/:sessionId/verify", verifyPayment);
+router.post("/:websiteId/commerce/orders/:orderId/verify-payment", verifyPayment);
 
 export default router;

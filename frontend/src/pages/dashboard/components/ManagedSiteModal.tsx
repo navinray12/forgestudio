@@ -46,6 +46,8 @@ import {
 } from "lucide-react";
 import type { ClientBillingConfig } from "../../../types/clientBilling.types.js";
 import { FormSubmissionsModal } from "./FormSubmissionsModal.js";
+import { ApprovalReviewerPanel } from "../../../features/publishing/components/ApprovalReviewerPanel";
+import { getBackupTriggerBadgeConfig } from "../../../utils/backupBadge";
 
 interface ManagedSiteModalProps {
   website: {
@@ -519,30 +521,41 @@ export const ManagedSiteModal: React.FC<ManagedSiteModalProps> = ({
     }
   };
 
-  // Run Sample Image Compression
+  // Run Image Compression on website media asset
   const handleRunOptimization = async () => {
     if (!website) return;
     setOptCompressing(true);
     setFeedback(null);
     try {
+      // Find an existing media asset for this website or user
+      const mediaRes = await fetch(`${apiUrl}/api/media?websiteId=${website.id}&limit=5`, {
+        credentials: "include",
+      });
+      const mediaData = await mediaRes.json();
+      const candidateAsset = (mediaData.assets || []).find((a: any) => a.mimeType?.startsWith("image/"));
+
+      if (!candidateAsset) {
+        throw new Error("No media assets found for this website yet. Upload an image in the Website Editor or Media Library first.");
+      }
+
       const res = await fetch(`${apiUrl}/api/websites/${website.id}/images/optimize-image`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          imageUrl: `https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1200`,
-          originalBytes: 420000,
+          assetId: candidateAsset.id,
+          quality: 80,
         }),
       });
       const data = await res.json();
       if (res.ok) {
         setFeedback({
           type: "success",
-          message: `Asset optimized to WebP! Saved ${data.bytesSaved ? Math.round(data.bytesSaved / 1024) : 180} KB (${data.savingsPercentage || "43%"}). Credits left: ${data.remainingCredits}`,
+          message: `Asset "${candidateAsset.originalName}" optimized successfully! Saved ${data.bytesSaved ? Math.round(data.bytesSaved / 1024) : 0} KB (${data.savingsPercentage || "0%"}). Credits left: ${data.remainingCredits}`,
         });
         await fetchOptimization();
       } else {
-        throw new Error(data.message || "Optimization failed.");
+        throw new Error(data.error?.message || data.message || "Optimization failed.");
       }
     } catch (err: any) {
       setFeedback({ type: "error", message: err.message || "Image optimization failed." });
@@ -947,42 +960,61 @@ export const ManagedSiteModal: React.FC<ManagedSiteModalProps> = ({
     }
   };
 
-  // Verify Domain & Issue Zero-Touch SSL
-  const handleVerifyDomain = async (domainName: string) => {
+  // Verify Domain or Provision SSL Certificate (Module 19.2)
+  const handleVerifyDomain = async (domainObjOrName: any) => {
     if (!website) return;
+    const domainObj = typeof domainObjOrName === "object" ? domainObjOrName : domains.find((d: any) => d.domain === domainObjOrName);
+    const domainName = domainObj?.domain || domainObjOrName;
     setVerifyingDomain(domainName);
     setFeedback(null);
     try {
-      let res = await fetch(`${apiUrl}/api/websites/${website.id}/domains/${encodeURIComponent(domainName)}/ssl/provision`, {
-        method: "POST",
-        credentials: "include",
-      });
-      if (res.status === 404) {
-        res = await fetch(`${apiUrl}/api/websites/${website.id}/domains/${encodeURIComponent(domainName)}/verify`, {
+      const isVerified = domainObj?.status === "active";
+      // If domain DNS is not yet verified, first run DNS verify
+      if (!isVerified) {
+        const res = await fetch(`${apiUrl}/api/websites/${website.id}/domains/${encodeURIComponent(domainName)}/verify`, {
           method: "POST",
           credentials: "include",
         });
-      }
-      const data = await res.json();
-      if (data.success) {
-        setFeedback({
-          type: "success",
-          message: `Domain "${domainName}" successfully verified! Zero-touch SSL provisioned and active on edge router.`,
-        });
+        const data = await res.json();
+        if (data.success) {
+          setFeedback({
+            type: "success",
+            message: `Domain "${domainName}" DNS ownership verified successfully! You can now request SSL provisioning.`,
+          });
+        } else {
+          setFeedback({
+            type: "error",
+            message: data.message || "DNS verification check failed. Propagation may take time.",
+          });
+        }
       } else {
-        setFeedback({
-          type: "error",
-          message: data.message || "DNS verification check failed. Propagation may take time.",
+        // If domain DNS is verified, request SSL provisioning
+        const res = await fetch(`${apiUrl}/api/websites/${website.id}/domains/${encodeURIComponent(domainName)}/ssl/provision`, {
+          method: "POST",
+          credentials: "include",
         });
+        const data = await res.json();
+        if (data.success) {
+          setFeedback({
+            type: "success",
+            message: data.message || `SSL certificate provisioned and active for "${domainName}".`,
+          });
+        } else {
+          setFeedback({
+            type: "error",
+            message: data.message || "SSL certificate provisioning failed. Check DNS routing or provider configuration.",
+          });
+        }
       }
       fetchDomains();
       if (onWebsiteUpdated) onWebsiteUpdated();
     } catch (err: any) {
-      setFeedback({ type: "error", message: err.message || "DNS verification check failed." });
+      setFeedback({ type: "error", message: err.message || "Request failed." });
     } finally {
       setVerifyingDomain(null);
     }
   };
+
 
   // Fetch Releases & Rollbacks
   const fetchReleases = async () => {
@@ -1698,11 +1730,11 @@ export const ManagedSiteModal: React.FC<ManagedSiteModalProps> = ({
                       </button>
 
                       <button
-                        onClick={() => setActiveTab("image-optimization")}
+                        onClick={() => setActiveTab("forms")}
                         className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 transition flex items-center gap-1.5"
                       >
-                        <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-                        <span>Optimize Media ({optStats?.remainingCredits ?? 250} Credits)</span>
+                        <FileText className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>Form Submissions & Leads</span>
                       </button>
 
                       {isWpConnected && (
@@ -2099,7 +2131,7 @@ export const ManagedSiteModal: React.FC<ManagedSiteModalProps> = ({
                         className="mt-2 py-1.5 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-xs font-bold text-white flex items-center justify-center gap-1.5 transition disabled:opacity-50"
                       >
                         <Sparkles className="w-3.5 h-3.5" />
-                        <span>{optCompressing ? "Compressing WebP..." : "Optimize Sample Asset (1 Credit)"}</span>
+                        <span>{optCompressing ? "Optimizing Asset..." : "Optimize Website Asset (1 Credit)"}</span>
                       </button>
                     </div>
                   </div>
@@ -3308,27 +3340,43 @@ export const ManagedSiteModal: React.FC<ManagedSiteModalProps> = ({
                                         Primary Domain
                                       </span>
                                     )}
-                                    {/* Upgraded Modern Status Badge (F-Scope 2) */}
-                                    {d.sslStatus === "ACTIVE" || (isVerified && d.sslEnabled) ? (
-                                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5 shadow-xs">
+                                    {/* Upgraded Modern Status Badge (Module 19.2 Lifecycle) */}
+                                    {d.sslStatus === "ACTIVE" && d.sslEnabled ? (
+                                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5 shadow-xs" title={d.sslIssuer ? `Issuer: ${d.sslIssuer}` : undefined}>
                                         <Lock className="w-3 h-3 text-emerald-400" />
                                         SSL Active
                                       </span>
-                                    ) : isVerifying || d.sslStatus === "VERIFYING" ? (
+                                    ) : isVerifying || d.sslStatus === "ISSUING" ? (
                                       <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/30 flex items-center gap-1.5 animate-pulse">
                                         <RefreshCw className="w-3 h-3 animate-spin text-blue-400" />
-                                        Verifying DNS
+                                        {isVerified ? "Provisioning SSL..." : "Verifying DNS..."}
+                                      </span>
+                                    ) : d.sslStatus === "FAILED" ? (
+                                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/30 flex items-center gap-1.5" title={d.sslFailureReason || "SSL provisioning failed"}>
+                                        <AlertCircle className="w-3 h-3 text-rose-400" />
+                                        SSL Failed
+                                      </span>
+                                    ) : d.sslStatus === "EXPIRED" ? (
+                                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-500/10 text-red-400 border border-red-500/30 flex items-center gap-1.5">
+                                        <AlertCircle className="w-3 h-3 text-red-400" />
+                                        SSL Expired
+                                      </span>
+                                    ) : isVerified ? (
+                                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-sky-500/10 text-sky-400 border border-sky-500/30 flex items-center gap-1.5">
+                                        <Shield className="w-3 h-3 text-sky-400" />
+                                        DNS Verified
                                       </span>
                                     ) : (
                                       <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30 flex items-center gap-1.5">
                                         <AlertCircle className="w-3 h-3 text-amber-400" />
-                                        Action Needed
+                                        DNS Pending
                                       </span>
                                     )}
                                   </div>
                                   <div className="text-[11px] text-slate-500">
                                     Added on {new Date(d.addedAt).toLocaleDateString()}
                                     {d.verifiedAt && ` • Verified on ${new Date(d.verifiedAt).toLocaleDateString()}`}
+                                    {d.sslIssuer && ` • Cert: ${d.sslIssuer}`}
                                   </div>
                                 </div>
 
@@ -3336,12 +3384,30 @@ export const ManagedSiteModal: React.FC<ManagedSiteModalProps> = ({
                                 <div className="flex items-center gap-2 self-end sm:self-center">
                                   {(!isVerified || d.sslStatus !== "ACTIVE") && (
                                     <button
-                                      onClick={() => handleVerifyDomain(d.domain)}
+                                      onClick={() => handleVerifyDomain(d)}
                                       disabled={isVerifying}
-                                      className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-md shadow-emerald-500/20 transition disabled:opacity-50"
+                                      className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-white text-xs font-semibold shadow-md transition disabled:opacity-50 ${
+                                        !isVerified
+                                          ? "bg-blue-600 hover:bg-blue-500 shadow-blue-500/20"
+                                          : d.sslStatus === "FAILED"
+                                          ? "bg-amber-600 hover:bg-amber-500 shadow-amber-500/20"
+                                          : d.sslStatus === "EXPIRED"
+                                          ? "bg-rose-600 hover:bg-rose-500 shadow-rose-500/20"
+                                          : "bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20"
+                                      }`}
                                     >
                                       <RefreshCw className={`w-3.5 h-3.5 ${isVerifying ? "animate-spin" : ""}`} />
-                                      <span>{isVerifying ? "Issuing SSL..." : "Verify DNS & Issue SSL"}</span>
+                                      <span>
+                                        {isVerifying
+                                          ? (isVerified ? "Provisioning SSL..." : "Verifying DNS...")
+                                          : !isVerified
+                                          ? "Verify DNS"
+                                          : d.sslStatus === "FAILED"
+                                          ? "Retry SSL Provisioning"
+                                          : d.sslStatus === "EXPIRED"
+                                          ? "Renew SSL"
+                                          : "Provision SSL"}
+                                      </span>
                                     </button>
                                   )}
                                   {isVerified && !d.isPrimary && (
@@ -3526,6 +3592,18 @@ export const ManagedSiteModal: React.FC<ManagedSiteModalProps> = ({
                       <RefreshCw className={`w-4 h-4 ${releasesLoading ? "animate-spin" : ""}`} />
                     </button>
                   </div>
+
+                  {/* Publish Approvals & Change Reviews */}
+                  {website?.id && (
+                    <div className="mb-2">
+                      <ApprovalReviewerPanel
+                        websiteId={website.id}
+                        websiteName={website.name}
+                        canPublish={true}
+                        onDecisionComplete={fetchReleases}
+                      />
+                    </div>
+                  )}
 
                   {/* Releases Timeline List */}
                   <div className="space-y-3">

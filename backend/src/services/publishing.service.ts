@@ -8,6 +8,8 @@ import { publishToWordPress } from "./wordpress/connector.service.js";
 import { destinationRegistry } from "./destinations/registry.js";
 import { enqueueJob, cancelJob, getJobById } from "./jobs/jobRunner.js";
 import { recordAuditLog } from "./audit.service.js";
+import { compileCanonicalToStaticBundle } from "./destinations/staticCompiler.js";
+import { isApprovedSnapshotMatch } from "./approval.service.js";
 
 const db = prisma as any;
 
@@ -249,24 +251,6 @@ export async function publishWebsite(
     throw new AppError("You do not have permission to publish this website.", 403, "FORBIDDEN");
   }
 
-  // Approval Workflow Gating (Optional, backwards compatible)
-  if (website.approvalWorkflowEnabled) {
-    const isOwnerOrAdmin = website.userId === userId || website.userPermission === "OWNER" || website.userPermission === "ADMIN";
-    if (!isOwnerOrAdmin) {
-      const approvedRequest = await db.publishApprovalRequest.findFirst({
-        where: { websiteId, requesterId: userId, status: "APPROVED" },
-        orderBy: { updatedAt: "desc" },
-      });
-      if (!approvedRequest) {
-        throw new AppError(
-          "Publishing requires approval on this website. Please submit a review request for approval.",
-          403,
-          "APPROVAL_REQUIRED"
-        );
-      }
-    }
-  }
-
   const environment = options.environment || "PRODUCTION";
   const destinationType = options.destinationType || "INTERNAL";
 
@@ -288,71 +272,147 @@ export async function publishWebsite(
 
   const candidateData = options.editorData || rawEditorData;
 
-  // 3. Pre-Publish Validation
-  const validation = await validateWebsiteForPublish(websiteId, userId, candidateData);
-  if (!validation.valid) {
-    // Record failed deployment attempt if possible
-    try {
-      const nextVer = await getNextDeploymentVersion(websiteId);
-      await createDeploymentRecord({
-        websiteId,
-        version: nextVer,
-        status: "VALIDATION_FAILED",
-        environment,
-        destinationType,
-        error: { code: "VALIDATION_FAILED", errors: validation.errors },
-        createdBy: userId,
-        completedAt: new Date(),
+  // Approval Workflow Gating (Optional, backwards compatible)
+  let claimedApprovalId: string | null = null;
+  if (website.approvalWorkflowEnabled) {
+    const isOwnerOrAdmin = website.userId === userId || website.userPermission === "OWNER" || website.userPermission === "ADMIN";
+    if (!isOwnerOrAdmin) {
+      const approvedRequest = await db.publishApprovalRequest.findFirst({
+        where: { websiteId, requesterId: userId, status: "APPROVED" },
+        orderBy: { updatedAt: "desc" },
       });
-    } catch (e) {}
+      if (!approvedRequest) {
+        throw new AppError(
+          "Publishing requires approval on this website. Please submit a review request for approval.",
+          403,
+          "APPROVAL_REQUIRED"
+        );
+      }
 
-    throw new AppError(
-      `Publish validation failed: ${validation.errors.map((e) => e.message).join(", ")}`,
-      422,
-      "VALIDATION_FAILED"
-    );
-  }
+      // Verify that candidate content strictly matches the approved review snapshot
+      if (!isApprovedSnapshotMatch(approvedRequest.snapshot, candidateData)) {
+        throw new AppError(
+          "Publishing rejected: Current editor content differs from the approved review snapshot.",
+          400,
+          "SNAPSHOT_MISMATCH"
+        );
+      }
 
-  // 4. Allocate Monotonic Deployment Version & Record initial deployment (QUEUED)
-  const nextVersion = await getNextDeploymentVersion(websiteId);
-  let deployment = await createDeploymentRecord({
-    websiteId,
-    version: nextVersion,
-    status: "QUEUED",
-    environment,
-    destinationType,
-    createdBy: userId,
-  });
-
-  const now = new Date().toISOString();
-
-  // Pre-Publish Safety Backup (Automated pre-publish snapshot)
-  if (environment === "PRODUCTION") {
-    try {
-      const { createBackupRecord, appendBackup } = await import("./backups/websiteBackup.service.js");
-      const prePublishBackup = createBackupRecord(rawEditorData, {
-        trigger: "pre-publish",
-        label: `Pre-Publish Snapshot (v${nextVersion})`,
-        notes: `Automated safety snapshot created before deploying version ${nextVersion}`,
+      // Atomically claim the approval to prevent concurrent replay / race conditions
+      const claimResult = await db.publishApprovalRequest.updateMany({
+        where: { id: approvedRequest.id, status: "APPROVED" },
+        data: { status: "CONSUMING" },
       });
-      const currentBackups = Array.isArray(rawEditorData.backups) ? rawEditorData.backups : [];
-      rawEditorData.backups = appendBackup(currentBackups, prePublishBackup);
-      await db.website.update({
-        where: { id: websiteId },
-        data: { editorData: rawEditorData },
-      });
-    } catch (backupErr) {
-      console.warn("Pre-publish safety backup warning:", backupErr);
+
+      if (claimResult.count === 0) {
+        throw new AppError(
+          "This approval request is currently being published or has already been consumed.",
+          409,
+          "APPROVAL_ALREADY_IN_USE"
+        );
+      }
+
+      claimedApprovalId = approvedRequest.id;
     }
   }
 
+  let deployment: any = null;
+
   try {
+    // 3. Pre-Publish Validation
+    const validation = await validateWebsiteForPublish(websiteId, userId, candidateData);
+    if (!validation.valid) {
+      // Record failed deployment attempt if possible
+      try {
+        const nextVer = await getNextDeploymentVersion(websiteId);
+        await createDeploymentRecord({
+          websiteId,
+          version: nextVer,
+          status: "VALIDATION_FAILED",
+          environment,
+          destinationType,
+          error: { code: "VALIDATION_FAILED", errors: validation.errors },
+          createdBy: userId,
+          completedAt: new Date(),
+        });
+      } catch (e) {}
+
+      throw new AppError(
+        `Publish validation failed: ${validation.errors.map((e) => e.message).join(", ")}`,
+        422,
+        "VALIDATION_FAILED"
+      );
+    }
+
+    // 4. Allocate Monotonic Deployment Version & Record initial deployment (QUEUED)
+    const nextVersion = await getNextDeploymentVersion(websiteId);
+    deployment = await createDeploymentRecord({
+      websiteId,
+      version: nextVersion,
+      status: "QUEUED",
+      environment,
+      destinationType,
+      createdBy: userId,
+    });
+
+    const now = new Date().toISOString();
+
+    // Pre-Publish Safety Backup (Automated pre-publish snapshot)
+    if (environment === "PRODUCTION") {
+      try {
+        const { createBackupRecord, appendBackup } = await import("./backups/websiteBackup.service.js");
+        const prePublishBackup = createBackupRecord(rawEditorData, {
+          trigger: "pre-publish",
+          label: `Pre-Publish Snapshot (v${nextVersion})`,
+          notes: `Automated safety snapshot created before deploying version ${nextVersion}`,
+        });
+        const currentBackups = Array.isArray(rawEditorData.backups) ? rawEditorData.backups : [];
+        rawEditorData.backups = appendBackup(currentBackups, prePublishBackup);
+        await db.website.update({
+          where: { id: websiteId },
+          data: { editorData: rawEditorData },
+        });
+      } catch (backupErr) {
+        console.warn("Pre-publish safety backup warning:", backupErr);
+      }
+    }
+
     // 5. State Machine: BUILDING
     await updateDeploymentStatus(deployment.id, "BUILDING");
 
     const activePageId = candidateData.activePageId || candidateData.homePageId || "";
     const canonicalPageElements = Array.isArray(candidateData.elements) ? candidateData.elements : [];
     const canonicalPages = Array.isArray(candidateData.pages) ? candidateData.pages : [];
+
+    // Feature 12: Validate build completion and artifact generation
+    try {
+      const buildBundle = compileCanonicalToStaticBundle(websiteId, nextVersion, {
+        ...candidateData,
+        elements: canonicalPageElements,
+        pages: canonicalPages,
+      });
+
+      if (!buildBundle || !Array.isArray(buildBundle.files) || buildBundle.files.length === 0) {
+        throw new Error("Build compilation produced an empty file bundle");
+      }
+      const hasHtml = buildBundle.files.some((f) => f.path.endsWith(".html") && f.size > 0);
+      if (!hasHtml) {
+        throw new Error("Build compilation produced no readable HTML artifacts");
+      }
+    } catch (buildErr: any) {
+      deployment = await updateDeploymentStatus(deployment.id, "BUILD_FAILED", {
+        error: {
+          code: "BUILD_COMPILATION_FAILED",
+          message: buildErr?.message || "Build compilation failed",
+        },
+        completedAt: new Date(),
+      });
+      throw new AppError(
+        `Build compilation failed: ${buildErr?.message || "Failed to compile site structure"}`,
+        400,
+        "BUILD_FAILED"
+      );
+    }
 
     const publishingMeta = {
       status: "PUBLISHED",
@@ -436,6 +496,7 @@ export async function publishWebsite(
         primaryPageUrl: wpResult.primaryPageUrl,
         syncedPagesCount: wpResult.syncedPagesCount,
         syncedMediaCount: wpResult.syncedMediaCount,
+        pageMappings: wpResult.pageMappings,
       };
 
       // Also persist published snapshot in ForgeStudio for offline / parity reference
@@ -527,35 +588,44 @@ export async function publishWebsite(
     // 8. State Machine: VERIFYING (Verify destination live payload)
     await updateDeploymentStatus(deployment.id, "VERIFYING");
 
-    const verifiedWebsite = await getWebsiteById(websiteId, userId);
-    const verifiedEditorData = typeof verifiedWebsite.editorData === "string"
-      ? JSON.parse(verifiedWebsite.editorData)
-      : (verifiedWebsite.editorData || {});
+    const publisher = destinationRegistry.getPublisher(destinationType);
+    const verifyResult = await publisher.verify(websiteId, deployment.id, {
+      version: nextVersion,
+      liveUrl: destinationRef,
+      userId,
+    });
 
-    const isVerified =
-      verifiedWebsite.status === "PUBLISHED" &&
-      verifiedEditorData.publishedData &&
-      (verifiedEditorData.publishedData.version === nextVersion ||
-        verifiedEditorData.publishedData.publishing?.version === nextVersion);
-
-    if (!isVerified) {
-      await updateDeploymentStatus(deployment.id, "VERIFICATION_FAILED", {
-        error: { code: "DESTINATION_VERIFICATION_FAILED", message: "Live snapshot mismatch" },
+    if (!verifyResult.verified) {
+      deployment = await updateDeploymentStatus(deployment.id, "VERIFICATION_FAILED", {
+        error: {
+          code: "DESTINATION_VERIFICATION_FAILED",
+          message: verifyResult.error || "Destination verification check failed",
+          statusCode: verifyResult.statusCode,
+          latencyMs: verifyResult.latencyMs,
+        },
+        completedAt: new Date(),
       });
       throw new AppError(
-        "Deployment verification failed: published snapshot could not be verified on destination.",
+        `Deployment verification failed: ${verifyResult.error || "Destination could not be verified"}`,
         500,
         "VERIFICATION_FAILED"
       );
     }
 
-    // 9. REVISION LINKAGE: Create durable PUBLISH revision & link to deployment
+    // 9. REVISION LINKAGE: Create durable PUBLISH/RESTORE revision & link to deployment
     // Invariant: If revision creation/linkage fails, enter RECONCILIATION_REQUIRED state
+    const isRollback = Boolean(options.metadata?.isRollback || options.metadata?.rollbackFromDeploymentId);
+    const rolledBackVersion = options.metadata?.rolledBackVersion;
+    const revDesc = isRollback
+      ? `Website rolled back to v${rolledBackVersion} (v${nextVersion})`
+      : `Website published (v${nextVersion})`;
+    const revType = isRollback ? "RESTORE" : "PUBLISH";
+
     let publishRevision: any = null;
     try {
       publishRevision = await createRevision(websiteId, userId, {
-        description: `Website published (v${nextVersion})`,
-        revisionType: "PUBLISH",
+        description: revDesc,
+        revisionType: revType,
         snapshot: candidateSnapshot,
       });
     } catch (revError: any) {
@@ -586,6 +656,29 @@ export async function publishWebsite(
       },
     });
 
+    // If an approval was claimed for this publish operation, mark it CONSUMED atomically
+    if (claimedApprovalId) {
+      await db.publishApprovalRequest.updateMany({
+        where: { id: claimedApprovalId },
+        data: { status: "CONSUMED" },
+      });
+
+      try {
+        await db.auditLog.create({
+          data: {
+            userId,
+            action: "PUBLISH_APPROVAL_CONSUMED",
+            targetResource: `website:${websiteId}`,
+            details: {
+              requestId: claimedApprovalId,
+              deploymentId: deployment.id,
+              version: nextVersion,
+            },
+          },
+        });
+      } catch (_) {}
+    }
+
     // 10b. ATOMIC RELEASE RECORDING & POINTER SWAP
     const releaseId = `rel_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const deployHash = createHash("sha256").update(JSON.stringify(candidateSnapshot)).digest("hex");
@@ -598,7 +691,7 @@ export async function publishWebsite(
       snapshotData: candidateSnapshot,
       createdAt: now,
       createdBy: userId,
-      notes: options.metadata?.notes || `Release v${nextVersion} published`,
+      notes: options.metadata?.notes || (isRollback ? `Rollback to v${rolledBackVersion} (v${nextVersion})` : `Release v${nextVersion} published`),
       isActive: true,
       deploymentId: deployment.id,
       version: nextVersion,
@@ -645,11 +738,26 @@ export async function publishWebsite(
       warnings: validation.warnings,
     };
   } catch (error: any) {
+    // Revert claimed approval if deployment failed prior to successful PUBLISHED state
+    if (claimedApprovalId) {
+      try {
+        await db.publishApprovalRequest.updateMany({
+          where: { id: claimedApprovalId, status: "CONSUMING" },
+          data: { status: "APPROVED" },
+        });
+      } catch (_) {}
+    }
     // If deployment has not entered a terminal failure state yet, mark DEPLOY_FAILED
     if (
+      deployment?.id &&
       deployment?.status !== "VALIDATION_FAILED" &&
       deployment?.status !== "VERIFICATION_FAILED" &&
-      deployment?.status !== "RECONCILIATION_REQUIRED"
+      deployment?.status !== "RECONCILIATION_REQUIRED" &&
+      deployment?.status !== "BUILD_FAILED" &&
+      error?.code !== "BUILD_FAILED" &&
+      error?.code !== "VERIFICATION_FAILED" &&
+      error?.code !== "RECONCILIATION_REQUIRED" &&
+      error?.code !== "VALIDATION_FAILED"
     ) {
       try {
         await updateDeploymentStatus(deployment.id, "DEPLOY_FAILED", {
@@ -675,39 +783,46 @@ export async function getWebsiteDeployments(websiteId: string, userId: string) {
     throw new AppError("You do not have permission to view deployments for this website.", 403, "FORBIDDEN");
   }
 
+  let list: any[] = [];
   if (db?.deployment?.findMany) {
-    return await db.deployment.findMany({
+    list = await db.deployment.findMany({
       where: { websiteId },
       orderBy: { createdAt: "desc" },
       include: {
         creator: { select: { id: true, fullName: true, email: true } },
       },
     });
+  } else {
+    const rows: any[] = await prisma.$queryRaw`
+      SELECT d.*, u."fullName" as "creatorName", u.email as "creatorEmail"
+      FROM deployments d
+      LEFT JOIN users u ON d."createdBy" = u.id
+      WHERE d."websiteId" = ${websiteId}::uuid
+      ORDER BY d."createdAt" DESC
+    `;
+
+    list = rows.map((r) => ({
+      id: r.id,
+      websiteId: r.websiteId,
+      version: r.version,
+      status: r.status,
+      environment: r.environment,
+      destinationType: r.destinationType,
+      destinationRef: r.destinationRef,
+      sourceRevisionId: r.sourceRevisionId,
+      metadata: typeof r.metadata === "string" ? JSON.parse(r.metadata) : (r.metadata || {}),
+      error: typeof r.error === "string" ? JSON.parse(r.error) : r.error,
+      startedAt: r.startedAt,
+      completedAt: r.completedAt,
+      createdAt: r.createdAt,
+      creator: r.createdBy ? { id: r.createdBy, fullName: r.creatorName, email: r.creatorEmail } : null,
+    }));
   }
 
-  const rows: any[] = await prisma.$queryRaw`
-    SELECT d.*, u."fullName" as "creatorName", u.email as "creatorEmail"
-    FROM deployments d
-    LEFT JOIN users u ON d."createdBy" = u.id
-    WHERE d."websiteId" = ${websiteId}::uuid
-    ORDER BY d."createdAt" DESC
-  `;
-
-  return rows.map((r) => ({
-    id: r.id,
-    websiteId: r.websiteId,
-    version: r.version,
-    status: r.status,
-    environment: r.environment,
-    destinationType: r.destinationType,
-    destinationRef: r.destinationRef,
-    sourceRevisionId: r.sourceRevisionId,
-    metadata: typeof r.metadata === "string" ? JSON.parse(r.metadata) : (r.metadata || {}),
-    error: typeof r.error === "string" ? JSON.parse(r.error) : r.error,
-    startedAt: r.startedAt,
-    completedAt: r.completedAt,
-    createdAt: r.createdAt,
-    creator: r.createdBy ? { id: r.createdBy, fullName: r.creatorName, email: r.creatorEmail } : null,
+  return list.map((d: any) => ({
+    ...d,
+    metadata: sanitizeDeploymentData(d.metadata),
+    error: sanitizeDeploymentData(d.error),
   }));
 }
 
@@ -743,7 +858,313 @@ export async function getDeploymentById(websiteId: string, deploymentId: string,
     throw new AppError("Deployment record not found.", 404, "NOT_FOUND");
   }
 
-  return deployment;
+  return {
+    ...deployment,
+    metadata: sanitizeDeploymentData(deployment.metadata),
+    error: sanitizeDeploymentData(deployment.error),
+  };
+}
+
+/**
+ * Idempotently verify an existing deployment without creating duplicate deployment records.
+ */
+export async function verifyDeployment(
+  websiteId: string,
+  deploymentId: string,
+  userId: string
+) {
+  // Authorization: PUBLISH permission required to trigger verification
+  await getWebsiteById(websiteId, userId);
+  const canPublish = await canUserAccessResource(userId, websiteId, "*", "PUBLISH");
+  if (!canPublish) {
+    throw new AppError("You do not have permission to verify deployments for this website.", 403, "FORBIDDEN");
+  }
+
+  const deployment = await getDeploymentById(websiteId, deploymentId, userId);
+
+  // Pre-flight lifecycle checks: terminal non-verifiable states
+  if (deployment.status === "ROLLED_BACK") {
+    throw new AppError("Deployment has been rolled back and cannot be verified.", 409, "INVALID_STATE_TRANSITION");
+  }
+  if (deployment.status === "BUILD_FAILED") {
+    throw new AppError("Deployment build failed; cannot verify unbuilt deployment.", 422, "INVALID_STATE_TRANSITION");
+  }
+  if (deployment.status === "VALIDATION_FAILED") {
+    throw new AppError("Deployment validation failed; cannot verify invalid deployment.", 422, "INVALID_STATE_TRANSITION");
+  }
+  if (deployment.status === "DEPLOY_FAILED" || deployment.status === "DEPLOYMENT_FAILED") {
+    throw new AppError("Deployment failed during transmission; cannot verify un-deployed deployment.", 422, "INVALID_STATE_TRANSITION");
+  }
+
+  // 1. Persist intermediate state: VERIFYING so concurrent inspectors see active verification
+  const verifyingDeployment = await updateDeploymentStatus(deployment.id, "VERIFYING", {
+    completedAt: null,
+  });
+  const preVerifyUpdatedAt = verifyingDeployment?.updatedAt
+    ? new Date(verifyingDeployment.updatedAt)
+    : new Date();
+
+  let verifyResult: any;
+  try {
+    const publisher = destinationRegistry.getPublisher(deployment.destinationType || "INTERNAL");
+    verifyResult = await publisher.verify(websiteId, deployment.id, {
+      version: deployment.version,
+      liveUrl: deployment.destinationRef,
+      userId,
+    });
+  } catch (err: any) {
+    // Invariant: intermediate states must never be left indefinitely after handled failures
+    const errorMsg = err?.message || "Unhandled verification error";
+    const failureStatus = "VERIFICATION_FAILED";
+    await updateDeploymentStatus(deployment.id, failureStatus, {
+      completedAt: new Date(),
+      error: {
+        code: "DESTINATION_VERIFICATION_EXCEPTION",
+        message: errorMsg,
+      },
+    });
+    return {
+      success: false,
+      verified: false,
+      deploymentId: deployment.id,
+      status: failureStatus,
+      destinationType: deployment.destinationType,
+      statusCode: err?.statusCode || 500,
+      latencyMs: 0,
+      error: errorMsg,
+    };
+  }
+
+  const existingMetadata =
+    typeof deployment.metadata === "string"
+      ? JSON.parse(deployment.metadata)
+      : (deployment.metadata || {});
+
+  const updatedMetadata = {
+    ...existingMetadata,
+    verification: {
+      verifiedAt: new Date().toISOString(),
+      latencyMs: verifyResult.latencyMs,
+      statusCode: verifyResult.statusCode,
+      details: verifyResult.details,
+      error: verifyResult.error || null,
+    },
+  };
+
+  if (verifyResult.verified) {
+    const newStatus = "PUBLISHED";
+    await updateDeploymentStatus(deployment.id, newStatus, {
+      metadata: updatedMetadata,
+      error: null,
+      completedAt: new Date(),
+      ifNotNewerThan: preVerifyUpdatedAt,
+    });
+    return {
+      success: true,
+      verified: true,
+      deploymentId: deployment.id,
+      status: newStatus,
+      destinationType: deployment.destinationType,
+      statusCode: verifyResult.statusCode || 200,
+      latencyMs: verifyResult.latencyMs,
+      details: verifyResult.details,
+    };
+  } else {
+    const newStatus = "VERIFICATION_FAILED";
+    await updateDeploymentStatus(deployment.id, newStatus, {
+      metadata: updatedMetadata,
+      error: {
+        code: "DESTINATION_VERIFICATION_FAILED",
+        message: verifyResult.error,
+        statusCode: verifyResult.statusCode,
+      },
+      completedAt: new Date(),
+      ifNotNewerThan: preVerifyUpdatedAt,
+    });
+    return {
+      success: false,
+      verified: false,
+      deploymentId: deployment.id,
+      status: newStatus,
+      destinationType: deployment.destinationType,
+      statusCode: verifyResult.statusCode || 500,
+      latencyMs: verifyResult.latencyMs,
+      error: verifyResult.error,
+    };
+  }
+}
+
+/**
+ * Retry or recover a failed deployment (BUILD_FAILED, DEPLOY_FAILED, VERIFICATION_FAILED).
+ * Re-runs the appropriate pipeline steps idempotently and updates the existing deployment.
+ */
+export async function retryDeployment(
+  websiteId: string,
+  deploymentId: string,
+  userId: string
+) {
+  // Authorization: PUBLISH permission required
+  await getWebsiteById(websiteId, userId);
+  const canPublish = await canUserAccessResource(userId, websiteId, "*", "PUBLISH");
+  if (!canPublish) {
+    throw new AppError("You do not have permission to retry deployments for this website.", 403, "FORBIDDEN");
+  }
+
+  const deployment = await getDeploymentById(websiteId, deploymentId, userId);
+
+  // Terminal non-retriable states
+  if (deployment.status === "ROLLED_BACK") {
+    throw new AppError("Deployment has been rolled back and cannot be retried.", 409, "INVALID_STATE_TRANSITION");
+  }
+
+  // If already published, verify idempotently and return active status
+  if (deployment.status === "PUBLISHED") {
+    const verif = await verifyDeployment(websiteId, deployment.id, userId);
+    return {
+      success: true,
+      verified: verif.verified,
+      deploymentId: deployment.id,
+      status: "PUBLISHED",
+      version: deployment.version,
+      environment: deployment.environment,
+      destinationType: deployment.destinationType,
+      statusCode: verif.statusCode || 200,
+      latencyMs: verif.latencyMs || 0,
+      details: verif.details,
+    };
+  }
+
+  // If failure was strictly at destination verification stage, re-verify directly
+  if (deployment.status === "VERIFICATION_FAILED") {
+    const verif = await verifyDeployment(websiteId, deployment.id, userId);
+    return {
+      success: verif.verified,
+      verified: verif.verified,
+      deploymentId: deployment.id,
+      status: verif.status,
+      version: deployment.version,
+      environment: deployment.environment,
+      destinationType: deployment.destinationType,
+      statusCode: verif.statusCode,
+      latencyMs: verif.latencyMs,
+      details: verif.details,
+      error: verif.error,
+    };
+  }
+
+  // For BUILD_FAILED, DEPLOY_FAILED, or intermediate failed states:
+  const website = await getWebsiteById(websiteId, userId);
+  const rawEditorData =
+    typeof website.editorData === "string"
+      ? JSON.parse(website.editorData)
+      : website.editorData || {};
+  const candidateData = rawEditorData.publishedData || rawEditorData;
+
+  const canonicalPageElements = Array.isArray(candidateData.elements) ? candidateData.elements : [];
+  const canonicalPages = Array.isArray(candidateData.pages) ? candidateData.pages : [];
+
+  // Step 1: Re-build if build failed
+  if (deployment.status === "BUILD_FAILED" || deployment.status === "VALIDATION_FAILED") {
+    await updateDeploymentStatus(deployment.id, "BUILDING", { error: null });
+    try {
+      const buildBundle = compileCanonicalToStaticBundle(websiteId, deployment.version, {
+        ...candidateData,
+        elements: canonicalPageElements,
+        pages: canonicalPages,
+      });
+      if (!buildBundle || !Array.isArray(buildBundle.files) || buildBundle.files.length === 0) {
+        throw new Error("Build compilation produced an empty file bundle");
+      }
+      const hasHtml = buildBundle.files.some((f) => f.path.endsWith(".html") && f.size > 0);
+      if (!hasHtml) {
+        throw new Error("Build compilation produced no readable HTML artifacts");
+      }
+    } catch (buildErr: any) {
+      await updateDeploymentStatus(deployment.id, "BUILD_FAILED", {
+        error: {
+          code: "BUILD_COMPILATION_FAILED",
+          message: buildErr?.message || "Build compilation failed",
+        },
+        completedAt: new Date(),
+      });
+      return {
+        success: false,
+        verified: false,
+        deploymentId: deployment.id,
+        status: "BUILD_FAILED",
+        version: deployment.version,
+        environment: deployment.environment,
+        destinationType: deployment.destinationType,
+        statusCode: 422,
+        error: buildErr?.message || "Build compilation failed",
+      };
+    }
+  }
+
+  // Step 2: Destination deployment
+  await updateDeploymentStatus(deployment.id, "PROCESSING");
+  await updateDeploymentStatus(deployment.id, "DEPLOYING", { error: null });
+
+  let destinationRef = deployment.destinationRef || `/site/${websiteId}`;
+
+  try {
+    const destinationType = deployment.destinationType || "INTERNAL";
+    if (destinationType === "INTERNAL") {
+      const publishingMeta = {
+        status: "PUBLISHED",
+        publishedAt: new Date().toISOString(),
+        version: deployment.version,
+        publishedVersion: deployment.version,
+        publishedBy: userId,
+      };
+      const updatedEditorData = {
+        ...candidateData,
+        publishedData: candidateData,
+        publishing: publishingMeta,
+      };
+      if (db?.website?.update) {
+        await db.website.update({
+          where: { id: websiteId },
+          data: { status: "PUBLISHED", editorData: updatedEditorData },
+        });
+      }
+    } else if (destinationType === "WORDPRESS") {
+      const wpResult = await publishToWordPress(websiteId, userId, deployment.id, candidateData);
+      destinationRef = wpResult.primaryPageUrl || wpResult.siteUrl;
+    }
+  } catch (deployErr: any) {
+    await updateDeploymentStatus(deployment.id, "DEPLOY_FAILED", {
+      error: { code: "DEPLOY_TRANSMISSION_FAILED", message: deployErr?.message || "Deployment transmission failed" },
+      completedAt: new Date(),
+    });
+    return {
+      success: false,
+      verified: false,
+      deploymentId: deployment.id,
+      status: "DEPLOY_FAILED",
+      version: deployment.version,
+      environment: deployment.environment,
+      destinationType: deployment.destinationType,
+      statusCode: 502,
+      error: deployErr?.message || "Deployment transmission failed",
+    };
+  }
+
+  // Step 3: Destination verification
+  const verifResult = await verifyDeployment(websiteId, deployment.id, userId);
+  return {
+    success: verifResult.verified,
+    verified: verifResult.verified,
+    deploymentId: deployment.id,
+    status: verifResult.status,
+    version: deployment.version,
+    environment: deployment.environment,
+    destinationType: deployment.destinationType,
+    statusCode: verifResult.statusCode,
+    latencyMs: verifResult.latencyMs,
+    details: verifResult.details,
+    error: verifResult.error,
+  };
 }
 
 /**
@@ -754,23 +1175,98 @@ export async function getDeploymentById(websiteId: string, deploymentId: string,
  * Creates an additive deployment and revision event!
  */
 export async function rollbackDeployment(websiteId: string, targetDeploymentId: string, userId: string) {
+  // 1. Authorization: check workspace ownership/access and PUBLISH/ROLLBACK capability
   const website = await getWebsiteById(websiteId, userId);
   const canPublish = await canUserAccessResource(userId, websiteId, "*", "PUBLISH");
   if (!canPublish) {
     throw new AppError("You do not have permission to rollback deployments.", 403, "FORBIDDEN");
   }
 
-  // Retrieve target deployment
+  // 2. Retrieve target deployment and ensure it exists on this website
   const targetDeployment = await getDeploymentById(websiteId, targetDeploymentId, userId);
   if (!targetDeployment) {
     throw new AppError("Target deployment not found.", 404, "NOT_FOUND");
   }
 
+  // 3. Status Gate: only successfully PUBLISHED deployments can be rolled back to
   if (targetDeployment.status !== "PUBLISHED") {
-    throw new AppError("Can only rollback to a successfully PUBLISHED deployment.", 400, "INVALID_STATE");
+    throw new AppError(
+      `Cannot rollback to deployment with status '${targetDeployment.status}'. Only successfully PUBLISHED deployments can be restored.`,
+      400,
+      "INVALID_STATE"
+    );
   }
 
-  // Retrieve snapshot from source revision
+  // 4. Identify currently active deployment and prevent rolling back to already active deployment
+  const currentActiveDeployment = await db.deployment.findFirst({
+    where: {
+      websiteId,
+      status: "PUBLISHED",
+    },
+    orderBy: { version: "desc" },
+  });
+
+  if (currentActiveDeployment && currentActiveDeployment.id === targetDeployment.id) {
+    throw new AppError("Target deployment is already the active deployment.", 400, "ALREADY_ACTIVE");
+  }
+
+  // 5. Concurrency Guard: reject if a deployment or rollback pipeline is actively in progress
+  const activeDeploying = await db.deployment.findFirst({
+    where: {
+      websiteId,
+      status: { in: ["QUEUED", "BUILDING", "PROCESSING", "DEPLOYING", "VERIFYING"] },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  if (activeDeploying) {
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+    if (activeDeploying.createdAt > fiveMinutesAgo) {
+      throw new AppError(
+        `A deployment or rollback is already in progress (status: ${activeDeploying.status}, v${activeDeploying.version}). Please wait for it to complete.`,
+        409,
+        "DEPLOYMENT_IN_PROGRESS"
+      );
+    }
+  }
+
+  // 6. Destination Capability Validation
+  const destinationType = targetDeployment.destinationType || "INTERNAL";
+  try {
+    const destinationPublisher = destinationRegistry.getPublisher(destinationType);
+    if (!destinationPublisher) {
+      throw new AppError(`Rollback is not supported for destination type '${destinationType}'.`, 400, "UNSUPPORTED_DESTINATION");
+    }
+  } catch (destErr: any) {
+    throw new AppError(
+      destErr.message || `Rollback is not supported for destination type '${destinationType}'.`,
+      400,
+      "UNSUPPORTED_DESTINATION"
+    );
+  }
+
+  // Destination-specific configuration verification
+  if (destinationType === "SFTP") {
+    const sftpConfig = await db.sftpConnection.findFirst({ where: { websiteId, isActive: true } });
+    if (!sftpConfig) {
+      throw new AppError(
+        "SFTP configuration not found or active for this website. Cannot execute rollback.",
+        400,
+        "SFTP_CONFIG_MISSING"
+      );
+    }
+  } else if (destinationType === "WORDPRESS") {
+    const wpConn = await db.wordPressConnection.findUnique({ where: { websiteId } });
+    if (!wpConn || wpConn.status !== "CONNECTED") {
+      throw new AppError(
+        "WordPress connection is not active or verified. Cannot execute rollback.",
+        400,
+        "WORDPRESS_NOT_CONNECTED"
+      );
+    }
+  }
+
+  // 7. Retrieve historical candidate snapshot from durable source revision
   let snapshotToRestore: any = null;
   if (targetDeployment.sourceRevisionId) {
     const rev = await getRevisionById(websiteId, targetDeployment.sourceRevisionId, userId);
@@ -781,15 +1277,59 @@ export async function rollbackDeployment(websiteId: string, targetDeploymentId: 
     throw new AppError("Target deployment snapshot is missing or unavailable.", 400, "MISSING_SNAPSHOT");
   }
 
-  // Perform publish with the target snapshot
-  return await publishWebsite(websiteId, userId, {
+  // 8. Execute additive publish with restored target snapshot
+  const rollbackResult = await publishWebsite(websiteId, userId, {
     editorData: snapshotToRestore,
     environment: targetDeployment.environment || "PRODUCTION",
-    destinationType: targetDeployment.destinationType || "INTERNAL",
+    destinationType: destinationType,
     metadata: {
+      isRollback: true,
       rollbackFromDeploymentId: targetDeployment.id,
       rolledBackVersion: targetDeployment.version,
+      notes: `Rolled back to v${targetDeployment.version}`,
     },
+  });
+
+  // 9. Upon successful rollback completion, retire the superseded previous active deployment to 'ROLLED_BACK'
+  if (rollbackResult.status === "PUBLISHED" && currentActiveDeployment && currentActiveDeployment.id !== rollbackResult.deploymentId) {
+    try {
+      await updateDeploymentStatus(currentActiveDeployment.id, "ROLLED_BACK", {
+        metadata: {
+          ...(currentActiveDeployment.metadata || {}),
+          rolledBackAt: new Date().toISOString(),
+          supersededByDeploymentId: rollbackResult.deploymentId,
+          supersededByVersion: rollbackResult.version,
+        },
+      });
+    } catch (retireErr) {
+      console.warn("Could not transition superseded deployment to ROLLED_BACK:", retireErr);
+    }
+  }
+
+  // 10. Audit Logging and Secret Redaction
+  try {
+    await recordAuditLog({
+      userId,
+      action: "DEPLOYMENT_ROLLBACK",
+      targetResource: `website:${websiteId}:deployment:${rollbackResult.deploymentId}`,
+      details: {
+        websiteId,
+        newDeploymentId: rollbackResult.deploymentId,
+        newVersion: rollbackResult.version,
+        rolledBackFromDeploymentId: targetDeployment.id,
+        rolledBackVersion: targetDeployment.version,
+        destinationType,
+      },
+    });
+  } catch (auditErr) {
+    console.warn("Audit log warning on rollback:", auditErr);
+  }
+
+  return sanitizeDeploymentData({
+    ...rollbackResult,
+    isRollback: true,
+    rolledBackVersion: targetDeployment.version,
+    previousActiveVersion: currentActiveDeployment?.version || null,
   });
 }
 
@@ -979,13 +1519,13 @@ async function createDeploymentRecord(data: {
         environment: data.environment,
         destinationType: data.destinationType,
         createdBy: data.createdBy,
-        error: data.error || null,
+        error: data.error ? sanitizeDeploymentData(data.error) : null,
         completedAt: data.completedAt || null,
       },
     });
   }
 
-  const errorJson = data.error ? JSON.stringify(data.error) : null;
+  const errorJson = data.error ? JSON.stringify(sanitizeDeploymentData(data.error)) : null;
   const rows: any[] = await prisma.$queryRaw`
     INSERT INTO deployments (id, "websiteId", version, status, environment, "destinationType", error, "createdBy", "completedAt", "createdAt", "updatedAt")
     VALUES (gen_random_uuid(), ${data.websiteId}::uuid, ${data.version}, ${data.status}, ${data.environment}, ${data.destinationType}, ${errorJson}::jsonb, ${data.createdBy}::uuid, ${data.completedAt}, NOW(), NOW())
@@ -994,38 +1534,184 @@ async function createDeploymentRecord(data: {
   return rows[0];
 }
 
-async function updateDeploymentStatus(
+export const VALID_DEPLOYMENT_STATUSES = [
+  "QUEUED",
+  "VALIDATING",
+  "BUILDING",
+  "PROCESSING",
+  "DEPLOYING",
+  "VERIFYING",
+  "PUBLISHED",
+  "RECONCILIATION_REQUIRED",
+  "VALIDATION_FAILED",
+  "BUILD_FAILED",
+  "DEPLOY_FAILED",
+  "DEPLOYMENT_FAILED",
+  "VERIFICATION_FAILED",
+  "ROLLED_BACK",
+] as const;
+
+export type DeploymentStatus = (typeof VALID_DEPLOYMENT_STATUSES)[number];
+
+const ALLOWED_STATUS_TRANSITIONS: Record<string, string[]> = {
+  QUEUED: ["BUILDING", "VALIDATING", "PROCESSING", "DEPLOYING", "VERIFYING", "BUILD_FAILED", "DEPLOY_FAILED", "DEPLOYMENT_FAILED", "VALIDATION_FAILED"],
+  VALIDATING: ["BUILDING", "VALIDATION_FAILED", "BUILD_FAILED", "DEPLOY_FAILED", "DEPLOYMENT_FAILED"],
+  BUILDING: ["PROCESSING", "DEPLOYING", "BUILD_FAILED"],
+  PROCESSING: ["DEPLOYING", "DEPLOY_FAILED", "DEPLOYMENT_FAILED", "BUILD_FAILED"],
+  DEPLOYING: ["VERIFYING", "DEPLOY_FAILED", "DEPLOYMENT_FAILED"],
+  VERIFYING: ["PUBLISHED", "VERIFICATION_FAILED", "RECONCILIATION_REQUIRED", "VERIFYING"],
+  PUBLISHED: ["VERIFYING", "ROLLED_BACK", "RECONCILIATION_REQUIRED", "PUBLISHED"],
+  VERIFICATION_FAILED: ["VERIFYING", "PUBLISHED", "VERIFICATION_FAILED", "ROLLED_BACK"],
+  RECONCILIATION_REQUIRED: ["PUBLISHED", "VERIFYING", "ROLLED_BACK", "RECONCILIATION_REQUIRED"],
+  BUILD_FAILED: ["BUILDING", "BUILD_FAILED"],
+  DEPLOY_FAILED: ["DEPLOYING", "BUILDING", "DEPLOY_FAILED", "VERIFYING"],
+  DEPLOYMENT_FAILED: ["DEPLOYING", "BUILDING", "DEPLOYMENT_FAILED", "VERIFYING"],
+  VALIDATION_FAILED: ["VALIDATING", "BUILDING", "VALIDATION_FAILED"],
+  ROLLED_BACK: ["ROLLED_BACK"],
+};
+
+export function isValidDeploymentTransition(currentStatus: string, nextStatus: string): boolean {
+  if (currentStatus === nextStatus) return true;
+  const normCurrent = currentStatus === "DEPLOYMENT_FAILED" ? "DEPLOY_FAILED" : currentStatus;
+  const normNext = nextStatus === "DEPLOYMENT_FAILED" ? "DEPLOY_FAILED" : nextStatus;
+  if (normCurrent === normNext) return true;
+
+  const allowed = ALLOWED_STATUS_TRANSITIONS[normCurrent];
+  if (!allowed) {
+    return false;
+  }
+  return allowed.includes(normNext) || allowed.includes(nextStatus);
+}
+
+export function sanitizeDeploymentData(obj: any, depth = 0): any {
+  if (!obj || typeof obj !== "object" || depth > 8) return obj;
+  if (Array.isArray(obj)) {
+    return obj.map((item) => sanitizeDeploymentData(item, depth + 1));
+  }
+  const SENSITIVE_KEYS = [
+    "password",
+    "passwordhash",
+    "apikey",
+    "apikeyhash",
+    "secret",
+    "clientsecret",
+    "token",
+    "authorization",
+    "privatekey",
+    "privatekeypassphrase",
+    "auth",
+    "credentials",
+    "access_token",
+    "refresh_token",
+  ];
+  const cleaned: Record<string, any> = {};
+  for (const [key, value] of Object.entries(obj)) {
+    const lowerKey = key.toLowerCase();
+    if (SENSITIVE_KEYS.some((sensitive) => lowerKey.includes(sensitive))) {
+      cleaned[key] = "[REDACTED]";
+    } else if (typeof value === "string") {
+      let strVal = value;
+      if (strVal.includes("Bearer ")) {
+        strVal = strVal.replace(/Bearer\s+[A-Za-z0-9._~+/-]+=*/g, "Bearer [REDACTED]");
+      }
+      strVal = strVal.replace(/(password|secret|apikey|token|privatekey)\s*[:=]\s*["']?([^"'\s,;]+)["']?/gi, "$1: [REDACTED]");
+      strVal = strVal.replace(/((?:sftp|postgres|mysql|http|https):\/\/[^:\s]+:)([^@\s]+)(@)/gi, "$1[REDACTED]$3");
+      cleaned[key] = strVal;
+    } else {
+      cleaned[key] = sanitizeDeploymentData(value, depth + 1);
+    }
+  }
+  return cleaned;
+}
+
+export async function updateDeploymentStatus(
   deploymentId: string,
   status: string,
   extra: {
-    completedAt?: Date;
+    completedAt?: Date | null;
     destinationRef?: string;
     sourceRevisionId?: string | null;
     metadata?: any;
     error?: any;
+    ifNotNewerThan?: Date;
+    skipTransitionCheck?: boolean;
   } = {}
 ) {
+  const normalizedStatus = status === "DEPLOYMENT_FAILED" ? "DEPLOY_FAILED" : status;
+
+  // Verify state transition validity
+  if (!extra.skipTransitionCheck) {
+    let currentDeployment: any = null;
+    if (db?.deployment?.findUnique) {
+      currentDeployment = await db.deployment.findUnique({ where: { id: deploymentId } });
+    } else {
+      const rows: any[] = await prisma.$queryRaw`
+        SELECT id, status, "updatedAt" FROM deployments WHERE id = ${deploymentId}::uuid
+      `;
+      currentDeployment = rows[0];
+    }
+
+    if (currentDeployment) {
+      if (extra.ifNotNewerThan && currentDeployment.updatedAt) {
+        const curTime = new Date(currentDeployment.updatedAt).getTime();
+        const maxTime = new Date(extra.ifNotNewerThan).getTime();
+        if (curTime > maxTime) {
+          // Newer update took precedence
+          return currentDeployment;
+        }
+      }
+
+      if (!isValidDeploymentTransition(currentDeployment.status, normalizedStatus)) {
+        throw new AppError(
+          `Invalid deployment status transition from '${currentDeployment.status}' to '${normalizedStatus}'.`,
+          409,
+          "INVALID_STATE_TRANSITION"
+        );
+      }
+    }
+  }
+
+  const isTerminal = [
+    "PUBLISHED",
+    "BUILD_FAILED",
+    "DEPLOY_FAILED",
+    "DEPLOYMENT_FAILED",
+    "VERIFICATION_FAILED",
+    "VALIDATION_FAILED",
+    "ROLLED_BACK",
+  ].includes(normalizedStatus);
+
+  const finalCompletedAt =
+    extra.completedAt !== undefined
+      ? extra.completedAt
+      : isTerminal
+      ? new Date()
+      : null;
+
+  const sanitizedMetadata = extra.metadata !== undefined ? sanitizeDeploymentData(extra.metadata) : undefined;
+  const sanitizedError = extra.error !== undefined ? sanitizeDeploymentData(extra.error) : undefined;
+
   if (db?.deployment?.update) {
     return await db.deployment.update({
       where: { id: deploymentId },
       data: {
-        status,
-        ...(extra.completedAt !== undefined ? { completedAt: extra.completedAt } : {}),
+        status: normalizedStatus,
+        completedAt: finalCompletedAt,
         ...(extra.destinationRef !== undefined ? { destinationRef: extra.destinationRef } : {}),
         ...(extra.sourceRevisionId !== undefined ? { sourceRevisionId: extra.sourceRevisionId } : {}),
-        ...(extra.metadata !== undefined ? { metadata: extra.metadata } : {}),
-        ...(extra.error !== undefined ? { error: extra.error } : {}),
+        ...(sanitizedMetadata !== undefined ? { metadata: sanitizedMetadata } : {}),
+        ...(sanitizedError !== undefined ? { error: sanitizedError } : {}),
       },
     });
   }
 
-  const metaJson = extra.metadata ? JSON.stringify(extra.metadata) : null;
-  const errJson = extra.error ? JSON.stringify(extra.error) : null;
+  const metaJson = sanitizedMetadata ? JSON.stringify(sanitizedMetadata) : null;
+  const errJson = sanitizedError ? JSON.stringify(sanitizedError) : null;
 
   const rows: any[] = await prisma.$queryRaw`
     UPDATE deployments
-    SET status = ${status},
-        "completedAt" = COALESCE(${extra.completedAt}, "completedAt"),
+    SET status = ${normalizedStatus},
+        "completedAt" = ${finalCompletedAt},
         "destinationRef" = COALESCE(${extra.destinationRef}, "destinationRef"),
         "sourceRevisionId" = COALESCE(${extra.sourceRevisionId}::uuid, "sourceRevisionId"),
         metadata = COALESCE(${metaJson}::jsonb, metadata),

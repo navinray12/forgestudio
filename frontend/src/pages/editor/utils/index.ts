@@ -977,4 +977,129 @@ export function resolveStickyStyles(el: EditorElement): React.CSSProperties {
   };
 }
 
+/**
+ * Converts camelCase to kebab-case CSS property names.
+ */
+function toKebabCase(prop: string): string {
+  return prop.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`);
+}
+
+/**
+ * Compiles an array of design variables and global classes into valid, production-ready CSS.
+ * Single source of truth for editor canvas and published site rendering.
+ */
+export function compileDesignSystemCss(variables: any[] = [], classes: any[] = []): string {
+  const cssLines: string[] = [];
+
+  // 1. Root variables (Light / Base)
+  if (Array.isArray(variables) && variables.length > 0) {
+    cssLines.push("/* --- ForgeStudio Design Tokens (:root) --- */");
+    cssLines.push(":root {");
+    for (const v of variables) {
+      if (v && v.token) {
+        const lightVal = v.modes?.light || v.value;
+        if (lightVal) {
+          const safeToken = String(v.token).trim();
+          const safeVal = String(lightVal).replace(/[;{}]/g, "").trim();
+          cssLines.push(`  ${safeToken}: ${safeVal};`);
+        }
+      }
+    }
+    cssLines.push("}\n");
+
+    // Check for Dark Mode token overrides
+    const darkModeEntries = variables.filter((v) => v && v.token && v.modes?.dark);
+    if (darkModeEntries.length > 0) {
+      cssLines.push("/* --- ForgeStudio Design Tokens (Dark Theme Overrides) --- */");
+      cssLines.push('[data-theme="dark"], .dark {');
+      for (const v of darkModeEntries) {
+        const safeToken = String(v.token).trim();
+        const safeDarkVal = String(v.modes.dark).replace(/[;{}]/g, "").trim();
+        cssLines.push(`  ${safeToken}: ${safeDarkVal};`);
+      }
+      cssLines.push("}\n");
+
+      // Auto-respect visitor system preference
+      cssLines.push("@media (prefers-color-scheme: dark) {");
+      cssLines.push('  :root:not([data-theme="light"]) {');
+      for (const v of darkModeEntries) {
+        const safeToken = String(v.token).trim();
+        const safeDarkVal = String(v.modes.dark).replace(/[;{}]/g, "").trim();
+        cssLines.push(`    ${safeToken}: ${safeDarkVal};`);
+      }
+      cssLines.push("  }");
+      cssLines.push("}\n");
+    }
+  }
+
+  // 2. Global Utility Classes
+  if (Array.isArray(classes) && classes.length > 0) {
+    cssLines.push("/* --- ForgeStudio Global Utility Classes --- */");
+    for (const cls of classes) {
+      if (!cls || !cls.className) continue;
+      const safeClassName = String(cls.className).trim().replace(/^\.+/, "");
+
+      // Base class
+      if (cls.styles && typeof cls.styles === "object") {
+        const baseProps = Object.entries(cls.styles)
+          .map(([k, v]) => {
+            const prop = toKebabCase(String(k).replace(/[^a-zA-Z0-9-]/g, ""));
+            const val = String(v).replace(/[;{}]/g, "").trim();
+            return prop && val ? `  ${prop}: ${val};` : "";
+          })
+          .filter(Boolean)
+          .join("\n");
+        if (baseProps) {
+          cssLines.push(`.${safeClassName} {\n${baseProps}\n}`);
+        }
+      }
+
+      // Pseudo classes
+      if (cls.pseudoStyles?.hover && Object.keys(cls.pseudoStyles.hover).length > 0) {
+        const hoverProps = Object.entries(cls.pseudoStyles.hover)
+          .map(([k, v]) => {
+            const prop = toKebabCase(String(k).replace(/[^a-zA-Z0-9-]/g, ""));
+            const val = String(v).replace(/[;{}]/g, "").trim();
+            return prop && val ? `  ${prop}: ${val};` : "";
+          })
+          .filter(Boolean)
+          .join("\n");
+        if (hoverProps) {
+          cssLines.push(`.${safeClassName}:hover {\n${hoverProps}\n}`);
+        }
+      }
+
+      if (cls.pseudoStyles?.focus && Object.keys(cls.pseudoStyles.focus).length > 0) {
+        const focusProps = Object.entries(cls.pseudoStyles.focus)
+          .map(([k, v]) => {
+            const prop = toKebabCase(String(k).replace(/[^a-zA-Z0-9-]/g, ""));
+            const val = String(v).replace(/[;{}]/g, "").trim();
+            return prop && val ? `  ${prop}: ${val};` : "";
+          })
+          .filter(Boolean)
+          .join("\n");
+        if (focusProps) {
+          cssLines.push(`.${safeClassName}:focus {\n${focusProps}\n}`);
+        }
+      }
+
+      if (cls.pseudoStyles?.active && Object.keys(cls.pseudoStyles.active).length > 0) {
+        const activeProps = Object.entries(cls.pseudoStyles.active)
+          .map(([k, v]) => {
+            const prop = toKebabCase(String(k).replace(/[^a-zA-Z0-9-]/g, ""));
+            const val = String(v).replace(/[;{}]/g, "").trim();
+            return prop && val ? `  ${prop}: ${val};` : "";
+          })
+          .filter(Boolean)
+          .join("\n");
+        if (activeProps) {
+          cssLines.push(`.${safeClassName}:active {\n${activeProps}\n}`);
+        }
+      }
+    }
+  }
+
+  return cssLines.join("\n");
+}
+
 export * from "./motionRuntime";

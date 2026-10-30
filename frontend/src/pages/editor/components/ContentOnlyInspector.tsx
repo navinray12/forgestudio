@@ -5,7 +5,7 @@ import type { EditorElement } from "../types";
 interface ContentOnlyInspectorProps {
   element: EditorElement | null;
   onUpdateElement: (id: string, updates: Partial<EditorElement>) => void;
-  onTriggerImagePicker?: (callback: (url: string) => void) => void;
+  onTriggerImagePicker?: (callback: (url: string, altText?: string) => void) => void;
 }
 
 /**
@@ -126,8 +126,11 @@ export const ContentOnlyInspector: React.FC<ContentOnlyInspectorProps> = ({
                 <button
                   type="button"
                   onClick={() => {
-                    onTriggerImagePicker((chosenUrl) => {
-                      onUpdateElement(element.id, { src: chosenUrl });
+                    onTriggerImagePicker((chosenUrl, chosenAlt) => {
+                      onUpdateElement(element.id, {
+                        src: chosenUrl,
+                        alt: chosenAlt ?? "",
+                      });
                     });
                   }}
                   className="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shrink-0 cursor-pointer shadow-xs transition"

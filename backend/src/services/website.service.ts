@@ -408,13 +408,50 @@ function generateSlug(name: string): string {
 }
 
 /**
- * Get all websites belonging to a specific user
+ * Get all websites belonging to a specific user or workspace
  */
-export async function getUserWebsites(userId: string) {
+export async function getUserWebsites(userId: string, workspaceId?: string | null) {
   try {
+    let whereCondition: any;
+    let isRawSqlWorkspace = false;
+    let isRawSqlPersonal = false;
+
+    if (workspaceId !== undefined) {
+      if (workspaceId && workspaceId !== "personal" && workspaceId !== "null" && workspaceId !== "all") {
+        // Shared Workspace view
+        if (db?.workspace?.findUnique) {
+          const ws = await db.workspace.findUnique({
+            where: { id: workspaceId },
+            select: { id: true, ownerId: true },
+          });
+          if (!ws) {
+            throw new AppError("Workspace not found", 404, "NOT_FOUND");
+          }
+          const membership = await db.workspaceMember.findUnique({
+            where: { workspaceId_userId: { workspaceId, userId } },
+          });
+          if (!membership && ws.ownerId !== userId) {
+            throw new AppError("You are not authorized to access this workspace", 403, "FORBIDDEN");
+          }
+        }
+        whereCondition = { workspaceId };
+        isRawSqlWorkspace = true;
+      } else if (workspaceId === "all") {
+        // All Workspaces view: all websites belonging to user across all workspaces
+        whereCondition = { userId };
+      } else {
+        // Personal Workspace view: websites created by user with NO workspace
+        whereCondition = { userId, workspaceId: null };
+        isRawSqlPersonal = true;
+      }
+    } else {
+      // Legacy / subscription checks: all websites where user is the owner
+      whereCondition = { userId };
+    }
+
     if (db?.website?.findMany) {
       const websites = await db.website.findMany({
-        where: { userId },
+        where: whereCondition,
         include: {
           wpConnection: {
             select: {
@@ -443,26 +480,61 @@ export async function getUserWebsites(userId: string) {
       if (websites) return websites;
     }
 
-    const rawWebsites: any[] = await prisma.$queryRaw`
-      SELECT w.id, w."userId", w.name, w.slug, w.status, w."editorData", w."createdAt", w."updatedAt",
-        (SELECT row_to_json(wp) FROM (
-          SELECT id, "siteUrl", "wpSiteName", status, "lastVerifiedAt", "createdAt"
-          FROM wordpress_connections WHERE "websiteId" = w.id
-        ) wp) as "wpConnection",
-        (SELECT row_to_json(mc) FROM (
-          SELECT id, host, port, username, "fromName", "fromEmail", "isVerified"
-          FROM site_mailer_configs WHERE "websiteId" = w.id
-        ) mc) as "mailerConfig"
-      FROM websites w
-      WHERE w."userId" = ${userId}::uuid
-      ORDER BY w."createdAt" DESC
-    `;
+    let rawWebsites: any[] = [];
+    if (isRawSqlWorkspace) {
+      rawWebsites = await prisma.$queryRaw`
+        SELECT w.id, w."userId", w.name, w.slug, w.status, w."editorData", w."workspaceId", w."createdAt", w."updatedAt",
+          (SELECT row_to_json(wp) FROM (
+            SELECT id, "siteUrl", "wpSiteName", status, "lastVerifiedAt", "createdAt"
+            FROM wordpress_connections WHERE "websiteId" = w.id
+          ) wp) as "wpConnection",
+          (SELECT row_to_json(mc) FROM (
+            SELECT id, host, port, username, "fromName", "fromEmail", "isVerified"
+            FROM site_mailer_configs WHERE "websiteId" = w.id
+          ) mc) as "mailerConfig"
+        FROM websites w
+        WHERE w."workspaceId" = ${workspaceId}::uuid
+        ORDER BY w."createdAt" DESC
+      `;
+    } else if (isRawSqlPersonal) {
+      rawWebsites = await prisma.$queryRaw`
+        SELECT w.id, w."userId", w.name, w.slug, w.status, w."editorData", w."workspaceId", w."createdAt", w."updatedAt",
+          (SELECT row_to_json(wp) FROM (
+            SELECT id, "siteUrl", "wpSiteName", status, "lastVerifiedAt", "createdAt"
+            FROM wordpress_connections WHERE "websiteId" = w.id
+          ) wp) as "wpConnection",
+          (SELECT row_to_json(mc) FROM (
+            SELECT id, host, port, username, "fromName", "fromEmail", "isVerified"
+            FROM site_mailer_configs WHERE "websiteId" = w.id
+          ) mc) as "mailerConfig"
+        FROM websites w
+        WHERE w."userId" = ${userId}::uuid AND w."workspaceId" IS NULL
+        ORDER BY w."createdAt" DESC
+      `;
+    } else {
+      rawWebsites = await prisma.$queryRaw`
+        SELECT w.id, w."userId", w.name, w.slug, w.status, w."editorData", w."workspaceId", w."createdAt", w."updatedAt",
+          (SELECT row_to_json(wp) FROM (
+            SELECT id, "siteUrl", "wpSiteName", status, "lastVerifiedAt", "createdAt"
+            FROM wordpress_connections WHERE "websiteId" = w.id
+          ) wp) as "wpConnection",
+          (SELECT row_to_json(mc) FROM (
+            SELECT id, host, port, username, "fromName", "fromEmail", "isVerified"
+            FROM site_mailer_configs WHERE "websiteId" = w.id
+          ) mc) as "mailerConfig"
+        FROM websites w
+        WHERE w."userId" = ${userId}::uuid
+        ORDER BY w."createdAt" DESC
+      `;
+    }
     return rawWebsites || [];
   } catch (error) {
+    if (error instanceof AppError) throw error;
     console.error("Error fetching user websites:", error);
     return [];
   }
 }
+
 
 /**
  * Aggregated details for Managed Site View (F-427)
@@ -659,6 +731,28 @@ export async function getWebsiteById(websiteId: string, userId: string) {
           });
           if (collab) {
             permission = collab.permission;
+          } else if (website.workspaceId && db?.workspaceMember?.findUnique) {
+            try {
+              const wsMember = await db.workspaceMember.findUnique({
+                where: {
+                  workspaceId_userId: { workspaceId: website.workspaceId, userId },
+                },
+              });
+              if (wsMember) {
+                permission = wsMember.role === "OWNER" || wsMember.role === "ADMIN" ? "ADMIN" : "REVIEWER";
+              } else if (db?.workspace?.findUnique) {
+                const ws = await db.workspace.findUnique({ where: { id: website.workspaceId } });
+                if (ws && ws.ownerId === userId) {
+                  permission = "OWNER";
+                } else {
+                  website = null;
+                }
+              } else {
+                website = null;
+              }
+            } catch {
+              website = null;
+            }
           } else {
             website = null; // Purge access
           }
@@ -700,22 +794,24 @@ export async function getWebsiteById(websiteId: string, userId: string) {
 }
 
 /**
- * Create a new website with subscription limit check
+ * Create a new website with subscription limit check and optional workspace association
  */
 export async function createWebsite(
-  userIdOrOptions: string | { userId: string; name: string; slug?: string; editorData?: any; templateId?: string },
+  userIdOrOptions: string | { userId: string; name: string; slug?: string; editorData?: any; templateId?: string; workspaceId?: string },
   nameArg?: string
 ) {
   let userId: string;
   let rawName: string;
   let customSlug: string | undefined;
   let customEditorData: any | undefined;
+  let targetWorkspaceId: string | undefined;
 
   if (typeof userIdOrOptions === "object" && userIdOrOptions !== null) {
     userId = userIdOrOptions.userId;
     rawName = userIdOrOptions.name;
     customSlug = userIdOrOptions.slug;
     customEditorData = userIdOrOptions.editorData;
+    targetWorkspaceId = userIdOrOptions.workspaceId;
   } else {
     userId = userIdOrOptions;
     rawName = nameArg || "";
@@ -724,6 +820,27 @@ export async function createWebsite(
   const trimmedName = rawName?.trim();
   if (!trimmedName) {
     throw new AppError("Website name is required", 400, "INVALID_NAME");
+  }
+
+  // Validate workspace authorization if workspaceId is provided
+  let validatedWorkspaceId: string | null = null;
+  if (targetWorkspaceId && targetWorkspaceId !== "personal" && targetWorkspaceId !== "null") {
+    if (db?.workspace?.findUnique) {
+      const ws = await db.workspace.findUnique({
+        where: { id: targetWorkspaceId },
+        select: { id: true, ownerId: true },
+      });
+      if (!ws) {
+        throw new AppError("Workspace not found", 404, "NOT_FOUND");
+      }
+      const membership = await db.workspaceMember.findUnique({
+        where: { workspaceId_userId: { workspaceId: targetWorkspaceId, userId } },
+      });
+      if (!membership && ws.ownerId !== userId) {
+        throw new AppError("You are not authorized to add websites to this workspace", 403, "FORBIDDEN");
+      }
+    }
+    validatedWorkspaceId = targetWorkspaceId;
   }
 
   // 1. Get current website count for user
@@ -757,6 +874,7 @@ export async function createWebsite(
           slug,
           status: "DRAFT",
           editorData: initialEditorData,
+          workspaceId: validatedWorkspaceId,
         },
       });
       return newWebsite;
@@ -765,17 +883,19 @@ export async function createWebsite(
     // Raw SQL Fallback
     const initialJsonStr = JSON.stringify(initialEditorData);
     const created: any[] = await prisma.$queryRaw`
-      INSERT INTO websites (id, "userId", name, slug, status, "editorData", "createdAt", "updatedAt")
-      VALUES (gen_random_uuid(), ${userId}::uuid, ${trimmedName}, ${slug}, 'DRAFT', ${initialJsonStr}::jsonb, NOW(), NOW())
-      RETURNING id, "userId", name, slug, status, "editorData", "createdAt", "updatedAt"
+      INSERT INTO websites (id, "userId", name, slug, status, "editorData", "workspaceId", "createdAt", "updatedAt")
+      VALUES (gen_random_uuid(), ${userId}::uuid, ${trimmedName}, ${slug}, 'DRAFT', ${initialJsonStr}::jsonb, ${validatedWorkspaceId ? validatedWorkspaceId : null}::uuid, NOW(), NOW())
+      RETURNING id, "userId", name, slug, status, "editorData", "workspaceId", "createdAt", "updatedAt"
     `;
 
     return created[0];
   } catch (error) {
+    if (error instanceof AppError) throw error;
     console.error("Error creating website:", error);
     throw new AppError("Failed to create website", 500, "CREATE_FAILED");
   }
 }
+
 
 /**
  * Validates the canonical editorData structure and guards against malformed input or prototype pollution.
@@ -837,8 +957,7 @@ export async function updateWebsite(
   data: { name?: string; slug?: string; editorData?: any; status?: string },
   userId: string
 ) {
-  // Implicit ownership / permission check via getWebsiteById
-  await getWebsiteById(websiteId, userId);
+  const currentWebsite = await getWebsiteById(websiteId, userId);
 
   const updatePayload: any = {};
   if (data.name !== undefined) updatePayload.name = data.name;
@@ -846,7 +965,28 @@ export async function updateWebsite(
   if (data.status !== undefined) updatePayload.status = data.status;
   if (data.editorData !== undefined) {
     validateCanonicalEditorData(data.editorData);
-    updatePayload.editorData = data.editorData;
+    const currentEd =
+      typeof currentWebsite.editorData === "string"
+        ? JSON.parse(currentWebsite.editorData)
+        : currentWebsite.editorData || {};
+
+    // Preserve published state, immutable snapshots, and releases from being overwritten by draft updates
+    updatePayload.editorData = {
+      ...currentEd,
+      ...data.editorData,
+      ...(currentEd.publishedData !== undefined && data.editorData.publishedData === undefined
+        ? { publishedData: currentEd.publishedData }
+        : {}),
+      ...(currentEd.releases !== undefined && data.editorData.releases === undefined
+        ? { releases: currentEd.releases }
+        : {}),
+      ...(currentEd.currentReleaseId !== undefined && data.editorData.currentReleaseId === undefined
+        ? { currentReleaseId: currentEd.currentReleaseId }
+        : {}),
+      ...(currentEd.publishing !== undefined && data.editorData.publishing === undefined
+        ? { publishing: currentEd.publishing }
+        : {}),
+    };
   }
 
   const updated = await prisma.website.update({

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import type {
   AtomicVariable,
   CreateVariablePayload,
@@ -8,7 +8,7 @@ import type {
 import { fetchVariables, saveVariables } from "../services/variableService";
 import { formatVariableKey, validateVariableValue } from "../utils/variable.utils";
 
-export function useVariables() {
+export function useVariables(websiteId?: string) {
   const [variables, setVariables] = useState<AtomicVariable[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -19,22 +19,49 @@ export function useVariables() {
   const [deletingVariable, setDeletingVariable] = useState<AtomicVariable | null>(null);
   const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
 
+  // Stale request guard to prevent responses from a previously selected website from overwriting new data
+  const activeWebsiteIdRef = useRef<string | undefined>(websiteId);
+  activeWebsiteIdRef.current = websiteId;
+
   const loadVariables = useCallback(async () => {
+    const targetWebsiteId = websiteId;
     setIsLoading(true);
     setError(null);
     try {
-      const data = await fetchVariables();
+      const data = await fetchVariables(targetWebsiteId);
+      // Ignore response if the user has navigated or switched to another website in the meantime
+      if (activeWebsiteIdRef.current !== targetWebsiteId) {
+        return;
+      }
       setVariables(data);
     } catch (err: any) {
-      setError("Unable to load variables.");
+      if (activeWebsiteIdRef.current === targetWebsiteId) {
+        setError("Unable to load variables.");
+      }
     } finally {
-      setIsLoading(false);
+      if (activeWebsiteIdRef.current === targetWebsiteId) {
+        setIsLoading(false);
+      }
     }
-  }, []);
+  }, [websiteId]);
 
   useEffect(() => {
     loadVariables();
   }, [loadVariables]);
+
+  // Synchronize on external design system update (e.g. import in VariablesManagerModal)
+  useEffect(() => {
+    const handleUpdate = (e: any) => {
+      const detail = e?.detail;
+      if (!detail) return;
+      if (detail.websiteId && websiteId && detail.websiteId !== websiteId) return;
+      loadVariables();
+    };
+    window.addEventListener("fs-design-system-updated" as any, handleUpdate);
+    return () => {
+      window.removeEventListener("fs-design-system-updated" as any, handleUpdate);
+    };
+  }, [websiteId, loadVariables]);
 
   const filteredVariables = useMemo(() => {
     return variables.filter((v) => {
@@ -88,11 +115,11 @@ export function useVariables() {
 
       const updatedList = [newVar, ...variables];
       setVariables(updatedList);
-      await saveVariables(updatedList);
+      await saveVariables(updatedList, websiteId);
       setIsFormOpen(false);
       return newVar;
     },
-    [variables]
+    [variables, websiteId]
   );
 
   const handleUpdateVariable = useCallback(
@@ -135,12 +162,12 @@ export function useVariables() {
 
       const updatedList = variables.map((v) => (v.id === id ? updatedVar : v));
       setVariables(updatedList);
-      await saveVariables(updatedList);
+      await saveVariables(updatedList, websiteId);
       setEditingVariable(null);
       setIsFormOpen(false);
       return updatedVar;
     },
-    [variables]
+    [variables, websiteId]
   );
 
   const handleDeleteVariable = useCallback(
@@ -148,10 +175,10 @@ export function useVariables() {
       setError(null);
       const updatedList = variables.filter((v) => v.id !== id);
       setVariables(updatedList);
-      await saveVariables(updatedList);
+      await saveVariables(updatedList, websiteId);
       setDeletingVariable(null);
     },
-    [variables]
+    [variables, websiteId]
   );
 
   return {

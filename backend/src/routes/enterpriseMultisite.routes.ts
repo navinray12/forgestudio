@@ -12,6 +12,7 @@ import {
   removeDomain,
   getDomainStatus,
   provisionDomainSsl,
+  triggerProcessSslExpirations,
 } from "../controllers/customDomain.controller.js";
 import {
   listBackups,
@@ -30,6 +31,7 @@ const router = Router({ mergeParams: true });
 // ---------------------------------------------------------------------------
 // Custom Domain Routes — /api/websites/:websiteId/domains
 // ---------------------------------------------------------------------------
+router.post("/domains/process-expirations", requireAuth, triggerProcessSslExpirations);
 router.get("/:websiteId/domains", requireAuth, listDomains);
 router.post("/:websiteId/domains", requireAuth, addDomain);
 router.post("/:websiteId/domains/:domain/verify", requireAuth, verifyDomain);

@@ -1513,7 +1513,8 @@ export function compileCanonicalToStaticBundle(
       siteParts: websiteData.siteParts ? resolveTokensInTree(websiteData.siteParts, siteContext) : undefined,
     };
 
-    const fileName = resolvedPage.isHome ? "index.html" : `${resolvedPage.slug || resolvedPage.id}.html`;
+    const cleanSlug = (resolvedPage.slug || resolvedPage.id || "").replace(/^\//, "");
+    const fileName = resolvedPage.isHome || !cleanSlug ? "index.html" : `${cleanSlug}.html`;
     const pageHtml = generatePageHtml(resolvedPage, resolvedWebsiteData, normalizedPages, compiledCss);
 
     files.push({
@@ -1614,11 +1615,14 @@ export function compileCanonicalToStaticBundle(
     websiteId,
     version,
     generatedAt: new Date().toISOString(),
-    pages: normalizedPages.map((p: any) => ({
-      id: p.id,
-      title: p.title,
-      file: p.isHome ? "index.html" : `${p.slug || p.id}.html`,
-    })),
+    pages: normalizedPages.map((p: any) => {
+      const cleanSlug = (p.slug || p.id || "").replace(/^\//, "");
+      return {
+        id: p.id,
+        title: p.title,
+        file: p.isHome || !cleanSlug ? "index.html" : `${cleanSlug}.html`,
+      };
+    }),
     totalFiles: files.length + 1,
   };
   const manifestStr = JSON.stringify(manifest, null, 2);

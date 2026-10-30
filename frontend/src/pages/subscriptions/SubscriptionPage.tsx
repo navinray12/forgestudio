@@ -138,6 +138,18 @@ function SubscriptionPage() {
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
   useEffect(() => {
+    // Check for payment return status in URL
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get("status");
+    if (status === "cancelled") {
+      setError("Checkout was cancelled. Your current subscription was not changed.");
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (status === "success") {
+      setSuccessMessage(
+        "Payment submitted! Your subscription will activate as soon as the payment confirmation is verified."
+      );
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
     fetchSubscriptionData();
   }, []);
 
@@ -214,29 +226,70 @@ function SubscriptionPage() {
     }
   };
 
+  const handleViewInvoice = (invoiceId: string) => {
+    const invoiceUrl = `${apiUrl}/api/v1/subscriptions/invoices/${encodeURIComponent(invoiceId)}/html`;
+    window.open(invoiceUrl, "_blank", "noopener,noreferrer");
+  };
+
+  const handleDownloadInvoice = (invoiceId: string) => {
+    const downloadUrl = `${apiUrl}/api/v1/subscriptions/invoices/${encodeURIComponent(invoiceId)}/download`;
+    window.open(downloadUrl, "_blank", "noopener,noreferrer");
+  };
+
   const handleSelectPlan = async (planSlug: string) => {
     try {
       setUpgradingSlug(planSlug);
       setError("");
       setSuccessMessage("");
 
-      const response = await fetch(`${apiUrl}/api/v1/subscriptions/select`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ planSlug }),
-      });
+      if (planSlug === "free") {
+        // Direct selection is allowed strictly for the free plan
+        const response = await fetch(`${apiUrl}/api/v1/subscriptions/select`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ planSlug: "free" }),
+        });
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data?.message || "Failed to update subscription plan.");
+        if (!response.ok) {
+          throw new Error(data?.message || "Failed to downgrade to Free plan.");
+        }
+
+        setSuccessMessage(`Successfully updated your plan to ${data?.data?.subscription?.plan?.name || "Free"}!`);
+        setCurrentSub(data.data.subscription);
+      } else {
+        // Paid plans require creating a secure checkout session
+        const response = await fetch(`${apiUrl}/api/v1/subscriptions/checkout-session`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ planSlug }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          if (data?.code === "PAYMENT_GATEWAY_NOT_CONFIGURED") {
+            throw new Error(
+              "Payment gateway is not currently configured on this server. Please contact an administrator to complete your subscription."
+            );
+          }
+          throw new Error(data?.message || "Failed to initiate secure checkout.");
+        }
+
+        if (data?.data?.checkoutUrl) {
+          setSuccessMessage("Redirecting to secure payment checkout...");
+          window.location.href = data.data.checkoutUrl;
+        } else {
+          throw new Error("Payment service did not return a valid checkout URL.");
+        }
       }
-
-      setSuccessMessage(`Successfully updated your plan to ${data?.data?.subscription?.plan?.name}!`);
-      setCurrentSub(data.data.subscription);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
@@ -508,13 +561,21 @@ function SubscriptionPage() {
                     <th className="px-5 py-3.5">Billing Period</th>
                     <th className="px-5 py-3.5">Amount</th>
                     <th className="px-5 py-3.5">Status</th>
+                    <th className="px-5 py-3.5 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800 bg-slate-900/40 font-medium">
                   {invoices.map((inv) => (
                     <tr key={inv.id} className="hover:bg-slate-800/40 transition">
                       <td className="px-5 py-3.5 font-mono text-xs font-bold text-cyan-400">
-                        {inv.invoiceNumber}
+                        <button
+                          type="button"
+                          onClick={() => handleViewInvoice(inv.id || inv.invoiceNumber)}
+                          className="hover:text-cyan-300 hover:underline transition font-mono text-left"
+                          title="View printable invoice"
+                        >
+                          {inv.invoiceNumber}
+                        </button>
                       </td>
                       <td className="px-5 py-3.5 text-xs text-slate-400">
                         {new Date(inv.createdAt).toLocaleDateString("en-US", {
@@ -548,6 +609,26 @@ function SubscriptionPage() {
                         >
                           {inv.status}
                         </span>
+                      </td>
+                      <td className="px-5 py-3.5 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleViewInvoice(inv.id || inv.invoiceNumber)}
+                            className="inline-flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-800/80 px-2.5 py-1 text-xs font-medium text-cyan-400 hover:bg-slate-700 hover:text-cyan-300 transition"
+                            title="View printable tax invoice"
+                          >
+                            <span>View</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDownloadInvoice(inv.id || inv.invoiceNumber)}
+                            className="inline-flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-800/80 px-2.5 py-1 text-xs font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition"
+                            title="Download invoice HTML document"
+                          >
+                            <span>Download</span>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

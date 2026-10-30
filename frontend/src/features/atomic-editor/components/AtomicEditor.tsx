@@ -1,19 +1,25 @@
 import React from "react";
+import { useParams } from "react-router-dom";
 import { useAtomicEditor } from "../hooks/useAtomicEditor";
 import { AtomicEditorNavigation } from "./AtomicEditorNavigation";
 import { AtomicEditorContent } from "./AtomicEditorContent";
 
 interface AtomicEditorProps {
+  websiteId?: string;
   onClose?: () => void;
   onInsertGlobalElement?: (globalElementId: string) => void;
   onInsertComponent?: (componentId: string) => void;
 }
 
 export const AtomicEditor: React.FC<AtomicEditorProps> = ({
+  websiteId: propWebsiteId,
   onClose,
   onInsertGlobalElement,
   onInsertComponent,
 }) => {
+  const routeParams = useParams<{ websiteId: string }>();
+  const activeWebsiteId = propWebsiteId || routeParams.websiteId;
+
   const {
     sections,
     activeSection,
@@ -56,6 +62,7 @@ export const AtomicEditor: React.FC<AtomicEditorProps> = ({
 
       {/* Main Section Content */}
       <AtomicEditorContent
+        websiteId={activeWebsiteId}
         sectionConfig={currentSectionConfig}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}

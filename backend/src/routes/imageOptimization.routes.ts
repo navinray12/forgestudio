@@ -4,6 +4,7 @@ import { authorizeCapability } from "../services/permission.service.js";
 import {
   optimizeImageHandler,
   getOptimizationStatsHandler,
+  convertWebpHandler,
 } from "../controllers/imageOptimization.controller.js";
 
 const router = Router({ mergeParams: true });
@@ -12,6 +13,7 @@ const router = Router({ mergeParams: true });
 router.use(requireAuth);
 
 router.post("/:id/images/optimize-image", authorizeCapability("EDIT"), optimizeImageHandler);
+router.post("/:id/images/convert-webp", authorizeCapability("EDIT"), convertWebpHandler);
 router.get("/:id/images/stats", authorizeCapability("VIEW"), getOptimizationStatsHandler);
 
 export default router;

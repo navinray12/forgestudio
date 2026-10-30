@@ -1,9 +1,12 @@
 import { Request, Response, NextFunction } from "express";
+import { AppError } from "../utils/app-error.js";
 import {
   validateWebsiteForPublish,
   publishWebsite,
   getWebsiteDeployments,
   getDeploymentById,
+  verifyDeployment,
+  retryDeployment,
   rollbackDeployment,
   getWebsiteReleases,
   instantRollbackRelease,
@@ -75,6 +78,32 @@ export async function getDeploymentByIdHandler(req: Request, res: Response, next
   }
 }
 
+export async function verifyDeploymentHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const websiteId = String(req.params.id);
+    const deploymentId = String(req.params.deploymentId);
+    const userId = res.locals.user?.id;
+
+    const result = await verifyDeployment(websiteId, deploymentId, userId);
+    return res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function retryDeploymentHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const websiteId = String(req.params.id);
+    const deploymentId = String(req.params.deploymentId);
+    const userId = res.locals.user?.id;
+
+    const result = await retryDeployment(websiteId, deploymentId, userId);
+    return res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
 export async function rollbackDeploymentHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const websiteId = String(req.params.id);
@@ -134,6 +163,15 @@ export async function downloadStaticExportHandler(req: Request, res: Response, n
     const userId = res.locals.user?.id;
 
     const deployment = await getDeploymentById(websiteId, deploymentId, userId);
+
+    if (deployment.status === "BUILD_FAILED" || deployment.status === "VERIFICATION_FAILED") {
+      throw new AppError(
+        `Cannot download static export: deployment status is '${deployment.status}'. Please resolve errors and re-verify.`,
+        400,
+        "EXPORT_UNVERIFIED"
+      );
+    }
+
     const { getWebsiteById } = await import("../services/website.service.js");
     const website = await getWebsiteById(websiteId, userId);
 

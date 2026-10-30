@@ -322,8 +322,8 @@ async function markJobFailed(job: any, errorMsg: string) {
   const nextAttempts = (job.attempts || 0) + 1;
   const isFinalFailure = nextAttempts >= (job.maxAttempts || 3);
 
-  // Exponential backoff: 2^attempts seconds
-  const backoffMs = Math.pow(2, nextAttempts) * 1000;
+  // Exponential backoff: 2^attempts seconds (bounded at 300,000 ms / 5 minutes)
+  const backoffMs = Math.min(Math.pow(2, nextAttempts) * 1000, 300000);
   const nextRunAt = new Date(Date.now() + backoffMs);
 
   const nextStatus = isFinalFailure ? "FAILED" : "QUEUED";

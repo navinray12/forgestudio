@@ -19,6 +19,7 @@ function assert(cond: boolean, msg: string) {
 }
 
 async function runTests() {
+  process.env.ALLOW_LOCAL_DNS_FALLBACK = "true";
   console.log("\n--- Phase 2 Test: Custom Domains & DNS Instructions ---");
 
   const domain = "mystore.com";

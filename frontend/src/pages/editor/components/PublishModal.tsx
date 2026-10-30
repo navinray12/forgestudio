@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import type { PublishingState, DeploymentConfig, PageConfig, DeploymentRecord } from "../types";
 import { publishingService } from "../../../features/publishing/services/publishingService";
+import { ApprovalReviewerPanel } from "../../../features/publishing/components/ApprovalReviewerPanel";
 
 interface PublishModalProps {
   isOpen: boolean;
@@ -12,8 +13,10 @@ interface PublishModalProps {
   websiteId?: string;
   approvalWorkflowEnabled?: boolean;
   canPublish?: boolean;
+  getCanonicalSnapshot?: () => any;
+  editorData?: any;
   onPublish: (options?: { destinationType?: "INTERNAL" | "WORDPRESS" }) => Promise<void>;
-  onSubmitApproval?: () => Promise<void>;
+  onSubmitApproval?: (notes?: string) => Promise<void>;
   onRollback?: (deploymentId: string) => Promise<void>;
   onUpdateDeployment: (config: DeploymentConfig) => void;
   onOpenPreview: () => void;
@@ -29,6 +32,8 @@ export const PublishModal: React.FC<PublishModalProps> = ({
   websiteId,
   approvalWorkflowEnabled = false,
   canPublish = true,
+  getCanonicalSnapshot,
+  editorData,
   onPublish,
   onSubmitApproval,
   onRollback,
@@ -44,6 +49,12 @@ export const PublishModal: React.FC<PublishModalProps> = ({
   const [deployments, setDeployments] = useState<DeploymentRecord[]>([]);
   const [loadingDeployments, setLoadingDeployments] = useState(false);
   const [isSubmittingApproval, setIsSubmittingApproval] = useState(false);
+  const [approvalRequests, setApprovalRequests] = useState<any[]>([]);
+  const [loadingApprovals, setLoadingApprovals] = useState(false);
+  const [approvalNotes, setApprovalNotes] = useState("");
+  const [isVerifyingDeployment, setIsVerifyingDeployment] = useState<string | null>(null);
+  const [isRetryingDeployment, setIsRetryingDeployment] = useState<string | null>(null);
+  const [verificationFeedback, setVerificationFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
   // WordPress connection state
   const [wpStatus, setWpStatus] = useState<any>(null);
@@ -382,6 +393,19 @@ export const PublishModal: React.FC<PublishModalProps> = ({
   const [sftpVerified, setSftpVerified] = useState(false);
   const [publishingFormat, setPublishingFormat] = useState<"html" | "gutenberg">("html");
 
+  const loadApprovalStatus = async () => {
+    if (!websiteId) return;
+    try {
+      setLoadingApprovals(true);
+      const reqs = await publishingService.getApprovalRequests(websiteId);
+      setApprovalRequests(Array.isArray(reqs) ? reqs : []);
+    } catch (e) {
+      console.warn("Failed to load approval requests:", e);
+    } finally {
+      setLoadingApprovals(false);
+    }
+  };
+
   useEffect(() => {
     if (isOpen && websiteId) {
       loadDeployments();
@@ -391,8 +415,11 @@ export const PublishModal: React.FC<PublishModalProps> = ({
       loadWpJobs();
       loadSftpConfig();
       loadHtmlPreview();
+      if (approvalWorkflowEnabled) {
+        loadApprovalStatus();
+      }
     }
-  }, [isOpen, websiteId, publishingFormat]);
+  }, [isOpen, websiteId, publishingFormat, approvalWorkflowEnabled]);
 
   const loadSftpConfig = async () => {
     if (!websiteId) return;
@@ -714,6 +741,10 @@ export const PublishModal: React.FC<PublishModalProps> = ({
 
   const handlePublishWpPageAction = async (statusOverride?: "publish" | "draft" | "private") => {
     if (!websiteId || isPublishingWpPage) return;
+    if (approvalWorkflowEnabled && !canPublish && latestApproval?.status !== "APPROVED") {
+      setWpPublishError("Publishing requires an approved review request on this website. Please submit for approval first.");
+      return;
+    }
     const statusToUse = statusOverride || wpPublishStatusMode;
 
     setIsPublishingWpPage(true);
@@ -766,13 +797,25 @@ export const PublishModal: React.FC<PublishModalProps> = ({
 
   const isActuallyDeployed = deployment?.provider !== "none" && Boolean(deployment?.deployedAt);
 
+  const latestApproval = approvalRequests.length > 0 ? approvalRequests[0] : null;
+
   const handlePublishClick = async (dest: "INTERNAL" | "WORDPRESS" = "INTERNAL") => {
+    // Prevent bypass when approval workflow is enabled and user is not authorized to publish directly
+    const hasApprovedStatus = latestApproval?.status === "APPROVED";
+    if (approvalWorkflowEnabled && !canPublish && !hasApprovedStatus) {
+      setSaveFeedback("Publishing requires an approved review request on this website. Please submit for approval first.");
+      return;
+    }
+
     try {
       setIsPublishing(true);
       setSaveFeedback("");
       await onPublish({ destinationType: dest });
       setSaveFeedback(`Website successfully published to ${dest === "WORDPRESS" ? "WordPress" : "live version"}!`);
       loadDeployments();
+      if (approvalWorkflowEnabled) {
+        loadApprovalStatus();
+      }
       if (dest === "WORDPRESS") {
         loadWordPressStatus();
       }
@@ -784,25 +827,62 @@ export const PublishModal: React.FC<PublishModalProps> = ({
     }
   };
 
+  const handleCancelApproval = async () => {
+    const pendingReq = approvalRequests.find((r) => r.status === "PENDING");
+    if (!pendingReq?.id) return;
+    try {
+      setIsSubmittingApproval(true);
+      await publishingService.cancelApprovalRequest(pendingReq.id);
+      setSaveFeedback("Approval request cancelled.");
+      await loadApprovalStatus();
+      setTimeout(() => setSaveFeedback(""), 3500);
+    } catch (err: any) {
+      setSaveFeedback(err?.message || "Failed to cancel approval request.");
+    } finally {
+      setIsSubmittingApproval(false);
+    }
+  };
+
   const handleSubmitApproval = async () => {
+    if (isSubmittingApproval) return;
     setIsSubmittingApproval(true);
     setSaveFeedback("");
     try {
       if (onSubmitApproval) {
-        await onSubmitApproval();
+        await onSubmitApproval(approvalNotes);
       } else if (websiteId) {
-        const res = await fetch(`/api/approval-requests`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ websiteId, note: "Ready for publication review." }),
-        });
-        if (!res.ok) {
-          const d = await res.json().catch(() => ({}));
-          throw new Error(d.message || "Failed to submit for approval");
+        // 1. Obtain canonical editor snapshot
+        let snapshot: any = null;
+        if (typeof getCanonicalSnapshot === "function") {
+          snapshot = getCanonicalSnapshot();
+        } else if (editorData) {
+          snapshot = editorData;
+        } else {
+          try {
+            const cached = localStorage.getItem(`forgestudio_editor_${websiteId}`);
+            if (cached) snapshot = JSON.parse(cached);
+          } catch (_) {}
         }
+
+        // Validate canonical snapshot is present and non-empty
+        if (!snapshot || typeof snapshot !== "object" || Array.isArray(snapshot) || Object.keys(snapshot).length === 0) {
+          throw new Error("Canonical editor snapshot is unavailable. Please ensure your editor content is loaded before submitting for approval.");
+        }
+
+        // 2. Derive targetVersion
+        const targetVersion = (publishing?.version || publishing?.publishedVersion || 0) + 1;
+
+        // 3. Submit request through publishingService
+        await publishingService.submitApprovalRequest(websiteId, {
+          targetVersion,
+          snapshot,
+          notes: approvalNotes.trim() || undefined,
+        });
       }
+
       setSaveFeedback("Publication request submitted for approval!");
+      setApprovalNotes("");
+      await loadApprovalStatus();
       setTimeout(() => setSaveFeedback(""), 4000);
     } catch (err: any) {
       setSaveFeedback(err?.message || "Failed to submit for approval.");
@@ -819,18 +899,80 @@ export const PublishModal: React.FC<PublishModalProps> = ({
     try {
       setIsRollingBack(deploymentId);
       setSaveFeedback("");
+      setVerificationFeedback(null);
       if (onRollback) {
         await onRollback(deploymentId);
       } else if (websiteId) {
         await publishingService.rollbackDeployment(websiteId, deploymentId);
       }
-      setSaveFeedback(`Successfully rolled back to v${version}!`);
-      loadDeployments();
-      setTimeout(() => setSaveFeedback(""), 4000);
+      setVerificationFeedback({
+        type: "success",
+        message: `Successfully rolled back to deployment v${version}! Restored snapshot is now active.`,
+      });
+      await loadDeployments();
     } catch (err: any) {
-      setSaveFeedback(err?.message || "Rollback failed.");
+      setVerificationFeedback({
+        type: "error",
+        message: err?.message || "Rollback failed.",
+      });
     } finally {
       setIsRollingBack(null);
+    }
+  };
+
+  const handleVerifyDeploymentClick = async (deploymentId: string) => {
+    if (!websiteId || isVerifyingDeployment) return;
+    try {
+      setIsVerifyingDeployment(deploymentId);
+      setVerificationFeedback(null);
+      const res = await publishingService.verifyDeployment(websiteId, deploymentId);
+      if (res.verified) {
+        setVerificationFeedback({
+          type: "success",
+          message: `Deployment verified successfully (${res.latencyMs ? res.latencyMs + "ms" : "200 OK"})! Published snapshot is active.`,
+        });
+      } else {
+        setVerificationFeedback({
+          type: "error",
+          message: `Verification failed: ${res.error || "Destination could not be verified"}`,
+        });
+      }
+      await loadDeployments();
+    } catch (err: any) {
+      setVerificationFeedback({
+        type: "error",
+        message: err.message || "Failed to verify deployment",
+      });
+    } finally {
+      setIsVerifyingDeployment(null);
+    }
+  };
+
+  const handleRetryDeploymentClick = async (deploymentId: string) => {
+    if (!websiteId || isRetryingDeployment) return;
+    try {
+      setIsRetryingDeployment(deploymentId);
+      setVerificationFeedback(null);
+      const res = await publishingService.retryDeployment(websiteId, deploymentId);
+      if (res.success || res.verified || res.status === "PUBLISHED") {
+        setVerificationFeedback({
+          type: "success",
+          message: `Deployment recovered successfully to status: ${res.status}!`,
+        });
+      } else {
+        setVerificationFeedback({
+          type: "error",
+          message: `Retry resulted in status ${res.status}: ${res.error || "Retry failed"}`,
+        });
+      }
+      await loadDeployments();
+    } catch (err: any) {
+      setVerificationFeedback({
+        type: "error",
+        message: err.message || "Failed to retry deployment",
+      });
+    } finally {
+      setIsRetryingDeployment(null);
     }
   };
 
@@ -934,14 +1076,21 @@ export const PublishModal: React.FC<PublishModalProps> = ({
       case "VALIDATING":
       case "PROCESSING":
       case "VERIFYING":
+      case "QUEUED":
         return <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 animate-pulse">{status}</span>;
       case "RECONCILIATION_REQUIRED":
         return <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">RECONCILIATION</span>;
-      case "VALIDATION_FAILED":
       case "BUILD_FAILED":
-      case "DEPLOY_FAILED":
+        return <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">BUILD FAILED</span>;
       case "VERIFICATION_FAILED":
-        return <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">FAILED</span>;
+        return <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">VERIF FAILED</span>;
+      case "VALIDATION_FAILED":
+        return <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">VALIDATION FAILED</span>;
+      case "DEPLOY_FAILED":
+      case "DEPLOYMENT_FAILED":
+        return <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">DEPLOY FAILED</span>;
+      case "ROLLED_BACK":
+        return <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-500/20 text-slate-400 border border-slate-500/30">ROLLED BACK</span>;
       default:
         return <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-700 text-slate-300">{status}</span>;
     }
@@ -1101,16 +1250,27 @@ export const PublishModal: React.FC<PublishModalProps> = ({
                       Validates integrity, processes all pages & components, and updates the live production snapshot.
                     </p>
                   </div>
-                  {approvalWorkflowEnabled && !canPublish ? (
-                    <button
-                      type="button"
-                      onClick={handleSubmitApproval}
-                      disabled={isSubmittingApproval}
-                      className="rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs px-5 py-2.5 shadow-lg shadow-amber-600/30 transition disabled:opacity-50 cursor-pointer shrink-0 flex items-center gap-1.5"
-                    >
-                      <span>📋</span>
-                      <span>{isSubmittingApproval ? "Submitting..." : "Submit for Approval"}</span>
-                    </button>
+                  {approvalWorkflowEnabled && !canPublish && latestApproval?.status !== "APPROVED" ? (
+                    latestApproval?.status === "PENDING" ? (
+                      <button
+                        type="button"
+                        disabled
+                        className="rounded-xl bg-amber-900/60 text-amber-200 border border-amber-600/30 font-bold text-xs px-5 py-2.5 shadow-lg transition cursor-not-allowed shrink-0 flex items-center gap-1.5 opacity-80"
+                      >
+                        <span>⏳</span>
+                        <span>Awaiting Approval</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={handleSubmitApproval}
+                        disabled={isSubmittingApproval}
+                        className="rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs px-5 py-2.5 shadow-lg shadow-amber-600/30 transition disabled:opacity-50 cursor-pointer shrink-0 flex items-center gap-1.5"
+                      >
+                        <span>📋</span>
+                        <span>{isSubmittingApproval ? "Submitting..." : "Submit for Approval"}</span>
+                      </button>
+                    )
                   ) : (
                     <button
                       type="button"
@@ -1118,10 +1278,99 @@ export const PublishModal: React.FC<PublishModalProps> = ({
                       disabled={isPublishing}
                       className="rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-5 py-2.5 shadow-lg shadow-emerald-600/30 transition disabled:opacity-50 cursor-pointer shrink-0"
                     >
-                      {isPublishing ? "Publishing..." : "🚀 Publish Now"}
+                      {isPublishing
+                        ? "Validating, Building & Verifying..."
+                        : approvalWorkflowEnabled && !canPublish && latestApproval?.status === "APPROVED"
+                        ? "🚀 Publish Approved Version"
+                        : "🚀 Publish Now"}
                     </button>
                   )}
                 </div>
+
+                {/* Feature 22: Approval Workflow Status & Review Feedback */}
+                {approvalWorkflowEnabled && (
+                  <div className="pt-2 border-t border-emerald-900/40 space-y-2">
+                    {latestApproval?.status === "PENDING" && (
+                      <div className="rounded-lg bg-amber-950/40 border border-amber-600/40 p-3 flex items-center justify-between text-xs">
+                        <div className="space-y-0.5">
+                          <div className="flex items-center gap-2 font-bold text-amber-300">
+                            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                            Approval Pending for v{latestApproval.targetVersion}
+                          </div>
+                          {latestApproval.reviewNotes && (
+                            <p className="text-[11px] text-amber-200/80">Review notes: "{latestApproval.reviewNotes}"</p>
+                          )}
+                          <p className="text-[10px] text-slate-400">
+                            Submitted {new Date(latestApproval.createdAt).toLocaleString()}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleCancelApproval}
+                          disabled={isSubmittingApproval}
+                          className="px-2.5 py-1 text-[11px] font-bold text-rose-400 hover:text-rose-300 bg-rose-950/30 border border-rose-800/40 rounded-lg transition cursor-pointer"
+                        >
+                          Cancel Request
+                        </button>
+                      </div>
+                    )}
+
+                    {latestApproval?.status === "APPROVED" && (
+                      <div className="rounded-lg bg-emerald-950/40 border border-emerald-600/40 p-3 text-xs">
+                        <div className="flex items-center gap-2 font-bold text-emerald-300">
+                          <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                          Approval Granted for v{latestApproval.targetVersion}
+                        </div>
+                        <p className="text-[11px] text-emerald-200/80 mt-0.5">
+                          Approved by {latestApproval.reviewer?.fullName || latestApproval.reviewer?.email || "Website Owner/Admin"}
+                          {latestApproval.reviewNotes ? ` — "${latestApproval.reviewNotes}"` : ""}
+                        </p>
+                      </div>
+                    )}
+
+                    {latestApproval?.status === "REJECTED" && (
+                      <div className="rounded-lg bg-rose-950/40 border border-rose-600/40 p-3 text-xs space-y-1">
+                        <div className="flex items-center gap-2 font-bold text-rose-300">
+                          <span>❌</span>
+                          Review Rejected for v{latestApproval.targetVersion}
+                        </div>
+                        {latestApproval.reviewNotes && (
+                          <p className="text-[11px] text-rose-200/80">Reviewer feedback: "{latestApproval.reviewNotes}"</p>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Review notes input when submission is permitted */}
+                    {(!latestApproval || latestApproval.status === "REJECTED" || latestApproval.status === "CONSUMED" || latestApproval.status === "CANCELLED") && (
+                      <div className="flex items-center gap-2 pt-1">
+                        <input
+                          type="text"
+                          value={approvalNotes}
+                          onChange={(e) => setApprovalNotes(e.target.value)}
+                          placeholder="Optional notes for reviewer (e.g. Updated responsive layout and copy)"
+                          disabled={isSubmittingApproval}
+                          className="w-full text-xs px-3 py-1.5 rounded-lg bg-slate-900/80 border border-slate-700 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500 transition"
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Feature 22: Reviewer Approval UI Panel */}
+                {approvalWorkflowEnabled && websiteId && (
+                  <div className="pt-2 border-t border-slate-800">
+                    <ApprovalReviewerPanel
+                      websiteId={websiteId}
+                      websiteName={_websiteName}
+                      canPublish={canPublish}
+                      onDecisionComplete={async () => {
+                        await loadApprovalStatus();
+                        await loadDeployments();
+                      }}
+                    />
+                  </div>
+                )}
+
                 {publishing.status === "PUBLISHED" && Boolean(publishing.publishedAt) && Boolean(websiteId) && (
                   <div className="pt-3 border-t border-emerald-900/40 flex items-center justify-between">
                     <span className="text-xs text-emerald-300 font-semibold flex items-center gap-1.5">
@@ -1159,6 +1408,26 @@ export const PublishModal: React.FC<PublishModalProps> = ({
                   </button>
                 </div>
 
+                {/* Verification Feedback Banner */}
+                {verificationFeedback && (
+                  <div
+                    className={`p-2.5 rounded-lg text-xs font-medium border flex items-center justify-between ${
+                      verificationFeedback.type === "success"
+                        ? "bg-emerald-950/40 border-emerald-800 text-emerald-300"
+                        : "bg-rose-950/40 border-rose-800 text-rose-300"
+                    }`}
+                  >
+                    <span>{verificationFeedback.message}</span>
+                    <button
+                      type="button"
+                      onClick={() => setVerificationFeedback(null)}
+                      className="text-[10px] underline ml-2 cursor-pointer"
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                )}
+
                 {loadingDeployments ? (
                   <div className="text-center py-4 text-xs text-slate-400">Loading deployments...</div>
                 ) : deployments.length === 0 ? (
@@ -1174,7 +1443,7 @@ export const PublishModal: React.FC<PublishModalProps> = ({
                             isCurrentActive ? "border-emerald-500/40 bg-emerald-950/20" : "border-slate-800 bg-slate-900/50"
                           }`}
                         >
-                          <div className="space-y-0.5">
+                          <div className="space-y-0.5 max-w-[65%]">
                             <div className="flex items-center gap-2">
                               <span className="text-xs font-extrabold text-white font-mono">v{d.version}</span>
                               {getStatusBadge(d.status)}
@@ -1184,9 +1453,41 @@ export const PublishModal: React.FC<PublishModalProps> = ({
                               {new Date(d.createdAt).toLocaleString()}
                               {d.creator?.fullName ? ` • by ${d.creator.fullName}` : ""}
                             </p>
+                            {d.error && (
+                              <p
+                                className="text-[10px] text-rose-400 truncate font-mono"
+                                title={typeof d.error === "string" ? d.error : d.error.message || JSON.stringify(d.error)}
+                              >
+                                ⚠️ {typeof d.error === "string" ? d.error : d.error.message || (Array.isArray(d.error.errors) ? d.error.errors.map((e: any) => e.message).join(", ") : JSON.stringify(d.error))}
+                              </p>
+                            )}
                           </div>
 
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 shrink-0">
+                            {/* Retry button for failed deployments */}
+                            {d.status.includes("FAILED") || d.status === "RECONCILIATION_REQUIRED" ? (
+                              <button
+                                type="button"
+                                onClick={() => handleRetryDeploymentClick(d.id)}
+                                disabled={isRetryingDeployment === d.id || isPublishing}
+                                className="px-2 py-1 rounded bg-amber-950/40 hover:bg-amber-900/50 border border-amber-600/50 text-[10px] font-bold text-amber-300 hover:text-amber-200 transition disabled:opacity-50 cursor-pointer"
+                                title="Retry deployment pipeline"
+                              >
+                                {isRetryingDeployment === d.id ? "Retrying..." : "Retry"}
+                              </button>
+                            ) : null}
+
+                            {/* Verify button for idempotent re-verification */}
+                            <button
+                              type="button"
+                              onClick={() => handleVerifyDeploymentClick(d.id)}
+                              disabled={isVerifyingDeployment === d.id || isPublishing}
+                              className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-[10px] font-bold text-sky-400 hover:text-sky-300 transition disabled:opacity-50 cursor-pointer"
+                              title="Verify deployment artifacts and live status"
+                            >
+                              {isVerifyingDeployment === d.id ? "Verifying..." : "Verify"}
+                            </button>
+
                             {isCurrentActive ? (
                               <span className="text-[10px] font-bold text-emerald-400 px-2 py-1 bg-emerald-500/10 rounded">
                                 Active
@@ -1891,6 +2192,174 @@ export const PublishModal: React.FC<PublishModalProps> = ({
                       </div>
                     )}
                   </div>
+
+                  {/* FEATURE 15 — WORDPRESS DEPLOYMENT PUBLISHING VERIFICATION */}
+                  {(() => {
+                    const latestWpDeployment = deployments?.find((d: any) => d.destinationType === "WORDPRESS");
+                    const vDetails = latestWpDeployment?.metadata?.verificationDetails;
+
+                    return (
+                      <div className="rounded-xl border border-blue-900/60 bg-slate-950/90 p-4 space-y-3.5 shadow-xl">
+                        <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                          <div className="flex items-center gap-2">
+                            <span className="text-base">🛡️</span>
+                            <div>
+                              <h4 className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-1.5">
+                                <span>WordPress Deployment Verification</span>
+                                <span className="text-[9px] px-1.5 py-0.2 rounded bg-blue-900/60 text-blue-300 border border-blue-700/50">
+                                  Feature 15
+                                </span>
+                              </h4>
+                              <p className="text-[10px] text-slate-400">
+                                Three-tier verification: REST API handshake, remote post & page status check, and public URL accessibility.
+                              </p>
+                            </div>
+                          </div>
+                          {latestWpDeployment && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] text-slate-400 font-mono">v{latestWpDeployment.version}</span>
+                              <span
+                                className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                                  latestWpDeployment.status === "PUBLISHED"
+                                    ? "bg-emerald-950 text-emerald-400 border border-emerald-800"
+                                    : latestWpDeployment.status === "VERIFICATION_FAILED"
+                                    ? "bg-rose-950 text-rose-400 border border-rose-800"
+                                    : "bg-amber-950 text-amber-400 border border-amber-800"
+                                }`}
+                              >
+                                {latestWpDeployment.status}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+
+                        {latestWpDeployment ? (
+                          <>
+                            {/* 3-Tier Verification Breakdown */}
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+                              <div className="rounded-lg bg-slate-900/80 p-2.5 border border-slate-800">
+                                <div className="flex items-center justify-between mb-1">
+                                  <span className="text-[10px] font-bold uppercase text-slate-400">1. REST API</span>
+                                  <span className="text-xs">{vDetails?.apiVerification?.verified ? "✓" : "⚠️"}</span>
+                                </div>
+                                <span
+                                  className={`font-extrabold text-xs block ${
+                                    vDetails?.apiVerification?.verified ? "text-emerald-400" : "text-amber-400"
+                                  }`}
+                                >
+                                  {vDetails?.apiVerification?.verified ? "Handshake Verified" : "Pending Check"}
+                                </span>
+                                <span className="text-[10px] text-slate-400 font-mono block mt-0.5">
+                                  {vDetails?.apiVerification?.latencyMs ? `${vDetails.apiVerification.latencyMs}ms latency` : "HTTP 200"}
+                                </span>
+                              </div>
+
+                              <div className="rounded-lg bg-slate-900/80 p-2.5 border border-slate-800">
+                                <div className="flex items-center justify-between mb-1">
+                                  <span className="text-[10px] font-bold uppercase text-slate-400">2. Remote Pages</span>
+                                  <span className="text-xs">{vDetails?.contentVerification?.verified ? "✓" : "⚠️"}</span>
+                                </div>
+                                <span
+                                  className={`font-extrabold text-xs block ${
+                                    vDetails?.contentVerification?.verified ? "text-emerald-400" : "text-amber-400"
+                                  }`}
+                                >
+                                  {vDetails?.contentVerification?.verified
+                                    ? `${vDetails.contentVerification.pagesVerified || 1} Page(s) Live`
+                                    : "Pending Check"}
+                                </span>
+                                <span className="text-[10px] text-slate-400 block mt-0.5">
+                                  Status: publish
+                                </span>
+                              </div>
+
+                              <div className="rounded-lg bg-slate-900/80 p-2.5 border border-slate-800">
+                                <div className="flex items-center justify-between mb-1">
+                                  <span className="text-[10px] font-bold uppercase text-slate-400">3. Public URL</span>
+                                  <span className="text-xs">{vDetails?.publicUrlVerification?.verified ? "✓" : "⚠️"}</span>
+                                </div>
+                                <span
+                                  className={`font-extrabold text-xs block ${
+                                    vDetails?.publicUrlVerification?.verified ? "text-emerald-400" : "text-amber-400"
+                                  }`}
+                                >
+                                  {vDetails?.publicUrlVerification?.verified ? "200 OK (Public)" : "Pending Check"}
+                                </span>
+                                {latestWpDeployment.destinationRef && (
+                                  <a
+                                    href={latestWpDeployment.destinationRef}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-[10px] text-blue-400 hover:underline truncate block mt-0.5"
+                                  >
+                                    Visit Site ↗
+                                  </a>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Failure Diagnostic Alert */}
+                            {latestWpDeployment.status === "VERIFICATION_FAILED" && (
+                              <div className="p-3 rounded-lg bg-rose-950/40 border border-rose-800/50 text-rose-300 text-xs space-y-1">
+                                <div className="font-extrabold text-rose-200 flex items-center gap-1.5">
+                                  <span>⚠️</span> Verification Error:
+                                </div>
+                                <div className="font-mono text-[11px] text-rose-300">
+                                  {latestWpDeployment.error?.message || "WordPress deployment could not be verified."}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Action Row */}
+                            <div className="flex items-center justify-between pt-1">
+                              <span className="text-[10px] text-slate-400">
+                                {vDetails?.verifiedAt
+                                  ? `Last verified: ${new Date(vDetails.verifiedAt).toLocaleTimeString()}`
+                                  : "Verification required to ensure remote site integrity."}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleVerifyDeploymentClick(latestWpDeployment.id)}
+                                disabled={Boolean(isVerifyingDeployment)}
+                                className="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-md shadow-blue-600/30 transition disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
+                              >
+                                <span>⚡</span>
+                                {isVerifyingDeployment === latestWpDeployment.id
+                                  ? "Verifying WordPress..."
+                                  : "Verify WordPress Deployment"}
+                              </button>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="p-3 rounded-lg bg-slate-900/60 border border-slate-800 flex items-center justify-between text-xs text-slate-300">
+                            <div>
+                              <p className="font-semibold text-slate-200">No WordPress deployment created yet.</p>
+                              <p className="text-[11px] text-slate-400">
+                                Publish the website to WordPress to create a deployment record and verify remote delivery.
+                              </p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handlePublishClick("WORDPRESS")}
+                              disabled={isPublishing || (approvalWorkflowEnabled && !canPublish && latestApproval?.status !== "APPROVED")}
+                              className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition disabled:opacity-50 cursor-pointer shrink-0 ml-3"
+                              title={
+                                approvalWorkflowEnabled && !canPublish && latestApproval?.status !== "APPROVED"
+                                  ? "Publishing requires an approved review request"
+                                  : undefined
+                              }
+                            >
+                              {isPublishing
+                                ? "Publishing..."
+                                : approvalWorkflowEnabled && !canPublish && latestApproval?.status !== "APPROVED"
+                                ? "Approval Required"
+                                : "Publish to WordPress Now"}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
 
                   {/* F-495 WordPress Publish Engine Panel */}
                   <div className="rounded-xl border border-blue-900/50 bg-slate-900/90 p-4 space-y-4 shadow-xl">
@@ -3432,6 +3901,87 @@ export const PublishModal: React.FC<PublishModalProps> = ({
                   {isSyncingSftp ? "Syncing Files..." : "Deploy via SFTP Now"}
                 </button>
               </div>
+
+              {/* SFTP Deployment Integrity & Verification Panel */}
+              {(() => {
+                const latestSftpDeploy = deployments.find((d) => d.destinationType === "SFTP");
+                return (
+                  <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h5 className="text-xs font-bold text-white">SFTP Remote Publishing Verification</h5>
+                        <p className="text-[11px] text-slate-400">
+                          Verify entry HTML, compiled assets, remote directory structure, and live file sizes on the SFTP host.
+                        </p>
+                      </div>
+                      {latestSftpDeploy && (
+                        <button
+                          type="button"
+                          onClick={() => handleVerifyDeploymentClick(latestSftpDeploy.id)}
+                          disabled={isVerifyingDeployment === latestSftpDeploy.id || isPublishing}
+                          className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs transition disabled:opacity-50 cursor-pointer flex items-center gap-1.5 shadow-sm"
+                        >
+                          <span>⚡</span>
+                          <span>
+                            {isVerifyingDeployment === latestSftpDeploy.id
+                              ? "Verifying Remote..."
+                              : "Verify SFTP Deployment"}
+                          </span>
+                        </button>
+                      )}
+                    </div>
+
+                    {latestSftpDeploy ? (
+                      <div className="flex items-center justify-between p-2.5 rounded-lg bg-slate-950/80 border border-slate-800 text-xs">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`h-2.5 w-2.5 rounded-full ${
+                              latestSftpDeploy.status === "PUBLISHED"
+                                ? "bg-emerald-400 shadow-sm shadow-emerald-400"
+                                : latestSftpDeploy.status.includes("FAILED")
+                                ? "bg-rose-500"
+                                : "bg-amber-400"
+                            }`}
+                          />
+                          <span className="font-mono text-slate-300">
+                            Latest Deployment: <strong>v{latestSftpDeploy.version}</strong>
+                          </span>
+                          <span
+                            className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase ${
+                              latestSftpDeploy.status === "PUBLISHED"
+                                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                                : latestSftpDeploy.status.includes("FAILED")
+                                ? "bg-rose-500/10 text-rose-400 border border-rose-500/20"
+                                : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                            }`}
+                          >
+                            {latestSftpDeploy.status}
+                          </span>
+                        </div>
+                        <span className="text-[10px] text-slate-500">
+                          {new Date(latestSftpDeploy.createdAt).toLocaleString()}
+                        </span>
+                      </div>
+                    ) : (
+                      <p className="text-[11px] text-slate-400 italic">
+                        No SFTP deployments found yet. Use "Deploy via SFTP Now" above to publish your website over SFTP.
+                      </p>
+                    )}
+
+                    {verificationFeedback && (
+                      <div
+                        className={`p-2.5 rounded-lg text-xs font-semibold ${
+                          verificationFeedback.type === "success"
+                            ? "bg-emerald-950/60 border border-emerald-500/40 text-emerald-300"
+                            : "bg-rose-950/60 border border-rose-500/40 text-rose-300"
+                        }`}
+                      >
+                        {verificationFeedback.message}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           )}
 
@@ -3454,6 +4004,46 @@ export const PublishModal: React.FC<PublishModalProps> = ({
                   <li>Form handling scripts and asset references</li>
                 </ul>
               </div>
+
+              {/* Static Export Verification Panel */}
+              {(() => {
+                const latestStaticDeploy = deployments.find((d) => d.destinationType === "STATIC");
+                return (
+                  <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h5 className="text-xs font-bold text-white">Static Bundle Integrity</h5>
+                        <p className="text-[11px] text-slate-400">
+                          Verify entry HTML, CSS/JS assets, page routes, and valid ZIP packaging.
+                        </p>
+                      </div>
+                      {latestStaticDeploy && (
+                        <button
+                          type="button"
+                          onClick={() => handleVerifyDeploymentClick(latestStaticDeploy.id)}
+                          disabled={isVerifyingDeployment === latestStaticDeploy.id}
+                          className="px-3 py-1.5 rounded-lg bg-purple-900/50 hover:bg-purple-800/70 border border-purple-700/50 text-purple-200 text-xs font-bold transition disabled:opacity-50 cursor-pointer"
+                        >
+                          {isVerifyingDeployment === latestStaticDeploy.id ? "Verifying..." : "⚡ Verify Export"}
+                        </button>
+                      )}
+                    </div>
+
+                    {latestStaticDeploy && (
+                      <div className="flex items-center gap-2 pt-1 text-xs border-t border-slate-800">
+                        <span className="text-slate-400">Latest Deployment:</span>
+                        <span className="font-mono font-bold text-white">v{latestStaticDeploy.version}</span>
+                        {getStatusBadge(latestStaticDeploy.status)}
+                        {latestStaticDeploy.error && (
+                          <span className="text-rose-400 text-[11px] truncate">
+                            {typeof latestStaticDeploy.error === "string" ? latestStaticDeploy.error : latestStaticDeploy.error.message}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
 
               <div className="flex flex-col gap-3 pt-2">
                 <a

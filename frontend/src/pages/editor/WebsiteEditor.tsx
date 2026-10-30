@@ -5,6 +5,7 @@ import PopupRuntimePreview from "./components/PopupRuntimePreview";
 import DeveloperModal, { type DeveloperModalMode } from "./components/DeveloperModal";
 import { PageManagerModal } from "./components/PageManagerModal";
 import { PublishModal } from "./components/PublishModal";
+import { MediaLibraryModal } from "./components/media/MediaLibraryModal";
 import { SeoAnalyzerModal } from "../../features/seo/components/SeoAnalyzerModal";
 import { MultilingualExportModal } from "../../components/accessibility/MultilingualExportModal";
 import { AccessibilityWidget } from "../../components/accessibility/AccessibilityWidget";
@@ -13,6 +14,12 @@ import { ReadingGuideBar } from "../../components/accessibility/ReadingGuideBar"
 import { DesignNotesOverlay } from "./components/notes/DesignNotesOverlay";
 import { VariablesManagerModal } from "./components/VariablesManagerModal";
 import { ClassManagerModal } from "./components/ClassManagerModal";
+import {
+  renameTokenInTree,
+  detachTokenInTree,
+  renameClassInTree,
+  removeClassInTree,
+} from "./utils/referenceSafeguards";
 import { validateSlug, generateSlug, safeDeletePage } from "./utils/pageManagerService";
 import { matchesThemeCondition, type SitePartsConfig, type PublishingState, type DeploymentConfig, type CanonicalWebsiteData, type ThemeBuilderScope, resolveDynamicTokens, type DynamicContext } from "./types";
 import { SaveTemplateDialog, ReplaceTemplateDialog, ImportWebsiteKitDialog, useSaveTemplate, useTemplateLibrary, TemplateLibrary, exportWebsiteKitAsJson, type Template } from "../../features/templates";
@@ -51,6 +58,8 @@ import { type SiteProduct } from "./types";
 import { IconRenderer } from "./widgets/icons";
 import {
   triggerImagePicker,
+  registerMediaPickerHandler,
+  type MediaPickerCallback,
   ImageWidgetInspector,
   BackgroundImageInspector,
   VideoWidgetInspector,
@@ -183,7 +192,8 @@ import {
   reorderTreeElement,
   resolveMotionAttrs,
   resolveStickyStyles,
-  initMotionRuntime
+  initMotionRuntime,
+  compileDesignSystemCss
 } from "./utils";
 
 import {
@@ -322,6 +332,458 @@ import {
   createDefault404Elements,
   createDefaultSearchResultsElements,
 } from "./navigation/navigationDefaults";
+
+interface GlobalClassPickerSectionProps {
+  selectedElement: EditorElement;
+  globalClasses: any[];
+  onUpdateClasses: (newClasses: string) => void;
+  onOpenClassManager: () => void;
+}
+
+const GlobalClassPickerSection: React.FC<GlobalClassPickerSectionProps> = ({
+  selectedElement,
+  globalClasses,
+  onUpdateClasses,
+  onOpenClassManager,
+}) => {
+  const [classFilter, setClassFilter] = useState<string>("");
+
+  const classList = useMemo(() => {
+    return (selectedElement.customClass || "")
+      .split(/\s+/)
+      .map((c) => c.trim())
+      .filter(Boolean);
+  }, [selectedElement.customClass]);
+
+  const availableClasses = useMemo(() => {
+    return (globalClasses || []).filter((gc: any) => {
+      if (!gc || !gc.className) return false;
+      const isAlreadyApplied = classList.includes(gc.className);
+      if (isAlreadyApplied) return false;
+      if (!classFilter.trim()) return true;
+      const q = classFilter.toLowerCase().trim();
+      return (
+        gc.className.toLowerCase().includes(q) ||
+        (gc.name && gc.name.toLowerCase().includes(q)) ||
+        (gc.description && gc.description.toLowerCase().includes(q))
+      );
+    });
+  }, [globalClasses, classList, classFilter]);
+
+  const handleAddClass = (clsName: string) => {
+    if (!clsName) return;
+    const clean = clsName.trim().replace(/^\.+/, "");
+    if (!clean || classList.includes(clean)) return;
+    const updated = [...classList, clean].join(" ");
+    onUpdateClasses(updated);
+    setClassFilter("");
+  };
+
+  const handleRemoveClass = (clsToRemove: string) => {
+    const updated = classList.filter((c) => c !== clsToRemove).join(" ");
+    onUpdateClasses(updated);
+  };
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <label className="text-[11px] font-bold text-slate-700">
+          CSS Classes & Global Styling (F-106)
+        </label>
+        <button
+          type="button"
+          onClick={onOpenClassManager}
+          className="text-[10px] text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1 cursor-pointer"
+          title="Open Global Class Manager"
+        >
+          <span>🏷️ Manage Classes</span>
+        </button>
+      </div>
+
+      {/* Applied Class Badges */}
+      {classList.length > 0 ? (
+        <div className="flex flex-wrap gap-1.5 p-2 bg-white rounded border border-slate-200 min-h-[34px] items-center">
+          {classList.map((clsName) => {
+            const isGlobal = (globalClasses || []).some(
+              (gc: any) => gc && gc.className === clsName
+            );
+            return (
+              <span
+                key={clsName}
+                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono border ${
+                  isGlobal
+                    ? "bg-purple-50 text-purple-700 border-purple-200 font-semibold"
+                    : "bg-slate-100 text-slate-700 border-slate-200"
+                }`}
+              >
+                {isGlobal && <span title="Global Design Class">🏷️</span>}
+                <span>{clsName}</span>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveClass(clsName)}
+                  className="text-slate-400 hover:text-red-500 font-bold cursor-pointer ml-0.5 transition"
+                  title={`Remove class ${clsName}`}
+                  aria-label={`Remove class ${clsName}`}
+                >
+                  ×
+                </button>
+              </span>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="text-[11px] text-slate-400 italic p-2 bg-white rounded border border-slate-200 text-center">
+          No classes currently applied to this element.
+        </div>
+      )}
+
+      {/* Global Class Picker Dropdown & Search */}
+      {globalClasses && globalClasses.length > 0 ? (
+        <div className="space-y-1.5">
+          {globalClasses.length > 6 && (
+            <input
+              type="text"
+              value={classFilter}
+              onChange={(e) => setClassFilter(e.target.value)}
+              placeholder="Filter global classes..."
+              className="w-full rounded border border-slate-200 bg-white px-2 py-1 text-[11px] text-slate-700 outline-none focus:border-blue-400"
+            />
+          )}
+          <select
+            value=""
+            onChange={(e) => {
+              if (e.target.value) {
+                handleAddClass(e.target.value);
+              }
+            }}
+            className="w-full rounded border border-slate-300 bg-white px-2 py-1.5 text-xs text-slate-700 outline-none focus:border-blue-500 cursor-pointer shadow-2xs"
+            aria-label="Select a global CSS class"
+          >
+            <option value="">
+              {availableClasses.length > 0
+                ? `+ Add Global Class (${availableClasses.length} available)...`
+                : "All global classes already applied"}
+            </option>
+            {availableClasses.map((gc: any) => (
+              <option key={gc.id || gc.className} value={gc.className}>
+                {gc.name ? `${gc.name} (.${gc.className})` : `.${gc.className}`}
+              </option>
+            ))}
+          </select>
+        </div>
+      ) : (
+        <div className="text-[11px] text-slate-500 bg-slate-100 border border-slate-200 p-2 rounded flex items-center justify-between">
+          <span>No global classes created yet.</span>
+          <button
+            type="button"
+            onClick={onOpenClassManager}
+            className="text-[10px] text-blue-600 font-bold hover:underline cursor-pointer"
+          >
+            + Create Class
+          </button>
+        </div>
+      )}
+
+      {/* Freeform/Raw CSS Classes Input */}
+      <div className="pt-1">
+        <span className="block text-[10px] text-slate-500 mb-0.5">
+          Custom Class Names (space-separated):
+        </span>
+        <input
+          type="text"
+          value={selectedElement.customClass || ""}
+          onChange={(e) => onUpdateClasses(e.target.value)}
+          placeholder="e.g. shadow-lg hover:shadow-xl my-custom-class"
+          className="w-full rounded border border-slate-300 bg-white px-2 py-1.5 text-xs font-mono text-slate-800 outline-none focus:border-blue-500"
+        />
+      </div>
+    </div>
+  );
+};
+
+/**
+ * Safely resolves a CSS variable or token reference to a 6/7-character hex string
+ * for compatibility with HTML <input type="color"> swatches.
+ */
+function resolveTokenColorHex(
+  val: string | undefined | null,
+  variables: any[] = [],
+  fallback = "#000000"
+): string {
+  if (!val || typeof val !== "string") return fallback;
+  const clean = val.trim();
+  if (clean.startsWith("#") && (clean.length === 4 || clean.length === 7)) {
+    return clean;
+  }
+  const match = clean.match(/var\(\s*(--[a-zA-Z0-9_-]+)\s*\)/);
+  const tokenName = match ? match[1] : (clean.startsWith("--") ? clean : null);
+  if (tokenName && Array.isArray(variables)) {
+    const found = variables.find((v) => v && v.token === tokenName);
+    if (found) {
+      const hex = found.modes?.light || found.value;
+      if (hex && typeof hex === "string" && hex.startsWith("#")) {
+        return hex;
+      }
+    }
+  }
+  return fallback;
+}
+
+interface DesignTokenPickerControlProps {
+  category: "color" | "typography" | "spacing" | "shadow" | "radius" | "custom";
+  currentValue: string;
+  globalVariables: any[];
+  onSelectToken: (tokenRef: string) => void;
+  onDetachToken?: (rawValue: string) => void;
+  onClearToken?: () => void;
+  onOpenVariablesManager: () => void;
+}
+
+const DesignTokenPickerControl: React.FC<DesignTokenPickerControlProps> = ({
+  category,
+  currentValue,
+  globalVariables,
+  onSelectToken,
+  onDetachToken,
+  onClearToken,
+  onOpenVariablesManager,
+}) => {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [filterQuery, setFilterQuery] = useState<string>("");
+  const popoverRef = useRef<HTMLDivElement | null>(null);
+
+  // Close popover when clicking outside
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, [isOpen]);
+
+  // Filter tokens available to this website by category
+  const availableTokens = useMemo(() => {
+    if (!Array.isArray(globalVariables)) return [];
+    return globalVariables.filter(
+      (v: any) => v && v.category === category && typeof v.token === "string" && v.token.trim().length > 0
+    );
+  }, [globalVariables, category]);
+
+  // Extract active token if current value is a token reference
+  const activeToken = useMemo(() => {
+    if (!currentValue || typeof currentValue !== "string") return null;
+    const match = currentValue.trim().match(/var\(\s*(--[a-zA-Z0-9_-]+)\s*\)/);
+    const tokenName = match ? match[1] : (currentValue.trim().startsWith("--") ? currentValue.trim() : null);
+    if (!tokenName) return null;
+    return availableTokens.find((t: any) => t.token === tokenName) || null;
+  }, [currentValue, availableTokens]);
+
+  const filteredTokens = useMemo(() => {
+    if (!filterQuery.trim()) return availableTokens;
+    const q = filterQuery.toLowerCase().trim();
+    return availableTokens.filter(
+      (t: any) =>
+        (t.name && t.name.toLowerCase().includes(q)) ||
+        (t.token && t.token.toLowerCase().includes(q)) ||
+        (t.value && String(t.value).toLowerCase().includes(q))
+    );
+  }, [availableTokens, filterQuery]);
+
+  const activeTokenRawVal = activeToken ? (activeToken.modes?.light || activeToken.value || "") : "";
+
+  return (
+    <div className="relative inline-block" ref={popoverRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen((prev) => !prev)}
+        className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold transition border cursor-pointer select-none ${
+          activeToken
+            ? "bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100 shadow-2xs"
+            : "bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200 hover:text-slate-800"
+        }`}
+        title={
+          activeToken
+            ? `Design Token: ${activeToken.name} (${activeToken.token})`
+            : `Select ${category} design token`
+        }
+        aria-label={`Select ${category} design token`}
+        aria-expanded={isOpen}
+      >
+        <span>🎨</span>
+        <span className="truncate max-w-[85px]">
+          {activeToken ? activeToken.name || activeToken.token : "Token"}
+        </span>
+      </button>
+
+      {/* Popover Dropdown */}
+      {isOpen && (
+        <div className="absolute right-0 top-full mt-1.5 z-50 w-72 rounded-xl bg-white border border-slate-200 shadow-xl p-3 space-y-2.5 text-xs animate-in fade-in zoom-in-95 duration-100">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+            <span className="font-bold text-slate-800 flex items-center gap-1.5 capitalize text-xs">
+              <span className="text-purple-600">🎨</span> {category} Tokens ({availableTokens.length})
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                setIsOpen(false);
+                onOpenVariablesManager();
+              }}
+              className="text-[10px] font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-0.5 cursor-pointer"
+              title="Open Design Token Manager"
+            >
+              <span>Manage</span>
+              <span>↗</span>
+            </button>
+          </div>
+
+          {/* Currently Selected Token Info / Detach Action */}
+          {activeToken && (
+            <div className="p-2 bg-purple-50/70 border border-purple-200 rounded-lg space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold text-purple-700 uppercase tracking-wide">
+                  Active Token
+                </span>
+                <div className="flex items-center gap-1.5">
+                  {onDetachToken && activeTokenRawVal && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onDetachToken(activeTokenRawVal);
+                        setIsOpen(false);
+                      }}
+                      className="text-[10px] font-semibold text-purple-700 hover:text-purple-900 underline cursor-pointer"
+                      title="Convert dynamic token reference to a static raw value"
+                    >
+                      Detach
+                    </button>
+                  )}
+                  {onClearToken && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onClearToken();
+                        setIsOpen(false);
+                      }}
+                      className="text-[10px] font-semibold text-red-500 hover:text-red-700 ml-1 cursor-pointer"
+                      title="Clear token assignment"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                {category === "color" && (
+                  <span
+                    className="w-4 h-4 rounded-full border border-purple-300 shadow-2xs shrink-0"
+                    style={{ backgroundColor: activeTokenRawVal }}
+                  />
+                )}
+                <div className="min-w-0 flex-1">
+                  <div className="font-semibold text-purple-900 text-xs truncate">
+                    {activeToken.name}
+                  </div>
+                  <div className="text-[10px] font-mono text-purple-600 truncate">
+                    var({activeToken.token})
+                  </div>
+                </div>
+                <span className="text-[10px] font-mono font-medium text-purple-800 bg-white/80 px-1.5 py-0.5 rounded border border-purple-200">
+                  {activeTokenRawVal}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* Search Filter when many tokens exist */}
+          {availableTokens.length > 4 && (
+            <input
+              type="text"
+              value={filterQuery}
+              onChange={(e) => setFilterQuery(e.target.value)}
+              placeholder={`Filter ${category} tokens...`}
+              className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs text-slate-800 outline-none focus:border-blue-500 focus:bg-white"
+            />
+          )}
+
+          {/* Token List */}
+          <div className="max-h-48 overflow-y-auto space-y-1 pr-0.5">
+            {availableTokens.length === 0 ? (
+              <div className="text-center py-4 px-2 space-y-2">
+                <p className="text-[11px] text-slate-500 italic">
+                  No {category} tokens available for this website.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsOpen(false);
+                    onOpenVariablesManager();
+                  }}
+                  className="w-full py-1.5 px-2 bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold rounded-lg text-xs transition cursor-pointer"
+                >
+                  + Create {category} Token
+                </button>
+              </div>
+            ) : filteredTokens.length === 0 ? (
+              <div className="text-center py-3 text-slate-400 italic text-[11px]">
+                No matching tokens found for "{filterQuery}".
+              </div>
+            ) : (
+              filteredTokens.map((tok: any) => {
+                const isSelected = activeToken?.id === tok.id || activeToken?.token === tok.token;
+                const tokValue = tok.modes?.light || tok.value;
+                return (
+                  <button
+                    key={tok.id || tok.token}
+                    type="button"
+                    onClick={() => {
+                      onSelectToken(`var(${tok.token})`);
+                      setIsOpen(false);
+                    }}
+                    className={`w-full text-left flex items-center justify-between p-2 rounded-lg transition cursor-pointer ${
+                      isSelected
+                        ? "bg-purple-100/70 text-purple-900 border border-purple-300 font-semibold shadow-2xs"
+                        : "hover:bg-slate-100 text-slate-700 border border-transparent"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      {category === "color" && (
+                        <span
+                          className="w-4 h-4 rounded-md border border-slate-300 shrink-0 shadow-2xs"
+                          style={{ backgroundColor: tokValue }}
+                        />
+                      )}
+                      <div className="min-w-0 truncate">
+                        <div className="text-xs truncate font-medium text-slate-900">
+                          {tok.name}
+                        </div>
+                        <div className="text-[10px] text-slate-400 font-mono truncate">
+                          {tok.token}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                      <span className="text-[10px] font-mono text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
+                        {tokValue}
+                      </span>
+                      {isSelected && (
+                        <span className="text-purple-700 font-bold text-xs" title="Selected">
+                          ✓
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                );
+              })
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default function WebsiteEditor() {
   const { websiteId } = useParams<{ websiteId: string }>();
@@ -1029,11 +1491,48 @@ export default function WebsiteEditor() {
   const [isPageManagerModalOpen, setIsPageManagerModalOpen] = useState<boolean>(false);
   const [isPublishModalOpen, setIsPublishModalOpen] = useState<boolean>(false);
   const [isSeoModalOpen, setIsSeoModalOpen] = useState<boolean>(false);
+  const [isMediaLibraryOpen, setIsMediaLibraryOpen] = useState<boolean>(false);
+  const [mediaPickerCallback, setMediaPickerCallback] = useState<MediaPickerCallback | null>(null);
+
+  // Feature 6: Register universal media picker handler for all inspector widgets
+  useEffect(() => {
+    return registerMediaPickerHandler((callback) => {
+      setMediaPickerCallback(() => callback);
+      setIsMediaLibraryOpen(true);
+    });
+  }, []);
   const [isDesignNotesOpen, setIsDesignNotesOpen] = useState<boolean>(false);
+  const [openDesignNotesCount, setOpenDesignNotesCount] = useState<number>(0);
   const [isVariablesModalOpen, setIsVariablesModalOpen] = useState<boolean>(false);
   const [isClassModalOpen, setIsClassModalOpen] = useState<boolean>(false);
   const [globalVariables, setGlobalVariables] = useState<any[]>([]);
   const [globalClasses, setGlobalClasses] = useState<any[]>([]);
+
+  // F-339 & F-344: Compile Design System CSS Variables (:root) and Global Classes
+  const compiledDesignTokensCss = useMemo(() => {
+    return compileDesignSystemCss(globalVariables, globalClasses);
+  }, [globalVariables, globalClasses]);
+
+  // Sync live design system state from Atomic Editor or external updates
+  useEffect(() => {
+    const handleDesignSystemUpdate = (e: any) => {
+      const detail = e?.detail;
+      if (!detail) return;
+      if (detail.websiteId && websiteId && detail.websiteId !== websiteId) return;
+      if (Array.isArray(detail.variables)) {
+        setGlobalVariables(detail.variables);
+      }
+      if (Array.isArray(detail.classes)) {
+        setGlobalClasses(detail.classes);
+      }
+    };
+
+    window.addEventListener("fs-design-system-updated" as any, handleDesignSystemUpdate);
+    return () => {
+      window.removeEventListener("fs-design-system-updated" as any, handleDesignSystemUpdate);
+    };
+  }, [websiteId]);
+
   const [isAddPageModalOpen, setIsAddPageModalOpen] = useState<boolean>(false);
   const [newPageName, setNewPageName] = useState<string>("");
   const [newPageSlug, setNewPageSlug] = useState<string>("");
@@ -1058,6 +1557,102 @@ export default function WebsiteEditor() {
     provider: "static",
   });
   const publishedDataRef = useRef<any>(null);
+
+  // Module 17 Step 7: Reference Safeguards - All trees across website
+  const allWebsiteElementTrees = useMemo(() => {
+    const trees: EditorElement[][] = [];
+    if (Array.isArray(elements)) trees.push(elements);
+    if (Array.isArray(pages)) {
+      for (const p of pages) {
+        if (Array.isArray(p.elements)) trees.push(p.elements);
+      }
+    }
+    if (siteParts) {
+      if (Array.isArray(siteParts.header?.elements)) trees.push(siteParts.header.elements);
+      if (Array.isArray(siteParts.footer?.elements)) trees.push(siteParts.footer.elements);
+      if (Array.isArray(siteParts.single?.elements)) trees.push(siteParts.single.elements);
+      if (Array.isArray(siteParts.archive?.elements)) trees.push(siteParts.archive.elements);
+      if (Array.isArray(siteParts.notFound404?.elements)) trees.push(siteParts.notFound404.elements);
+      if (Array.isArray(siteParts.searchResults?.elements)) trees.push(siteParts.searchResults.elements);
+    }
+    return trees;
+  }, [elements, pages, siteParts]);
+
+  const handleSafeguardRenameToken = useCallback((oldToken: string, newToken: string) => {
+    setElements((prev) => renameTokenInTree(prev, oldToken, newToken));
+    setPages((prev) =>
+      prev.map((p) => ({
+        ...p,
+        elements: renameTokenInTree(p.elements || [], oldToken, newToken),
+      }))
+    );
+    setSiteParts((prev) => ({
+      ...prev,
+      header: prev.header ? { ...prev.header, elements: renameTokenInTree(prev.header.elements || [], oldToken, newToken) } : prev.header,
+      footer: prev.footer ? { ...prev.footer, elements: renameTokenInTree(prev.footer.elements || [], oldToken, newToken) } : prev.footer,
+      single: prev.single ? { ...prev.single, elements: renameTokenInTree(prev.single.elements || [], oldToken, newToken) } : prev.single,
+      archive: prev.archive ? { ...prev.archive, elements: renameTokenInTree(prev.archive.elements || [], oldToken, newToken) } : prev.archive,
+      notFound404: prev.notFound404 ? { ...prev.notFound404, elements: renameTokenInTree(prev.notFound404.elements || [], oldToken, newToken) } : prev.notFound404,
+      searchResults: prev.searchResults ? { ...prev.searchResults, elements: renameTokenInTree(prev.searchResults.elements || [], oldToken, newToken) } : prev.searchResults,
+    }));
+  }, []);
+
+  const handleSafeguardDeleteToken = useCallback((tokenToDelete: string, fallbackValue: string) => {
+    setElements((prev) => detachTokenInTree(prev, tokenToDelete, fallbackValue));
+    setPages((prev) =>
+      prev.map((p) => ({
+        ...p,
+        elements: detachTokenInTree(p.elements || [], tokenToDelete, fallbackValue),
+      }))
+    );
+    setSiteParts((prev) => ({
+      ...prev,
+      header: prev.header ? { ...prev.header, elements: detachTokenInTree(prev.header.elements || [], tokenToDelete, fallbackValue) } : prev.header,
+      footer: prev.footer ? { ...prev.footer, elements: detachTokenInTree(prev.footer.elements || [], tokenToDelete, fallbackValue) } : prev.footer,
+      single: prev.single ? { ...prev.single, elements: detachTokenInTree(prev.single.elements || [], tokenToDelete, fallbackValue) } : prev.single,
+      archive: prev.archive ? { ...prev.archive, elements: detachTokenInTree(prev.archive.elements || [], tokenToDelete, fallbackValue) } : prev.archive,
+      notFound404: prev.notFound404 ? { ...prev.notFound404, elements: detachTokenInTree(prev.notFound404.elements || [], tokenToDelete, fallbackValue) } : prev.notFound404,
+      searchResults: prev.searchResults ? { ...prev.searchResults, elements: detachTokenInTree(prev.searchResults.elements || [], tokenToDelete, fallbackValue) } : prev.searchResults,
+    }));
+  }, []);
+
+  const handleSafeguardRenameClass = useCallback((oldClassName: string, newClassName: string) => {
+    setElements((prev) => renameClassInTree(prev, oldClassName, newClassName));
+    setPages((prev) =>
+      prev.map((p) => ({
+        ...p,
+        elements: renameClassInTree(p.elements || [], oldClassName, newClassName),
+      }))
+    );
+    setSiteParts((prev) => ({
+      ...prev,
+      header: prev.header ? { ...prev.header, elements: renameClassInTree(prev.header.elements || [], oldClassName, newClassName) } : prev.header,
+      footer: prev.footer ? { ...prev.footer, elements: renameClassInTree(prev.footer.elements || [], oldClassName, newClassName) } : prev.footer,
+      single: prev.single ? { ...prev.single, elements: renameClassInTree(prev.single.elements || [], oldClassName, newClassName) } : prev.single,
+      archive: prev.archive ? { ...prev.archive, elements: renameClassInTree(prev.archive.elements || [], oldClassName, newClassName) } : prev.archive,
+      notFound404: prev.notFound404 ? { ...prev.notFound404, elements: renameClassInTree(prev.notFound404.elements || [], oldClassName, newClassName) } : prev.notFound404,
+      searchResults: prev.searchResults ? { ...prev.searchResults, elements: renameClassInTree(prev.searchResults.elements || [], oldClassName, newClassName) } : prev.searchResults,
+    }));
+  }, []);
+
+  const handleSafeguardDeleteClass = useCallback((classToDelete: string) => {
+    setElements((prev) => removeClassInTree(prev, classToDelete));
+    setPages((prev) =>
+      prev.map((p) => ({
+        ...p,
+        elements: removeClassInTree(p.elements || [], classToDelete),
+      }))
+    );
+    setSiteParts((prev) => ({
+      ...prev,
+      header: prev.header ? { ...prev.header, elements: removeClassInTree(prev.header.elements || [], classToDelete) } : prev.header,
+      footer: prev.footer ? { ...prev.footer, elements: removeClassInTree(prev.footer.elements || [], classToDelete) } : prev.footer,
+      single: prev.single ? { ...prev.single, elements: removeClassInTree(prev.single.elements || [], classToDelete) } : prev.single,
+      archive: prev.archive ? { ...prev.archive, elements: removeClassInTree(prev.archive.elements || [], classToDelete) } : prev.archive,
+      notFound404: prev.notFound404 ? { ...prev.notFound404, elements: removeClassInTree(prev.notFound404.elements || [], classToDelete) } : prev.notFound404,
+      searchResults: prev.searchResults ? { ...prev.searchResults, elements: removeClassInTree(prev.searchResults.elements || [], classToDelete) } : prev.searchResults,
+    }));
+  }, []);
 
   // Canvas Editing Target Mode: ThemeBuilderScope ("page" | "header" | "footer" | "single" | "archive" | "404" | "search-results")
   const [canvasMode, setCanvasMode] = useState<ThemeBuilderScope>("page");
@@ -1786,6 +2381,8 @@ export default function WebsiteEditor() {
   useEffect(() => {
     if (!websiteId) {
       setLoading(false);
+      setGlobalVariables([]);
+      setGlobalClasses([]);
       return;
     }
 
@@ -1937,14 +2534,11 @@ export default function WebsiteEditor() {
             publishedDataRef.current = loadedSite.editorData.publishedData;
           }
 
-          if (Array.isArray(loadedSite?.editorData?.globalVariables)) {
-            setGlobalVariables(loadedSite.editorData.globalVariables);
-          }
-
-          if (Array.isArray(loadedSite?.editorData?.globalClasses)) {
-            setGlobalClasses(loadedSite.editorData.globalClasses);
-          }
+          setGlobalVariables(Array.isArray(loadedSite?.editorData?.globalVariables) ? loadedSite.editorData.globalVariables : []);
+          setGlobalClasses(Array.isArray(loadedSite?.editorData?.globalClasses) ? loadedSite.editorData.globalClasses : []);
         } else {
+          setGlobalVariables([]);
+          setGlobalClasses([]);
           // Default empty initialization if completely fresh project
           const defaultHome: PageConfig = {
             id: "home",
@@ -1966,6 +2560,11 @@ export default function WebsiteEditor() {
     };
 
     fetchWebsite();
+
+    return () => {
+      setGlobalVariables([]);
+      setGlobalClasses([]);
+    };
   }, [websiteId, apiUrl]);
 
   // Single source of truth: canonicalPages ensures pages[activePageId] is always up-to-date synchronously
@@ -2252,12 +2851,8 @@ export default function WebsiteEditor() {
 
 
 
-  // F-PUBLISH: Production Publish & Deployment Pipeline Handler (Comment 8)
-  const handlePublishWebsite = async (options?: { destinationType?: "INTERNAL" | "WORDPRESS" }) => {
-    if (!websiteId) return;
-
-    const destType = options?.destinationType || "INTERNAL";
-
+  // Canonical editor snapshot generator matching the publishing pipeline
+  const getCanonicalEditorData = useCallback(() => {
     const canonicalHeaderElements = canvasMode === "header" ? elements : (siteParts.header?.elements || []);
     const canonicalFooterElements = canvasMode === "footer" ? elements : (siteParts.footer?.elements || []);
     const canonicalSingleElements = canvasMode === "single" ? elements : (siteParts.single?.elements || []);
@@ -2266,7 +2861,7 @@ export default function WebsiteEditor() {
     const canonicalSearchResultsElements = canvasMode === "search-results" ? elements : (siteParts.searchResults?.elements || []);
     const canonicalPageElements = canvasMode === "page" ? elements : (pages.find(p => p.id === activePageId)?.elements || []);
 
-    const workingDraftSnapshot = {
+    return {
       version: 1,
       elements: canonicalPageElements,
       pages: pages.map((p) =>
@@ -2308,6 +2903,14 @@ export default function WebsiteEditor() {
       pageCss,
       pageSettings,
     };
+  }, [canvasMode, elements, siteParts, pages, activePageId, pageSettings, homePageId, deployment, breakpoints, globalSettings, popups, pageCss]);
+
+  // F-PUBLISH: Production Publish & Deployment Pipeline Handler (Comment 8)
+  const handlePublishWebsite = async (options?: { destinationType?: "INTERNAL" | "WORDPRESS" }) => {
+    if (!websiteId) return;
+
+    const destType = options?.destinationType || "INTERNAL";
+    const workingDraftSnapshot = getCanonicalEditorData();
 
     const payload = {
       editorData: workingDraftSnapshot,
@@ -3611,9 +4214,14 @@ export default function WebsiteEditor() {
         if (uploadRes.ok) {
           const uploadData = await uploadRes.json();
           finalUrl = uploadData.url || uploadData?.data?.url || "";
+        } else {
+          const errData = await uploadRes.json().catch(() => ({}));
+          const errMsg = errData?.error?.message || errData?.message || "Failed to upload image file.";
+          setUploadError(errMsg);
+          return;
         }
       } catch {
-        // Fallback to local Data URL
+        // Fallback to local Data URL only if network or backend server is completely unreachable
       }
 
       if (!finalUrl) {
@@ -3811,9 +4419,14 @@ export default function WebsiteEditor() {
         if (uploadRes.ok) {
           const uploadData = await uploadRes.json();
           finalUrl = uploadData.url || uploadData?.data?.url || "";
+        } else {
+          const errData = await uploadRes.json().catch(() => ({}));
+          const errMsg = errData?.error?.message || errData?.message || "Failed to import asset file.";
+          setUploadError(errMsg);
+          return;
         }
       } catch {
-        // Fallback to local Data URL
+        // Fallback to local Data URL only if network or backend server is completely unreachable
       }
 
       if (!finalUrl) {
@@ -4329,21 +4942,32 @@ export default function WebsiteEditor() {
                 </span>
               )}
             </label>
-            {(isControlStyleConfigured(selectedElement, activeDevice, activeElementState, "backgroundColor") || isBgColorOverridden) && (
-              <button
-                type="button"
-                onClick={() => resetSelectedStyle("backgroundColor")}
-                title="Reset Background Color to Default"
-                className="text-[10px] font-semibold text-slate-500 hover:text-blue-600 hover:underline"
-              >
-                ↺ Reset
-              </button>
-            )}
+            <div className="flex items-center gap-1.5">
+              <DesignTokenPickerControl
+                category="color"
+                currentValue={currentBgColor}
+                globalVariables={globalVariables}
+                onSelectToken={(tokenRef) => updateSelectedStyle("backgroundColor", tokenRef)}
+                onDetachToken={(rawVal) => updateSelectedStyle("backgroundColor", rawVal)}
+                onClearToken={() => resetSelectedStyle("backgroundColor")}
+                onOpenVariablesManager={() => setIsVariablesModalOpen(true)}
+              />
+              {(isControlStyleConfigured(selectedElement, activeDevice, activeElementState, "backgroundColor") || isBgColorOverridden) && (
+                <button
+                  type="button"
+                  onClick={() => resetSelectedStyle("backgroundColor")}
+                  title="Reset Background Color to Default"
+                  className="text-[10px] font-semibold text-slate-500 hover:text-blue-600 hover:underline"
+                >
+                  ↺ Reset
+                </button>
+              )}
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <input
               type="color"
-              value={currentBgColor.startsWith("#") ? currentBgColor : "#ffffff"}
+              value={resolveTokenColorHex(currentBgColor, globalVariables, "#ffffff")}
               onChange={(e) => updateSelectedStyle("backgroundColor", e.target.value)}
               className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-transparent p-0.5"
             />
@@ -4351,7 +4975,7 @@ export default function WebsiteEditor() {
               type="text"
               value={currentBgColor}
               onChange={(e) => updateSelectedStyle("backgroundColor", e.target.value)}
-              placeholder="transparent / #ffffff / rgba(...)"
+              placeholder="transparent / #ffffff / var(--...)"
               className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
             />
             <button
@@ -4533,13 +5157,24 @@ export default function WebsiteEditor() {
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-slate-500 mb-1">
-                  Color
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-[10px] font-bold text-slate-500">
+                    Color
+                  </label>
+                  <DesignTokenPickerControl
+                    category="color"
+                    currentValue={currentBorderColor}
+                    globalVariables={globalVariables}
+                    onSelectToken={(tokenRef) => updateSelectedStyle("borderColor", tokenRef)}
+                    onDetachToken={(rawVal) => updateSelectedStyle("borderColor", rawVal)}
+                    onClearToken={() => resetSelectedStyle("borderColor")}
+                    onOpenVariablesManager={() => setIsVariablesModalOpen(true)}
+                  />
+                </div>
                 <div className="flex items-center gap-1.5">
                   <input
                     type="color"
-                    value={currentBorderColor.startsWith("#") ? currentBorderColor : "#cbd5e1"}
+                    value={resolveTokenColorHex(currentBorderColor, globalVariables, "#cbd5e1")}
                     onChange={(e) => updateSelectedStyle("borderColor", e.target.value)}
                     className="h-7 w-8 cursor-pointer rounded border border-slate-300 bg-transparent p-0.5"
                   />
@@ -4547,6 +5182,7 @@ export default function WebsiteEditor() {
                     type="text"
                     value={currentBorderColor}
                     onChange={(e) => updateSelectedStyle("borderColor", e.target.value)}
+                    placeholder="#cbd5e1 / var(--...)"
                     className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
                   />
                   <button
@@ -4800,6 +5436,16 @@ export default function WebsiteEditor() {
 
 
 
+  // Helper to extract all class representations for an element
+  const getElementClasses = useCallback((el: EditorElement): string => {
+    const parts: string[] = [];
+    if (el.customClass) parts.push(el.customClass);
+    if ((el as any).className && (el as any).className !== el.customClass) parts.push((el as any).className);
+    if (Array.isArray((el as any).classes)) parts.push((el as any).classes.join(" "));
+    if (Array.isArray((el as any).cssClasses)) parts.push((el as any).cssClasses.join(" "));
+    return parts.join(" ").trim();
+  }, []);
+
   // Recursive Element Tree Renderer
   const renderElementTree = (el: EditorElement): React.ReactNode => {
     const isSelected = (selectedIds.includes(el.id) || selectedId === el.id) && !isPreview;
@@ -4868,7 +5514,7 @@ export default function WebsiteEditor() {
             e.stopPropagation();
             if (!isPreview) handleSelectElement(el.id, e);
           }}
-          className={`relative transition-all duration-150 ${el.id} ${el.customClass || ""} ${draggingId === el.id ? "opacity-40 scale-[0.99]" : ""
+          className={`relative transition-all duration-150 ${el.id} ${getElementClasses(el)} ${draggingId === el.id ? "opacity-40 scale-[0.99]" : ""
             } ${isPreview ? "" : "cursor-grab active:cursor-grabbing hover:outline hover:outline-1 hover:outline-blue-400/60"
             } ${isSelected ? "border-2 border-blue-500 shadow-sm" : isPreview ? "" : "border border-dashed border-slate-300"}`}
           onContextMenu={(e) => {
@@ -5163,7 +5809,7 @@ export default function WebsiteEditor() {
           e.stopPropagation();
           if (!isPreview && hoveredId === el.id) setHoveredId(null);
         }}
-        className={`relative transition duration-150 ${el.id} ${el.customClass || ""} ${draggingId === el.id ? "opacity-40 scale-[0.99]" : ""
+        className={`relative transition duration-150 ${el.id} ${getElementClasses(el)} ${draggingId === el.id ? "opacity-40 scale-[0.99]" : ""
           } ${isPreview
             ? ""
             : "cursor-grab active:cursor-grabbing hover:outline hover:outline-1 hover:outline-blue-400/60"
@@ -5849,7 +6495,7 @@ export default function WebsiteEditor() {
           const renderedImg = el.src ? (
             <img
               src={resolveImageUrl(el.src, apiUrl)}
-              alt={el.alt || "Uploaded Image"}
+              alt={el.alt !== undefined && el.alt !== null ? el.alt : ""}
               className="inline-block max-w-full"
               style={{
                 display: "block",
@@ -6282,7 +6928,7 @@ export default function WebsiteEditor() {
         )}
 
         {el.type === "form" && (
-          <FormWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
+          <FormWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} websiteId={websiteId} />
         )}
 
         {el.type === "login" && (
@@ -7262,6 +7908,20 @@ export default function WebsiteEditor() {
                 </div>
               )}
 
+              {/* Feature 6: Media Library */}
+              <button
+                type="button"
+                onClick={() => {
+                  setMediaPickerCallback(null);
+                  setIsMediaLibraryOpen(true);
+                }}
+                className="px-3 py-1 text-xs font-semibold rounded-lg border text-amber-300 bg-amber-950/40 hover:bg-amber-900/60 border-amber-800/60 transition flex items-center gap-1.5 cursor-pointer shrink-0"
+                title="Media Library (Browse & Upload Assets)"
+              >
+                <span>📁</span>
+                <span>Media</span>
+              </button>
+
               {/* F-339: Variables Manager (Tokens) */}
               <button
                 type="button"
@@ -7288,7 +7948,7 @@ export default function WebsiteEditor() {
               <button
                 type="button"
                 onClick={() => setIsDesignNotesOpen(!isDesignNotesOpen)}
-                className={`w-7 h-7 rounded-lg border transition flex items-center justify-center shadow-xs cursor-pointer ${isDesignNotesOpen
+                className={`relative w-7 h-7 rounded-lg border transition flex items-center justify-center shadow-xs cursor-pointer ${isDesignNotesOpen
                   ? "bg-purple-600/30 text-purple-200 border-purple-500/60"
                   : "text-slate-300 bg-slate-800/80 hover:bg-slate-700/80 border-slate-700/80"
                   }`}
@@ -7296,6 +7956,11 @@ export default function WebsiteEditor() {
                 aria-label="Notes"
               >
                 <MessageSquare className="w-3.5 h-3.5" />
+                {openDesignNotesCount > 0 && (
+                  <span className="absolute -top-1 -right-1 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-blue-600 px-1 text-[9px] font-bold text-white shadow-xs">
+                    {openDesignNotesCount}
+                  </span>
+                )}
               </button>
 
               {/* Dev Mode */}
@@ -8769,6 +9434,7 @@ export default function WebsiteEditor() {
               </div>
             ) : leftSidebarTab === ("atomic" as any) ? (
               <AtomicEditor
+                websiteId={websiteId}
                 onClose={() => setLeftSidebarTab("elements")}
                 onInsertGlobalElement={handleInsertGlobalElement}
                 onInsertComponent={handleInsertReusableComponent}
@@ -8804,6 +9470,11 @@ export default function WebsiteEditor() {
           className={`relative flex flex-1 justify-center items-start overflow-y-auto overflow-x-auto min-w-0 max-w-full ${canvasTheme === "dark" ? "bg-slate-950 text-slate-100" : "bg-[#f1f5f9]"
             } p-4 sm:p-8 box-border`}
         >
+          {/* F-339 & F-344: Global Design Tokens & Classes Stylesheet */}
+          {compiledDesignTokensCss ? (
+            <style id="fs-design-tokens-styles">{compiledDesignTokensCss}</style>
+          ) : null}
+
           {/* Dynamic Hover Styles Block (F-036) */}
           <style dangerouslySetInnerHTML={{ __html: generateElementsHoverCSS(elements, activeDevice) }} />
 
@@ -9934,21 +10605,32 @@ export default function WebsiteEditor() {
                           <label className="block text-xs font-semibold text-slate-700">
                             Background Color
                           </label>
-                          {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "backgroundColor") && (
-                            <button
-                              type="button"
-                              onClick={() => resetSelectedStyle("backgroundColor")}
-                              title="Reset Background Color to Default"
-                              className="text-[10px] font-semibold text-slate-500 hover:text-blue-600 hover:underline"
-                            >
-                              ↺ Reset
-                            </button>
-                          )}
+                          <div className="flex items-center gap-1.5">
+                            <DesignTokenPickerControl
+                              category="color"
+                              currentValue={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "backgroundColor") || ""}
+                              globalVariables={globalVariables}
+                              onSelectToken={(tokenRef) => updateSelectedStyle("backgroundColor", tokenRef)}
+                              onDetachToken={(rawVal) => updateSelectedStyle("backgroundColor", rawVal)}
+                              onClearToken={() => resetSelectedStyle("backgroundColor")}
+                              onOpenVariablesManager={() => setIsVariablesModalOpen(true)}
+                            />
+                            {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "backgroundColor") && (
+                              <button
+                                type="button"
+                                onClick={() => resetSelectedStyle("backgroundColor")}
+                                title="Reset Background Color to Default"
+                                className="text-[10px] font-semibold text-slate-500 hover:text-blue-600 hover:underline"
+                              >
+                                ↺ Reset
+                              </button>
+                            )}
+                          </div>
                         </div>
                         <div className="flex items-center gap-2">
                           <input
                             type="color"
-                            value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "backgroundColor") || "#ffffff"}
+                            value={resolveTokenColorHex(getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "backgroundColor") || "#ffffff", globalVariables, "#ffffff")}
                             onChange={(e) => updateSelectedStyle("backgroundColor", e.target.value)}
                             className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-transparent p-0.5"
                           />
@@ -9956,6 +10638,7 @@ export default function WebsiteEditor() {
                             type="text"
                             value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "backgroundColor") || "#ffffff"}
                             onChange={(e) => updateSelectedStyle("backgroundColor", e.target.value)}
+                            placeholder="#ffffff / var(--...)"
                             className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
                           />
                           <button
@@ -10884,20 +11567,31 @@ export default function WebsiteEditor() {
                                 <label className="block text-xs font-semibold text-slate-700">
                                   Text Color
                                 </label>
-                                {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "color") && (
-                                  <button
-                                    type="button"
-                                    onClick={() => resetSelectedStyle("color")}
-                                    className="text-[10px] font-semibold text-slate-500 hover:text-blue-600 hover:underline"
-                                  >
-                                    ↺ Reset
-                                  </button>
-                                )}
+                                <div className="flex items-center gap-1.5">
+                                  <DesignTokenPickerControl
+                                    category="color"
+                                    currentValue={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "color") || ""}
+                                    globalVariables={globalVariables}
+                                    onSelectToken={(tokenRef) => updateSelectedStyle("color", tokenRef)}
+                                    onDetachToken={(rawVal) => updateSelectedStyle("color", rawVal)}
+                                    onClearToken={() => resetSelectedStyle("color")}
+                                    onOpenVariablesManager={() => setIsVariablesModalOpen(true)}
+                                  />
+                                  {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "color") && (
+                                    <button
+                                      type="button"
+                                      onClick={() => resetSelectedStyle("color")}
+                                      className="text-[10px] font-semibold text-slate-500 hover:text-blue-600 hover:underline"
+                                    >
+                                      ↺ Reset
+                                    </button>
+                                  )}
+                                </div>
                               </div>
                               <div className="flex items-center gap-2">
                                 <input
                                   type="color"
-                                  value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "color") || "#0f172a"}
+                                  value={resolveTokenColorHex(getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "color") || "#0f172a", globalVariables, "#0f172a")}
                                   onChange={(e) => updateSelectedStyle("color", e.target.value)}
                                   className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-transparent p-0.5"
                                 />
@@ -10905,6 +11599,7 @@ export default function WebsiteEditor() {
                                   type="text"
                                   value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "color") || "#0f172a"}
                                   onChange={(e) => updateSelectedStyle("color", e.target.value)}
+                                  placeholder="#0f172a / var(--...)"
                                   className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
                                 />
                               </div>
@@ -10960,20 +11655,31 @@ export default function WebsiteEditor() {
                             <label className="block text-xs font-semibold text-slate-700">
                               Border Color
                             </label>
-                            {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "borderColor") && (
-                              <button
-                                type="button"
-                                onClick={() => resetSelectedStyle("borderColor")}
-                                className="text-[10px] font-semibold text-slate-500 hover:text-blue-600 hover:underline"
-                              >
-                                ↺ Reset
-                              </button>
-                            )}
+                            <div className="flex items-center gap-1.5">
+                              <DesignTokenPickerControl
+                                category="color"
+                                currentValue={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "borderColor") || ""}
+                                globalVariables={globalVariables}
+                                onSelectToken={(tokenRef) => updateSelectedStyle("borderColor", tokenRef)}
+                                onDetachToken={(rawVal) => updateSelectedStyle("borderColor", rawVal)}
+                                onClearToken={() => resetSelectedStyle("borderColor")}
+                                onOpenVariablesManager={() => setIsVariablesModalOpen(true)}
+                              />
+                              {isControlStyleConfigured(selectedElementAny, activeDevice, activeElementState, "borderColor") && (
+                                <button
+                                  type="button"
+                                  onClick={() => resetSelectedStyle("borderColor")}
+                                  className="text-[10px] font-semibold text-slate-500 hover:text-blue-600 hover:underline"
+                                >
+                                  ↺ Reset
+                                </button>
+                              )}
+                            </div>
                           </div>
                           <div className="flex items-center gap-2">
                             <input
                               type="color"
-                              value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "borderColor") || "#cbd5e1"}
+                              value={resolveTokenColorHex(getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "borderColor") || "#cbd5e1", globalVariables, "#cbd5e1")}
                               onChange={(e) => updateSelectedStyle("borderColor", e.target.value)}
                               className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-transparent p-0.5"
                             />
@@ -10981,6 +11687,7 @@ export default function WebsiteEditor() {
                               type="text"
                               value={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "borderColor") || "#cbd5e1"}
                               onChange={(e) => updateSelectedStyle("borderColor", e.target.value)}
+                              placeholder="#cbd5e1 / var(--...)"
                               className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-mono font-medium text-slate-800 outline-none focus:border-blue-500"
                             />
                           </div>
@@ -11191,10 +11898,12 @@ export default function WebsiteEditor() {
                         <label className="text-[11px] font-bold text-slate-700">Custom CSS ID (F-105)</label>
                         <input type="text" value={selectedElementAny.customId || ""} onChange={e => updateSelectedProp("customId", e.target.value)} placeholder="e.g. hero-section" className="w-full rounded border px-2 py-1.5 text-xs font-mono mt-1" />
                       </div>
-                      <div>
-                        <label className="text-[11px] font-bold text-slate-700">Additional CSS Classes (F-106)</label>
-                        <input type="text" value={selectedElementAny.customClass || ""} onChange={e => updateSelectedProp("customClass", e.target.value)} placeholder="e.g. shadow-lg hover:shadow-xl" className="w-full rounded border px-2 py-1.5 text-xs font-mono mt-1" />
-                      </div>
+                      <GlobalClassPickerSection
+                        selectedElement={selectedElementAny}
+                        globalClasses={globalClasses}
+                        onUpdateClasses={(newClasses) => updateSelectedProp("customClass", newClasses)}
+                        onOpenClassManager={() => setIsClassModalOpen(true)}
+                      />
                       <hr className="border-slate-200" />
                       <button onClick={() => setDevModalMode("element-css")} className="w-full rounded-lg bg-white border border-slate-300 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm flex items-center justify-center gap-2">
                         <span className="text-blue-500">{"</>"}</span> Edit Element CSS (F-102)
@@ -11918,6 +12627,7 @@ export default function WebsiteEditor() {
                                     email: "Email Address",
                                     number: "Age / Quantity",
                                     tel: "Phone Number",
+                                    url: "Website URL",
                                     textarea: "Additional Comments",
                                     select: "Choose Option",
                                     checkbox: "I agree to the terms",
@@ -11929,7 +12639,7 @@ export default function WebsiteEditor() {
                                     id: generateId(),
                                     type: newType,
                                     label: defaultLabels[newType] || "New Field",
-                                    placeholder: newType === "checkbox" ? "" : "Enter value...",
+                                    placeholder: newType === "checkbox" ? "" : newType === "url" ? "https://example.com" : "Enter value...",
                                     required: false,
                                     width: newType === "textarea" ? "full" : "half",
                                     options: newType === "select" || newType === "radio" ? ["Option 1", "Option 2", "Option 3"] : undefined,
@@ -11942,6 +12652,7 @@ export default function WebsiteEditor() {
                                 <option value="email">+ Email</option>
                                 <option value="number">+ Number</option>
                                 <option value="tel">+ Telephone</option>
+                                <option value="url">+ Website / URL</option>
                                 <option value="date">+ Date Picker</option>
                                 <option value="file">+ File Upload</option>
                                 <option value="textarea">+ Textarea</option>
@@ -12051,6 +12762,7 @@ export default function WebsiteEditor() {
                                       <option value="email">Email</option>
                                       <option value="number">Number</option>
                                       <option value="tel">Telephone</option>
+                                      <option value="url">Website / URL</option>
                                       <option value="date">Date Picker</option>
                                       <option value="file">File Upload</option>
                                       <option value="textarea">Textarea</option>
@@ -12138,7 +12850,7 @@ export default function WebsiteEditor() {
                                       }}
                                       className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
                                     />
-                                    <span>Required Field</span>
+                                    <span className="font-semibold text-slate-800">Required Field</span>
                                   </label>
 
                                   <div className="flex items-center gap-1 text-xs">
@@ -12157,6 +12869,54 @@ export default function WebsiteEditor() {
                                       <option value="half">50% (Half Width)</option>
                                       <option value="full">100% (Full Width)</option>
                                     </select>
+                                  </div>
+                                </div>
+
+                                {/* Field Validation Rules */}
+                                <div className="pt-2 border-t border-slate-100 space-y-1.5">
+                                  <div>
+                                    <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
+                                      Custom Error Message
+                                    </label>
+                                    <input
+                                      type="text"
+                                      value={field.customErrorMessage || ""}
+                                      onChange={(e) => {
+                                        const updated = (selectedElementAny.formFields || []).map((f) =>
+                                          f.id === field.id ? { ...f, customErrorMessage: e.target.value } : f
+                                        );
+                                        updateSelectedProp("formFields", updated);
+                                      }}
+                                      placeholder={
+                                        field.type === "email"
+                                          ? "e.g. Please enter a valid work email"
+                                          : field.type === "tel"
+                                          ? "e.g. Please enter a valid phone number"
+                                          : field.type === "url"
+                                          ? "e.g. Please enter a valid website URL"
+                                          : field.type === "number"
+                                          ? "e.g. Please enter a valid number"
+                                          : "e.g. This field is required"
+                                      }
+                                      className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 outline-none focus:border-emerald-500"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">
+                                      Validation Pattern (Regex)
+                                    </label>
+                                    <input
+                                      type="text"
+                                      value={field.validationRegex || ""}
+                                      onChange={(e) => {
+                                        const updated = (selectedElementAny.formFields || []).map((f) =>
+                                          f.id === field.id ? { ...f, validationRegex: e.target.value } : f
+                                        );
+                                        updateSelectedProp("formFields", updated);
+                                      }}
+                                      placeholder="e.g. ^[0-9]{5}$ (Optional regex pattern)"
+                                      className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-mono text-slate-800 outline-none focus:border-emerald-500"
+                                    />
                                   </div>
                                 </div>
 
@@ -17809,17 +18569,33 @@ export default function WebsiteEditor() {
                                 <div className="flex gap-2">
                                   <button
                                     type="button"
+                                    onClick={() => {
+                                      setMediaPickerCallback(() => (url: string, alt?: string) => {
+                                        updateSelectedProp("src", url);
+                                        updateSelectedProp("alt", alt ?? "");
+                                      });
+                                      setIsMediaLibraryOpen(true);
+                                    }}
+                                    className="flex-1 rounded-lg border border-blue-500/30 bg-blue-50 hover:bg-blue-100 py-1.5 text-xs font-semibold text-blue-700 transition flex items-center justify-center gap-1 shadow-2xs cursor-pointer"
+                                    title="Choose from Media Library"
+                                  >
+                                    <span>📁</span>
+                                    <span>Media Library</span>
+                                  </button>
+                                  <button
+                                    type="button"
                                     disabled={isUploading}
                                     onClick={() => fileInputRef.current?.click()}
-                                    className="flex-1 rounded-lg border border-slate-300 bg-white py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition flex items-center justify-center gap-1 shadow-2xs disabled:opacity-50"
+                                    className="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition flex items-center justify-center gap-1 shadow-2xs disabled:opacity-50"
+                                    title="Upload New from Computer"
                                   >
                                     <span>🔄</span>
-                                    <span>{isUploading ? "Uploading..." : "Replace Image"}</span>
+                                    <span>{isUploading ? "..." : "Upload"}</span>
                                   </button>
                                   <button
                                     type="button"
                                     onClick={() => updateSelectedProp("src", "")}
-                                    className="rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-100 transition"
+                                    className="rounded-lg border border-red-200 bg-red-50 px-2.5 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-100 transition cursor-pointer"
                                   >
                                     Remove
                                   </button>
@@ -17864,17 +18640,33 @@ export default function WebsiteEditor() {
                                   No image selected
                                 </p>
                                 <p className="mt-0.5 text-[10px] text-slate-400">
-                                  Choose local file or drop image here
+                                  Choose from Media Library or drop image here
                                 </p>
 
-                                <button
-                                  type="button"
-                                  disabled={isUploading}
-                                  onClick={() => fileInputRef.current?.click()}
-                                  className="mt-3 rounded-lg bg-blue-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-blue-700 transition disabled:opacity-50"
-                                >
-                                  {isUploading ? "Uploading..." : "Select Image"}
-                                </button>
+                                <div className="mt-3 flex items-center gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setMediaPickerCallback(() => (url: string, alt?: string) => {
+                                        updateSelectedProp("src", url);
+                                        updateSelectedProp("alt", alt ?? "");
+                                      });
+                                      setIsMediaLibraryOpen(true);
+                                    }}
+                                    className="rounded-lg bg-blue-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-blue-700 transition cursor-pointer flex items-center gap-1.5"
+                                  >
+                                    <span>📁</span>
+                                    <span>Choose from Media Library</span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    disabled={isUploading}
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 shadow-xs hover:bg-slate-100 transition disabled:opacity-50 cursor-pointer"
+                                  >
+                                    {isUploading ? "Uploading..." : "Upload Local"}
+                                  </button>
+                                </div>
                               </div>
                             )}
 
@@ -20005,12 +20797,38 @@ export default function WebsiteEditor() {
         websiteName={website?.name || "ForgeStudio Project"}
         websiteId={websiteId || ""}
         approvalWorkflowEnabled={Boolean((website as any)?.approvalWorkflowEnabled)}
+        canPublish={
+          (website as any)?.userPermission === "OWNER" ||
+          (website as any)?.userPermission === "ADMIN" ||
+          !Boolean((website as any)?.approvalWorkflowEnabled)
+        }
+        getCanonicalSnapshot={getCanonicalEditorData}
         onPublish={handlePublishWebsite}
         onRollback={handleRollbackDeployment}
         onUpdateDeployment={(updatedDep) => setDeployment(updatedDep)}
         onOpenPreview={() => {
           setIsPublishModalOpen(false);
           setIsPreview(true);
+        }}
+      />
+
+      {/* Media & Asset Library Modal (Feature 6) */}
+      <MediaLibraryModal
+        isOpen={isMediaLibraryOpen}
+        onClose={() => {
+          setIsMediaLibraryOpen(false);
+          setMediaPickerCallback(null);
+        }}
+        websiteId={websiteId && websiteId !== "undefined" ? websiteId : ""}
+        onSelect={(url, altText) => {
+          if (mediaPickerCallback) {
+            mediaPickerCallback(url, altText);
+            setMediaPickerCallback(null);
+          } else if (selectedElementAny && (selectedElementAny.type === "image" || selectedElementAny.src !== undefined)) {
+            updateSelectedProp("src", url);
+            updateSelectedProp("alt", altText ?? "");
+          }
+          setIsMediaLibraryOpen(false);
         }}
       />
 
@@ -20037,6 +20855,8 @@ export default function WebsiteEditor() {
         onClose={() => setIsDesignNotesOpen(false)}
         websiteId={websiteId || ""}
         activeElementId={selectedElementAny?.id || null}
+        onSelectElement={handleSelectElementFromAudit}
+        onNotesCountChange={setOpenDesignNotesCount}
       />
 
       {/* Advanced Icon Library Modal */}
@@ -20085,6 +20905,11 @@ export default function WebsiteEditor() {
         isOpen={isVariablesModalOpen}
         onClose={() => setIsVariablesModalOpen(false)}
         variables={globalVariables}
+        websiteId={websiteId}
+        apiUrl={apiUrl}
+        allElements={allWebsiteElementTrees}
+        onRenameToken={handleSafeguardRenameToken}
+        onDeleteToken={handleSafeguardDeleteToken}
         onSaveVariables={(updated) => {
           setGlobalVariables(updated);
           handleSave();
@@ -20097,6 +20922,11 @@ export default function WebsiteEditor() {
         onClose={() => setIsClassModalOpen(false)}
         classes={globalClasses}
         userRole="OWNER"
+        websiteId={websiteId}
+        apiUrl={apiUrl}
+        allElements={allWebsiteElementTrees}
+        onRenameClass={handleSafeguardRenameClass}
+        onDeleteClass={handleSafeguardDeleteClass}
         onSaveClasses={(updated) => {
           setGlobalClasses(updated);
           handleSave();

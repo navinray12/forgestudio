@@ -373,6 +373,12 @@ async function recordDeliveryLog(
   error?: string
 ) {
   try {
+    const siteExists = await prisma.website.findUnique({
+      where: { id: websiteId },
+      select: { id: true },
+    });
+    if (!siteExists) return;
+
     const now = new Date();
     if (db?.emailDeliveryLog?.create) {
       await db.emailDeliveryLog.create({

@@ -47,6 +47,7 @@ model User {
   ownedOrganizations      Organization[]       @relation("OrgOwner")
   organizationMemberships OrganizationMember[]
   workspaceMemberships    WorkspaceMember[]
+  sentWorkspaceInvitations WorkspaceInvitation[] @relation("WorkspaceInvitedBy")
   approvalRequests        PublishApprovalRequest[] @relation("ApprovalRequester")
   reviewedApprovals       PublishApprovalRequest[] @relation("ApprovalReviewer")
   mediaAssets             MediaAsset[]
@@ -187,17 +188,20 @@ model SubscriptionPlan {
 }
 
 model UserSubscription {
-  id                 String           @id @default(uuid()) @db.Uuid
-  userId             String           @unique @db.Uuid
-  planId             String           @db.Uuid
-  status             String           @default("ACTIVE")
-  currentPeriodStart DateTime         @default(now())
-  currentPeriodEnd   DateTime?
-  createdAt          DateTime         @default(now())
-  updatedAt          DateTime         @updatedAt
-  plan               SubscriptionPlan @relation(fields: [planId], references: [id])
-  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                   String           @id @default(uuid()) @db.Uuid
+  userId               String           @unique @db.Uuid
+  planId               String           @db.Uuid
+  status               String           @default("ACTIVE")
+  stripeCustomerId     String?          @db.VarChar(255)
+  stripeSubscriptionId String?          @unique @db.VarChar(255)
+  currentPeriodStart   DateTime         @default(now())
+  currentPeriodEnd     DateTime?
+  createdAt            DateTime         @default(now()) @db.Timestamptz(6)
+  updatedAt            DateTime         @updatedAt @db.Timestamptz(6)
+  plan                 SubscriptionPlan @relation(fields: [planId], references: [id])
+  user                 User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([stripeCustomerId])
   @@map("user_subscriptions")
 }
 
@@ -719,6 +723,7 @@ model Workspace {
   owner          User              @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   members        WorkspaceMember[]
   websites       Website[]
+  invitations    WorkspaceInvitation[]
 
   @@index([ownerId])
   @@index([organizationId])
@@ -773,6 +778,26 @@ model WorkspaceMember {
   @@unique([workspaceId, userId])
   @@index([userId])
   @@map("workspace_members")
+}
+
+model WorkspaceInvitation {
+  id          String    @id @default(uuid()) @db.Uuid
+  workspaceId String    @db.Uuid
+  email       String    @db.VarChar(255)
+  role        String    @default("MEMBER") @db.VarChar(50) // ADMIN, MEMBER
+  tokenHash   String?   @unique @db.VarChar(255)
+  status      String    @default("PENDING") @db.VarChar(50) // PENDING, ACCEPTED, DECLINED, CANCELLED, EXPIRED
+  expiresAt   DateTime  @db.Timestamptz(6)
+  invitedBy   String    @db.Uuid
+  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  inviter     User      @relation("WorkspaceInvitedBy", fields: [invitedBy], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+  @@index([email])
+  @@map("workspace_invitations")
 }
 
 model PublishApprovalRequest {
@@ -980,22 +1005,45 @@ model WhiteLabelConfig {
 }
 
 model BillingInvoice {
-  id                 String   @id @default(uuid()) @db.Uuid
-  userId             String   @db.Uuid
-  planId             String   @db.VarChar(100)
+  id                 String    @id @default(uuid()) @db.Uuid
+  userId             String    @db.Uuid
+  planId             String    @db.VarChar(100)
+  planName           String?   @db.VarChar(255)
+  description        String?   @db.VarChar(500)
   amount             Float
-  currency           String   @default("INR") @db.VarChar(10)
-  status             String   @default("PAID") @db.VarChar(50)
-  invoiceNumber      String   @unique @db.VarChar(100)
-  billingPeriodStart DateTime @db.Timestamptz(6)
-  billingPeriodEnd   DateTime @db.Timestamptz(6)
-  createdAt          DateTime @default(now()) @db.Timestamptz(6)
+  currency           String    @default("INR") @db.VarChar(10)
+  status             String    @default("PAID") @db.VarChar(50)
+  invoiceNumber      String    @unique @db.VarChar(100)
+  paymentProvider    String?   @default("stripe") @db.VarChar(50)
+  paymentReference   String?   @db.VarChar(255)
+  taxAmount          Float?    @default(0)
+  subtotal           Float?
+  billingPeriodStart DateTime  @db.Timestamptz(6)
+  billingPeriodEnd   DateTime  @db.Timestamptz(6)
+  createdAt          DateTime  @default(now()) @db.Timestamptz(6)
 
-  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([invoiceNumber])
+  @@index([paymentReference])
   @@map("billing_invoices")
+}
+
+model PaymentWebhookEvent {
+  id                String   @id @default(uuid()) @db.Uuid
+  eventId           String   @unique @db.VarChar(255)
+  provider          String   @default("stripe") @db.VarChar(50)
+  eventType         String   @db.VarChar(100)
+  checkoutSessionId String?  @db.VarChar(255)
+  userId            String?  @db.Uuid
+  amount            Float?
+  currency          String?  @db.VarChar(10)
+  createdAt         DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([eventId])
+  @@index([checkoutSessionId])
+  @@map("payment_webhook_events")
 }
 
 

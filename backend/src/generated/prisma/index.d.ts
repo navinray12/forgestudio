@@ -204,6 +204,11 @@ export type OrganizationMember = $Result.DefaultSelection<Prisma.$OrganizationMe
  */
 export type WorkspaceMember = $Result.DefaultSelection<Prisma.$WorkspaceMemberPayload>
 /**
+ * Model WorkspaceInvitation
+ * 
+ */
+export type WorkspaceInvitation = $Result.DefaultSelection<Prisma.$WorkspaceInvitationPayload>
+/**
  * Model PublishApprovalRequest
  * 
  */
@@ -263,6 +268,11 @@ export type WhiteLabelConfig = $Result.DefaultSelection<Prisma.$WhiteLabelConfig
  * 
  */
 export type BillingInvoice = $Result.DefaultSelection<Prisma.$BillingInvoicePayload>
+/**
+ * Model PaymentWebhookEvent
+ * 
+ */
+export type PaymentWebhookEvent = $Result.DefaultSelection<Prisma.$PaymentWebhookEventPayload>
 
 /**
  * Enums
@@ -856,6 +866,16 @@ export class PrismaClient<
   get workspaceMember(): Prisma.WorkspaceMemberDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.workspaceInvitation`: Exposes CRUD operations for the **WorkspaceInvitation** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more WorkspaceInvitations
+    * const workspaceInvitations = await prisma.workspaceInvitation.findMany()
+    * ```
+    */
+  get workspaceInvitation(): Prisma.WorkspaceInvitationDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.publishApprovalRequest`: Exposes CRUD operations for the **PublishApprovalRequest** model.
     * Example usage:
     * ```ts
@@ -974,6 +994,16 @@ export class PrismaClient<
     * ```
     */
   get billingInvoice(): Prisma.BillingInvoiceDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.paymentWebhookEvent`: Exposes CRUD operations for the **PaymentWebhookEvent** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PaymentWebhookEvents
+    * const paymentWebhookEvents = await prisma.paymentWebhookEvent.findMany()
+    * ```
+    */
+  get paymentWebhookEvent(): Prisma.PaymentWebhookEventDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1459,6 +1489,7 @@ export namespace Prisma {
     Organization: 'Organization',
     OrganizationMember: 'OrganizationMember',
     WorkspaceMember: 'WorkspaceMember',
+    WorkspaceInvitation: 'WorkspaceInvitation',
     PublishApprovalRequest: 'PublishApprovalRequest',
     BackgroundJob: 'BackgroundJob',
     MediaAsset: 'MediaAsset',
@@ -1470,7 +1501,8 @@ export namespace Prisma {
     License: 'License',
     LicenseActivation: 'LicenseActivation',
     WhiteLabelConfig: 'WhiteLabelConfig',
-    BillingInvoice: 'BillingInvoice'
+    BillingInvoice: 'BillingInvoice',
+    PaymentWebhookEvent: 'PaymentWebhookEvent'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1486,7 +1518,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "website" | "otpVerification" | "identity" | "session" | "passwordResetToken" | "subscriptionPlan" | "userSubscription" | "templates" | "customCodeSnippet" | "customCodeRevision" | "formSubmission" | "customPostType" | "themeLocationRule" | "auditLog" | "sftpConnection" | "pluginIntegration" | "multisiteNetwork" | "customField" | "customEntry" | "designNote" | "pluginCompatibility" | "developerApiKey" | "componentAccess" | "websiteCollaborator" | "websiteRevision" | "deployment" | "wordPressConnection" | "wordPressPageMapping" | "granularPermission" | "team" | "teamMember" | "teamInvitation" | "websiteInvitation" | "workspace" | "organization" | "organizationMember" | "workspaceMember" | "publishApprovalRequest" | "backgroundJob" | "mediaAsset" | "siteMailerConfig" | "emailDeliveryLog" | "sitePerformanceMetric" | "mediaOptimizationAsset" | "optimizationCreditLedger" | "license" | "licenseActivation" | "whiteLabelConfig" | "billingInvoice"
+      modelProps: "user" | "website" | "otpVerification" | "identity" | "session" | "passwordResetToken" | "subscriptionPlan" | "userSubscription" | "templates" | "customCodeSnippet" | "customCodeRevision" | "formSubmission" | "customPostType" | "themeLocationRule" | "auditLog" | "sftpConnection" | "pluginIntegration" | "multisiteNetwork" | "customField" | "customEntry" | "designNote" | "pluginCompatibility" | "developerApiKey" | "componentAccess" | "websiteCollaborator" | "websiteRevision" | "deployment" | "wordPressConnection" | "wordPressPageMapping" | "granularPermission" | "team" | "teamMember" | "teamInvitation" | "websiteInvitation" | "workspace" | "organization" | "organizationMember" | "workspaceMember" | "workspaceInvitation" | "publishApprovalRequest" | "backgroundJob" | "mediaAsset" | "siteMailerConfig" | "emailDeliveryLog" | "sitePerformanceMetric" | "mediaOptimizationAsset" | "optimizationCreditLedger" | "license" | "licenseActivation" | "whiteLabelConfig" | "billingInvoice" | "paymentWebhookEvent"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -4302,6 +4334,80 @@ export namespace Prisma {
           }
         }
       }
+      WorkspaceInvitation: {
+        payload: Prisma.$WorkspaceInvitationPayload<ExtArgs>
+        fields: Prisma.WorkspaceInvitationFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.WorkspaceInvitationFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceInvitationPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.WorkspaceInvitationFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceInvitationPayload>
+          }
+          findFirst: {
+            args: Prisma.WorkspaceInvitationFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceInvitationPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.WorkspaceInvitationFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceInvitationPayload>
+          }
+          findMany: {
+            args: Prisma.WorkspaceInvitationFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceInvitationPayload>[]
+          }
+          create: {
+            args: Prisma.WorkspaceInvitationCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceInvitationPayload>
+          }
+          createMany: {
+            args: Prisma.WorkspaceInvitationCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.WorkspaceInvitationCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceInvitationPayload>[]
+          }
+          delete: {
+            args: Prisma.WorkspaceInvitationDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceInvitationPayload>
+          }
+          update: {
+            args: Prisma.WorkspaceInvitationUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceInvitationPayload>
+          }
+          deleteMany: {
+            args: Prisma.WorkspaceInvitationDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.WorkspaceInvitationUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.WorkspaceInvitationUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceInvitationPayload>[]
+          }
+          upsert: {
+            args: Prisma.WorkspaceInvitationUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceInvitationPayload>
+          }
+          aggregate: {
+            args: Prisma.WorkspaceInvitationAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateWorkspaceInvitation>
+          }
+          groupBy: {
+            args: Prisma.WorkspaceInvitationGroupByArgs<ExtArgs>
+            result: $Utils.Optional<WorkspaceInvitationGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.WorkspaceInvitationCountArgs<ExtArgs>
+            result: $Utils.Optional<WorkspaceInvitationCountAggregateOutputType> | number
+          }
+        }
+      }
       PublishApprovalRequest: {
         payload: Prisma.$PublishApprovalRequestPayload<ExtArgs>
         fields: Prisma.PublishApprovalRequestFieldRefs
@@ -5190,6 +5296,80 @@ export namespace Prisma {
           }
         }
       }
+      PaymentWebhookEvent: {
+        payload: Prisma.$PaymentWebhookEventPayload<ExtArgs>
+        fields: Prisma.PaymentWebhookEventFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PaymentWebhookEventFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentWebhookEventPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PaymentWebhookEventFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentWebhookEventPayload>
+          }
+          findFirst: {
+            args: Prisma.PaymentWebhookEventFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentWebhookEventPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PaymentWebhookEventFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentWebhookEventPayload>
+          }
+          findMany: {
+            args: Prisma.PaymentWebhookEventFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentWebhookEventPayload>[]
+          }
+          create: {
+            args: Prisma.PaymentWebhookEventCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentWebhookEventPayload>
+          }
+          createMany: {
+            args: Prisma.PaymentWebhookEventCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.PaymentWebhookEventCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentWebhookEventPayload>[]
+          }
+          delete: {
+            args: Prisma.PaymentWebhookEventDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentWebhookEventPayload>
+          }
+          update: {
+            args: Prisma.PaymentWebhookEventUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentWebhookEventPayload>
+          }
+          deleteMany: {
+            args: Prisma.PaymentWebhookEventDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PaymentWebhookEventUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.PaymentWebhookEventUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentWebhookEventPayload>[]
+          }
+          upsert: {
+            args: Prisma.PaymentWebhookEventUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentWebhookEventPayload>
+          }
+          aggregate: {
+            args: Prisma.PaymentWebhookEventAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePaymentWebhookEvent>
+          }
+          groupBy: {
+            args: Prisma.PaymentWebhookEventGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PaymentWebhookEventGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PaymentWebhookEventCountArgs<ExtArgs>
+            result: $Utils.Optional<PaymentWebhookEventCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -5351,6 +5531,7 @@ export namespace Prisma {
     organization?: OrganizationOmit
     organizationMember?: OrganizationMemberOmit
     workspaceMember?: WorkspaceMemberOmit
+    workspaceInvitation?: WorkspaceInvitationOmit
     publishApprovalRequest?: PublishApprovalRequestOmit
     backgroundJob?: BackgroundJobOmit
     mediaAsset?: MediaAssetOmit
@@ -5363,6 +5544,7 @@ export namespace Prisma {
     licenseActivation?: LicenseActivationOmit
     whiteLabelConfig?: WhiteLabelConfigOmit
     billingInvoice?: BillingInvoiceOmit
+    paymentWebhookEvent?: PaymentWebhookEventOmit
   }
 
   /* Types for Logging */
@@ -5468,6 +5650,7 @@ export namespace Prisma {
     ownedOrganizations: number
     organizationMemberships: number
     workspaceMemberships: number
+    sentWorkspaceInvitations: number
     approvalRequests: number
     reviewedApprovals: number
     mediaAssets: number
@@ -5502,6 +5685,7 @@ export namespace Prisma {
     ownedOrganizations?: boolean | UserCountOutputTypeCountOwnedOrganizationsArgs
     organizationMemberships?: boolean | UserCountOutputTypeCountOrganizationMembershipsArgs
     workspaceMemberships?: boolean | UserCountOutputTypeCountWorkspaceMembershipsArgs
+    sentWorkspaceInvitations?: boolean | UserCountOutputTypeCountSentWorkspaceInvitationsArgs
     approvalRequests?: boolean | UserCountOutputTypeCountApprovalRequestsArgs
     reviewedApprovals?: boolean | UserCountOutputTypeCountReviewedApprovalsArgs
     mediaAssets?: boolean | UserCountOutputTypeCountMediaAssetsArgs
@@ -5694,6 +5878,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountWorkspaceMembershipsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: WorkspaceMemberWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountSentWorkspaceInvitationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WorkspaceInvitationWhereInput
   }
 
   /**
@@ -6090,11 +6281,13 @@ export namespace Prisma {
   export type WorkspaceCountOutputType = {
     members: number
     websites: number
+    invitations: number
   }
 
   export type WorkspaceCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     members?: boolean | WorkspaceCountOutputTypeCountMembersArgs
     websites?: boolean | WorkspaceCountOutputTypeCountWebsitesArgs
+    invitations?: boolean | WorkspaceCountOutputTypeCountInvitationsArgs
   }
 
   // Custom InputTypes
@@ -6120,6 +6313,13 @@ export namespace Prisma {
    */
   export type WorkspaceCountOutputTypeCountWebsitesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: WebsiteWhereInput
+  }
+
+  /**
+   * WorkspaceCountOutputType without action
+   */
+  export type WorkspaceCountOutputTypeCountInvitationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WorkspaceInvitationWhereInput
   }
 
 
@@ -6503,6 +6703,7 @@ export namespace Prisma {
     ownedOrganizations?: boolean | User$ownedOrganizationsArgs<ExtArgs>
     organizationMemberships?: boolean | User$organizationMembershipsArgs<ExtArgs>
     workspaceMemberships?: boolean | User$workspaceMembershipsArgs<ExtArgs>
+    sentWorkspaceInvitations?: boolean | User$sentWorkspaceInvitationsArgs<ExtArgs>
     approvalRequests?: boolean | User$approvalRequestsArgs<ExtArgs>
     reviewedApprovals?: boolean | User$reviewedApprovalsArgs<ExtArgs>
     mediaAssets?: boolean | User$mediaAssetsArgs<ExtArgs>
@@ -6592,6 +6793,7 @@ export namespace Prisma {
     ownedOrganizations?: boolean | User$ownedOrganizationsArgs<ExtArgs>
     organizationMemberships?: boolean | User$organizationMembershipsArgs<ExtArgs>
     workspaceMemberships?: boolean | User$workspaceMembershipsArgs<ExtArgs>
+    sentWorkspaceInvitations?: boolean | User$sentWorkspaceInvitationsArgs<ExtArgs>
     approvalRequests?: boolean | User$approvalRequestsArgs<ExtArgs>
     reviewedApprovals?: boolean | User$reviewedApprovalsArgs<ExtArgs>
     mediaAssets?: boolean | User$mediaAssetsArgs<ExtArgs>
@@ -6633,6 +6835,7 @@ export namespace Prisma {
       ownedOrganizations: Prisma.$OrganizationPayload<ExtArgs>[]
       organizationMemberships: Prisma.$OrganizationMemberPayload<ExtArgs>[]
       workspaceMemberships: Prisma.$WorkspaceMemberPayload<ExtArgs>[]
+      sentWorkspaceInvitations: Prisma.$WorkspaceInvitationPayload<ExtArgs>[]
       approvalRequests: Prisma.$PublishApprovalRequestPayload<ExtArgs>[]
       reviewedApprovals: Prisma.$PublishApprovalRequestPayload<ExtArgs>[]
       mediaAssets: Prisma.$MediaAssetPayload<ExtArgs>[]
@@ -7076,6 +7279,7 @@ export namespace Prisma {
     ownedOrganizations<T extends User$ownedOrganizationsArgs<ExtArgs> = {}>(args?: Subset<T, User$ownedOrganizationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     organizationMemberships<T extends User$organizationMembershipsArgs<ExtArgs> = {}>(args?: Subset<T, User$organizationMembershipsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrganizationMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     workspaceMemberships<T extends User$workspaceMembershipsArgs<ExtArgs> = {}>(args?: Subset<T, User$workspaceMembershipsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    sentWorkspaceInvitations<T extends User$sentWorkspaceInvitationsArgs<ExtArgs> = {}>(args?: Subset<T, User$sentWorkspaceInvitationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceInvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     approvalRequests<T extends User$approvalRequestsArgs<ExtArgs> = {}>(args?: Subset<T, User$approvalRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PublishApprovalRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     reviewedApprovals<T extends User$reviewedApprovalsArgs<ExtArgs> = {}>(args?: Subset<T, User$reviewedApprovalsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PublishApprovalRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     mediaAssets<T extends User$mediaAssetsArgs<ExtArgs> = {}>(args?: Subset<T, User$mediaAssetsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MediaAssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -8135,6 +8339,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: WorkspaceMemberScalarFieldEnum | WorkspaceMemberScalarFieldEnum[]
+  }
+
+  /**
+   * User.sentWorkspaceInvitations
+   */
+  export type User$sentWorkspaceInvitationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceInvitation
+     */
+    select?: WorkspaceInvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceInvitation
+     */
+    omit?: WorkspaceInvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceInvitationInclude<ExtArgs> | null
+    where?: WorkspaceInvitationWhereInput
+    orderBy?: WorkspaceInvitationOrderByWithRelationInput | WorkspaceInvitationOrderByWithRelationInput[]
+    cursor?: WorkspaceInvitationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: WorkspaceInvitationScalarFieldEnum | WorkspaceInvitationScalarFieldEnum[]
   }
 
   /**
@@ -15788,6 +16016,8 @@ export namespace Prisma {
     userId: string | null
     planId: string | null
     status: string | null
+    stripeCustomerId: string | null
+    stripeSubscriptionId: string | null
     currentPeriodStart: Date | null
     currentPeriodEnd: Date | null
     createdAt: Date | null
@@ -15799,6 +16029,8 @@ export namespace Prisma {
     userId: string | null
     planId: string | null
     status: string | null
+    stripeCustomerId: string | null
+    stripeSubscriptionId: string | null
     currentPeriodStart: Date | null
     currentPeriodEnd: Date | null
     createdAt: Date | null
@@ -15810,6 +16042,8 @@ export namespace Prisma {
     userId: number
     planId: number
     status: number
+    stripeCustomerId: number
+    stripeSubscriptionId: number
     currentPeriodStart: number
     currentPeriodEnd: number
     createdAt: number
@@ -15823,6 +16057,8 @@ export namespace Prisma {
     userId?: true
     planId?: true
     status?: true
+    stripeCustomerId?: true
+    stripeSubscriptionId?: true
     currentPeriodStart?: true
     currentPeriodEnd?: true
     createdAt?: true
@@ -15834,6 +16070,8 @@ export namespace Prisma {
     userId?: true
     planId?: true
     status?: true
+    stripeCustomerId?: true
+    stripeSubscriptionId?: true
     currentPeriodStart?: true
     currentPeriodEnd?: true
     createdAt?: true
@@ -15845,6 +16083,8 @@ export namespace Prisma {
     userId?: true
     planId?: true
     status?: true
+    stripeCustomerId?: true
+    stripeSubscriptionId?: true
     currentPeriodStart?: true
     currentPeriodEnd?: true
     createdAt?: true
@@ -15929,6 +16169,8 @@ export namespace Prisma {
     userId: string
     planId: string
     status: string
+    stripeCustomerId: string | null
+    stripeSubscriptionId: string | null
     currentPeriodStart: Date
     currentPeriodEnd: Date | null
     createdAt: Date
@@ -15957,6 +16199,8 @@ export namespace Prisma {
     userId?: boolean
     planId?: boolean
     status?: boolean
+    stripeCustomerId?: boolean
+    stripeSubscriptionId?: boolean
     currentPeriodStart?: boolean
     currentPeriodEnd?: boolean
     createdAt?: boolean
@@ -15970,6 +16214,8 @@ export namespace Prisma {
     userId?: boolean
     planId?: boolean
     status?: boolean
+    stripeCustomerId?: boolean
+    stripeSubscriptionId?: boolean
     currentPeriodStart?: boolean
     currentPeriodEnd?: boolean
     createdAt?: boolean
@@ -15983,6 +16229,8 @@ export namespace Prisma {
     userId?: boolean
     planId?: boolean
     status?: boolean
+    stripeCustomerId?: boolean
+    stripeSubscriptionId?: boolean
     currentPeriodStart?: boolean
     currentPeriodEnd?: boolean
     createdAt?: boolean
@@ -15996,13 +16244,15 @@ export namespace Prisma {
     userId?: boolean
     planId?: boolean
     status?: boolean
+    stripeCustomerId?: boolean
+    stripeSubscriptionId?: boolean
     currentPeriodStart?: boolean
     currentPeriodEnd?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type UserSubscriptionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "planId" | "status" | "currentPeriodStart" | "currentPeriodEnd" | "createdAt" | "updatedAt", ExtArgs["result"]["userSubscription"]>
+  export type UserSubscriptionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "planId" | "status" | "stripeCustomerId" | "stripeSubscriptionId" | "currentPeriodStart" | "currentPeriodEnd" | "createdAt" | "updatedAt", ExtArgs["result"]["userSubscription"]>
   export type UserSubscriptionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     plan?: boolean | SubscriptionPlanDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -16027,6 +16277,8 @@ export namespace Prisma {
       userId: string
       planId: string
       status: string
+      stripeCustomerId: string | null
+      stripeSubscriptionId: string | null
       currentPeriodStart: Date
       currentPeriodEnd: Date | null
       createdAt: Date
@@ -16460,6 +16712,8 @@ export namespace Prisma {
     readonly userId: FieldRef<"UserSubscription", 'String'>
     readonly planId: FieldRef<"UserSubscription", 'String'>
     readonly status: FieldRef<"UserSubscription", 'String'>
+    readonly stripeCustomerId: FieldRef<"UserSubscription", 'String'>
+    readonly stripeSubscriptionId: FieldRef<"UserSubscription", 'String'>
     readonly currentPeriodStart: FieldRef<"UserSubscription", 'DateTime'>
     readonly currentPeriodEnd: FieldRef<"UserSubscription", 'DateTime'>
     readonly createdAt: FieldRef<"UserSubscription", 'DateTime'>
@@ -46472,6 +46726,7 @@ export namespace Prisma {
     owner?: boolean | UserDefaultArgs<ExtArgs>
     members?: boolean | Workspace$membersArgs<ExtArgs>
     websites?: boolean | Workspace$websitesArgs<ExtArgs>
+    invitations?: boolean | Workspace$invitationsArgs<ExtArgs>
     _count?: boolean | WorkspaceCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["workspace"]>
 
@@ -46518,6 +46773,7 @@ export namespace Prisma {
     owner?: boolean | UserDefaultArgs<ExtArgs>
     members?: boolean | Workspace$membersArgs<ExtArgs>
     websites?: boolean | Workspace$websitesArgs<ExtArgs>
+    invitations?: boolean | Workspace$invitationsArgs<ExtArgs>
     _count?: boolean | WorkspaceCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type WorkspaceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -46536,6 +46792,7 @@ export namespace Prisma {
       owner: Prisma.$UserPayload<ExtArgs>
       members: Prisma.$WorkspaceMemberPayload<ExtArgs>[]
       websites: Prisma.$WebsitePayload<ExtArgs>[]
+      invitations: Prisma.$WorkspaceInvitationPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -46944,6 +47201,7 @@ export namespace Prisma {
     owner<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     members<T extends Workspace$membersArgs<ExtArgs> = {}>(args?: Subset<T, Workspace$membersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     websites<T extends Workspace$websitesArgs<ExtArgs> = {}>(args?: Subset<T, Workspace$websitesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WebsitePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    invitations<T extends Workspace$invitationsArgs<ExtArgs> = {}>(args?: Subset<T, Workspace$invitationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceInvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -47446,6 +47704,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: WebsiteScalarFieldEnum | WebsiteScalarFieldEnum[]
+  }
+
+  /**
+   * Workspace.invitations
+   */
+  export type Workspace$invitationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceInvitation
+     */
+    select?: WorkspaceInvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceInvitation
+     */
+    omit?: WorkspaceInvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceInvitationInclude<ExtArgs> | null
+    where?: WorkspaceInvitationWhereInput
+    orderBy?: WorkspaceInvitationOrderByWithRelationInput | WorkspaceInvitationOrderByWithRelationInput[]
+    cursor?: WorkspaceInvitationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: WorkspaceInvitationScalarFieldEnum | WorkspaceInvitationScalarFieldEnum[]
   }
 
   /**
@@ -50803,6 +51085,1142 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: WorkspaceMemberInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model WorkspaceInvitation
+   */
+
+  export type AggregateWorkspaceInvitation = {
+    _count: WorkspaceInvitationCountAggregateOutputType | null
+    _min: WorkspaceInvitationMinAggregateOutputType | null
+    _max: WorkspaceInvitationMaxAggregateOutputType | null
+  }
+
+  export type WorkspaceInvitationMinAggregateOutputType = {
+    id: string | null
+    workspaceId: string | null
+    email: string | null
+    role: string | null
+    tokenHash: string | null
+    status: string | null
+    expiresAt: Date | null
+    invitedBy: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type WorkspaceInvitationMaxAggregateOutputType = {
+    id: string | null
+    workspaceId: string | null
+    email: string | null
+    role: string | null
+    tokenHash: string | null
+    status: string | null
+    expiresAt: Date | null
+    invitedBy: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type WorkspaceInvitationCountAggregateOutputType = {
+    id: number
+    workspaceId: number
+    email: number
+    role: number
+    tokenHash: number
+    status: number
+    expiresAt: number
+    invitedBy: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type WorkspaceInvitationMinAggregateInputType = {
+    id?: true
+    workspaceId?: true
+    email?: true
+    role?: true
+    tokenHash?: true
+    status?: true
+    expiresAt?: true
+    invitedBy?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type WorkspaceInvitationMaxAggregateInputType = {
+    id?: true
+    workspaceId?: true
+    email?: true
+    role?: true
+    tokenHash?: true
+    status?: true
+    expiresAt?: true
+    invitedBy?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type WorkspaceInvitationCountAggregateInputType = {
+    id?: true
+    workspaceId?: true
+    email?: true
+    role?: true
+    tokenHash?: true
+    status?: true
+    expiresAt?: true
+    invitedBy?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type WorkspaceInvitationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WorkspaceInvitation to aggregate.
+     */
+    where?: WorkspaceInvitationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WorkspaceInvitations to fetch.
+     */
+    orderBy?: WorkspaceInvitationOrderByWithRelationInput | WorkspaceInvitationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: WorkspaceInvitationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WorkspaceInvitations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WorkspaceInvitations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned WorkspaceInvitations
+    **/
+    _count?: true | WorkspaceInvitationCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: WorkspaceInvitationMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: WorkspaceInvitationMaxAggregateInputType
+  }
+
+  export type GetWorkspaceInvitationAggregateType<T extends WorkspaceInvitationAggregateArgs> = {
+        [P in keyof T & keyof AggregateWorkspaceInvitation]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateWorkspaceInvitation[P]>
+      : GetScalarType<T[P], AggregateWorkspaceInvitation[P]>
+  }
+
+
+
+
+  export type WorkspaceInvitationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WorkspaceInvitationWhereInput
+    orderBy?: WorkspaceInvitationOrderByWithAggregationInput | WorkspaceInvitationOrderByWithAggregationInput[]
+    by: WorkspaceInvitationScalarFieldEnum[] | WorkspaceInvitationScalarFieldEnum
+    having?: WorkspaceInvitationScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: WorkspaceInvitationCountAggregateInputType | true
+    _min?: WorkspaceInvitationMinAggregateInputType
+    _max?: WorkspaceInvitationMaxAggregateInputType
+  }
+
+  export type WorkspaceInvitationGroupByOutputType = {
+    id: string
+    workspaceId: string
+    email: string
+    role: string
+    tokenHash: string | null
+    status: string
+    expiresAt: Date
+    invitedBy: string
+    createdAt: Date
+    updatedAt: Date
+    _count: WorkspaceInvitationCountAggregateOutputType | null
+    _min: WorkspaceInvitationMinAggregateOutputType | null
+    _max: WorkspaceInvitationMaxAggregateOutputType | null
+  }
+
+  type GetWorkspaceInvitationGroupByPayload<T extends WorkspaceInvitationGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<WorkspaceInvitationGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof WorkspaceInvitationGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], WorkspaceInvitationGroupByOutputType[P]>
+            : GetScalarType<T[P], WorkspaceInvitationGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type WorkspaceInvitationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    workspaceId?: boolean
+    email?: boolean
+    role?: boolean
+    tokenHash?: boolean
+    status?: boolean
+    expiresAt?: boolean
+    invitedBy?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
+    inviter?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["workspaceInvitation"]>
+
+  export type WorkspaceInvitationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    workspaceId?: boolean
+    email?: boolean
+    role?: boolean
+    tokenHash?: boolean
+    status?: boolean
+    expiresAt?: boolean
+    invitedBy?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
+    inviter?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["workspaceInvitation"]>
+
+  export type WorkspaceInvitationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    workspaceId?: boolean
+    email?: boolean
+    role?: boolean
+    tokenHash?: boolean
+    status?: boolean
+    expiresAt?: boolean
+    invitedBy?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
+    inviter?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["workspaceInvitation"]>
+
+  export type WorkspaceInvitationSelectScalar = {
+    id?: boolean
+    workspaceId?: boolean
+    email?: boolean
+    role?: boolean
+    tokenHash?: boolean
+    status?: boolean
+    expiresAt?: boolean
+    invitedBy?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type WorkspaceInvitationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "workspaceId" | "email" | "role" | "tokenHash" | "status" | "expiresAt" | "invitedBy" | "createdAt" | "updatedAt", ExtArgs["result"]["workspaceInvitation"]>
+  export type WorkspaceInvitationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
+    inviter?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type WorkspaceInvitationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
+    inviter?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type WorkspaceInvitationIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
+    inviter?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $WorkspaceInvitationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "WorkspaceInvitation"
+    objects: {
+      workspace: Prisma.$WorkspacePayload<ExtArgs>
+      inviter: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      workspaceId: string
+      email: string
+      role: string
+      tokenHash: string | null
+      status: string
+      expiresAt: Date
+      invitedBy: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["workspaceInvitation"]>
+    composites: {}
+  }
+
+  type WorkspaceInvitationGetPayload<S extends boolean | null | undefined | WorkspaceInvitationDefaultArgs> = $Result.GetResult<Prisma.$WorkspaceInvitationPayload, S>
+
+  type WorkspaceInvitationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<WorkspaceInvitationFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: WorkspaceInvitationCountAggregateInputType | true
+    }
+
+  export interface WorkspaceInvitationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['WorkspaceInvitation'], meta: { name: 'WorkspaceInvitation' } }
+    /**
+     * Find zero or one WorkspaceInvitation that matches the filter.
+     * @param {WorkspaceInvitationFindUniqueArgs} args - Arguments to find a WorkspaceInvitation
+     * @example
+     * // Get one WorkspaceInvitation
+     * const workspaceInvitation = await prisma.workspaceInvitation.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends WorkspaceInvitationFindUniqueArgs>(args: SelectSubset<T, WorkspaceInvitationFindUniqueArgs<ExtArgs>>): Prisma__WorkspaceInvitationClient<$Result.GetResult<Prisma.$WorkspaceInvitationPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one WorkspaceInvitation that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {WorkspaceInvitationFindUniqueOrThrowArgs} args - Arguments to find a WorkspaceInvitation
+     * @example
+     * // Get one WorkspaceInvitation
+     * const workspaceInvitation = await prisma.workspaceInvitation.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends WorkspaceInvitationFindUniqueOrThrowArgs>(args: SelectSubset<T, WorkspaceInvitationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__WorkspaceInvitationClient<$Result.GetResult<Prisma.$WorkspaceInvitationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first WorkspaceInvitation that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkspaceInvitationFindFirstArgs} args - Arguments to find a WorkspaceInvitation
+     * @example
+     * // Get one WorkspaceInvitation
+     * const workspaceInvitation = await prisma.workspaceInvitation.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends WorkspaceInvitationFindFirstArgs>(args?: SelectSubset<T, WorkspaceInvitationFindFirstArgs<ExtArgs>>): Prisma__WorkspaceInvitationClient<$Result.GetResult<Prisma.$WorkspaceInvitationPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first WorkspaceInvitation that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkspaceInvitationFindFirstOrThrowArgs} args - Arguments to find a WorkspaceInvitation
+     * @example
+     * // Get one WorkspaceInvitation
+     * const workspaceInvitation = await prisma.workspaceInvitation.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends WorkspaceInvitationFindFirstOrThrowArgs>(args?: SelectSubset<T, WorkspaceInvitationFindFirstOrThrowArgs<ExtArgs>>): Prisma__WorkspaceInvitationClient<$Result.GetResult<Prisma.$WorkspaceInvitationPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more WorkspaceInvitations that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkspaceInvitationFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all WorkspaceInvitations
+     * const workspaceInvitations = await prisma.workspaceInvitation.findMany()
+     * 
+     * // Get first 10 WorkspaceInvitations
+     * const workspaceInvitations = await prisma.workspaceInvitation.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const workspaceInvitationWithIdOnly = await prisma.workspaceInvitation.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends WorkspaceInvitationFindManyArgs>(args?: SelectSubset<T, WorkspaceInvitationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceInvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a WorkspaceInvitation.
+     * @param {WorkspaceInvitationCreateArgs} args - Arguments to create a WorkspaceInvitation.
+     * @example
+     * // Create one WorkspaceInvitation
+     * const WorkspaceInvitation = await prisma.workspaceInvitation.create({
+     *   data: {
+     *     // ... data to create a WorkspaceInvitation
+     *   }
+     * })
+     * 
+     */
+    create<T extends WorkspaceInvitationCreateArgs>(args: SelectSubset<T, WorkspaceInvitationCreateArgs<ExtArgs>>): Prisma__WorkspaceInvitationClient<$Result.GetResult<Prisma.$WorkspaceInvitationPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many WorkspaceInvitations.
+     * @param {WorkspaceInvitationCreateManyArgs} args - Arguments to create many WorkspaceInvitations.
+     * @example
+     * // Create many WorkspaceInvitations
+     * const workspaceInvitation = await prisma.workspaceInvitation.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends WorkspaceInvitationCreateManyArgs>(args?: SelectSubset<T, WorkspaceInvitationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many WorkspaceInvitations and returns the data saved in the database.
+     * @param {WorkspaceInvitationCreateManyAndReturnArgs} args - Arguments to create many WorkspaceInvitations.
+     * @example
+     * // Create many WorkspaceInvitations
+     * const workspaceInvitation = await prisma.workspaceInvitation.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many WorkspaceInvitations and only return the `id`
+     * const workspaceInvitationWithIdOnly = await prisma.workspaceInvitation.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends WorkspaceInvitationCreateManyAndReturnArgs>(args?: SelectSubset<T, WorkspaceInvitationCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceInvitationPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a WorkspaceInvitation.
+     * @param {WorkspaceInvitationDeleteArgs} args - Arguments to delete one WorkspaceInvitation.
+     * @example
+     * // Delete one WorkspaceInvitation
+     * const WorkspaceInvitation = await prisma.workspaceInvitation.delete({
+     *   where: {
+     *     // ... filter to delete one WorkspaceInvitation
+     *   }
+     * })
+     * 
+     */
+    delete<T extends WorkspaceInvitationDeleteArgs>(args: SelectSubset<T, WorkspaceInvitationDeleteArgs<ExtArgs>>): Prisma__WorkspaceInvitationClient<$Result.GetResult<Prisma.$WorkspaceInvitationPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one WorkspaceInvitation.
+     * @param {WorkspaceInvitationUpdateArgs} args - Arguments to update one WorkspaceInvitation.
+     * @example
+     * // Update one WorkspaceInvitation
+     * const workspaceInvitation = await prisma.workspaceInvitation.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends WorkspaceInvitationUpdateArgs>(args: SelectSubset<T, WorkspaceInvitationUpdateArgs<ExtArgs>>): Prisma__WorkspaceInvitationClient<$Result.GetResult<Prisma.$WorkspaceInvitationPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more WorkspaceInvitations.
+     * @param {WorkspaceInvitationDeleteManyArgs} args - Arguments to filter WorkspaceInvitations to delete.
+     * @example
+     * // Delete a few WorkspaceInvitations
+     * const { count } = await prisma.workspaceInvitation.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends WorkspaceInvitationDeleteManyArgs>(args?: SelectSubset<T, WorkspaceInvitationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more WorkspaceInvitations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkspaceInvitationUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many WorkspaceInvitations
+     * const workspaceInvitation = await prisma.workspaceInvitation.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends WorkspaceInvitationUpdateManyArgs>(args: SelectSubset<T, WorkspaceInvitationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more WorkspaceInvitations and returns the data updated in the database.
+     * @param {WorkspaceInvitationUpdateManyAndReturnArgs} args - Arguments to update many WorkspaceInvitations.
+     * @example
+     * // Update many WorkspaceInvitations
+     * const workspaceInvitation = await prisma.workspaceInvitation.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more WorkspaceInvitations and only return the `id`
+     * const workspaceInvitationWithIdOnly = await prisma.workspaceInvitation.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends WorkspaceInvitationUpdateManyAndReturnArgs>(args: SelectSubset<T, WorkspaceInvitationUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceInvitationPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one WorkspaceInvitation.
+     * @param {WorkspaceInvitationUpsertArgs} args - Arguments to update or create a WorkspaceInvitation.
+     * @example
+     * // Update or create a WorkspaceInvitation
+     * const workspaceInvitation = await prisma.workspaceInvitation.upsert({
+     *   create: {
+     *     // ... data to create a WorkspaceInvitation
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the WorkspaceInvitation we want to update
+     *   }
+     * })
+     */
+    upsert<T extends WorkspaceInvitationUpsertArgs>(args: SelectSubset<T, WorkspaceInvitationUpsertArgs<ExtArgs>>): Prisma__WorkspaceInvitationClient<$Result.GetResult<Prisma.$WorkspaceInvitationPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of WorkspaceInvitations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkspaceInvitationCountArgs} args - Arguments to filter WorkspaceInvitations to count.
+     * @example
+     * // Count the number of WorkspaceInvitations
+     * const count = await prisma.workspaceInvitation.count({
+     *   where: {
+     *     // ... the filter for the WorkspaceInvitations we want to count
+     *   }
+     * })
+    **/
+    count<T extends WorkspaceInvitationCountArgs>(
+      args?: Subset<T, WorkspaceInvitationCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], WorkspaceInvitationCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a WorkspaceInvitation.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkspaceInvitationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends WorkspaceInvitationAggregateArgs>(args: Subset<T, WorkspaceInvitationAggregateArgs>): Prisma.PrismaPromise<GetWorkspaceInvitationAggregateType<T>>
+
+    /**
+     * Group by WorkspaceInvitation.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkspaceInvitationGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends WorkspaceInvitationGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: WorkspaceInvitationGroupByArgs['orderBy'] }
+        : { orderBy?: WorkspaceInvitationGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, WorkspaceInvitationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetWorkspaceInvitationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the WorkspaceInvitation model
+   */
+  readonly fields: WorkspaceInvitationFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for WorkspaceInvitation.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__WorkspaceInvitationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    workspace<T extends WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Subset<T, WorkspaceDefaultArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    inviter<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the WorkspaceInvitation model
+   */
+  interface WorkspaceInvitationFieldRefs {
+    readonly id: FieldRef<"WorkspaceInvitation", 'String'>
+    readonly workspaceId: FieldRef<"WorkspaceInvitation", 'String'>
+    readonly email: FieldRef<"WorkspaceInvitation", 'String'>
+    readonly role: FieldRef<"WorkspaceInvitation", 'String'>
+    readonly tokenHash: FieldRef<"WorkspaceInvitation", 'String'>
+    readonly status: FieldRef<"WorkspaceInvitation", 'String'>
+    readonly expiresAt: FieldRef<"WorkspaceInvitation", 'DateTime'>
+    readonly invitedBy: FieldRef<"WorkspaceInvitation", 'String'>
+    readonly createdAt: FieldRef<"WorkspaceInvitation", 'DateTime'>
+    readonly updatedAt: FieldRef<"WorkspaceInvitation", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * WorkspaceInvitation findUnique
+   */
+  export type WorkspaceInvitationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceInvitation
+     */
+    select?: WorkspaceInvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceInvitation
+     */
+    omit?: WorkspaceInvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceInvitationInclude<ExtArgs> | null
+    /**
+     * Filter, which WorkspaceInvitation to fetch.
+     */
+    where: WorkspaceInvitationWhereUniqueInput
+  }
+
+  /**
+   * WorkspaceInvitation findUniqueOrThrow
+   */
+  export type WorkspaceInvitationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceInvitation
+     */
+    select?: WorkspaceInvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceInvitation
+     */
+    omit?: WorkspaceInvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceInvitationInclude<ExtArgs> | null
+    /**
+     * Filter, which WorkspaceInvitation to fetch.
+     */
+    where: WorkspaceInvitationWhereUniqueInput
+  }
+
+  /**
+   * WorkspaceInvitation findFirst
+   */
+  export type WorkspaceInvitationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceInvitation
+     */
+    select?: WorkspaceInvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceInvitation
+     */
+    omit?: WorkspaceInvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceInvitationInclude<ExtArgs> | null
+    /**
+     * Filter, which WorkspaceInvitation to fetch.
+     */
+    where?: WorkspaceInvitationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WorkspaceInvitations to fetch.
+     */
+    orderBy?: WorkspaceInvitationOrderByWithRelationInput | WorkspaceInvitationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WorkspaceInvitations.
+     */
+    cursor?: WorkspaceInvitationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WorkspaceInvitations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WorkspaceInvitations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WorkspaceInvitations.
+     */
+    distinct?: WorkspaceInvitationScalarFieldEnum | WorkspaceInvitationScalarFieldEnum[]
+  }
+
+  /**
+   * WorkspaceInvitation findFirstOrThrow
+   */
+  export type WorkspaceInvitationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceInvitation
+     */
+    select?: WorkspaceInvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceInvitation
+     */
+    omit?: WorkspaceInvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceInvitationInclude<ExtArgs> | null
+    /**
+     * Filter, which WorkspaceInvitation to fetch.
+     */
+    where?: WorkspaceInvitationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WorkspaceInvitations to fetch.
+     */
+    orderBy?: WorkspaceInvitationOrderByWithRelationInput | WorkspaceInvitationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WorkspaceInvitations.
+     */
+    cursor?: WorkspaceInvitationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WorkspaceInvitations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WorkspaceInvitations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WorkspaceInvitations.
+     */
+    distinct?: WorkspaceInvitationScalarFieldEnum | WorkspaceInvitationScalarFieldEnum[]
+  }
+
+  /**
+   * WorkspaceInvitation findMany
+   */
+  export type WorkspaceInvitationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceInvitation
+     */
+    select?: WorkspaceInvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceInvitation
+     */
+    omit?: WorkspaceInvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceInvitationInclude<ExtArgs> | null
+    /**
+     * Filter, which WorkspaceInvitations to fetch.
+     */
+    where?: WorkspaceInvitationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WorkspaceInvitations to fetch.
+     */
+    orderBy?: WorkspaceInvitationOrderByWithRelationInput | WorkspaceInvitationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing WorkspaceInvitations.
+     */
+    cursor?: WorkspaceInvitationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WorkspaceInvitations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WorkspaceInvitations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WorkspaceInvitations.
+     */
+    distinct?: WorkspaceInvitationScalarFieldEnum | WorkspaceInvitationScalarFieldEnum[]
+  }
+
+  /**
+   * WorkspaceInvitation create
+   */
+  export type WorkspaceInvitationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceInvitation
+     */
+    select?: WorkspaceInvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceInvitation
+     */
+    omit?: WorkspaceInvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceInvitationInclude<ExtArgs> | null
+    /**
+     * The data needed to create a WorkspaceInvitation.
+     */
+    data: XOR<WorkspaceInvitationCreateInput, WorkspaceInvitationUncheckedCreateInput>
+  }
+
+  /**
+   * WorkspaceInvitation createMany
+   */
+  export type WorkspaceInvitationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many WorkspaceInvitations.
+     */
+    data: WorkspaceInvitationCreateManyInput | WorkspaceInvitationCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * WorkspaceInvitation createManyAndReturn
+   */
+  export type WorkspaceInvitationCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceInvitation
+     */
+    select?: WorkspaceInvitationSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceInvitation
+     */
+    omit?: WorkspaceInvitationOmit<ExtArgs> | null
+    /**
+     * The data used to create many WorkspaceInvitations.
+     */
+    data: WorkspaceInvitationCreateManyInput | WorkspaceInvitationCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceInvitationIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * WorkspaceInvitation update
+   */
+  export type WorkspaceInvitationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceInvitation
+     */
+    select?: WorkspaceInvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceInvitation
+     */
+    omit?: WorkspaceInvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceInvitationInclude<ExtArgs> | null
+    /**
+     * The data needed to update a WorkspaceInvitation.
+     */
+    data: XOR<WorkspaceInvitationUpdateInput, WorkspaceInvitationUncheckedUpdateInput>
+    /**
+     * Choose, which WorkspaceInvitation to update.
+     */
+    where: WorkspaceInvitationWhereUniqueInput
+  }
+
+  /**
+   * WorkspaceInvitation updateMany
+   */
+  export type WorkspaceInvitationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update WorkspaceInvitations.
+     */
+    data: XOR<WorkspaceInvitationUpdateManyMutationInput, WorkspaceInvitationUncheckedUpdateManyInput>
+    /**
+     * Filter which WorkspaceInvitations to update
+     */
+    where?: WorkspaceInvitationWhereInput
+    /**
+     * Limit how many WorkspaceInvitations to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * WorkspaceInvitation updateManyAndReturn
+   */
+  export type WorkspaceInvitationUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceInvitation
+     */
+    select?: WorkspaceInvitationSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceInvitation
+     */
+    omit?: WorkspaceInvitationOmit<ExtArgs> | null
+    /**
+     * The data used to update WorkspaceInvitations.
+     */
+    data: XOR<WorkspaceInvitationUpdateManyMutationInput, WorkspaceInvitationUncheckedUpdateManyInput>
+    /**
+     * Filter which WorkspaceInvitations to update
+     */
+    where?: WorkspaceInvitationWhereInput
+    /**
+     * Limit how many WorkspaceInvitations to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceInvitationIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * WorkspaceInvitation upsert
+   */
+  export type WorkspaceInvitationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceInvitation
+     */
+    select?: WorkspaceInvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceInvitation
+     */
+    omit?: WorkspaceInvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceInvitationInclude<ExtArgs> | null
+    /**
+     * The filter to search for the WorkspaceInvitation to update in case it exists.
+     */
+    where: WorkspaceInvitationWhereUniqueInput
+    /**
+     * In case the WorkspaceInvitation found by the `where` argument doesn't exist, create a new WorkspaceInvitation with this data.
+     */
+    create: XOR<WorkspaceInvitationCreateInput, WorkspaceInvitationUncheckedCreateInput>
+    /**
+     * In case the WorkspaceInvitation was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<WorkspaceInvitationUpdateInput, WorkspaceInvitationUncheckedUpdateInput>
+  }
+
+  /**
+   * WorkspaceInvitation delete
+   */
+  export type WorkspaceInvitationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceInvitation
+     */
+    select?: WorkspaceInvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceInvitation
+     */
+    omit?: WorkspaceInvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceInvitationInclude<ExtArgs> | null
+    /**
+     * Filter which WorkspaceInvitation to delete.
+     */
+    where: WorkspaceInvitationWhereUniqueInput
+  }
+
+  /**
+   * WorkspaceInvitation deleteMany
+   */
+  export type WorkspaceInvitationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WorkspaceInvitations to delete
+     */
+    where?: WorkspaceInvitationWhereInput
+    /**
+     * Limit how many WorkspaceInvitations to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * WorkspaceInvitation without action
+   */
+  export type WorkspaceInvitationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceInvitation
+     */
+    select?: WorkspaceInvitationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceInvitation
+     */
+    omit?: WorkspaceInvitationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceInvitationInclude<ExtArgs> | null
   }
 
 
@@ -63536,20 +64954,30 @@ export namespace Prisma {
 
   export type BillingInvoiceAvgAggregateOutputType = {
     amount: number | null
+    taxAmount: number | null
+    subtotal: number | null
   }
 
   export type BillingInvoiceSumAggregateOutputType = {
     amount: number | null
+    taxAmount: number | null
+    subtotal: number | null
   }
 
   export type BillingInvoiceMinAggregateOutputType = {
     id: string | null
     userId: string | null
     planId: string | null
+    planName: string | null
+    description: string | null
     amount: number | null
     currency: string | null
     status: string | null
     invoiceNumber: string | null
+    paymentProvider: string | null
+    paymentReference: string | null
+    taxAmount: number | null
+    subtotal: number | null
     billingPeriodStart: Date | null
     billingPeriodEnd: Date | null
     createdAt: Date | null
@@ -63559,10 +64987,16 @@ export namespace Prisma {
     id: string | null
     userId: string | null
     planId: string | null
+    planName: string | null
+    description: string | null
     amount: number | null
     currency: string | null
     status: string | null
     invoiceNumber: string | null
+    paymentProvider: string | null
+    paymentReference: string | null
+    taxAmount: number | null
+    subtotal: number | null
     billingPeriodStart: Date | null
     billingPeriodEnd: Date | null
     createdAt: Date | null
@@ -63572,10 +65006,16 @@ export namespace Prisma {
     id: number
     userId: number
     planId: number
+    planName: number
+    description: number
     amount: number
     currency: number
     status: number
     invoiceNumber: number
+    paymentProvider: number
+    paymentReference: number
+    taxAmount: number
+    subtotal: number
     billingPeriodStart: number
     billingPeriodEnd: number
     createdAt: number
@@ -63585,20 +65025,30 @@ export namespace Prisma {
 
   export type BillingInvoiceAvgAggregateInputType = {
     amount?: true
+    taxAmount?: true
+    subtotal?: true
   }
 
   export type BillingInvoiceSumAggregateInputType = {
     amount?: true
+    taxAmount?: true
+    subtotal?: true
   }
 
   export type BillingInvoiceMinAggregateInputType = {
     id?: true
     userId?: true
     planId?: true
+    planName?: true
+    description?: true
     amount?: true
     currency?: true
     status?: true
     invoiceNumber?: true
+    paymentProvider?: true
+    paymentReference?: true
+    taxAmount?: true
+    subtotal?: true
     billingPeriodStart?: true
     billingPeriodEnd?: true
     createdAt?: true
@@ -63608,10 +65058,16 @@ export namespace Prisma {
     id?: true
     userId?: true
     planId?: true
+    planName?: true
+    description?: true
     amount?: true
     currency?: true
     status?: true
     invoiceNumber?: true
+    paymentProvider?: true
+    paymentReference?: true
+    taxAmount?: true
+    subtotal?: true
     billingPeriodStart?: true
     billingPeriodEnd?: true
     createdAt?: true
@@ -63621,10 +65077,16 @@ export namespace Prisma {
     id?: true
     userId?: true
     planId?: true
+    planName?: true
+    description?: true
     amount?: true
     currency?: true
     status?: true
     invoiceNumber?: true
+    paymentProvider?: true
+    paymentReference?: true
+    taxAmount?: true
+    subtotal?: true
     billingPeriodStart?: true
     billingPeriodEnd?: true
     createdAt?: true
@@ -63721,10 +65183,16 @@ export namespace Prisma {
     id: string
     userId: string
     planId: string
+    planName: string | null
+    description: string | null
     amount: number
     currency: string
     status: string
     invoiceNumber: string
+    paymentProvider: string | null
+    paymentReference: string | null
+    taxAmount: number | null
+    subtotal: number | null
     billingPeriodStart: Date
     billingPeriodEnd: Date
     createdAt: Date
@@ -63753,10 +65221,16 @@ export namespace Prisma {
     id?: boolean
     userId?: boolean
     planId?: boolean
+    planName?: boolean
+    description?: boolean
     amount?: boolean
     currency?: boolean
     status?: boolean
     invoiceNumber?: boolean
+    paymentProvider?: boolean
+    paymentReference?: boolean
+    taxAmount?: boolean
+    subtotal?: boolean
     billingPeriodStart?: boolean
     billingPeriodEnd?: boolean
     createdAt?: boolean
@@ -63767,10 +65241,16 @@ export namespace Prisma {
     id?: boolean
     userId?: boolean
     planId?: boolean
+    planName?: boolean
+    description?: boolean
     amount?: boolean
     currency?: boolean
     status?: boolean
     invoiceNumber?: boolean
+    paymentProvider?: boolean
+    paymentReference?: boolean
+    taxAmount?: boolean
+    subtotal?: boolean
     billingPeriodStart?: boolean
     billingPeriodEnd?: boolean
     createdAt?: boolean
@@ -63781,10 +65261,16 @@ export namespace Prisma {
     id?: boolean
     userId?: boolean
     planId?: boolean
+    planName?: boolean
+    description?: boolean
     amount?: boolean
     currency?: boolean
     status?: boolean
     invoiceNumber?: boolean
+    paymentProvider?: boolean
+    paymentReference?: boolean
+    taxAmount?: boolean
+    subtotal?: boolean
     billingPeriodStart?: boolean
     billingPeriodEnd?: boolean
     createdAt?: boolean
@@ -63795,16 +65281,22 @@ export namespace Prisma {
     id?: boolean
     userId?: boolean
     planId?: boolean
+    planName?: boolean
+    description?: boolean
     amount?: boolean
     currency?: boolean
     status?: boolean
     invoiceNumber?: boolean
+    paymentProvider?: boolean
+    paymentReference?: boolean
+    taxAmount?: boolean
+    subtotal?: boolean
     billingPeriodStart?: boolean
     billingPeriodEnd?: boolean
     createdAt?: boolean
   }
 
-  export type BillingInvoiceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "planId" | "amount" | "currency" | "status" | "invoiceNumber" | "billingPeriodStart" | "billingPeriodEnd" | "createdAt", ExtArgs["result"]["billingInvoice"]>
+  export type BillingInvoiceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "planId" | "planName" | "description" | "amount" | "currency" | "status" | "invoiceNumber" | "paymentProvider" | "paymentReference" | "taxAmount" | "subtotal" | "billingPeriodStart" | "billingPeriodEnd" | "createdAt", ExtArgs["result"]["billingInvoice"]>
   export type BillingInvoiceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -63824,10 +65316,16 @@ export namespace Prisma {
       id: string
       userId: string
       planId: string
+      planName: string | null
+      description: string | null
       amount: number
       currency: string
       status: string
       invoiceNumber: string
+      paymentProvider: string | null
+      paymentReference: string | null
+      taxAmount: number | null
+      subtotal: number | null
       billingPeriodStart: Date
       billingPeriodEnd: Date
       createdAt: Date
@@ -64258,10 +65756,16 @@ export namespace Prisma {
     readonly id: FieldRef<"BillingInvoice", 'String'>
     readonly userId: FieldRef<"BillingInvoice", 'String'>
     readonly planId: FieldRef<"BillingInvoice", 'String'>
+    readonly planName: FieldRef<"BillingInvoice", 'String'>
+    readonly description: FieldRef<"BillingInvoice", 'String'>
     readonly amount: FieldRef<"BillingInvoice", 'Float'>
     readonly currency: FieldRef<"BillingInvoice", 'String'>
     readonly status: FieldRef<"BillingInvoice", 'String'>
     readonly invoiceNumber: FieldRef<"BillingInvoice", 'String'>
+    readonly paymentProvider: FieldRef<"BillingInvoice", 'String'>
+    readonly paymentReference: FieldRef<"BillingInvoice", 'String'>
+    readonly taxAmount: FieldRef<"BillingInvoice", 'Float'>
+    readonly subtotal: FieldRef<"BillingInvoice", 'Float'>
     readonly billingPeriodStart: FieldRef<"BillingInvoice", 'DateTime'>
     readonly billingPeriodEnd: FieldRef<"BillingInvoice", 'DateTime'>
     readonly createdAt: FieldRef<"BillingInvoice", 'DateTime'>
@@ -64685,6 +66189,1092 @@ export namespace Prisma {
 
 
   /**
+   * Model PaymentWebhookEvent
+   */
+
+  export type AggregatePaymentWebhookEvent = {
+    _count: PaymentWebhookEventCountAggregateOutputType | null
+    _avg: PaymentWebhookEventAvgAggregateOutputType | null
+    _sum: PaymentWebhookEventSumAggregateOutputType | null
+    _min: PaymentWebhookEventMinAggregateOutputType | null
+    _max: PaymentWebhookEventMaxAggregateOutputType | null
+  }
+
+  export type PaymentWebhookEventAvgAggregateOutputType = {
+    amount: number | null
+  }
+
+  export type PaymentWebhookEventSumAggregateOutputType = {
+    amount: number | null
+  }
+
+  export type PaymentWebhookEventMinAggregateOutputType = {
+    id: string | null
+    eventId: string | null
+    provider: string | null
+    eventType: string | null
+    checkoutSessionId: string | null
+    userId: string | null
+    amount: number | null
+    currency: string | null
+    createdAt: Date | null
+  }
+
+  export type PaymentWebhookEventMaxAggregateOutputType = {
+    id: string | null
+    eventId: string | null
+    provider: string | null
+    eventType: string | null
+    checkoutSessionId: string | null
+    userId: string | null
+    amount: number | null
+    currency: string | null
+    createdAt: Date | null
+  }
+
+  export type PaymentWebhookEventCountAggregateOutputType = {
+    id: number
+    eventId: number
+    provider: number
+    eventType: number
+    checkoutSessionId: number
+    userId: number
+    amount: number
+    currency: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type PaymentWebhookEventAvgAggregateInputType = {
+    amount?: true
+  }
+
+  export type PaymentWebhookEventSumAggregateInputType = {
+    amount?: true
+  }
+
+  export type PaymentWebhookEventMinAggregateInputType = {
+    id?: true
+    eventId?: true
+    provider?: true
+    eventType?: true
+    checkoutSessionId?: true
+    userId?: true
+    amount?: true
+    currency?: true
+    createdAt?: true
+  }
+
+  export type PaymentWebhookEventMaxAggregateInputType = {
+    id?: true
+    eventId?: true
+    provider?: true
+    eventType?: true
+    checkoutSessionId?: true
+    userId?: true
+    amount?: true
+    currency?: true
+    createdAt?: true
+  }
+
+  export type PaymentWebhookEventCountAggregateInputType = {
+    id?: true
+    eventId?: true
+    provider?: true
+    eventType?: true
+    checkoutSessionId?: true
+    userId?: true
+    amount?: true
+    currency?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type PaymentWebhookEventAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PaymentWebhookEvent to aggregate.
+     */
+    where?: PaymentWebhookEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaymentWebhookEvents to fetch.
+     */
+    orderBy?: PaymentWebhookEventOrderByWithRelationInput | PaymentWebhookEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PaymentWebhookEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaymentWebhookEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaymentWebhookEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PaymentWebhookEvents
+    **/
+    _count?: true | PaymentWebhookEventCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: PaymentWebhookEventAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: PaymentWebhookEventSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PaymentWebhookEventMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PaymentWebhookEventMaxAggregateInputType
+  }
+
+  export type GetPaymentWebhookEventAggregateType<T extends PaymentWebhookEventAggregateArgs> = {
+        [P in keyof T & keyof AggregatePaymentWebhookEvent]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePaymentWebhookEvent[P]>
+      : GetScalarType<T[P], AggregatePaymentWebhookEvent[P]>
+  }
+
+
+
+
+  export type PaymentWebhookEventGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PaymentWebhookEventWhereInput
+    orderBy?: PaymentWebhookEventOrderByWithAggregationInput | PaymentWebhookEventOrderByWithAggregationInput[]
+    by: PaymentWebhookEventScalarFieldEnum[] | PaymentWebhookEventScalarFieldEnum
+    having?: PaymentWebhookEventScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PaymentWebhookEventCountAggregateInputType | true
+    _avg?: PaymentWebhookEventAvgAggregateInputType
+    _sum?: PaymentWebhookEventSumAggregateInputType
+    _min?: PaymentWebhookEventMinAggregateInputType
+    _max?: PaymentWebhookEventMaxAggregateInputType
+  }
+
+  export type PaymentWebhookEventGroupByOutputType = {
+    id: string
+    eventId: string
+    provider: string
+    eventType: string
+    checkoutSessionId: string | null
+    userId: string | null
+    amount: number | null
+    currency: string | null
+    createdAt: Date
+    _count: PaymentWebhookEventCountAggregateOutputType | null
+    _avg: PaymentWebhookEventAvgAggregateOutputType | null
+    _sum: PaymentWebhookEventSumAggregateOutputType | null
+    _min: PaymentWebhookEventMinAggregateOutputType | null
+    _max: PaymentWebhookEventMaxAggregateOutputType | null
+  }
+
+  type GetPaymentWebhookEventGroupByPayload<T extends PaymentWebhookEventGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PaymentWebhookEventGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PaymentWebhookEventGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PaymentWebhookEventGroupByOutputType[P]>
+            : GetScalarType<T[P], PaymentWebhookEventGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PaymentWebhookEventSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    eventId?: boolean
+    provider?: boolean
+    eventType?: boolean
+    checkoutSessionId?: boolean
+    userId?: boolean
+    amount?: boolean
+    currency?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["paymentWebhookEvent"]>
+
+  export type PaymentWebhookEventSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    eventId?: boolean
+    provider?: boolean
+    eventType?: boolean
+    checkoutSessionId?: boolean
+    userId?: boolean
+    amount?: boolean
+    currency?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["paymentWebhookEvent"]>
+
+  export type PaymentWebhookEventSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    eventId?: boolean
+    provider?: boolean
+    eventType?: boolean
+    checkoutSessionId?: boolean
+    userId?: boolean
+    amount?: boolean
+    currency?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["paymentWebhookEvent"]>
+
+  export type PaymentWebhookEventSelectScalar = {
+    id?: boolean
+    eventId?: boolean
+    provider?: boolean
+    eventType?: boolean
+    checkoutSessionId?: boolean
+    userId?: boolean
+    amount?: boolean
+    currency?: boolean
+    createdAt?: boolean
+  }
+
+  export type PaymentWebhookEventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "eventId" | "provider" | "eventType" | "checkoutSessionId" | "userId" | "amount" | "currency" | "createdAt", ExtArgs["result"]["paymentWebhookEvent"]>
+
+  export type $PaymentWebhookEventPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PaymentWebhookEvent"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      eventId: string
+      provider: string
+      eventType: string
+      checkoutSessionId: string | null
+      userId: string | null
+      amount: number | null
+      currency: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["paymentWebhookEvent"]>
+    composites: {}
+  }
+
+  type PaymentWebhookEventGetPayload<S extends boolean | null | undefined | PaymentWebhookEventDefaultArgs> = $Result.GetResult<Prisma.$PaymentWebhookEventPayload, S>
+
+  type PaymentWebhookEventCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PaymentWebhookEventFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PaymentWebhookEventCountAggregateInputType | true
+    }
+
+  export interface PaymentWebhookEventDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PaymentWebhookEvent'], meta: { name: 'PaymentWebhookEvent' } }
+    /**
+     * Find zero or one PaymentWebhookEvent that matches the filter.
+     * @param {PaymentWebhookEventFindUniqueArgs} args - Arguments to find a PaymentWebhookEvent
+     * @example
+     * // Get one PaymentWebhookEvent
+     * const paymentWebhookEvent = await prisma.paymentWebhookEvent.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PaymentWebhookEventFindUniqueArgs>(args: SelectSubset<T, PaymentWebhookEventFindUniqueArgs<ExtArgs>>): Prisma__PaymentWebhookEventClient<$Result.GetResult<Prisma.$PaymentWebhookEventPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one PaymentWebhookEvent that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PaymentWebhookEventFindUniqueOrThrowArgs} args - Arguments to find a PaymentWebhookEvent
+     * @example
+     * // Get one PaymentWebhookEvent
+     * const paymentWebhookEvent = await prisma.paymentWebhookEvent.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PaymentWebhookEventFindUniqueOrThrowArgs>(args: SelectSubset<T, PaymentWebhookEventFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PaymentWebhookEventClient<$Result.GetResult<Prisma.$PaymentWebhookEventPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PaymentWebhookEvent that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentWebhookEventFindFirstArgs} args - Arguments to find a PaymentWebhookEvent
+     * @example
+     * // Get one PaymentWebhookEvent
+     * const paymentWebhookEvent = await prisma.paymentWebhookEvent.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PaymentWebhookEventFindFirstArgs>(args?: SelectSubset<T, PaymentWebhookEventFindFirstArgs<ExtArgs>>): Prisma__PaymentWebhookEventClient<$Result.GetResult<Prisma.$PaymentWebhookEventPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PaymentWebhookEvent that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentWebhookEventFindFirstOrThrowArgs} args - Arguments to find a PaymentWebhookEvent
+     * @example
+     * // Get one PaymentWebhookEvent
+     * const paymentWebhookEvent = await prisma.paymentWebhookEvent.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PaymentWebhookEventFindFirstOrThrowArgs>(args?: SelectSubset<T, PaymentWebhookEventFindFirstOrThrowArgs<ExtArgs>>): Prisma__PaymentWebhookEventClient<$Result.GetResult<Prisma.$PaymentWebhookEventPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more PaymentWebhookEvents that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentWebhookEventFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PaymentWebhookEvents
+     * const paymentWebhookEvents = await prisma.paymentWebhookEvent.findMany()
+     * 
+     * // Get first 10 PaymentWebhookEvents
+     * const paymentWebhookEvents = await prisma.paymentWebhookEvent.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const paymentWebhookEventWithIdOnly = await prisma.paymentWebhookEvent.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends PaymentWebhookEventFindManyArgs>(args?: SelectSubset<T, PaymentWebhookEventFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentWebhookEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a PaymentWebhookEvent.
+     * @param {PaymentWebhookEventCreateArgs} args - Arguments to create a PaymentWebhookEvent.
+     * @example
+     * // Create one PaymentWebhookEvent
+     * const PaymentWebhookEvent = await prisma.paymentWebhookEvent.create({
+     *   data: {
+     *     // ... data to create a PaymentWebhookEvent
+     *   }
+     * })
+     * 
+     */
+    create<T extends PaymentWebhookEventCreateArgs>(args: SelectSubset<T, PaymentWebhookEventCreateArgs<ExtArgs>>): Prisma__PaymentWebhookEventClient<$Result.GetResult<Prisma.$PaymentWebhookEventPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many PaymentWebhookEvents.
+     * @param {PaymentWebhookEventCreateManyArgs} args - Arguments to create many PaymentWebhookEvents.
+     * @example
+     * // Create many PaymentWebhookEvents
+     * const paymentWebhookEvent = await prisma.paymentWebhookEvent.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PaymentWebhookEventCreateManyArgs>(args?: SelectSubset<T, PaymentWebhookEventCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many PaymentWebhookEvents and returns the data saved in the database.
+     * @param {PaymentWebhookEventCreateManyAndReturnArgs} args - Arguments to create many PaymentWebhookEvents.
+     * @example
+     * // Create many PaymentWebhookEvents
+     * const paymentWebhookEvent = await prisma.paymentWebhookEvent.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many PaymentWebhookEvents and only return the `id`
+     * const paymentWebhookEventWithIdOnly = await prisma.paymentWebhookEvent.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends PaymentWebhookEventCreateManyAndReturnArgs>(args?: SelectSubset<T, PaymentWebhookEventCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentWebhookEventPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a PaymentWebhookEvent.
+     * @param {PaymentWebhookEventDeleteArgs} args - Arguments to delete one PaymentWebhookEvent.
+     * @example
+     * // Delete one PaymentWebhookEvent
+     * const PaymentWebhookEvent = await prisma.paymentWebhookEvent.delete({
+     *   where: {
+     *     // ... filter to delete one PaymentWebhookEvent
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PaymentWebhookEventDeleteArgs>(args: SelectSubset<T, PaymentWebhookEventDeleteArgs<ExtArgs>>): Prisma__PaymentWebhookEventClient<$Result.GetResult<Prisma.$PaymentWebhookEventPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one PaymentWebhookEvent.
+     * @param {PaymentWebhookEventUpdateArgs} args - Arguments to update one PaymentWebhookEvent.
+     * @example
+     * // Update one PaymentWebhookEvent
+     * const paymentWebhookEvent = await prisma.paymentWebhookEvent.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PaymentWebhookEventUpdateArgs>(args: SelectSubset<T, PaymentWebhookEventUpdateArgs<ExtArgs>>): Prisma__PaymentWebhookEventClient<$Result.GetResult<Prisma.$PaymentWebhookEventPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more PaymentWebhookEvents.
+     * @param {PaymentWebhookEventDeleteManyArgs} args - Arguments to filter PaymentWebhookEvents to delete.
+     * @example
+     * // Delete a few PaymentWebhookEvents
+     * const { count } = await prisma.paymentWebhookEvent.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PaymentWebhookEventDeleteManyArgs>(args?: SelectSubset<T, PaymentWebhookEventDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PaymentWebhookEvents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentWebhookEventUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PaymentWebhookEvents
+     * const paymentWebhookEvent = await prisma.paymentWebhookEvent.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PaymentWebhookEventUpdateManyArgs>(args: SelectSubset<T, PaymentWebhookEventUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PaymentWebhookEvents and returns the data updated in the database.
+     * @param {PaymentWebhookEventUpdateManyAndReturnArgs} args - Arguments to update many PaymentWebhookEvents.
+     * @example
+     * // Update many PaymentWebhookEvents
+     * const paymentWebhookEvent = await prisma.paymentWebhookEvent.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more PaymentWebhookEvents and only return the `id`
+     * const paymentWebhookEventWithIdOnly = await prisma.paymentWebhookEvent.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends PaymentWebhookEventUpdateManyAndReturnArgs>(args: SelectSubset<T, PaymentWebhookEventUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentWebhookEventPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one PaymentWebhookEvent.
+     * @param {PaymentWebhookEventUpsertArgs} args - Arguments to update or create a PaymentWebhookEvent.
+     * @example
+     * // Update or create a PaymentWebhookEvent
+     * const paymentWebhookEvent = await prisma.paymentWebhookEvent.upsert({
+     *   create: {
+     *     // ... data to create a PaymentWebhookEvent
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PaymentWebhookEvent we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PaymentWebhookEventUpsertArgs>(args: SelectSubset<T, PaymentWebhookEventUpsertArgs<ExtArgs>>): Prisma__PaymentWebhookEventClient<$Result.GetResult<Prisma.$PaymentWebhookEventPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of PaymentWebhookEvents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentWebhookEventCountArgs} args - Arguments to filter PaymentWebhookEvents to count.
+     * @example
+     * // Count the number of PaymentWebhookEvents
+     * const count = await prisma.paymentWebhookEvent.count({
+     *   where: {
+     *     // ... the filter for the PaymentWebhookEvents we want to count
+     *   }
+     * })
+    **/
+    count<T extends PaymentWebhookEventCountArgs>(
+      args?: Subset<T, PaymentWebhookEventCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PaymentWebhookEventCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PaymentWebhookEvent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentWebhookEventAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PaymentWebhookEventAggregateArgs>(args: Subset<T, PaymentWebhookEventAggregateArgs>): Prisma.PrismaPromise<GetPaymentWebhookEventAggregateType<T>>
+
+    /**
+     * Group by PaymentWebhookEvent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentWebhookEventGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PaymentWebhookEventGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PaymentWebhookEventGroupByArgs['orderBy'] }
+        : { orderBy?: PaymentWebhookEventGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PaymentWebhookEventGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPaymentWebhookEventGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the PaymentWebhookEvent model
+   */
+  readonly fields: PaymentWebhookEventFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PaymentWebhookEvent.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PaymentWebhookEventClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the PaymentWebhookEvent model
+   */
+  interface PaymentWebhookEventFieldRefs {
+    readonly id: FieldRef<"PaymentWebhookEvent", 'String'>
+    readonly eventId: FieldRef<"PaymentWebhookEvent", 'String'>
+    readonly provider: FieldRef<"PaymentWebhookEvent", 'String'>
+    readonly eventType: FieldRef<"PaymentWebhookEvent", 'String'>
+    readonly checkoutSessionId: FieldRef<"PaymentWebhookEvent", 'String'>
+    readonly userId: FieldRef<"PaymentWebhookEvent", 'String'>
+    readonly amount: FieldRef<"PaymentWebhookEvent", 'Float'>
+    readonly currency: FieldRef<"PaymentWebhookEvent", 'String'>
+    readonly createdAt: FieldRef<"PaymentWebhookEvent", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * PaymentWebhookEvent findUnique
+   */
+  export type PaymentWebhookEventFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentWebhookEvent
+     */
+    select?: PaymentWebhookEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentWebhookEvent
+     */
+    omit?: PaymentWebhookEventOmit<ExtArgs> | null
+    /**
+     * Filter, which PaymentWebhookEvent to fetch.
+     */
+    where: PaymentWebhookEventWhereUniqueInput
+  }
+
+  /**
+   * PaymentWebhookEvent findUniqueOrThrow
+   */
+  export type PaymentWebhookEventFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentWebhookEvent
+     */
+    select?: PaymentWebhookEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentWebhookEvent
+     */
+    omit?: PaymentWebhookEventOmit<ExtArgs> | null
+    /**
+     * Filter, which PaymentWebhookEvent to fetch.
+     */
+    where: PaymentWebhookEventWhereUniqueInput
+  }
+
+  /**
+   * PaymentWebhookEvent findFirst
+   */
+  export type PaymentWebhookEventFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentWebhookEvent
+     */
+    select?: PaymentWebhookEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentWebhookEvent
+     */
+    omit?: PaymentWebhookEventOmit<ExtArgs> | null
+    /**
+     * Filter, which PaymentWebhookEvent to fetch.
+     */
+    where?: PaymentWebhookEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaymentWebhookEvents to fetch.
+     */
+    orderBy?: PaymentWebhookEventOrderByWithRelationInput | PaymentWebhookEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PaymentWebhookEvents.
+     */
+    cursor?: PaymentWebhookEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaymentWebhookEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaymentWebhookEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PaymentWebhookEvents.
+     */
+    distinct?: PaymentWebhookEventScalarFieldEnum | PaymentWebhookEventScalarFieldEnum[]
+  }
+
+  /**
+   * PaymentWebhookEvent findFirstOrThrow
+   */
+  export type PaymentWebhookEventFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentWebhookEvent
+     */
+    select?: PaymentWebhookEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentWebhookEvent
+     */
+    omit?: PaymentWebhookEventOmit<ExtArgs> | null
+    /**
+     * Filter, which PaymentWebhookEvent to fetch.
+     */
+    where?: PaymentWebhookEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaymentWebhookEvents to fetch.
+     */
+    orderBy?: PaymentWebhookEventOrderByWithRelationInput | PaymentWebhookEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PaymentWebhookEvents.
+     */
+    cursor?: PaymentWebhookEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaymentWebhookEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaymentWebhookEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PaymentWebhookEvents.
+     */
+    distinct?: PaymentWebhookEventScalarFieldEnum | PaymentWebhookEventScalarFieldEnum[]
+  }
+
+  /**
+   * PaymentWebhookEvent findMany
+   */
+  export type PaymentWebhookEventFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentWebhookEvent
+     */
+    select?: PaymentWebhookEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentWebhookEvent
+     */
+    omit?: PaymentWebhookEventOmit<ExtArgs> | null
+    /**
+     * Filter, which PaymentWebhookEvents to fetch.
+     */
+    where?: PaymentWebhookEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaymentWebhookEvents to fetch.
+     */
+    orderBy?: PaymentWebhookEventOrderByWithRelationInput | PaymentWebhookEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PaymentWebhookEvents.
+     */
+    cursor?: PaymentWebhookEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaymentWebhookEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaymentWebhookEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PaymentWebhookEvents.
+     */
+    distinct?: PaymentWebhookEventScalarFieldEnum | PaymentWebhookEventScalarFieldEnum[]
+  }
+
+  /**
+   * PaymentWebhookEvent create
+   */
+  export type PaymentWebhookEventCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentWebhookEvent
+     */
+    select?: PaymentWebhookEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentWebhookEvent
+     */
+    omit?: PaymentWebhookEventOmit<ExtArgs> | null
+    /**
+     * The data needed to create a PaymentWebhookEvent.
+     */
+    data: XOR<PaymentWebhookEventCreateInput, PaymentWebhookEventUncheckedCreateInput>
+  }
+
+  /**
+   * PaymentWebhookEvent createMany
+   */
+  export type PaymentWebhookEventCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many PaymentWebhookEvents.
+     */
+    data: PaymentWebhookEventCreateManyInput | PaymentWebhookEventCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PaymentWebhookEvent createManyAndReturn
+   */
+  export type PaymentWebhookEventCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentWebhookEvent
+     */
+    select?: PaymentWebhookEventSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentWebhookEvent
+     */
+    omit?: PaymentWebhookEventOmit<ExtArgs> | null
+    /**
+     * The data used to create many PaymentWebhookEvents.
+     */
+    data: PaymentWebhookEventCreateManyInput | PaymentWebhookEventCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PaymentWebhookEvent update
+   */
+  export type PaymentWebhookEventUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentWebhookEvent
+     */
+    select?: PaymentWebhookEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentWebhookEvent
+     */
+    omit?: PaymentWebhookEventOmit<ExtArgs> | null
+    /**
+     * The data needed to update a PaymentWebhookEvent.
+     */
+    data: XOR<PaymentWebhookEventUpdateInput, PaymentWebhookEventUncheckedUpdateInput>
+    /**
+     * Choose, which PaymentWebhookEvent to update.
+     */
+    where: PaymentWebhookEventWhereUniqueInput
+  }
+
+  /**
+   * PaymentWebhookEvent updateMany
+   */
+  export type PaymentWebhookEventUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update PaymentWebhookEvents.
+     */
+    data: XOR<PaymentWebhookEventUpdateManyMutationInput, PaymentWebhookEventUncheckedUpdateManyInput>
+    /**
+     * Filter which PaymentWebhookEvents to update
+     */
+    where?: PaymentWebhookEventWhereInput
+    /**
+     * Limit how many PaymentWebhookEvents to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PaymentWebhookEvent updateManyAndReturn
+   */
+  export type PaymentWebhookEventUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentWebhookEvent
+     */
+    select?: PaymentWebhookEventSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentWebhookEvent
+     */
+    omit?: PaymentWebhookEventOmit<ExtArgs> | null
+    /**
+     * The data used to update PaymentWebhookEvents.
+     */
+    data: XOR<PaymentWebhookEventUpdateManyMutationInput, PaymentWebhookEventUncheckedUpdateManyInput>
+    /**
+     * Filter which PaymentWebhookEvents to update
+     */
+    where?: PaymentWebhookEventWhereInput
+    /**
+     * Limit how many PaymentWebhookEvents to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PaymentWebhookEvent upsert
+   */
+  export type PaymentWebhookEventUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentWebhookEvent
+     */
+    select?: PaymentWebhookEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentWebhookEvent
+     */
+    omit?: PaymentWebhookEventOmit<ExtArgs> | null
+    /**
+     * The filter to search for the PaymentWebhookEvent to update in case it exists.
+     */
+    where: PaymentWebhookEventWhereUniqueInput
+    /**
+     * In case the PaymentWebhookEvent found by the `where` argument doesn't exist, create a new PaymentWebhookEvent with this data.
+     */
+    create: XOR<PaymentWebhookEventCreateInput, PaymentWebhookEventUncheckedCreateInput>
+    /**
+     * In case the PaymentWebhookEvent was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PaymentWebhookEventUpdateInput, PaymentWebhookEventUncheckedUpdateInput>
+  }
+
+  /**
+   * PaymentWebhookEvent delete
+   */
+  export type PaymentWebhookEventDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentWebhookEvent
+     */
+    select?: PaymentWebhookEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentWebhookEvent
+     */
+    omit?: PaymentWebhookEventOmit<ExtArgs> | null
+    /**
+     * Filter which PaymentWebhookEvent to delete.
+     */
+    where: PaymentWebhookEventWhereUniqueInput
+  }
+
+  /**
+   * PaymentWebhookEvent deleteMany
+   */
+  export type PaymentWebhookEventDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PaymentWebhookEvents to delete
+     */
+    where?: PaymentWebhookEventWhereInput
+    /**
+     * Limit how many PaymentWebhookEvents to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * PaymentWebhookEvent without action
+   */
+  export type PaymentWebhookEventDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentWebhookEvent
+     */
+    select?: PaymentWebhookEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentWebhookEvent
+     */
+    omit?: PaymentWebhookEventOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -64813,6 +67403,8 @@ export namespace Prisma {
     userId: 'userId',
     planId: 'planId',
     status: 'status',
+    stripeCustomerId: 'stripeCustomerId',
+    stripeSubscriptionId: 'stripeSubscriptionId',
     currentPeriodStart: 'currentPeriodStart',
     currentPeriodEnd: 'currentPeriodEnd',
     createdAt: 'createdAt',
@@ -65264,6 +67856,22 @@ export namespace Prisma {
   export type WorkspaceMemberScalarFieldEnum = (typeof WorkspaceMemberScalarFieldEnum)[keyof typeof WorkspaceMemberScalarFieldEnum]
 
 
+  export const WorkspaceInvitationScalarFieldEnum: {
+    id: 'id',
+    workspaceId: 'workspaceId',
+    email: 'email',
+    role: 'role',
+    tokenHash: 'tokenHash',
+    status: 'status',
+    expiresAt: 'expiresAt',
+    invitedBy: 'invitedBy',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type WorkspaceInvitationScalarFieldEnum = (typeof WorkspaceInvitationScalarFieldEnum)[keyof typeof WorkspaceInvitationScalarFieldEnum]
+
+
   export const PublishApprovalRequestScalarFieldEnum: {
     id: 'id',
     websiteId: 'websiteId',
@@ -65443,16 +68051,37 @@ export namespace Prisma {
     id: 'id',
     userId: 'userId',
     planId: 'planId',
+    planName: 'planName',
+    description: 'description',
     amount: 'amount',
     currency: 'currency',
     status: 'status',
     invoiceNumber: 'invoiceNumber',
+    paymentProvider: 'paymentProvider',
+    paymentReference: 'paymentReference',
+    taxAmount: 'taxAmount',
+    subtotal: 'subtotal',
     billingPeriodStart: 'billingPeriodStart',
     billingPeriodEnd: 'billingPeriodEnd',
     createdAt: 'createdAt'
   };
 
   export type BillingInvoiceScalarFieldEnum = (typeof BillingInvoiceScalarFieldEnum)[keyof typeof BillingInvoiceScalarFieldEnum]
+
+
+  export const PaymentWebhookEventScalarFieldEnum: {
+    id: 'id',
+    eventId: 'eventId',
+    provider: 'provider',
+    eventType: 'eventType',
+    checkoutSessionId: 'checkoutSessionId',
+    userId: 'userId',
+    amount: 'amount',
+    currency: 'currency',
+    createdAt: 'createdAt'
+  };
+
+  export type PaymentWebhookEventScalarFieldEnum = (typeof PaymentWebhookEventScalarFieldEnum)[keyof typeof PaymentWebhookEventScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -65716,6 +68345,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationListRelationFilter
     organizationMemberships?: OrganizationMemberListRelationFilter
     workspaceMemberships?: WorkspaceMemberListRelationFilter
+    sentWorkspaceInvitations?: WorkspaceInvitationListRelationFilter
     approvalRequests?: PublishApprovalRequestListRelationFilter
     reviewedApprovals?: PublishApprovalRequestListRelationFilter
     mediaAssets?: MediaAssetListRelationFilter
@@ -65766,6 +68396,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationOrderByRelationAggregateInput
     organizationMemberships?: OrganizationMemberOrderByRelationAggregateInput
     workspaceMemberships?: WorkspaceMemberOrderByRelationAggregateInput
+    sentWorkspaceInvitations?: WorkspaceInvitationOrderByRelationAggregateInput
     approvalRequests?: PublishApprovalRequestOrderByRelationAggregateInput
     reviewedApprovals?: PublishApprovalRequestOrderByRelationAggregateInput
     mediaAssets?: MediaAssetOrderByRelationAggregateInput
@@ -65819,6 +68450,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationListRelationFilter
     organizationMemberships?: OrganizationMemberListRelationFilter
     workspaceMemberships?: WorkspaceMemberListRelationFilter
+    sentWorkspaceInvitations?: WorkspaceInvitationListRelationFilter
     approvalRequests?: PublishApprovalRequestListRelationFilter
     reviewedApprovals?: PublishApprovalRequestListRelationFilter
     mediaAssets?: MediaAssetListRelationFilter
@@ -66405,6 +69037,8 @@ export namespace Prisma {
     userId?: UuidFilter<"UserSubscription"> | string
     planId?: UuidFilter<"UserSubscription"> | string
     status?: StringFilter<"UserSubscription"> | string
+    stripeCustomerId?: StringNullableFilter<"UserSubscription"> | string | null
+    stripeSubscriptionId?: StringNullableFilter<"UserSubscription"> | string | null
     currentPeriodStart?: DateTimeFilter<"UserSubscription"> | Date | string
     currentPeriodEnd?: DateTimeNullableFilter<"UserSubscription"> | Date | string | null
     createdAt?: DateTimeFilter<"UserSubscription"> | Date | string
@@ -66418,6 +69052,8 @@ export namespace Prisma {
     userId?: SortOrder
     planId?: SortOrder
     status?: SortOrder
+    stripeCustomerId?: SortOrderInput | SortOrder
+    stripeSubscriptionId?: SortOrderInput | SortOrder
     currentPeriodStart?: SortOrder
     currentPeriodEnd?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -66429,24 +69065,28 @@ export namespace Prisma {
   export type UserSubscriptionWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     userId?: string
+    stripeSubscriptionId?: string
     AND?: UserSubscriptionWhereInput | UserSubscriptionWhereInput[]
     OR?: UserSubscriptionWhereInput[]
     NOT?: UserSubscriptionWhereInput | UserSubscriptionWhereInput[]
     planId?: UuidFilter<"UserSubscription"> | string
     status?: StringFilter<"UserSubscription"> | string
+    stripeCustomerId?: StringNullableFilter<"UserSubscription"> | string | null
     currentPeriodStart?: DateTimeFilter<"UserSubscription"> | Date | string
     currentPeriodEnd?: DateTimeNullableFilter<"UserSubscription"> | Date | string | null
     createdAt?: DateTimeFilter<"UserSubscription"> | Date | string
     updatedAt?: DateTimeFilter<"UserSubscription"> | Date | string
     plan?: XOR<SubscriptionPlanScalarRelationFilter, SubscriptionPlanWhereInput>
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
-  }, "id" | "userId">
+  }, "id" | "userId" | "stripeSubscriptionId">
 
   export type UserSubscriptionOrderByWithAggregationInput = {
     id?: SortOrder
     userId?: SortOrder
     planId?: SortOrder
     status?: SortOrder
+    stripeCustomerId?: SortOrderInput | SortOrder
+    stripeSubscriptionId?: SortOrderInput | SortOrder
     currentPeriodStart?: SortOrder
     currentPeriodEnd?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -66464,6 +69104,8 @@ export namespace Prisma {
     userId?: UuidWithAggregatesFilter<"UserSubscription"> | string
     planId?: UuidWithAggregatesFilter<"UserSubscription"> | string
     status?: StringWithAggregatesFilter<"UserSubscription"> | string
+    stripeCustomerId?: StringNullableWithAggregatesFilter<"UserSubscription"> | string | null
+    stripeSubscriptionId?: StringNullableWithAggregatesFilter<"UserSubscription"> | string | null
     currentPeriodStart?: DateTimeWithAggregatesFilter<"UserSubscription"> | Date | string
     currentPeriodEnd?: DateTimeNullableWithAggregatesFilter<"UserSubscription"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"UserSubscription"> | Date | string
@@ -68509,6 +71151,7 @@ export namespace Prisma {
     owner?: XOR<UserScalarRelationFilter, UserWhereInput>
     members?: WorkspaceMemberListRelationFilter
     websites?: WebsiteListRelationFilter
+    invitations?: WorkspaceInvitationListRelationFilter
   }
 
   export type WorkspaceOrderByWithRelationInput = {
@@ -68524,6 +71167,7 @@ export namespace Prisma {
     owner?: UserOrderByWithRelationInput
     members?: WorkspaceMemberOrderByRelationAggregateInput
     websites?: WebsiteOrderByRelationAggregateInput
+    invitations?: WorkspaceInvitationOrderByRelationAggregateInput
   }
 
   export type WorkspaceWhereUniqueInput = Prisma.AtLeast<{
@@ -68542,6 +71186,7 @@ export namespace Prisma {
     owner?: XOR<UserScalarRelationFilter, UserWhereInput>
     members?: WorkspaceMemberListRelationFilter
     websites?: WebsiteListRelationFilter
+    invitations?: WorkspaceInvitationListRelationFilter
   }, "id" | "slug">
 
   export type WorkspaceOrderByWithAggregationInput = {
@@ -68772,6 +71417,89 @@ export namespace Prisma {
     role?: StringWithAggregatesFilter<"WorkspaceMember"> | string
     createdAt?: DateTimeWithAggregatesFilter<"WorkspaceMember"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"WorkspaceMember"> | Date | string
+  }
+
+  export type WorkspaceInvitationWhereInput = {
+    AND?: WorkspaceInvitationWhereInput | WorkspaceInvitationWhereInput[]
+    OR?: WorkspaceInvitationWhereInput[]
+    NOT?: WorkspaceInvitationWhereInput | WorkspaceInvitationWhereInput[]
+    id?: UuidFilter<"WorkspaceInvitation"> | string
+    workspaceId?: UuidFilter<"WorkspaceInvitation"> | string
+    email?: StringFilter<"WorkspaceInvitation"> | string
+    role?: StringFilter<"WorkspaceInvitation"> | string
+    tokenHash?: StringNullableFilter<"WorkspaceInvitation"> | string | null
+    status?: StringFilter<"WorkspaceInvitation"> | string
+    expiresAt?: DateTimeFilter<"WorkspaceInvitation"> | Date | string
+    invitedBy?: UuidFilter<"WorkspaceInvitation"> | string
+    createdAt?: DateTimeFilter<"WorkspaceInvitation"> | Date | string
+    updatedAt?: DateTimeFilter<"WorkspaceInvitation"> | Date | string
+    workspace?: XOR<WorkspaceScalarRelationFilter, WorkspaceWhereInput>
+    inviter?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type WorkspaceInvitationOrderByWithRelationInput = {
+    id?: SortOrder
+    workspaceId?: SortOrder
+    email?: SortOrder
+    role?: SortOrder
+    tokenHash?: SortOrderInput | SortOrder
+    status?: SortOrder
+    expiresAt?: SortOrder
+    invitedBy?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    workspace?: WorkspaceOrderByWithRelationInput
+    inviter?: UserOrderByWithRelationInput
+  }
+
+  export type WorkspaceInvitationWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    tokenHash?: string
+    AND?: WorkspaceInvitationWhereInput | WorkspaceInvitationWhereInput[]
+    OR?: WorkspaceInvitationWhereInput[]
+    NOT?: WorkspaceInvitationWhereInput | WorkspaceInvitationWhereInput[]
+    workspaceId?: UuidFilter<"WorkspaceInvitation"> | string
+    email?: StringFilter<"WorkspaceInvitation"> | string
+    role?: StringFilter<"WorkspaceInvitation"> | string
+    status?: StringFilter<"WorkspaceInvitation"> | string
+    expiresAt?: DateTimeFilter<"WorkspaceInvitation"> | Date | string
+    invitedBy?: UuidFilter<"WorkspaceInvitation"> | string
+    createdAt?: DateTimeFilter<"WorkspaceInvitation"> | Date | string
+    updatedAt?: DateTimeFilter<"WorkspaceInvitation"> | Date | string
+    workspace?: XOR<WorkspaceScalarRelationFilter, WorkspaceWhereInput>
+    inviter?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id" | "tokenHash">
+
+  export type WorkspaceInvitationOrderByWithAggregationInput = {
+    id?: SortOrder
+    workspaceId?: SortOrder
+    email?: SortOrder
+    role?: SortOrder
+    tokenHash?: SortOrderInput | SortOrder
+    status?: SortOrder
+    expiresAt?: SortOrder
+    invitedBy?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: WorkspaceInvitationCountOrderByAggregateInput
+    _max?: WorkspaceInvitationMaxOrderByAggregateInput
+    _min?: WorkspaceInvitationMinOrderByAggregateInput
+  }
+
+  export type WorkspaceInvitationScalarWhereWithAggregatesInput = {
+    AND?: WorkspaceInvitationScalarWhereWithAggregatesInput | WorkspaceInvitationScalarWhereWithAggregatesInput[]
+    OR?: WorkspaceInvitationScalarWhereWithAggregatesInput[]
+    NOT?: WorkspaceInvitationScalarWhereWithAggregatesInput | WorkspaceInvitationScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"WorkspaceInvitation"> | string
+    workspaceId?: UuidWithAggregatesFilter<"WorkspaceInvitation"> | string
+    email?: StringWithAggregatesFilter<"WorkspaceInvitation"> | string
+    role?: StringWithAggregatesFilter<"WorkspaceInvitation"> | string
+    tokenHash?: StringNullableWithAggregatesFilter<"WorkspaceInvitation"> | string | null
+    status?: StringWithAggregatesFilter<"WorkspaceInvitation"> | string
+    expiresAt?: DateTimeWithAggregatesFilter<"WorkspaceInvitation"> | Date | string
+    invitedBy?: UuidWithAggregatesFilter<"WorkspaceInvitation"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"WorkspaceInvitation"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"WorkspaceInvitation"> | Date | string
   }
 
   export type PublishApprovalRequestWhereInput = {
@@ -69682,10 +72410,16 @@ export namespace Prisma {
     id?: UuidFilter<"BillingInvoice"> | string
     userId?: UuidFilter<"BillingInvoice"> | string
     planId?: StringFilter<"BillingInvoice"> | string
+    planName?: StringNullableFilter<"BillingInvoice"> | string | null
+    description?: StringNullableFilter<"BillingInvoice"> | string | null
     amount?: FloatFilter<"BillingInvoice"> | number
     currency?: StringFilter<"BillingInvoice"> | string
     status?: StringFilter<"BillingInvoice"> | string
     invoiceNumber?: StringFilter<"BillingInvoice"> | string
+    paymentProvider?: StringNullableFilter<"BillingInvoice"> | string | null
+    paymentReference?: StringNullableFilter<"BillingInvoice"> | string | null
+    taxAmount?: FloatNullableFilter<"BillingInvoice"> | number | null
+    subtotal?: FloatNullableFilter<"BillingInvoice"> | number | null
     billingPeriodStart?: DateTimeFilter<"BillingInvoice"> | Date | string
     billingPeriodEnd?: DateTimeFilter<"BillingInvoice"> | Date | string
     createdAt?: DateTimeFilter<"BillingInvoice"> | Date | string
@@ -69696,10 +72430,16 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrder
     planId?: SortOrder
+    planName?: SortOrderInput | SortOrder
+    description?: SortOrderInput | SortOrder
     amount?: SortOrder
     currency?: SortOrder
     status?: SortOrder
     invoiceNumber?: SortOrder
+    paymentProvider?: SortOrderInput | SortOrder
+    paymentReference?: SortOrderInput | SortOrder
+    taxAmount?: SortOrderInput | SortOrder
+    subtotal?: SortOrderInput | SortOrder
     billingPeriodStart?: SortOrder
     billingPeriodEnd?: SortOrder
     createdAt?: SortOrder
@@ -69714,9 +72454,15 @@ export namespace Prisma {
     NOT?: BillingInvoiceWhereInput | BillingInvoiceWhereInput[]
     userId?: UuidFilter<"BillingInvoice"> | string
     planId?: StringFilter<"BillingInvoice"> | string
+    planName?: StringNullableFilter<"BillingInvoice"> | string | null
+    description?: StringNullableFilter<"BillingInvoice"> | string | null
     amount?: FloatFilter<"BillingInvoice"> | number
     currency?: StringFilter<"BillingInvoice"> | string
     status?: StringFilter<"BillingInvoice"> | string
+    paymentProvider?: StringNullableFilter<"BillingInvoice"> | string | null
+    paymentReference?: StringNullableFilter<"BillingInvoice"> | string | null
+    taxAmount?: FloatNullableFilter<"BillingInvoice"> | number | null
+    subtotal?: FloatNullableFilter<"BillingInvoice"> | number | null
     billingPeriodStart?: DateTimeFilter<"BillingInvoice"> | Date | string
     billingPeriodEnd?: DateTimeFilter<"BillingInvoice"> | Date | string
     createdAt?: DateTimeFilter<"BillingInvoice"> | Date | string
@@ -69727,10 +72473,16 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrder
     planId?: SortOrder
+    planName?: SortOrderInput | SortOrder
+    description?: SortOrderInput | SortOrder
     amount?: SortOrder
     currency?: SortOrder
     status?: SortOrder
     invoiceNumber?: SortOrder
+    paymentProvider?: SortOrderInput | SortOrder
+    paymentReference?: SortOrderInput | SortOrder
+    taxAmount?: SortOrderInput | SortOrder
+    subtotal?: SortOrderInput | SortOrder
     billingPeriodStart?: SortOrder
     billingPeriodEnd?: SortOrder
     createdAt?: SortOrder
@@ -69748,13 +72500,93 @@ export namespace Prisma {
     id?: UuidWithAggregatesFilter<"BillingInvoice"> | string
     userId?: UuidWithAggregatesFilter<"BillingInvoice"> | string
     planId?: StringWithAggregatesFilter<"BillingInvoice"> | string
+    planName?: StringNullableWithAggregatesFilter<"BillingInvoice"> | string | null
+    description?: StringNullableWithAggregatesFilter<"BillingInvoice"> | string | null
     amount?: FloatWithAggregatesFilter<"BillingInvoice"> | number
     currency?: StringWithAggregatesFilter<"BillingInvoice"> | string
     status?: StringWithAggregatesFilter<"BillingInvoice"> | string
     invoiceNumber?: StringWithAggregatesFilter<"BillingInvoice"> | string
+    paymentProvider?: StringNullableWithAggregatesFilter<"BillingInvoice"> | string | null
+    paymentReference?: StringNullableWithAggregatesFilter<"BillingInvoice"> | string | null
+    taxAmount?: FloatNullableWithAggregatesFilter<"BillingInvoice"> | number | null
+    subtotal?: FloatNullableWithAggregatesFilter<"BillingInvoice"> | number | null
     billingPeriodStart?: DateTimeWithAggregatesFilter<"BillingInvoice"> | Date | string
     billingPeriodEnd?: DateTimeWithAggregatesFilter<"BillingInvoice"> | Date | string
     createdAt?: DateTimeWithAggregatesFilter<"BillingInvoice"> | Date | string
+  }
+
+  export type PaymentWebhookEventWhereInput = {
+    AND?: PaymentWebhookEventWhereInput | PaymentWebhookEventWhereInput[]
+    OR?: PaymentWebhookEventWhereInput[]
+    NOT?: PaymentWebhookEventWhereInput | PaymentWebhookEventWhereInput[]
+    id?: UuidFilter<"PaymentWebhookEvent"> | string
+    eventId?: StringFilter<"PaymentWebhookEvent"> | string
+    provider?: StringFilter<"PaymentWebhookEvent"> | string
+    eventType?: StringFilter<"PaymentWebhookEvent"> | string
+    checkoutSessionId?: StringNullableFilter<"PaymentWebhookEvent"> | string | null
+    userId?: UuidNullableFilter<"PaymentWebhookEvent"> | string | null
+    amount?: FloatNullableFilter<"PaymentWebhookEvent"> | number | null
+    currency?: StringNullableFilter<"PaymentWebhookEvent"> | string | null
+    createdAt?: DateTimeFilter<"PaymentWebhookEvent"> | Date | string
+  }
+
+  export type PaymentWebhookEventOrderByWithRelationInput = {
+    id?: SortOrder
+    eventId?: SortOrder
+    provider?: SortOrder
+    eventType?: SortOrder
+    checkoutSessionId?: SortOrderInput | SortOrder
+    userId?: SortOrderInput | SortOrder
+    amount?: SortOrderInput | SortOrder
+    currency?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type PaymentWebhookEventWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    eventId?: string
+    AND?: PaymentWebhookEventWhereInput | PaymentWebhookEventWhereInput[]
+    OR?: PaymentWebhookEventWhereInput[]
+    NOT?: PaymentWebhookEventWhereInput | PaymentWebhookEventWhereInput[]
+    provider?: StringFilter<"PaymentWebhookEvent"> | string
+    eventType?: StringFilter<"PaymentWebhookEvent"> | string
+    checkoutSessionId?: StringNullableFilter<"PaymentWebhookEvent"> | string | null
+    userId?: UuidNullableFilter<"PaymentWebhookEvent"> | string | null
+    amount?: FloatNullableFilter<"PaymentWebhookEvent"> | number | null
+    currency?: StringNullableFilter<"PaymentWebhookEvent"> | string | null
+    createdAt?: DateTimeFilter<"PaymentWebhookEvent"> | Date | string
+  }, "id" | "eventId">
+
+  export type PaymentWebhookEventOrderByWithAggregationInput = {
+    id?: SortOrder
+    eventId?: SortOrder
+    provider?: SortOrder
+    eventType?: SortOrder
+    checkoutSessionId?: SortOrderInput | SortOrder
+    userId?: SortOrderInput | SortOrder
+    amount?: SortOrderInput | SortOrder
+    currency?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: PaymentWebhookEventCountOrderByAggregateInput
+    _avg?: PaymentWebhookEventAvgOrderByAggregateInput
+    _max?: PaymentWebhookEventMaxOrderByAggregateInput
+    _min?: PaymentWebhookEventMinOrderByAggregateInput
+    _sum?: PaymentWebhookEventSumOrderByAggregateInput
+  }
+
+  export type PaymentWebhookEventScalarWhereWithAggregatesInput = {
+    AND?: PaymentWebhookEventScalarWhereWithAggregatesInput | PaymentWebhookEventScalarWhereWithAggregatesInput[]
+    OR?: PaymentWebhookEventScalarWhereWithAggregatesInput[]
+    NOT?: PaymentWebhookEventScalarWhereWithAggregatesInput | PaymentWebhookEventScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"PaymentWebhookEvent"> | string
+    eventId?: StringWithAggregatesFilter<"PaymentWebhookEvent"> | string
+    provider?: StringWithAggregatesFilter<"PaymentWebhookEvent"> | string
+    eventType?: StringWithAggregatesFilter<"PaymentWebhookEvent"> | string
+    checkoutSessionId?: StringNullableWithAggregatesFilter<"PaymentWebhookEvent"> | string | null
+    userId?: UuidNullableWithAggregatesFilter<"PaymentWebhookEvent"> | string | null
+    amount?: FloatNullableWithAggregatesFilter<"PaymentWebhookEvent"> | number | null
+    currency?: StringNullableWithAggregatesFilter<"PaymentWebhookEvent"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"PaymentWebhookEvent"> | Date | string
   }
 
   export type UserCreateInput = {
@@ -69798,6 +72630,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -69848,6 +72681,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -69898,6 +72732,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -69948,6 +72783,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -70595,6 +73431,8 @@ export namespace Prisma {
   export type UserSubscriptionCreateInput = {
     id?: string
     status?: string
+    stripeCustomerId?: string | null
+    stripeSubscriptionId?: string | null
     currentPeriodStart?: Date | string
     currentPeriodEnd?: Date | string | null
     createdAt?: Date | string
@@ -70608,6 +73446,8 @@ export namespace Prisma {
     userId: string
     planId: string
     status?: string
+    stripeCustomerId?: string | null
+    stripeSubscriptionId?: string | null
     currentPeriodStart?: Date | string
     currentPeriodEnd?: Date | string | null
     createdAt?: Date | string
@@ -70617,6 +73457,8 @@ export namespace Prisma {
   export type UserSubscriptionUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
     currentPeriodStart?: DateTimeFieldUpdateOperationsInput | Date | string
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -70630,6 +73472,8 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     planId?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
     currentPeriodStart?: DateTimeFieldUpdateOperationsInput | Date | string
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -70641,6 +73485,8 @@ export namespace Prisma {
     userId: string
     planId: string
     status?: string
+    stripeCustomerId?: string | null
+    stripeSubscriptionId?: string | null
     currentPeriodStart?: Date | string
     currentPeriodEnd?: Date | string | null
     createdAt?: Date | string
@@ -70650,6 +73496,8 @@ export namespace Prisma {
   export type UserSubscriptionUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
     currentPeriodStart?: DateTimeFieldUpdateOperationsInput | Date | string
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -70661,6 +73509,8 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     planId?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
     currentPeriodStart?: DateTimeFieldUpdateOperationsInput | Date | string
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -72857,6 +75707,7 @@ export namespace Prisma {
     owner: UserCreateNestedOneWithoutOwnedWorkspacesInput
     members?: WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
     websites?: WebsiteCreateNestedManyWithoutWorkspaceInput
+    invitations?: WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceUncheckedCreateInput = {
@@ -72870,6 +75721,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     members?: WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
     websites?: WebsiteUncheckedCreateNestedManyWithoutWorkspaceInput
+    invitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceUpdateInput = {
@@ -72883,6 +75735,7 @@ export namespace Prisma {
     owner?: UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
     members?: WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
     websites?: WebsiteUpdateManyWithoutWorkspaceNestedInput
+    invitations?: WorkspaceInvitationUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type WorkspaceUncheckedUpdateInput = {
@@ -72896,6 +75749,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
     websites?: WebsiteUncheckedUpdateManyWithoutWorkspaceNestedInput
+    invitations?: WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type WorkspaceCreateManyInput = {
@@ -73128,6 +75982,95 @@ export namespace Prisma {
     workspaceId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WorkspaceInvitationCreateInput = {
+    id?: string
+    email: string
+    role?: string
+    tokenHash?: string | null
+    status?: string
+    expiresAt: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    workspace: WorkspaceCreateNestedOneWithoutInvitationsInput
+    inviter: UserCreateNestedOneWithoutSentWorkspaceInvitationsInput
+  }
+
+  export type WorkspaceInvitationUncheckedCreateInput = {
+    id?: string
+    workspaceId: string
+    email: string
+    role?: string
+    tokenHash?: string | null
+    status?: string
+    expiresAt: Date | string
+    invitedBy: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WorkspaceInvitationUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    tokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    workspace?: WorkspaceUpdateOneRequiredWithoutInvitationsNestedInput
+    inviter?: UserUpdateOneRequiredWithoutSentWorkspaceInvitationsNestedInput
+  }
+
+  export type WorkspaceInvitationUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceId?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    tokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    invitedBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WorkspaceInvitationCreateManyInput = {
+    id?: string
+    workspaceId: string
+    email: string
+    role?: string
+    tokenHash?: string | null
+    status?: string
+    expiresAt: Date | string
+    invitedBy: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WorkspaceInvitationUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    tokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WorkspaceInvitationUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceId?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    tokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    invitedBy?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -74120,10 +77063,16 @@ export namespace Prisma {
   export type BillingInvoiceCreateInput = {
     id?: string
     planId: string
+    planName?: string | null
+    description?: string | null
     amount: number
     currency?: string
     status?: string
     invoiceNumber: string
+    paymentProvider?: string | null
+    paymentReference?: string | null
+    taxAmount?: number | null
+    subtotal?: number | null
     billingPeriodStart: Date | string
     billingPeriodEnd: Date | string
     createdAt?: Date | string
@@ -74134,10 +77083,16 @@ export namespace Prisma {
     id?: string
     userId: string
     planId: string
+    planName?: string | null
+    description?: string | null
     amount: number
     currency?: string
     status?: string
     invoiceNumber: string
+    paymentProvider?: string | null
+    paymentReference?: string | null
+    taxAmount?: number | null
+    subtotal?: number | null
     billingPeriodStart: Date | string
     billingPeriodEnd: Date | string
     createdAt?: Date | string
@@ -74146,10 +77101,16 @@ export namespace Prisma {
   export type BillingInvoiceUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     planId?: StringFieldUpdateOperationsInput | string
+    planName?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: FloatFieldUpdateOperationsInput | number
     currency?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     invoiceNumber?: StringFieldUpdateOperationsInput | string
+    paymentProvider?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
+    taxAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    subtotal?: NullableFloatFieldUpdateOperationsInput | number | null
     billingPeriodStart?: DateTimeFieldUpdateOperationsInput | Date | string
     billingPeriodEnd?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -74160,10 +77121,16 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     planId?: StringFieldUpdateOperationsInput | string
+    planName?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: FloatFieldUpdateOperationsInput | number
     currency?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     invoiceNumber?: StringFieldUpdateOperationsInput | string
+    paymentProvider?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
+    taxAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    subtotal?: NullableFloatFieldUpdateOperationsInput | number | null
     billingPeriodStart?: DateTimeFieldUpdateOperationsInput | Date | string
     billingPeriodEnd?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -74173,10 +77140,16 @@ export namespace Prisma {
     id?: string
     userId: string
     planId: string
+    planName?: string | null
+    description?: string | null
     amount: number
     currency?: string
     status?: string
     invoiceNumber: string
+    paymentProvider?: string | null
+    paymentReference?: string | null
+    taxAmount?: number | null
+    subtotal?: number | null
     billingPeriodStart: Date | string
     billingPeriodEnd: Date | string
     createdAt?: Date | string
@@ -74185,10 +77158,16 @@ export namespace Prisma {
   export type BillingInvoiceUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     planId?: StringFieldUpdateOperationsInput | string
+    planName?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: FloatFieldUpdateOperationsInput | number
     currency?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     invoiceNumber?: StringFieldUpdateOperationsInput | string
+    paymentProvider?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
+    taxAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    subtotal?: NullableFloatFieldUpdateOperationsInput | number | null
     billingPeriodStart?: DateTimeFieldUpdateOperationsInput | Date | string
     billingPeriodEnd?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -74198,12 +77177,102 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     planId?: StringFieldUpdateOperationsInput | string
+    planName?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: FloatFieldUpdateOperationsInput | number
     currency?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     invoiceNumber?: StringFieldUpdateOperationsInput | string
+    paymentProvider?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
+    taxAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    subtotal?: NullableFloatFieldUpdateOperationsInput | number | null
     billingPeriodStart?: DateTimeFieldUpdateOperationsInput | Date | string
     billingPeriodEnd?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentWebhookEventCreateInput = {
+    id?: string
+    eventId: string
+    provider?: string
+    eventType: string
+    checkoutSessionId?: string | null
+    userId?: string | null
+    amount?: number | null
+    currency?: string | null
+    createdAt?: Date | string
+  }
+
+  export type PaymentWebhookEventUncheckedCreateInput = {
+    id?: string
+    eventId: string
+    provider?: string
+    eventType: string
+    checkoutSessionId?: string | null
+    userId?: string | null
+    amount?: number | null
+    currency?: string | null
+    createdAt?: Date | string
+  }
+
+  export type PaymentWebhookEventUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    eventId?: StringFieldUpdateOperationsInput | string
+    provider?: StringFieldUpdateOperationsInput | string
+    eventType?: StringFieldUpdateOperationsInput | string
+    checkoutSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentWebhookEventUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    eventId?: StringFieldUpdateOperationsInput | string
+    provider?: StringFieldUpdateOperationsInput | string
+    eventType?: StringFieldUpdateOperationsInput | string
+    checkoutSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentWebhookEventCreateManyInput = {
+    id?: string
+    eventId: string
+    provider?: string
+    eventType: string
+    checkoutSessionId?: string | null
+    userId?: string | null
+    amount?: number | null
+    currency?: string | null
+    createdAt?: Date | string
+  }
+
+  export type PaymentWebhookEventUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    eventId?: StringFieldUpdateOperationsInput | string
+    provider?: StringFieldUpdateOperationsInput | string
+    eventType?: StringFieldUpdateOperationsInput | string
+    checkoutSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentWebhookEventUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    eventId?: StringFieldUpdateOperationsInput | string
+    provider?: StringFieldUpdateOperationsInput | string
+    eventType?: StringFieldUpdateOperationsInput | string
+    checkoutSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: NullableFloatFieldUpdateOperationsInput | number | null
+    currency?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -74448,6 +77517,12 @@ export namespace Prisma {
     none?: WorkspaceMemberWhereInput
   }
 
+  export type WorkspaceInvitationListRelationFilter = {
+    every?: WorkspaceInvitationWhereInput
+    some?: WorkspaceInvitationWhereInput
+    none?: WorkspaceInvitationWhereInput
+  }
+
   export type PublishApprovalRequestListRelationFilter = {
     every?: PublishApprovalRequestWhereInput
     some?: PublishApprovalRequestWhereInput
@@ -74585,6 +77660,10 @@ export namespace Prisma {
   }
 
   export type WorkspaceMemberOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type WorkspaceInvitationOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -75336,6 +78415,8 @@ export namespace Prisma {
     userId?: SortOrder
     planId?: SortOrder
     status?: SortOrder
+    stripeCustomerId?: SortOrder
+    stripeSubscriptionId?: SortOrder
     currentPeriodStart?: SortOrder
     currentPeriodEnd?: SortOrder
     createdAt?: SortOrder
@@ -75347,6 +78428,8 @@ export namespace Prisma {
     userId?: SortOrder
     planId?: SortOrder
     status?: SortOrder
+    stripeCustomerId?: SortOrder
+    stripeSubscriptionId?: SortOrder
     currentPeriodStart?: SortOrder
     currentPeriodEnd?: SortOrder
     createdAt?: SortOrder
@@ -75358,6 +78441,8 @@ export namespace Prisma {
     userId?: SortOrder
     planId?: SortOrder
     status?: SortOrder
+    stripeCustomerId?: SortOrder
+    stripeSubscriptionId?: SortOrder
     currentPeriodStart?: SortOrder
     currentPeriodEnd?: SortOrder
     createdAt?: SortOrder
@@ -76573,6 +79658,45 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
+  export type WorkspaceInvitationCountOrderByAggregateInput = {
+    id?: SortOrder
+    workspaceId?: SortOrder
+    email?: SortOrder
+    role?: SortOrder
+    tokenHash?: SortOrder
+    status?: SortOrder
+    expiresAt?: SortOrder
+    invitedBy?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type WorkspaceInvitationMaxOrderByAggregateInput = {
+    id?: SortOrder
+    workspaceId?: SortOrder
+    email?: SortOrder
+    role?: SortOrder
+    tokenHash?: SortOrder
+    status?: SortOrder
+    expiresAt?: SortOrder
+    invitedBy?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type WorkspaceInvitationMinOrderByAggregateInput = {
+    id?: SortOrder
+    workspaceId?: SortOrder
+    email?: SortOrder
+    role?: SortOrder
+    tokenHash?: SortOrder
+    status?: SortOrder
+    expiresAt?: SortOrder
+    invitedBy?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
   export type PublishApprovalRequestCountOrderByAggregateInput = {
     id?: SortOrder
     websiteId?: SortOrder
@@ -77136,14 +80260,31 @@ export namespace Prisma {
     not?: NestedFloatFilter<$PrismaModel> | number
   }
 
+  export type FloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
   export type BillingInvoiceCountOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
     planId?: SortOrder
+    planName?: SortOrder
+    description?: SortOrder
     amount?: SortOrder
     currency?: SortOrder
     status?: SortOrder
     invoiceNumber?: SortOrder
+    paymentProvider?: SortOrder
+    paymentReference?: SortOrder
+    taxAmount?: SortOrder
+    subtotal?: SortOrder
     billingPeriodStart?: SortOrder
     billingPeriodEnd?: SortOrder
     createdAt?: SortOrder
@@ -77151,16 +80292,24 @@ export namespace Prisma {
 
   export type BillingInvoiceAvgOrderByAggregateInput = {
     amount?: SortOrder
+    taxAmount?: SortOrder
+    subtotal?: SortOrder
   }
 
   export type BillingInvoiceMaxOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
     planId?: SortOrder
+    planName?: SortOrder
+    description?: SortOrder
     amount?: SortOrder
     currency?: SortOrder
     status?: SortOrder
     invoiceNumber?: SortOrder
+    paymentProvider?: SortOrder
+    paymentReference?: SortOrder
+    taxAmount?: SortOrder
+    subtotal?: SortOrder
     billingPeriodStart?: SortOrder
     billingPeriodEnd?: SortOrder
     createdAt?: SortOrder
@@ -77170,10 +80319,16 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrder
     planId?: SortOrder
+    planName?: SortOrder
+    description?: SortOrder
     amount?: SortOrder
     currency?: SortOrder
     status?: SortOrder
     invoiceNumber?: SortOrder
+    paymentProvider?: SortOrder
+    paymentReference?: SortOrder
+    taxAmount?: SortOrder
+    subtotal?: SortOrder
     billingPeriodStart?: SortOrder
     billingPeriodEnd?: SortOrder
     createdAt?: SortOrder
@@ -77181,6 +80336,8 @@ export namespace Prisma {
 
   export type BillingInvoiceSumOrderByAggregateInput = {
     amount?: SortOrder
+    taxAmount?: SortOrder
+    subtotal?: SortOrder
   }
 
   export type FloatWithAggregatesFilter<$PrismaModel = never> = {
@@ -77197,6 +80354,66 @@ export namespace Prisma {
     _sum?: NestedFloatFilter<$PrismaModel>
     _min?: NestedFloatFilter<$PrismaModel>
     _max?: NestedFloatFilter<$PrismaModel>
+  }
+
+  export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
+  }
+
+  export type PaymentWebhookEventCountOrderByAggregateInput = {
+    id?: SortOrder
+    eventId?: SortOrder
+    provider?: SortOrder
+    eventType?: SortOrder
+    checkoutSessionId?: SortOrder
+    userId?: SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type PaymentWebhookEventAvgOrderByAggregateInput = {
+    amount?: SortOrder
+  }
+
+  export type PaymentWebhookEventMaxOrderByAggregateInput = {
+    id?: SortOrder
+    eventId?: SortOrder
+    provider?: SortOrder
+    eventType?: SortOrder
+    checkoutSessionId?: SortOrder
+    userId?: SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type PaymentWebhookEventMinOrderByAggregateInput = {
+    id?: SortOrder
+    eventId?: SortOrder
+    provider?: SortOrder
+    eventType?: SortOrder
+    checkoutSessionId?: SortOrder
+    userId?: SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type PaymentWebhookEventSumOrderByAggregateInput = {
+    amount?: SortOrder
   }
 
   export type IdentityCreateNestedManyWithoutUserInput = {
@@ -77378,6 +80595,13 @@ export namespace Prisma {
     connectOrCreate?: WorkspaceMemberCreateOrConnectWithoutUserInput | WorkspaceMemberCreateOrConnectWithoutUserInput[]
     createMany?: WorkspaceMemberCreateManyUserInputEnvelope
     connect?: WorkspaceMemberWhereUniqueInput | WorkspaceMemberWhereUniqueInput[]
+  }
+
+  export type WorkspaceInvitationCreateNestedManyWithoutInviterInput = {
+    create?: XOR<WorkspaceInvitationCreateWithoutInviterInput, WorkspaceInvitationUncheckedCreateWithoutInviterInput> | WorkspaceInvitationCreateWithoutInviterInput[] | WorkspaceInvitationUncheckedCreateWithoutInviterInput[]
+    connectOrCreate?: WorkspaceInvitationCreateOrConnectWithoutInviterInput | WorkspaceInvitationCreateOrConnectWithoutInviterInput[]
+    createMany?: WorkspaceInvitationCreateManyInviterInputEnvelope
+    connect?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
   }
 
   export type PublishApprovalRequestCreateNestedManyWithoutRequesterInput = {
@@ -77607,6 +80831,13 @@ export namespace Prisma {
     connectOrCreate?: WorkspaceMemberCreateOrConnectWithoutUserInput | WorkspaceMemberCreateOrConnectWithoutUserInput[]
     createMany?: WorkspaceMemberCreateManyUserInputEnvelope
     connect?: WorkspaceMemberWhereUniqueInput | WorkspaceMemberWhereUniqueInput[]
+  }
+
+  export type WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput = {
+    create?: XOR<WorkspaceInvitationCreateWithoutInviterInput, WorkspaceInvitationUncheckedCreateWithoutInviterInput> | WorkspaceInvitationCreateWithoutInviterInput[] | WorkspaceInvitationUncheckedCreateWithoutInviterInput[]
+    connectOrCreate?: WorkspaceInvitationCreateOrConnectWithoutInviterInput | WorkspaceInvitationCreateOrConnectWithoutInviterInput[]
+    createMany?: WorkspaceInvitationCreateManyInviterInputEnvelope
+    connect?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
   }
 
   export type PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput = {
@@ -78055,6 +81286,20 @@ export namespace Prisma {
     update?: WorkspaceMemberUpdateWithWhereUniqueWithoutUserInput | WorkspaceMemberUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: WorkspaceMemberUpdateManyWithWhereWithoutUserInput | WorkspaceMemberUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: WorkspaceMemberScalarWhereInput | WorkspaceMemberScalarWhereInput[]
+  }
+
+  export type WorkspaceInvitationUpdateManyWithoutInviterNestedInput = {
+    create?: XOR<WorkspaceInvitationCreateWithoutInviterInput, WorkspaceInvitationUncheckedCreateWithoutInviterInput> | WorkspaceInvitationCreateWithoutInviterInput[] | WorkspaceInvitationUncheckedCreateWithoutInviterInput[]
+    connectOrCreate?: WorkspaceInvitationCreateOrConnectWithoutInviterInput | WorkspaceInvitationCreateOrConnectWithoutInviterInput[]
+    upsert?: WorkspaceInvitationUpsertWithWhereUniqueWithoutInviterInput | WorkspaceInvitationUpsertWithWhereUniqueWithoutInviterInput[]
+    createMany?: WorkspaceInvitationCreateManyInviterInputEnvelope
+    set?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
+    disconnect?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
+    delete?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
+    connect?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
+    update?: WorkspaceInvitationUpdateWithWhereUniqueWithoutInviterInput | WorkspaceInvitationUpdateWithWhereUniqueWithoutInviterInput[]
+    updateMany?: WorkspaceInvitationUpdateManyWithWhereWithoutInviterInput | WorkspaceInvitationUpdateManyWithWhereWithoutInviterInput[]
+    deleteMany?: WorkspaceInvitationScalarWhereInput | WorkspaceInvitationScalarWhereInput[]
   }
 
   export type PublishApprovalRequestUpdateManyWithoutRequesterNestedInput = {
@@ -78509,6 +81754,20 @@ export namespace Prisma {
     update?: WorkspaceMemberUpdateWithWhereUniqueWithoutUserInput | WorkspaceMemberUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: WorkspaceMemberUpdateManyWithWhereWithoutUserInput | WorkspaceMemberUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: WorkspaceMemberScalarWhereInput | WorkspaceMemberScalarWhereInput[]
+  }
+
+  export type WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput = {
+    create?: XOR<WorkspaceInvitationCreateWithoutInviterInput, WorkspaceInvitationUncheckedCreateWithoutInviterInput> | WorkspaceInvitationCreateWithoutInviterInput[] | WorkspaceInvitationUncheckedCreateWithoutInviterInput[]
+    connectOrCreate?: WorkspaceInvitationCreateOrConnectWithoutInviterInput | WorkspaceInvitationCreateOrConnectWithoutInviterInput[]
+    upsert?: WorkspaceInvitationUpsertWithWhereUniqueWithoutInviterInput | WorkspaceInvitationUpsertWithWhereUniqueWithoutInviterInput[]
+    createMany?: WorkspaceInvitationCreateManyInviterInputEnvelope
+    set?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
+    disconnect?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
+    delete?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
+    connect?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
+    update?: WorkspaceInvitationUpdateWithWhereUniqueWithoutInviterInput | WorkspaceInvitationUpdateWithWhereUniqueWithoutInviterInput[]
+    updateMany?: WorkspaceInvitationUpdateManyWithWhereWithoutInviterInput | WorkspaceInvitationUpdateManyWithWhereWithoutInviterInput[]
+    deleteMany?: WorkspaceInvitationScalarWhereInput | WorkspaceInvitationScalarWhereInput[]
   }
 
   export type PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput = {
@@ -80463,6 +83722,13 @@ export namespace Prisma {
     connect?: WebsiteWhereUniqueInput | WebsiteWhereUniqueInput[]
   }
 
+  export type WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput = {
+    create?: XOR<WorkspaceInvitationCreateWithoutWorkspaceInput, WorkspaceInvitationUncheckedCreateWithoutWorkspaceInput> | WorkspaceInvitationCreateWithoutWorkspaceInput[] | WorkspaceInvitationUncheckedCreateWithoutWorkspaceInput[]
+    connectOrCreate?: WorkspaceInvitationCreateOrConnectWithoutWorkspaceInput | WorkspaceInvitationCreateOrConnectWithoutWorkspaceInput[]
+    createMany?: WorkspaceInvitationCreateManyWorkspaceInputEnvelope
+    connect?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
+  }
+
   export type WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput = {
     create?: XOR<WorkspaceMemberCreateWithoutWorkspaceInput, WorkspaceMemberUncheckedCreateWithoutWorkspaceInput> | WorkspaceMemberCreateWithoutWorkspaceInput[] | WorkspaceMemberUncheckedCreateWithoutWorkspaceInput[]
     connectOrCreate?: WorkspaceMemberCreateOrConnectWithoutWorkspaceInput | WorkspaceMemberCreateOrConnectWithoutWorkspaceInput[]
@@ -80475,6 +83741,13 @@ export namespace Prisma {
     connectOrCreate?: WebsiteCreateOrConnectWithoutWorkspaceInput | WebsiteCreateOrConnectWithoutWorkspaceInput[]
     createMany?: WebsiteCreateManyWorkspaceInputEnvelope
     connect?: WebsiteWhereUniqueInput | WebsiteWhereUniqueInput[]
+  }
+
+  export type WorkspaceInvitationUncheckedCreateNestedManyWithoutWorkspaceInput = {
+    create?: XOR<WorkspaceInvitationCreateWithoutWorkspaceInput, WorkspaceInvitationUncheckedCreateWithoutWorkspaceInput> | WorkspaceInvitationCreateWithoutWorkspaceInput[] | WorkspaceInvitationUncheckedCreateWithoutWorkspaceInput[]
+    connectOrCreate?: WorkspaceInvitationCreateOrConnectWithoutWorkspaceInput | WorkspaceInvitationCreateOrConnectWithoutWorkspaceInput[]
+    createMany?: WorkspaceInvitationCreateManyWorkspaceInputEnvelope
+    connect?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
   }
 
   export type OrganizationUpdateOneWithoutWorkspacesNestedInput = {
@@ -80523,6 +83796,20 @@ export namespace Prisma {
     deleteMany?: WebsiteScalarWhereInput | WebsiteScalarWhereInput[]
   }
 
+  export type WorkspaceInvitationUpdateManyWithoutWorkspaceNestedInput = {
+    create?: XOR<WorkspaceInvitationCreateWithoutWorkspaceInput, WorkspaceInvitationUncheckedCreateWithoutWorkspaceInput> | WorkspaceInvitationCreateWithoutWorkspaceInput[] | WorkspaceInvitationUncheckedCreateWithoutWorkspaceInput[]
+    connectOrCreate?: WorkspaceInvitationCreateOrConnectWithoutWorkspaceInput | WorkspaceInvitationCreateOrConnectWithoutWorkspaceInput[]
+    upsert?: WorkspaceInvitationUpsertWithWhereUniqueWithoutWorkspaceInput | WorkspaceInvitationUpsertWithWhereUniqueWithoutWorkspaceInput[]
+    createMany?: WorkspaceInvitationCreateManyWorkspaceInputEnvelope
+    set?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
+    disconnect?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
+    delete?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
+    connect?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
+    update?: WorkspaceInvitationUpdateWithWhereUniqueWithoutWorkspaceInput | WorkspaceInvitationUpdateWithWhereUniqueWithoutWorkspaceInput[]
+    updateMany?: WorkspaceInvitationUpdateManyWithWhereWithoutWorkspaceInput | WorkspaceInvitationUpdateManyWithWhereWithoutWorkspaceInput[]
+    deleteMany?: WorkspaceInvitationScalarWhereInput | WorkspaceInvitationScalarWhereInput[]
+  }
+
   export type WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput = {
     create?: XOR<WorkspaceMemberCreateWithoutWorkspaceInput, WorkspaceMemberUncheckedCreateWithoutWorkspaceInput> | WorkspaceMemberCreateWithoutWorkspaceInput[] | WorkspaceMemberUncheckedCreateWithoutWorkspaceInput[]
     connectOrCreate?: WorkspaceMemberCreateOrConnectWithoutWorkspaceInput | WorkspaceMemberCreateOrConnectWithoutWorkspaceInput[]
@@ -80549,6 +83836,20 @@ export namespace Prisma {
     update?: WebsiteUpdateWithWhereUniqueWithoutWorkspaceInput | WebsiteUpdateWithWhereUniqueWithoutWorkspaceInput[]
     updateMany?: WebsiteUpdateManyWithWhereWithoutWorkspaceInput | WebsiteUpdateManyWithWhereWithoutWorkspaceInput[]
     deleteMany?: WebsiteScalarWhereInput | WebsiteScalarWhereInput[]
+  }
+
+  export type WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput = {
+    create?: XOR<WorkspaceInvitationCreateWithoutWorkspaceInput, WorkspaceInvitationUncheckedCreateWithoutWorkspaceInput> | WorkspaceInvitationCreateWithoutWorkspaceInput[] | WorkspaceInvitationUncheckedCreateWithoutWorkspaceInput[]
+    connectOrCreate?: WorkspaceInvitationCreateOrConnectWithoutWorkspaceInput | WorkspaceInvitationCreateOrConnectWithoutWorkspaceInput[]
+    upsert?: WorkspaceInvitationUpsertWithWhereUniqueWithoutWorkspaceInput | WorkspaceInvitationUpsertWithWhereUniqueWithoutWorkspaceInput[]
+    createMany?: WorkspaceInvitationCreateManyWorkspaceInputEnvelope
+    set?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
+    disconnect?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
+    delete?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
+    connect?: WorkspaceInvitationWhereUniqueInput | WorkspaceInvitationWhereUniqueInput[]
+    update?: WorkspaceInvitationUpdateWithWhereUniqueWithoutWorkspaceInput | WorkspaceInvitationUpdateWithWhereUniqueWithoutWorkspaceInput[]
+    updateMany?: WorkspaceInvitationUpdateManyWithWhereWithoutWorkspaceInput | WorkspaceInvitationUpdateManyWithWhereWithoutWorkspaceInput[]
+    deleteMany?: WorkspaceInvitationScalarWhereInput | WorkspaceInvitationScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutOwnedOrganizationsInput = {
@@ -80745,6 +84046,34 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutWorkspaceMembershipsInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutWorkspaceMembershipsInput, UserUpdateWithoutWorkspaceMembershipsInput>, UserUncheckedUpdateWithoutWorkspaceMembershipsInput>
+  }
+
+  export type WorkspaceCreateNestedOneWithoutInvitationsInput = {
+    create?: XOR<WorkspaceCreateWithoutInvitationsInput, WorkspaceUncheckedCreateWithoutInvitationsInput>
+    connectOrCreate?: WorkspaceCreateOrConnectWithoutInvitationsInput
+    connect?: WorkspaceWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutSentWorkspaceInvitationsInput = {
+    create?: XOR<UserCreateWithoutSentWorkspaceInvitationsInput, UserUncheckedCreateWithoutSentWorkspaceInvitationsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutSentWorkspaceInvitationsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type WorkspaceUpdateOneRequiredWithoutInvitationsNestedInput = {
+    create?: XOR<WorkspaceCreateWithoutInvitationsInput, WorkspaceUncheckedCreateWithoutInvitationsInput>
+    connectOrCreate?: WorkspaceCreateOrConnectWithoutInvitationsInput
+    upsert?: WorkspaceUpsertWithoutInvitationsInput
+    connect?: WorkspaceWhereUniqueInput
+    update?: XOR<XOR<WorkspaceUpdateToOneWithWhereWithoutInvitationsInput, WorkspaceUpdateWithoutInvitationsInput>, WorkspaceUncheckedUpdateWithoutInvitationsInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutSentWorkspaceInvitationsNestedInput = {
+    create?: XOR<UserCreateWithoutSentWorkspaceInvitationsInput, UserUncheckedCreateWithoutSentWorkspaceInvitationsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutSentWorkspaceInvitationsInput
+    upsert?: UserUpsertWithoutSentWorkspaceInvitationsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutSentWorkspaceInvitationsInput, UserUpdateWithoutSentWorkspaceInvitationsInput>, UserUncheckedUpdateWithoutSentWorkspaceInvitationsInput>
   }
 
   export type WebsiteCreateNestedOneWithoutApprovalRequestsInput = {
@@ -80991,6 +84320,14 @@ export namespace Prisma {
 
   export type FloatFieldUpdateOperationsInput = {
     set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type NullableFloatFieldUpdateOperationsInput = {
+    set?: number | null
     increment?: number
     decrement?: number
     multiply?: number
@@ -81420,6 +84757,22 @@ export namespace Prisma {
     _max?: NestedFloatFilter<$PrismaModel>
   }
 
+  export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
+  }
+
   export type IdentityCreateWithoutUserInput = {
     id?: string
     provider: $Enums.IdentityProvider
@@ -81575,6 +84928,8 @@ export namespace Prisma {
   export type UserSubscriptionCreateWithoutUserInput = {
     id?: string
     status?: string
+    stripeCustomerId?: string | null
+    stripeSubscriptionId?: string | null
     currentPeriodStart?: Date | string
     currentPeriodEnd?: Date | string | null
     createdAt?: Date | string
@@ -81586,6 +84941,8 @@ export namespace Prisma {
     id?: string
     planId: string
     status?: string
+    stripeCustomerId?: string | null
+    stripeSubscriptionId?: string | null
     currentPeriodStart?: Date | string
     currentPeriodEnd?: Date | string | null
     createdAt?: Date | string
@@ -82167,6 +85524,7 @@ export namespace Prisma {
     organization?: OrganizationCreateNestedOneWithoutWorkspacesInput
     members?: WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
     websites?: WebsiteCreateNestedManyWithoutWorkspaceInput
+    invitations?: WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceUncheckedCreateWithoutOwnerInput = {
@@ -82179,6 +85537,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     members?: WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
     websites?: WebsiteUncheckedCreateNestedManyWithoutWorkspaceInput
+    invitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceCreateOrConnectWithoutOwnerInput = {
@@ -82274,6 +85633,40 @@ export namespace Prisma {
 
   export type WorkspaceMemberCreateManyUserInputEnvelope = {
     data: WorkspaceMemberCreateManyUserInput | WorkspaceMemberCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type WorkspaceInvitationCreateWithoutInviterInput = {
+    id?: string
+    email: string
+    role?: string
+    tokenHash?: string | null
+    status?: string
+    expiresAt: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    workspace: WorkspaceCreateNestedOneWithoutInvitationsInput
+  }
+
+  export type WorkspaceInvitationUncheckedCreateWithoutInviterInput = {
+    id?: string
+    workspaceId: string
+    email: string
+    role?: string
+    tokenHash?: string | null
+    status?: string
+    expiresAt: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WorkspaceInvitationCreateOrConnectWithoutInviterInput = {
+    where: WorkspaceInvitationWhereUniqueInput
+    create: XOR<WorkspaceInvitationCreateWithoutInviterInput, WorkspaceInvitationUncheckedCreateWithoutInviterInput>
+  }
+
+  export type WorkspaceInvitationCreateManyInviterInputEnvelope = {
+    data: WorkspaceInvitationCreateManyInviterInput | WorkspaceInvitationCreateManyInviterInput[]
     skipDuplicates?: boolean
   }
 
@@ -82483,10 +85876,16 @@ export namespace Prisma {
   export type BillingInvoiceCreateWithoutUserInput = {
     id?: string
     planId: string
+    planName?: string | null
+    description?: string | null
     amount: number
     currency?: string
     status?: string
     invoiceNumber: string
+    paymentProvider?: string | null
+    paymentReference?: string | null
+    taxAmount?: number | null
+    subtotal?: number | null
     billingPeriodStart: Date | string
     billingPeriodEnd: Date | string
     createdAt?: Date | string
@@ -82495,10 +85894,16 @@ export namespace Prisma {
   export type BillingInvoiceUncheckedCreateWithoutUserInput = {
     id?: string
     planId: string
+    planName?: string | null
+    description?: string | null
     amount: number
     currency?: string
     status?: string
     invoiceNumber: string
+    paymentProvider?: string | null
+    paymentReference?: string | null
+    taxAmount?: number | null
+    subtotal?: number | null
     billingPeriodStart: Date | string
     billingPeriodEnd: Date | string
     createdAt?: Date | string
@@ -82679,6 +86084,8 @@ export namespace Prisma {
   export type UserSubscriptionUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
     currentPeriodStart?: DateTimeFieldUpdateOperationsInput | Date | string
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -82690,6 +86097,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     planId?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
     currentPeriodStart?: DateTimeFieldUpdateOperationsInput | Date | string
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -83307,6 +86716,38 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"WorkspaceMember"> | Date | string
   }
 
+  export type WorkspaceInvitationUpsertWithWhereUniqueWithoutInviterInput = {
+    where: WorkspaceInvitationWhereUniqueInput
+    update: XOR<WorkspaceInvitationUpdateWithoutInviterInput, WorkspaceInvitationUncheckedUpdateWithoutInviterInput>
+    create: XOR<WorkspaceInvitationCreateWithoutInviterInput, WorkspaceInvitationUncheckedCreateWithoutInviterInput>
+  }
+
+  export type WorkspaceInvitationUpdateWithWhereUniqueWithoutInviterInput = {
+    where: WorkspaceInvitationWhereUniqueInput
+    data: XOR<WorkspaceInvitationUpdateWithoutInviterInput, WorkspaceInvitationUncheckedUpdateWithoutInviterInput>
+  }
+
+  export type WorkspaceInvitationUpdateManyWithWhereWithoutInviterInput = {
+    where: WorkspaceInvitationScalarWhereInput
+    data: XOR<WorkspaceInvitationUpdateManyMutationInput, WorkspaceInvitationUncheckedUpdateManyWithoutInviterInput>
+  }
+
+  export type WorkspaceInvitationScalarWhereInput = {
+    AND?: WorkspaceInvitationScalarWhereInput | WorkspaceInvitationScalarWhereInput[]
+    OR?: WorkspaceInvitationScalarWhereInput[]
+    NOT?: WorkspaceInvitationScalarWhereInput | WorkspaceInvitationScalarWhereInput[]
+    id?: UuidFilter<"WorkspaceInvitation"> | string
+    workspaceId?: UuidFilter<"WorkspaceInvitation"> | string
+    email?: StringFilter<"WorkspaceInvitation"> | string
+    role?: StringFilter<"WorkspaceInvitation"> | string
+    tokenHash?: StringNullableFilter<"WorkspaceInvitation"> | string | null
+    status?: StringFilter<"WorkspaceInvitation"> | string
+    expiresAt?: DateTimeFilter<"WorkspaceInvitation"> | Date | string
+    invitedBy?: UuidFilter<"WorkspaceInvitation"> | string
+    createdAt?: DateTimeFilter<"WorkspaceInvitation"> | Date | string
+    updatedAt?: DateTimeFilter<"WorkspaceInvitation"> | Date | string
+  }
+
   export type PublishApprovalRequestUpsertWithWhereUniqueWithoutRequesterInput = {
     where: PublishApprovalRequestWhereUniqueInput
     update: XOR<PublishApprovalRequestUpdateWithoutRequesterInput, PublishApprovalRequestUncheckedUpdateWithoutRequesterInput>
@@ -83508,10 +86949,16 @@ export namespace Prisma {
     id?: UuidFilter<"BillingInvoice"> | string
     userId?: UuidFilter<"BillingInvoice"> | string
     planId?: StringFilter<"BillingInvoice"> | string
+    planName?: StringNullableFilter<"BillingInvoice"> | string | null
+    description?: StringNullableFilter<"BillingInvoice"> | string | null
     amount?: FloatFilter<"BillingInvoice"> | number
     currency?: StringFilter<"BillingInvoice"> | string
     status?: StringFilter<"BillingInvoice"> | string
     invoiceNumber?: StringFilter<"BillingInvoice"> | string
+    paymentProvider?: StringNullableFilter<"BillingInvoice"> | string | null
+    paymentReference?: StringNullableFilter<"BillingInvoice"> | string | null
+    taxAmount?: FloatNullableFilter<"BillingInvoice"> | number | null
+    subtotal?: FloatNullableFilter<"BillingInvoice"> | number | null
     billingPeriodStart?: DateTimeFilter<"BillingInvoice"> | Date | string
     billingPeriodEnd?: DateTimeFilter<"BillingInvoice"> | Date | string
     createdAt?: DateTimeFilter<"BillingInvoice"> | Date | string
@@ -83557,6 +87004,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -83606,6 +87054,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -84164,6 +87613,7 @@ export namespace Prisma {
     organization?: OrganizationCreateNestedOneWithoutWorkspacesInput
     owner: UserCreateNestedOneWithoutOwnedWorkspacesInput
     members?: WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
+    invitations?: WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceUncheckedCreateWithoutWebsitesInput = {
@@ -84176,6 +87626,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     members?: WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
+    invitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceCreateOrConnectWithoutWebsitesInput = {
@@ -84470,6 +87921,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -84519,6 +87971,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -84965,6 +88418,7 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneWithoutWorkspacesNestedInput
     owner?: UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
     members?: WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
+    invitations?: WorkspaceInvitationUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type WorkspaceUncheckedUpdateWithoutWebsitesInput = {
@@ -84977,6 +88431,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
+    invitations?: WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type OrganizationUpsertWithoutWebsitesInput = {
@@ -85217,6 +88672,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -85266,6 +88722,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -85331,6 +88788,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -85380,6 +88838,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -85429,6 +88888,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -85478,6 +88938,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -85543,6 +89004,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -85592,6 +89054,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -85641,6 +89104,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -85690,6 +89154,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -85755,6 +89220,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -85804,6 +89270,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -85853,6 +89320,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -85902,6 +89370,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -85967,6 +89436,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -86016,6 +89486,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -86028,6 +89499,8 @@ export namespace Prisma {
   export type UserSubscriptionCreateWithoutPlanInput = {
     id?: string
     status?: string
+    stripeCustomerId?: string | null
+    stripeSubscriptionId?: string | null
     currentPeriodStart?: Date | string
     currentPeriodEnd?: Date | string | null
     createdAt?: Date | string
@@ -86039,6 +89512,8 @@ export namespace Prisma {
     id?: string
     userId: string
     status?: string
+    stripeCustomerId?: string | null
+    stripeSubscriptionId?: string | null
     currentPeriodStart?: Date | string
     currentPeriodEnd?: Date | string | null
     createdAt?: Date | string
@@ -86079,6 +89554,8 @@ export namespace Prisma {
     userId?: UuidFilter<"UserSubscription"> | string
     planId?: UuidFilter<"UserSubscription"> | string
     status?: StringFilter<"UserSubscription"> | string
+    stripeCustomerId?: StringNullableFilter<"UserSubscription"> | string | null
+    stripeSubscriptionId?: StringNullableFilter<"UserSubscription"> | string | null
     currentPeriodStart?: DateTimeFilter<"UserSubscription"> | Date | string
     currentPeriodEnd?: DateTimeNullableFilter<"UserSubscription"> | Date | string | null
     createdAt?: DateTimeFilter<"UserSubscription"> | Date | string
@@ -86162,6 +89639,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -86211,6 +89689,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -86319,6 +89798,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -86368,6 +89848,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -86417,6 +89898,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -86466,6 +89948,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -86531,6 +90014,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -86580,6 +90064,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -86876,6 +90361,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -86925,6 +90411,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -87047,6 +90534,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -87096,6 +90584,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -87724,6 +91213,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -87773,6 +91263,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -87838,6 +91329,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -87887,6 +91379,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -88341,6 +91834,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -88390,6 +91884,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -88490,6 +91985,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -88539,6 +92035,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -88663,6 +92160,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -88712,6 +92210,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -88858,6 +92357,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -88907,6 +92407,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -88956,6 +92457,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -89005,6 +92507,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -89070,6 +92573,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -89119,6 +92623,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -89243,6 +92748,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -89292,6 +92798,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -89438,6 +92945,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -89487,6 +92995,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -89611,6 +93120,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -89660,6 +93170,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -89806,6 +93317,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -89855,6 +93367,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -89979,6 +93492,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -90028,6 +93542,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -90174,6 +93689,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -90223,6 +93739,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -90347,6 +93864,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -90396,6 +93914,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -90542,6 +94061,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -90591,6 +94111,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -90715,6 +94236,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -90764,6 +94286,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -90910,6 +94433,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -90959,6 +94483,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -91239,6 +94764,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -91288,6 +94814,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -91434,6 +94961,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -91483,6 +95011,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -91532,6 +95061,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -91581,6 +95111,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -91786,6 +95317,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -91835,6 +95367,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -91959,6 +95492,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -92008,6 +95542,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -92106,6 +95641,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -92155,6 +95691,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -92231,6 +95768,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -92280,6 +95818,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -92378,6 +95917,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -92427,6 +95967,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -92551,6 +96092,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -92600,6 +96142,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -92746,6 +96289,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -92795,6 +96339,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -92873,6 +96418,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -92922,6 +96468,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -93042,6 +96589,40 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type WorkspaceInvitationCreateWithoutWorkspaceInput = {
+    id?: string
+    email: string
+    role?: string
+    tokenHash?: string | null
+    status?: string
+    expiresAt: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    inviter: UserCreateNestedOneWithoutSentWorkspaceInvitationsInput
+  }
+
+  export type WorkspaceInvitationUncheckedCreateWithoutWorkspaceInput = {
+    id?: string
+    email: string
+    role?: string
+    tokenHash?: string | null
+    status?: string
+    expiresAt: Date | string
+    invitedBy: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WorkspaceInvitationCreateOrConnectWithoutWorkspaceInput = {
+    where: WorkspaceInvitationWhereUniqueInput
+    create: XOR<WorkspaceInvitationCreateWithoutWorkspaceInput, WorkspaceInvitationUncheckedCreateWithoutWorkspaceInput>
+  }
+
+  export type WorkspaceInvitationCreateManyWorkspaceInputEnvelope = {
+    data: WorkspaceInvitationCreateManyWorkspaceInput | WorkspaceInvitationCreateManyWorkspaceInput[]
+    skipDuplicates?: boolean
+  }
+
   export type OrganizationUpsertWithoutWorkspacesInput = {
     update: XOR<OrganizationUpdateWithoutWorkspacesInput, OrganizationUncheckedUpdateWithoutWorkspacesInput>
     create: XOR<OrganizationCreateWithoutWorkspacesInput, OrganizationUncheckedCreateWithoutWorkspacesInput>
@@ -93128,6 +96709,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -93177,6 +96759,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -93216,6 +96799,22 @@ export namespace Prisma {
   export type WebsiteUpdateManyWithWhereWithoutWorkspaceInput = {
     where: WebsiteScalarWhereInput
     data: XOR<WebsiteUpdateManyMutationInput, WebsiteUncheckedUpdateManyWithoutWorkspaceInput>
+  }
+
+  export type WorkspaceInvitationUpsertWithWhereUniqueWithoutWorkspaceInput = {
+    where: WorkspaceInvitationWhereUniqueInput
+    update: XOR<WorkspaceInvitationUpdateWithoutWorkspaceInput, WorkspaceInvitationUncheckedUpdateWithoutWorkspaceInput>
+    create: XOR<WorkspaceInvitationCreateWithoutWorkspaceInput, WorkspaceInvitationUncheckedCreateWithoutWorkspaceInput>
+  }
+
+  export type WorkspaceInvitationUpdateWithWhereUniqueWithoutWorkspaceInput = {
+    where: WorkspaceInvitationWhereUniqueInput
+    data: XOR<WorkspaceInvitationUpdateWithoutWorkspaceInput, WorkspaceInvitationUncheckedUpdateWithoutWorkspaceInput>
+  }
+
+  export type WorkspaceInvitationUpdateManyWithWhereWithoutWorkspaceInput = {
+    where: WorkspaceInvitationScalarWhereInput
+    data: XOR<WorkspaceInvitationUpdateManyMutationInput, WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceInput>
   }
 
   export type UserCreateWithoutOwnedOrganizationsInput = {
@@ -93258,6 +96857,7 @@ export namespace Prisma {
     ownedWorkspaces?: WorkspaceCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -93307,6 +96907,7 @@ export namespace Prisma {
     ownedWorkspaces?: WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -93357,6 +96958,7 @@ export namespace Prisma {
     owner: UserCreateNestedOneWithoutOwnedWorkspacesInput
     members?: WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
     websites?: WebsiteCreateNestedManyWithoutWorkspaceInput
+    invitations?: WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceUncheckedCreateWithoutOrganizationInput = {
@@ -93369,6 +96971,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     members?: WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
     websites?: WebsiteUncheckedCreateNestedManyWithoutWorkspaceInput
+    invitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceCreateOrConnectWithoutOrganizationInput = {
@@ -93512,6 +97115,7 @@ export namespace Prisma {
     ownedWorkspaces?: WorkspaceUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -93561,6 +97165,7 @@ export namespace Prisma {
     ownedWorkspaces?: WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -93687,6 +97292,7 @@ export namespace Prisma {
     ownedWorkspaces?: WorkspaceCreateNestedManyWithoutOwnerInput
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -93736,6 +97342,7 @@ export namespace Prisma {
     ownedWorkspaces?: WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -93836,6 +97443,7 @@ export namespace Prisma {
     ownedWorkspaces?: WorkspaceUpdateManyWithoutOwnerNestedInput
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -93885,6 +97493,7 @@ export namespace Prisma {
     ownedWorkspaces?: WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -93904,6 +97513,7 @@ export namespace Prisma {
     organization?: OrganizationCreateNestedOneWithoutWorkspacesInput
     owner: UserCreateNestedOneWithoutOwnedWorkspacesInput
     websites?: WebsiteCreateNestedManyWithoutWorkspaceInput
+    invitations?: WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceUncheckedCreateWithoutMembersInput = {
@@ -93916,6 +97526,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     websites?: WebsiteUncheckedCreateNestedManyWithoutWorkspaceInput
+    invitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceCreateOrConnectWithoutMembersInput = {
@@ -93963,6 +97574,7 @@ export namespace Prisma {
     ownedWorkspaces?: WorkspaceCreateNestedManyWithoutOwnerInput
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -94012,6 +97624,7 @@ export namespace Prisma {
     ownedWorkspaces?: WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -94047,6 +97660,7 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneWithoutWorkspacesNestedInput
     owner?: UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
     websites?: WebsiteUpdateManyWithoutWorkspaceNestedInput
+    invitations?: WorkspaceInvitationUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type WorkspaceUncheckedUpdateWithoutMembersInput = {
@@ -94059,6 +97673,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     websites?: WebsiteUncheckedUpdateManyWithoutWorkspaceNestedInput
+    invitations?: WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type UserUpsertWithoutWorkspaceMembershipsInput = {
@@ -94112,6 +97727,7 @@ export namespace Prisma {
     ownedWorkspaces?: WorkspaceUpdateManyWithoutOwnerNestedInput
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -94161,6 +97777,291 @@ export namespace Prisma {
     ownedWorkspaces?: WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
+    reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type WorkspaceCreateWithoutInvitationsInput = {
+    id?: string
+    name: string
+    slug: string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    organization?: OrganizationCreateNestedOneWithoutWorkspacesInput
+    owner: UserCreateNestedOneWithoutOwnedWorkspacesInput
+    members?: WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
+    websites?: WebsiteCreateNestedManyWithoutWorkspaceInput
+  }
+
+  export type WorkspaceUncheckedCreateWithoutInvitationsInput = {
+    id?: string
+    organizationId?: string | null
+    name: string
+    slug: string
+    ownerId: string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
+    websites?: WebsiteUncheckedCreateNestedManyWithoutWorkspaceInput
+  }
+
+  export type WorkspaceCreateOrConnectWithoutInvitationsInput = {
+    where: WorkspaceWhereUniqueInput
+    create: XOR<WorkspaceCreateWithoutInvitationsInput, WorkspaceUncheckedCreateWithoutInvitationsInput>
+  }
+
+  export type UserCreateWithoutSentWorkspaceInvitationsInput = {
+    id?: string
+    fullName?: string | null
+    email?: string | null
+    phone?: string | null
+    passwordHash?: string | null
+    verificationMethod?: $Enums.VerificationMethod | null
+    emailVerified?: boolean
+    phoneVerified?: boolean
+    status?: $Enums.UserStatus
+    role?: $Enums.UserRole
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    optimizationCredits?: number
+    identities?: IdentityCreateNestedManyWithoutUserInput
+    otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
+    passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    templates?: templatesCreateNestedManyWithoutUsersInput
+    subscription?: UserSubscriptionCreateNestedOneWithoutUserInput
+    websites?: WebsiteCreateNestedManyWithoutUserInput
+    codeRevisions?: CustomCodeRevisionCreateNestedManyWithoutAuthorInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    developerApiKeys?: DeveloperApiKeyCreateNestedManyWithoutUserInput
+    designNotes?: DesignNoteCreateNestedManyWithoutAuthorInput
+    collaborations?: WebsiteCollaboratorCreateNestedManyWithoutUserInput
+    componentAccesses?: ComponentAccessCreateNestedManyWithoutUserInput
+    customEntries?: CustomEntryCreateNestedManyWithoutAuthorInput
+    websiteRevisions?: WebsiteRevisionCreateNestedManyWithoutCreatorInput
+    deployments?: DeploymentCreateNestedManyWithoutCreatorInput
+    wpConnections?: WordPressConnectionCreateNestedManyWithoutUserInput
+    ownedTeams?: TeamCreateNestedManyWithoutOwnerInput
+    teamMemberships?: TeamMemberCreateNestedManyWithoutUserInput
+    sentTeamInvitations?: TeamInvitationCreateNestedManyWithoutInviterInput
+    sentWebsiteInvitations?: WebsiteInvitationCreateNestedManyWithoutInviterInput
+    granularPermissions?: GranularPermissionCreateNestedManyWithoutUserInput
+    ownedWorkspaces?: WorkspaceCreateNestedManyWithoutOwnerInput
+    ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
+    organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
+    workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
+    reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutSentWorkspaceInvitationsInput = {
+    id?: string
+    fullName?: string | null
+    email?: string | null
+    phone?: string | null
+    passwordHash?: string | null
+    verificationMethod?: $Enums.VerificationMethod | null
+    emailVerified?: boolean
+    phoneVerified?: boolean
+    status?: $Enums.UserStatus
+    role?: $Enums.UserRole
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    optimizationCredits?: number
+    identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
+    otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
+    passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    templates?: templatesUncheckedCreateNestedManyWithoutUsersInput
+    subscription?: UserSubscriptionUncheckedCreateNestedOneWithoutUserInput
+    websites?: WebsiteUncheckedCreateNestedManyWithoutUserInput
+    codeRevisions?: CustomCodeRevisionUncheckedCreateNestedManyWithoutAuthorInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    developerApiKeys?: DeveloperApiKeyUncheckedCreateNestedManyWithoutUserInput
+    designNotes?: DesignNoteUncheckedCreateNestedManyWithoutAuthorInput
+    collaborations?: WebsiteCollaboratorUncheckedCreateNestedManyWithoutUserInput
+    componentAccesses?: ComponentAccessUncheckedCreateNestedManyWithoutUserInput
+    customEntries?: CustomEntryUncheckedCreateNestedManyWithoutAuthorInput
+    websiteRevisions?: WebsiteRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    deployments?: DeploymentUncheckedCreateNestedManyWithoutCreatorInput
+    wpConnections?: WordPressConnectionUncheckedCreateNestedManyWithoutUserInput
+    ownedTeams?: TeamUncheckedCreateNestedManyWithoutOwnerInput
+    teamMemberships?: TeamMemberUncheckedCreateNestedManyWithoutUserInput
+    sentTeamInvitations?: TeamInvitationUncheckedCreateNestedManyWithoutInviterInput
+    sentWebsiteInvitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutInviterInput
+    granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutUserInput
+    ownedWorkspaces?: WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
+    ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
+    organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
+    workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
+    reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutSentWorkspaceInvitationsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutSentWorkspaceInvitationsInput, UserUncheckedCreateWithoutSentWorkspaceInvitationsInput>
+  }
+
+  export type WorkspaceUpsertWithoutInvitationsInput = {
+    update: XOR<WorkspaceUpdateWithoutInvitationsInput, WorkspaceUncheckedUpdateWithoutInvitationsInput>
+    create: XOR<WorkspaceCreateWithoutInvitationsInput, WorkspaceUncheckedCreateWithoutInvitationsInput>
+    where?: WorkspaceWhereInput
+  }
+
+  export type WorkspaceUpdateToOneWithWhereWithoutInvitationsInput = {
+    where?: WorkspaceWhereInput
+    data: XOR<WorkspaceUpdateWithoutInvitationsInput, WorkspaceUncheckedUpdateWithoutInvitationsInput>
+  }
+
+  export type WorkspaceUpdateWithoutInvitationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OrganizationUpdateOneWithoutWorkspacesNestedInput
+    owner?: UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
+    members?: WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
+    websites?: WebsiteUpdateManyWithoutWorkspaceNestedInput
+  }
+
+  export type WorkspaceUncheckedUpdateWithoutInvitationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    ownerId?: StringFieldUpdateOperationsInput | string
+    settings?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
+    websites?: WebsiteUncheckedUpdateManyWithoutWorkspaceNestedInput
+  }
+
+  export type UserUpsertWithoutSentWorkspaceInvitationsInput = {
+    update: XOR<UserUpdateWithoutSentWorkspaceInvitationsInput, UserUncheckedUpdateWithoutSentWorkspaceInvitationsInput>
+    create: XOR<UserCreateWithoutSentWorkspaceInvitationsInput, UserUncheckedCreateWithoutSentWorkspaceInvitationsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutSentWorkspaceInvitationsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutSentWorkspaceInvitationsInput, UserUncheckedUpdateWithoutSentWorkspaceInvitationsInput>
+  }
+
+  export type UserUpdateWithoutSentWorkspaceInvitationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
+    identities?: IdentityUpdateManyWithoutUserNestedInput
+    otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
+    passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    templates?: templatesUpdateManyWithoutUsersNestedInput
+    subscription?: UserSubscriptionUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUpdateManyWithoutUserNestedInput
+    codeRevisions?: CustomCodeRevisionUpdateManyWithoutAuthorNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    developerApiKeys?: DeveloperApiKeyUpdateManyWithoutUserNestedInput
+    designNotes?: DesignNoteUpdateManyWithoutAuthorNestedInput
+    collaborations?: WebsiteCollaboratorUpdateManyWithoutUserNestedInput
+    componentAccesses?: ComponentAccessUpdateManyWithoutUserNestedInput
+    customEntries?: CustomEntryUpdateManyWithoutAuthorNestedInput
+    websiteRevisions?: WebsiteRevisionUpdateManyWithoutCreatorNestedInput
+    deployments?: DeploymentUpdateManyWithoutCreatorNestedInput
+    wpConnections?: WordPressConnectionUpdateManyWithoutUserNestedInput
+    ownedTeams?: TeamUpdateManyWithoutOwnerNestedInput
+    teamMemberships?: TeamMemberUpdateManyWithoutUserNestedInput
+    sentTeamInvitations?: TeamInvitationUpdateManyWithoutInviterNestedInput
+    sentWebsiteInvitations?: WebsiteInvitationUpdateManyWithoutInviterNestedInput
+    granularPermissions?: GranularPermissionUpdateManyWithoutUserNestedInput
+    ownedWorkspaces?: WorkspaceUpdateManyWithoutOwnerNestedInput
+    ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
+    organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
+    workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
+    reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutSentWorkspaceInvitationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
+    identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
+    otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
+    passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    templates?: templatesUncheckedUpdateManyWithoutUsersNestedInput
+    subscription?: UserSubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUncheckedUpdateManyWithoutUserNestedInput
+    codeRevisions?: CustomCodeRevisionUncheckedUpdateManyWithoutAuthorNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    developerApiKeys?: DeveloperApiKeyUncheckedUpdateManyWithoutUserNestedInput
+    designNotes?: DesignNoteUncheckedUpdateManyWithoutAuthorNestedInput
+    collaborations?: WebsiteCollaboratorUncheckedUpdateManyWithoutUserNestedInput
+    componentAccesses?: ComponentAccessUncheckedUpdateManyWithoutUserNestedInput
+    customEntries?: CustomEntryUncheckedUpdateManyWithoutAuthorNestedInput
+    websiteRevisions?: WebsiteRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    deployments?: DeploymentUncheckedUpdateManyWithoutCreatorNestedInput
+    wpConnections?: WordPressConnectionUncheckedUpdateManyWithoutUserNestedInput
+    ownedTeams?: TeamUncheckedUpdateManyWithoutOwnerNestedInput
+    teamMemberships?: TeamMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentTeamInvitations?: TeamInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    sentWebsiteInvitations?: WebsiteInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutUserNestedInput
+    ownedWorkspaces?: WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
+    ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
+    organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
+    workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -94286,6 +98187,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
@@ -94335,6 +98237,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
@@ -94389,6 +98292,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
@@ -94438,6 +98342,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
@@ -94584,6 +98489,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
@@ -94633,6 +98539,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
@@ -94693,6 +98600,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
@@ -94742,6 +98650,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
@@ -94791,6 +98700,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
@@ -94840,6 +98750,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
@@ -94980,6 +98891,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
@@ -95029,6 +98941,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
@@ -95783,6 +99696,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -95832,6 +99746,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -95897,6 +99812,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -95946,6 +99862,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -95995,6 +99912,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -96044,6 +99962,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -96139,6 +100058,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -96188,6 +100108,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -96331,6 +100252,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -96380,6 +100302,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -96445,6 +100368,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -96494,6 +100418,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -96543,6 +100468,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
@@ -96592,6 +100518,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
     workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
@@ -96657,6 +100584,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
@@ -96706,6 +100634,7 @@ export namespace Prisma {
     ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
     workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
@@ -96976,6 +100905,18 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type WorkspaceInvitationCreateManyInviterInput = {
+    id?: string
+    workspaceId: string
+    email: string
+    role?: string
+    tokenHash?: string | null
+    status?: string
+    expiresAt: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type PublishApprovalRequestCreateManyRequesterInput = {
     id?: string
     websiteId: string
@@ -97041,10 +100982,16 @@ export namespace Prisma {
   export type BillingInvoiceCreateManyUserInput = {
     id?: string
     planId: string
+    planName?: string | null
+    description?: string | null
     amount: number
     currency?: string
     status?: string
     invoiceNumber: string
+    paymentProvider?: string | null
+    paymentReference?: string | null
+    taxAmount?: number | null
+    subtotal?: number | null
     billingPeriodStart: Date | string
     billingPeriodEnd: Date | string
     createdAt?: Date | string
@@ -97789,6 +101736,7 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneWithoutWorkspacesNestedInput
     members?: WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
     websites?: WebsiteUpdateManyWithoutWorkspaceNestedInput
+    invitations?: WorkspaceInvitationUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type WorkspaceUncheckedUpdateWithoutOwnerInput = {
@@ -97801,6 +101749,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
     websites?: WebsiteUncheckedUpdateManyWithoutWorkspaceNestedInput
+    invitations?: WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type WorkspaceUncheckedUpdateManyWithoutOwnerInput = {
@@ -97890,6 +101839,42 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     workspaceId?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WorkspaceInvitationUpdateWithoutInviterInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    tokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    workspace?: WorkspaceUpdateOneRequiredWithoutInvitationsNestedInput
+  }
+
+  export type WorkspaceInvitationUncheckedUpdateWithoutInviterInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceId?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    tokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WorkspaceInvitationUncheckedUpdateManyWithoutInviterInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceId?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    tokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -98085,10 +102070,16 @@ export namespace Prisma {
   export type BillingInvoiceUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     planId?: StringFieldUpdateOperationsInput | string
+    planName?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: FloatFieldUpdateOperationsInput | number
     currency?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     invoiceNumber?: StringFieldUpdateOperationsInput | string
+    paymentProvider?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
+    taxAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    subtotal?: NullableFloatFieldUpdateOperationsInput | number | null
     billingPeriodStart?: DateTimeFieldUpdateOperationsInput | Date | string
     billingPeriodEnd?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -98097,10 +102088,16 @@ export namespace Prisma {
   export type BillingInvoiceUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     planId?: StringFieldUpdateOperationsInput | string
+    planName?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: FloatFieldUpdateOperationsInput | number
     currency?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     invoiceNumber?: StringFieldUpdateOperationsInput | string
+    paymentProvider?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
+    taxAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    subtotal?: NullableFloatFieldUpdateOperationsInput | number | null
     billingPeriodStart?: DateTimeFieldUpdateOperationsInput | Date | string
     billingPeriodEnd?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -98109,10 +102106,16 @@ export namespace Prisma {
   export type BillingInvoiceUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     planId?: StringFieldUpdateOperationsInput | string
+    planName?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: FloatFieldUpdateOperationsInput | number
     currency?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     invoiceNumber?: StringFieldUpdateOperationsInput | string
+    paymentProvider?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentReference?: NullableStringFieldUpdateOperationsInput | string | null
+    taxAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    subtotal?: NullableFloatFieldUpdateOperationsInput | number | null
     billingPeriodStart?: DateTimeFieldUpdateOperationsInput | Date | string
     billingPeriodEnd?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99016,6 +103019,8 @@ export namespace Prisma {
     id?: string
     userId: string
     status?: string
+    stripeCustomerId?: string | null
+    stripeSubscriptionId?: string | null
     currentPeriodStart?: Date | string
     currentPeriodEnd?: Date | string | null
     createdAt?: Date | string
@@ -99025,6 +103030,8 @@ export namespace Prisma {
   export type UserSubscriptionUpdateWithoutPlanInput = {
     id?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
     currentPeriodStart?: DateTimeFieldUpdateOperationsInput | Date | string
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99036,6 +103043,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
     currentPeriodStart?: DateTimeFieldUpdateOperationsInput | Date | string
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99046,6 +103055,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
     currentPeriodStart?: DateTimeFieldUpdateOperationsInput | Date | string
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99368,6 +103379,18 @@ export namespace Prisma {
     approvalWorkflowEnabled?: boolean
   }
 
+  export type WorkspaceInvitationCreateManyWorkspaceInput = {
+    id?: string
+    email: string
+    role?: string
+    tokenHash?: string | null
+    status?: string
+    expiresAt: Date | string
+    invitedBy: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type WorkspaceMemberUpdateWithoutWorkspaceInput = {
     id?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
@@ -99476,6 +103499,42 @@ export namespace Prisma {
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
   }
 
+  export type WorkspaceInvitationUpdateWithoutWorkspaceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    tokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    inviter?: UserUpdateOneRequiredWithoutSentWorkspaceInvitationsNestedInput
+  }
+
+  export type WorkspaceInvitationUncheckedUpdateWithoutWorkspaceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    tokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    invitedBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    tokenHash?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    invitedBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type OrganizationMemberCreateManyOrganizationInput = {
     id?: string
     userId: string
@@ -99542,6 +103601,7 @@ export namespace Prisma {
     owner?: UserUpdateOneRequiredWithoutOwnedWorkspacesNestedInput
     members?: WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
     websites?: WebsiteUpdateManyWithoutWorkspaceNestedInput
+    invitations?: WorkspaceInvitationUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type WorkspaceUncheckedUpdateWithoutOrganizationInput = {
@@ -99554,6 +103614,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
     websites?: WebsiteUncheckedUpdateManyWithoutWorkspaceNestedInput
+    invitations?: WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type WorkspaceUncheckedUpdateManyWithoutOrganizationInput = {

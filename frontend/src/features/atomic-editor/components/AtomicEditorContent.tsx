@@ -9,6 +9,7 @@ import { AtomicFormPanel } from "./AtomicFormPanel";
 import { AtomicLoopPanel } from "./AtomicLoopPanel";
 
 interface AtomicEditorContentProps {
+  websiteId?: string;
   sectionConfig: AtomicSectionConfig;
   searchQuery: string;
   onSearchChange: (query: string) => void;
@@ -19,6 +20,7 @@ interface AtomicEditorContentProps {
 }
 
 export const AtomicEditorContent: React.FC<AtomicEditorContentProps> = ({
+  websiteId,
   sectionConfig,
   searchQuery,
   onSearchChange,
@@ -30,7 +32,7 @@ export const AtomicEditorContent: React.FC<AtomicEditorContentProps> = ({
   if (sectionConfig.id === "variables") {
     return (
       <div className="flex flex-col flex-1 p-4 overflow-hidden">
-        <VariablesPanel />
+        <VariablesPanel websiteId={websiteId} />
       </div>
     );
   }
@@ -38,7 +40,7 @@ export const AtomicEditorContent: React.FC<AtomicEditorContentProps> = ({
   if (sectionConfig.id === "classes") {
     return (
       <div className="flex flex-col flex-1 p-4 overflow-hidden">
-        <ClassesPanel />
+        <ClassesPanel websiteId={websiteId} />
       </div>
     );
   }

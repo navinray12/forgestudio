@@ -138,3 +138,71 @@ export function validateSafeUrl(urlStr: string, fieldName = "URL"): void {
     );
   }
 }
+
+/**
+ * Validates webhook endpoint URL format.
+ * - Rejects email addresses (e.g. raja@gmail.com) and malformed strings.
+ * - Accepts only valid absolute https:// URLs (and http:// only if explicitly permitted by security policy).
+ */
+export function validateWebhookUrl(urlStr: string): { valid: boolean; reason?: string } {
+  if (!urlStr || typeof urlStr !== "string") {
+    return { valid: false, reason: "Webhook URL is required" };
+  }
+
+  const trimmed = urlStr.trim();
+  if (!trimmed) {
+    return { valid: false, reason: "Webhook URL is required" };
+  }
+
+  // Reject email addresses or strings lacking protocol scheme
+  if (trimmed.includes("@") && !trimmed.includes("://")) {
+    return { valid: false, reason: "Enter a valid webhook URL starting with https://" };
+  }
+
+  let parsed: URL;
+  try {
+    parsed = new URL(trimmed);
+  } catch {
+    return { valid: false, reason: "Enter a valid webhook URL starting with https://" };
+  }
+
+  if (!parsed.hostname || parsed.hostname.trim() === "") {
+    return { valid: false, reason: "Enter a valid webhook URL starting with https://" };
+  }
+
+  // Security policy explicitly permits http:// when ALLOW_LOCAL_WEBHOOKS === "true",
+  // or in test/development environment
+  const isHttpPermitted =
+    process.env.ALLOW_LOCAL_WEBHOOKS === "true" ||
+    process.env.ALLOW_HTTP_WEBHOOKS === "true" ||
+    process.env.NODE_ENV === "development" ||
+    process.env.NODE_ENV === "test";
+
+  if (parsed.protocol === "https:") {
+    return { valid: true };
+  }
+
+  if (parsed.protocol === "http:") {
+    if (isHttpPermitted) {
+      return { valid: true };
+    }
+    return { valid: false, reason: "Enter a valid webhook URL starting with https://" };
+  }
+
+  return { valid: false, reason: "Enter a valid webhook URL starting with https://" };
+}
+
+/**
+ * Asserts that a webhook endpoint URL has valid format.
+ * Throws AppError(400, "INVALID_WEBHOOK_URL") if invalid.
+ */
+export function assertValidWebhookUrl(urlStr: string): void {
+  const check = validateWebhookUrl(urlStr);
+  if (!check.valid) {
+    throw new AppError(
+      check.reason || "Enter a valid webhook URL starting with https://",
+      400,
+      "INVALID_WEBHOOK_URL"
+    );
+  }
+}

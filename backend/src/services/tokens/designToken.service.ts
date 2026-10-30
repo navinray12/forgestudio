@@ -249,6 +249,9 @@ export function importDesignSystem(jsonInput: string | object): {
   variables: DesignVariable[];
   classes: GlobalClass[];
   compiledCss: string;
+  hasVariables: boolean;
+  hasClasses: boolean;
+  version?: number;
 } {
   let parsed: any;
   if (typeof jsonInput === "string") {
@@ -262,12 +265,57 @@ export function importDesignSystem(jsonInput: string | object): {
   }
 
   if (!parsed || typeof parsed !== "object") {
-    throw new Error("Design system payload must be an object");
+    throw new Error("Design system payload must be an object or array");
   }
 
-  const variables = validateVariables(parsed.variables || []);
-  const classes = validateClasses(parsed.classes || []);
+  // Handle unsupported schema version
+  if (parsed.version !== undefined && (typeof parsed.version !== "number" || parsed.version < 1 || parsed.version > 2)) {
+    throw new Error(`Unsupported schema version: ${parsed.version}. Supported versions are 1 and 2.`);
+  }
+
+  let hasVariables = false;
+  let hasClasses = false;
+  let rawVariables: any[] = [];
+  let rawClasses: any[] = [];
+
+  if (Array.isArray(parsed)) {
+    if (parsed.length === 0) {
+      throw new Error("Empty array supplied to importDesignSystem");
+    }
+    const sample = parsed[0];
+    if (sample && (sample.token || sample.category || sample.type || sample.modes)) {
+      hasVariables = true;
+      rawVariables = parsed;
+    } else if (sample && (sample.className || sample.styles || sample.pseudoStyles)) {
+      hasClasses = true;
+      rawClasses = parsed;
+    } else {
+      throw new Error("Unrecognized array items in design system payload");
+    }
+  } else {
+    if (Array.isArray(parsed.variables)) {
+      hasVariables = true;
+      rawVariables = parsed.variables;
+    }
+    if (Array.isArray(parsed.classes)) {
+      hasClasses = true;
+      rawClasses = parsed.classes;
+    }
+    if (!hasVariables && !hasClasses) {
+      throw new Error("Invalid format: payload must contain 'variables' or 'classes' array");
+    }
+  }
+
+  const variables = validateVariables(rawVariables);
+  const classes = validateClasses(rawClasses);
   const compiledCss = compileDesignSystemCss(variables, classes);
 
-  return { variables, classes, compiledCss };
+  return {
+    variables,
+    classes,
+    compiledCss,
+    hasVariables,
+    hasClasses,
+    version: parsed.version || 1,
+  };
 }

@@ -4,6 +4,7 @@ import cors from "cors";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import passport from "./config/passport.js";
+import { getUploadsDir } from "./config/storage.config.js";
 
 import {
   loginRoutes,
@@ -14,6 +15,7 @@ import {
   subscriptionRoutes,
   websiteRoutes,
   teamRoutes,
+  workspaceRoutes,
   uploadRoutes,
   apiKeysRoutes,
   developerRoutes,
@@ -41,6 +43,9 @@ import {
   aiHostingRoutes,
   elementorCloudRoutes,
   exportRoutes,
+  imageOptimizationRoutes,
+  approvalRoutes,
+  websiteApprovalRoutes,
 } from "./routes/index.js";
 
 import apiV1Routes from "./routes/api-v1.routes.js";
@@ -48,6 +53,7 @@ import operationsRoutes from "./routes/operations.routes.js";
 import auditLogRoutes from "./routes/auditLog.routes.js";
 import mediaRoutes from "./routes/media.routes.js";
 import { downloadWordPressPluginHandler } from "./controllers/wordpress.controller.js";
+import { handleAcmeHttp01Challenge } from "./controllers/customDomain.controller.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 import healthRoutes from "./routes/health.routes.js";
 import mailerRoutes from "./routes/mailer.routes.js";
@@ -77,19 +83,32 @@ app.use(
   })
 );
 
-app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+app.use("/uploads", express.static(getUploadsDir()));
 
 app.use(
   cors({
     origin: process.env.FRONTEND_URL,
     credentials: true,
+    exposedHeaders: ["Content-Disposition"],
   })
 );
 
-app.use(express.json({ limit: "2mb" }));
+app.use(
+  express.json({
+    limit: "2mb",
+    verify: (req: any, _res, buf) => {
+      req.rawBody = buf;
+    },
+  })
+);
 app.use(express.urlencoded({ extended: true, limit: "2mb" }));
 app.use(cookieParser());
 app.use(passport.initialize());
+
+// ACME HTTP-01 Challenge Endpoint (RFC 8555 Section 8.3)
+// Publicly accessible without authentication for Certificate Authority verification
+app.get("/.well-known/acme-challenge/:token", handleAcmeHttp01Challenge);
+
 
 
 app.get("/api/v1/health", (_req: Request, res: Response) => {
@@ -98,6 +117,7 @@ app.get("/api/v1/health", (_req: Request, res: Response) => {
     message: "API is healthy",
   });
 });
+
 
 // Auth & Session Rate Limiting (F-439)
 app.use("/api/v1/auth/login", authRateLimiter);
@@ -135,8 +155,16 @@ app.use("/api/v1/websites", clientBillingRoutes);
 app.use("/api/websites", clientBillingRoutes);
 app.use("/api/v1/websites", experimentRoutes);
 app.use("/api/websites", experimentRoutes);
+app.use("/api/v1/websites", imageOptimizationRoutes);
+app.use("/api/websites", imageOptimizationRoutes);
+app.use("/api/v1/websites", websiteApprovalRoutes);
+app.use("/api/websites", websiteApprovalRoutes);
+app.use("/api/v1/approval-requests", approvalRoutes);
+app.use("/api/approval-requests", approvalRoutes);
 app.use("/api/v1/teams", teamRoutes);
 app.use("/api/teams", teamRoutes);
+app.use("/api/v1/workspaces", workspaceRoutes);
+app.use("/api/workspaces", workspaceRoutes);
 
 // Media & Uploads
 app.use("/api/v1/uploads", uploadRoutes);
@@ -230,11 +258,9 @@ app.use("/api/audit-logs", auditLogRoutes);
 // Operations, Automation & Monitoring
 app.use("/api/v1/operations", operationsRoutes);
 app.use("/api/operations", operationsRoutes);
-app.get("/api/health", (_req, res) => {
-  res.redirect("/api/operations/health");
-});
 
 // Phase 20: Production Health & Canary
+app.use("/api/v1", healthRoutes);
 app.use("/api", healthRoutes);
 
 app.use(errorMiddleware);

@@ -121,3 +121,14 @@ export async function getHostingLogs(req: Request, res: Response) {
     return res.status(error.statusCode || 500).json({ success: false, message: error.message });
   }
 }
+
+// Module 19.1: Re-export custom domain management controllers
+export {
+  listDomains,
+  addDomain,
+  verifyDomain,
+  setDomainPrimary,
+  removeDomain,
+  getDomainStatus,
+  provisionDomainSsl,
+} from "./customDomain.controller.js";

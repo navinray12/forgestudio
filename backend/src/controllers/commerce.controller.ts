@@ -16,9 +16,13 @@ import {
   formatPrice,
   computeCouponDiscount,
   DEFAULT_COMMERCE_SETTINGS,
+  resolveTrustedOrderItemsAndTotals,
+  createStorefrontCheckoutSession,
+  verifyStorefrontPayment,
   type CommerceProduct,
   type Coupon,
   type CartItem,
+  type Order,
   type OrderStatus,
 } from "../services/ecommerce/commerce.service.js";
 
@@ -343,43 +347,33 @@ export async function createOrder(req: Request, res: Response) {
     const website = await prisma.website.findUnique({ where: { id: websiteId } });
     if (!website) return res.status(404).json({ success: false, message: "Website not found" });
 
-    const { items, customerName, customerEmail, billingAddress, shippingAddress, paymentMethod, couponCode } = req.body;
+    const { items, customerName, customerEmail, billingAddress, shippingAddress, paymentMethod, couponCode, shippingCost } = req.body;
     if (!items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ success: false, message: "Cart items are required to create an order" });
     }
 
-    const { settings: rawSettings, coupons, orders } = readCommerceData(website);
-    const settings = validateCommerceSettings(rawSettings || {});
+    // Resolve product IDs against trusted catalog & calculate totals on backend
+    const resolved = resolveTrustedOrderItemsAndTotals(website, { items, couponCode, shippingCost });
+    const { orders } = readCommerceData(website);
 
-    let coupon: Coupon | undefined;
-    if (couponCode) {
-      coupon = coupons.find((c: any) => c.code === String(couponCode).toUpperCase());
-    }
-
-    const totals = calculateCartTotals(
-      { items, couponCode, discountAmount: 0, shippingCost: 0, taxRate: settings.taxRate, currency: settings.currency },
-      settings,
-      coupon
-    );
-
-    const newOrder: any = {
+    const newOrder: Order = {
       id: "WC-ORD-" + Math.floor(100000 + Math.random() * 900000),
       websiteId,
-      customerEmail: customerEmail || "guest@example.com",
-      customerName: customerName || "Guest Customer",
-      status: "processing",
-      items,
-      subtotal: totals.subtotal,
-      discountAmount: totals.discountAmount,
-      shippingCost: totals.shippingCost,
-      taxAmount: totals.taxAmount,
-      total: totals.total,
-      currency: settings.currency,
-      couponCode,
+      customerEmail: (customerEmail || "").trim() || "guest@example.com",
+      customerName: (customerName || "").trim() || "Guest Customer",
+      status: "pending", // Real pending status, not fake processing
+      items: resolved.trustedItems,
+      subtotal: resolved.subtotal,
+      discountAmount: resolved.discountAmount,
+      shippingCost: resolved.shippingCost,
+      taxAmount: resolved.taxAmount,
+      total: resolved.total,
+      currency: resolved.currency,
+      couponCode: resolved.coupon?.code,
       billingAddress,
       shippingAddress,
-      paymentMethod: paymentMethod || "Credit Card",
-      paymentStatus: "paid",
+      paymentMethod: paymentMethod || "manual",
+      paymentStatus: "unpaid", // Real unpaid status, not fake paid
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -389,7 +383,87 @@ export async function createOrder(req: Request, res: Response) {
 
     return res.status(201).json({ success: true, order: newOrder });
   } catch (err: any) {
-    return res.status(400).json({ success: false, message: err.message });
+    const status = err.statusCode || (err.message?.includes("not found") ? 404 : 400);
+    return res.status(status).json({ success: false, message: err.message, code: err.code });
+  }
+}
+
+/** POST /api/websites/:websiteId/commerce/checkout-session */
+export async function createCheckoutSession(req: Request, res: Response) {
+  try {
+    const websiteId = String(req.params.websiteId || "");
+    if (!process.env.STRIPE_SECRET_KEY) {
+      return res.status(503).json({
+        success: false,
+        code: "PAYMENT_GATEWAY_NOT_CONFIGURED",
+        message: "Stripe payment gateway is not configured",
+      });
+    }
+
+    const {
+      items,
+      couponCode,
+      customerEmail,
+      customerName,
+      billingAddress,
+      shippingAddress,
+      paymentMethod,
+      successUrl,
+      cancelUrl,
+    } = req.body;
+
+    const sessionResult = await createStorefrontCheckoutSession({
+      websiteId,
+      items,
+      couponCode,
+      customerEmail,
+      customerName,
+      billingAddress,
+      shippingAddress,
+      paymentMethod,
+      successUrl,
+      cancelUrl,
+    });
+
+    return res.status(200).json(sessionResult);
+  } catch (err: any) {
+    const status = err.statusCode || (err.message?.includes("not found") ? 404 : 400);
+    return res.status(status).json({
+      success: false,
+      message: err.message,
+      code: err.code || "CHECKOUT_SESSION_FAILED",
+    });
+  }
+}
+
+/** GET /api/websites/:websiteId/commerce/checkout-session/:sessionId/verify */
+export async function verifyPayment(req: Request, res: Response) {
+  try {
+    const websiteId = String(req.params.websiteId || "");
+    const sessionId = String(req.params.sessionId || req.query.sessionId || "");
+    const orderId = String(req.query.orderId || req.body?.orderId || "");
+
+    if (!sessionId) {
+      return res.status(400).json({ success: false, message: "Missing sessionId parameter" });
+    }
+
+    if (!process.env.STRIPE_SECRET_KEY) {
+      return res.status(503).json({
+        success: false,
+        code: "PAYMENT_GATEWAY_NOT_CONFIGURED",
+        message: "Stripe payment gateway is not configured",
+      });
+    }
+
+    const verifyResult = await verifyStorefrontPayment(websiteId, sessionId, orderId || undefined);
+    return res.status(200).json(verifyResult);
+  } catch (err: any) {
+    const status = err.statusCode || (err.message?.includes("not found") ? 404 : 400);
+    return res.status(status).json({
+      success: false,
+      message: err.message,
+      code: err.code || "PAYMENT_VERIFICATION_FAILED",
+    });
   }
 }
 

@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { X, Plus, Trash2, Download, Upload, Palette, Type, Move, Layers, Sparkles, Check, Sun, Moon } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { X, Plus, Trash2, Download, Upload, Palette, Type, Move, Layers, Sparkles, Check, Sun, Moon, AlertTriangle } from "lucide-react";
+import { countTokenReferences } from "../utils/referenceSafeguards";
 
 export interface VariableModeValue {
     modeId: "light" | "dark" | string;
@@ -22,6 +23,11 @@ interface VariablesManagerModalProps {
     onClose: () => void;
     variables: DesignVariable[];
     onSaveVariables: (updated: DesignVariable[]) => void;
+    websiteId?: string;
+    apiUrl?: string;
+    allElements?: any[][];
+    onRenameToken?: (oldToken: string, newToken: string) => void;
+    onDeleteToken?: (tokenToDelete: string, fallbackValue: string) => void;
 }
 
 const CATEGORIES: Array<{ key: DesignVariable["category"]; label: string; icon: React.ReactNode }> = [
@@ -38,15 +44,35 @@ export const VariablesManagerModal: React.FC<VariablesManagerModalProps> = ({
     onClose,
     variables,
     onSaveVariables,
+    websiteId,
+    apiUrl,
+    allElements,
+    onRenameToken,
+    onDeleteToken,
 }) => {
     const [activeTab, setActiveTab] = useState<DesignVariable["category"]>("color");
     const [localVars, setLocalVars] = useState<DesignVariable[]>(variables);
+    const initialTokensRef = useRef<Map<string, string>>(new Map());
+
     const [newVarName, setNewVarName] = useState("");
     const [newVarValue, setNewVarValue] = useState("");
     const [newVarDarkValue, setNewVarDarkValue] = useState("");
     const [newVarToken, setNewVarToken] = useState("");
     const [importError, setImportError] = useState<string | null>(null);
+    const [importSuccess, setImportSuccess] = useState<string | null>(null);
+    const [isExporting, setIsExporting] = useState(false);
+    const [isImporting, setIsImporting] = useState(false);
     const [saveSuccess, setSaveSuccess] = useState(false);
+    const [deleteConfirmToken, setDeleteConfirmToken] = useState<{
+        variable: DesignVariable;
+        refCount: number;
+        totalRefs: number;
+    } | null>(null);
+
+    useEffect(() => {
+        setLocalVars(variables);
+        initialTokensRef.current = new Map(variables.map((v) => [v.id, v.token]));
+    }, [variables, isOpen]);
 
     if (!isOpen) return null;
 
@@ -84,8 +110,28 @@ export const VariablesManagerModal: React.FC<VariablesManagerModalProps> = ({
         setNewVarToken("");
     };
 
-    const handleDelete = (id: string) => {
-        setLocalVars(localVars.filter((v) => v.id !== id));
+    const handleDelete = (v: DesignVariable) => {
+        const refInfo = countTokenReferences(v.token, allElements || []);
+        if (refInfo.elementCount > 0) {
+            setDeleteConfirmToken({
+                variable: v,
+                refCount: refInfo.elementCount,
+                totalRefs: refInfo.totalReferences,
+            });
+        } else {
+            setLocalVars(localVars.filter((item) => item.id !== v.id));
+        }
+    };
+
+    const handleConfirmDelete = () => {
+        if (!deleteConfirmToken) return;
+        const v = deleteConfirmToken.variable;
+        const fallback = v.modes?.light || v.value;
+        if (onDeleteToken) {
+            onDeleteToken(v.token, fallback);
+        }
+        setLocalVars(localVars.filter((item) => item.id !== v.id));
+        setDeleteConfirmToken(null);
     };
 
     const handleUpdate = (id: string, field: "name" | "token" | "value", val: string) => {
@@ -121,6 +167,14 @@ export const VariablesManagerModal: React.FC<VariablesManagerModalProps> = ({
     };
 
     const handleSaveAndApply = () => {
+        if (onRenameToken) {
+            for (const v of localVars) {
+                const initial = initialTokensRef.current.get(v.id);
+                if (initial && initial !== v.token) {
+                    onRenameToken(initial, v.token);
+                }
+            }
+        }
         onSaveVariables(localVars);
         setSaveSuccess(true);
         setTimeout(() => {
@@ -129,37 +183,111 @@ export const VariablesManagerModal: React.FC<VariablesManagerModalProps> = ({
         }, 600);
     };
 
-    const handleExport = () => {
-        const payload = {
-            version: 2,
-            exportedAt: new Date().toISOString(),
-            variables: localVars,
-        };
-        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `forgestudio-design-tokens-${new Date().toISOString().split("T")[0]}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
+    const handleExport = async () => {
+        setIsExporting(true);
+        setImportError(null);
+        try {
+            let exportData: any = null;
+            if (websiteId && apiUrl) {
+                try {
+                    const res = await fetch(`${apiUrl}/api/websites/${websiteId}/design-system/export?type=variables`, {
+                        method: "GET",
+                        credentials: "include",
+                    });
+                    if (res.ok) {
+                        exportData = await res.json();
+                    }
+                } catch (netErr) {
+                    console.warn("Backend export request failed, falling back to local state:", netErr);
+                }
+            }
+
+            if (!exportData) {
+                exportData = {
+                    version: 2,
+                    exportedAt: new Date().toISOString(),
+                    variables: localVars,
+                };
+            }
+
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `forgestudio-design-tokens-${new Date().toISOString().split("T")[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        } catch (err: any) {
+            setImportError(err.message || "Failed to export design tokens");
+        } finally {
+            setIsExporting(false);
+        }
     };
 
     const handleImportFile = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
+        setIsImporting(true);
+        setImportError(null);
+        setImportSuccess(null);
+
         const reader = new FileReader();
-        reader.onload = (event) => {
+        reader.onload = async (event) => {
             try {
-                const json = JSON.parse(event.target?.result as string);
-                const importedVars = Array.isArray(json.variables) ? json.variables : Array.isArray(json) ? json : null;
-                if (!importedVars) {
-                    throw new Error("Invalid format: JSON must contain a 'variables' array");
+                let json: any;
+                try {
+                    json = JSON.parse(event.target?.result as string);
+                } catch {
+                    throw new Error("Malformed JSON: Unable to parse file content.");
                 }
-                setLocalVars(importedVars);
-                setImportError(null);
+
+                if (!json || typeof json !== "object") {
+                    throw new Error("Invalid format: File content must be a JSON object or array.");
+                }
+
+                if (json.version !== undefined && (typeof json.version !== "number" || json.version < 1 || json.version > 2)) {
+                    throw new Error(`Unsupported schema version: ${json.version}. Supported versions are 1 and 2.`);
+                }
+
+                const importedVars = Array.isArray(json.variables) ? json.variables : Array.isArray(json) ? json : null;
+                if (!importedVars || importedVars.length === 0) {
+                    throw new Error("Invalid format: JSON must contain a 'variables' array with token definitions.");
+                }
+
+                if (websiteId && apiUrl) {
+                    const res = await fetch(`${apiUrl}/api/websites/${websiteId}/design-system/import`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        credentials: "include",
+                        body: JSON.stringify({ payload: json, mode: "replace" }),
+                    });
+                    const data = await res.json();
+                    if (!res.ok) {
+                        throw new Error(data.message || "Server rejected imported design system.");
+                    }
+
+                    const nextVars = data.variables || importedVars;
+                    setLocalVars(nextVars);
+                    onSaveVariables(nextVars);
+                    setImportSuccess(data.message || `Successfully imported ${nextVars.length} design tokens.`);
+
+                    // Synchronize Atomic Editor panels and canvas live
+                    window.dispatchEvent(
+                        new CustomEvent("fs-design-system-updated", {
+                            detail: { websiteId, variables: nextVars },
+                        })
+                    );
+                } else {
+                    setLocalVars(importedVars);
+                    onSaveVariables(importedVars);
+                    setImportSuccess(`Successfully imported ${importedVars.length} design tokens locally.`);
+                }
             } catch (err: any) {
                 setImportError(err.message || "Failed to parse JSON file");
+            } finally {
+                setIsImporting(false);
+                e.target.value = "";
             }
         };
         reader.readAsText(file);
@@ -183,21 +311,22 @@ export const VariablesManagerModal: React.FC<VariablesManagerModalProps> = ({
                         <button
                             type="button"
                             onClick={handleExport}
-                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-md transition-colors"
+                            disabled={isExporting || isImporting}
+                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-slate-300 rounded-md transition-colors cursor-pointer"
                             title="Export Design Tokens to JSON (F-342)"
                         >
-                            <Download className="w-3.5 h-3.5" />
-                            Export
+                            <Download className={`w-3.5 h-3.5 ${isExporting ? "animate-spin" : ""}`} />
+                            {isExporting ? "Exporting..." : "Export"}
                         </button>
-                        <label className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-md transition-colors cursor-pointer">
-                            <Upload className="w-3.5 h-3.5" />
-                            Import
-                            <input type="file" accept=".json" onChange={handleImportFile} className="hidden" />
+                        <label className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-md transition-colors ${isImporting ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}>
+                            <Upload className={`w-3.5 h-3.5 ${isImporting ? "animate-spin" : ""}`} />
+                            {isImporting ? "Importing..." : "Import"}
+                            <input type="file" accept=".json" disabled={isImporting || isExporting} onChange={handleImportFile} className="hidden" />
                         </label>
                         <button
                             type="button"
                             onClick={onClose}
-                            className="p-1.5 text-slate-400 hover:text-slate-100 hover:bg-slate-800 rounded-lg transition-colors ml-2"
+                            className="p-1.5 text-slate-400 hover:text-slate-100 hover:bg-slate-800 rounded-lg transition-colors ml-2 cursor-pointer"
                         >
                             <X className="w-5 h-5" />
                         </button>
@@ -205,8 +334,43 @@ export const VariablesManagerModal: React.FC<VariablesManagerModalProps> = ({
                 </div>
 
                 {importError && (
-                    <div className="bg-red-500/10 border-b border-red-500/20 px-6 py-2 text-xs text-red-400">
-                        {importError}
+                    <div className="bg-red-500/10 border-b border-red-500/20 px-6 py-2 text-xs text-red-400 flex items-center justify-between">
+                        <span>{importError}</span>
+                        <button type="button" onClick={() => setImportError(null)} className="text-red-400 hover:text-red-300">✕</button>
+                    </div>
+                )}
+
+                {importSuccess && (
+                    <div className="bg-emerald-500/10 border-b border-emerald-500/20 px-6 py-2 text-xs text-emerald-400 flex items-center justify-between">
+                        <span>{importSuccess}</span>
+                        <button type="button" onClick={() => setImportSuccess(null)} className="text-emerald-400 hover:text-emerald-300">✕</button>
+                    </div>
+                )}
+
+                {deleteConfirmToken && (
+                    <div className="bg-amber-500/10 border-b border-amber-500/20 px-6 py-3 text-xs text-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        <div className="flex items-center gap-2">
+                            <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+                            <span>
+                                Token <strong>{deleteConfirmToken.variable.token}</strong> is referenced by <strong>{deleteConfirmToken.refCount} element(s)</strong> ({deleteConfirmToken.totalRefs} occurrences). Safely detach references to its fallback value (<strong>{deleteConfirmToken.variable.modes?.light || deleteConfirmToken.variable.value}</strong>) before deleting?
+                            </span>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                            <button
+                                type="button"
+                                onClick={() => setDeleteConfirmToken(null)}
+                                className="px-2.5 py-1 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 rounded cursor-pointer transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleConfirmDelete}
+                                className="px-2.5 py-1 text-xs bg-amber-600 hover:bg-amber-500 text-white font-medium rounded cursor-pointer transition-colors"
+                            >
+                                Safely Detach & Delete
+                            </button>
+                        </div>
                     </div>
                 )}
 
@@ -346,13 +510,26 @@ export const VariablesManagerModal: React.FC<VariablesManagerModalProps> = ({
                                                     onChange={(e) => handleUpdate(v.id, "name", e.target.value)}
                                                     className="bg-transparent border border-transparent hover:border-slate-700 focus:border-indigo-500 focus:bg-slate-900 rounded px-2 py-1 text-xs text-slate-200"
                                                 />
-                                                {/* CSS Token */}
-                                                <input
-                                                    type="text"
-                                                    value={v.token}
-                                                    onChange={(e) => handleUpdate(v.id, "token", e.target.value)}
-                                                    className="bg-transparent border border-transparent hover:border-slate-700 focus:border-indigo-500 focus:bg-slate-900 rounded px-2 py-1 text-xs font-mono text-indigo-300"
-                                                />
+                                                {/* CSS Token & Reference Badge */}
+                                                <div className="flex items-center gap-1.5">
+                                                    <input
+                                                        type="text"
+                                                        value={v.token}
+                                                        onChange={(e) => handleUpdate(v.id, "token", e.target.value)}
+                                                        className="flex-1 min-w-0 bg-transparent border border-transparent hover:border-slate-700 focus:border-indigo-500 focus:bg-slate-900 rounded px-2 py-1 text-xs font-mono text-indigo-300"
+                                                    />
+                                                    {(() => {
+                                                        const refInfo = countTokenReferences(v.token, allElements || []);
+                                                        return refInfo.elementCount > 0 ? (
+                                                            <span
+                                                                title={`Referenced by ${refInfo.elementCount} element(s) (${refInfo.totalReferences} total style properties)`}
+                                                                className="text-[10px] text-amber-400 font-mono bg-amber-400/10 px-1.5 py-0.5 rounded border border-amber-400/20 whitespace-nowrap shrink-0"
+                                                            >
+                                                                {refInfo.elementCount} refs
+                                                            </span>
+                                                        ) : null;
+                                                    })()}
+                                                </div>
                                                 {/* Light Value */}
                                                 <div className="flex items-center gap-1.5">
                                                     {v.category === "color" && (
@@ -404,7 +581,7 @@ export const VariablesManagerModal: React.FC<VariablesManagerModalProps> = ({
                                             </div>
                                             <button
                                                 type="button"
-                                                onClick={() => handleDelete(v.id)}
+                                                onClick={() => handleDelete(v)}
                                                 className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors"
                                                 title="Delete token"
                                             >

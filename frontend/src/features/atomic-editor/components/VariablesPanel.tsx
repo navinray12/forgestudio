@@ -16,7 +16,11 @@ const TYPE_PILLS: Array<{ id: VariableType | "All"; label: string }> = [
   { id: "number", label: "Size 🔢" },
 ];
 
-export const VariablesPanel: React.FC = () => {
+interface VariablesPanelProps {
+  websiteId?: string;
+}
+
+export const VariablesPanel: React.FC<VariablesPanelProps> = ({ websiteId }) => {
   const {
     variables,
     filteredVariables,
@@ -35,7 +39,7 @@ export const VariablesPanel: React.FC = () => {
     createVariable,
     updateVariable,
     deleteVariable,
-  } = useVariables();
+  } = useVariables(websiteId);
 
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [importError, setImportError] = useState<string | null>(null);

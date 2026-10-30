@@ -8,7 +8,8 @@ export type FormFieldType =
   | "radio"
   | "number"
   | "date"
-  | "hidden";
+  | "hidden"
+  | "url";
 
 export type FieldColumnWidth = "20%" | "25%" | "33.33%" | "50%" | "66.66%" | "75%" | "100%";
 

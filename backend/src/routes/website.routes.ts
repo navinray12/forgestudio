@@ -38,6 +38,8 @@ import {
   publishWebsiteHandler,
   getDeploymentsHandler,
   getDeploymentByIdHandler,
+  verifyDeploymentHandler,
+  retryDeploymentHandler,
   rollbackDeploymentHandler,
   downloadStaticExportHandler,
   downloadLatestStaticExportHandler,
@@ -395,6 +397,8 @@ router.post("/:id/validate-publish", authorizeCapability("PUBLISH"), validatePub
 router.post("/:id/publish", authorizeCapability("PUBLISH"), publishWebsiteHandler);
 router.get("/:id/deployments", authorizeCapability("VIEW"), getDeploymentsHandler);
 router.get("/:id/deployments/:deploymentId", authorizeCapability("VIEW"), getDeploymentByIdHandler);
+router.post("/:id/deployments/:deploymentId/verify", authorizeCapability("PUBLISH"), verifyDeploymentHandler);
+router.post("/:id/deployments/:deploymentId/retry", authorizeCapability("PUBLISH"), retryDeploymentHandler);
 router.get("/:id/deployments/:deploymentId/export-download", authorizeCapability("VIEW"), downloadStaticExportHandler);
 router.get("/:id/export/zip", authorizeCapability("VIEW"), downloadLatestStaticExportHandler);
 router.post("/:id/deployments/:deploymentId/rollback", authorizeCapability("ROLLBACK"), rollbackDeploymentHandler);

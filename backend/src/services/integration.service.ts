@@ -169,76 +169,71 @@ export class IntegrationService {
             };
           }
         }
-      } catch (err) {
-        console.warn("[PayPal Integration] Native v2 OAuth failed, falling back to structured sandbox order:", err);
+      } catch (err: any) {
+        console.warn("[PayPal Integration] Native v2 OAuth failed:", err);
+        throw new Error(err?.message || "PayPal checkout creation failed");
       }
+    } else {
+      throw new Error("PayPal integration is not configured. Missing provider credentials cannot initiate checkout.");
     }
 
-    // Structured Sandbox / Development Order Response
-    const orderId = "PAYPAL-ORD-" + crypto.randomBytes(8).toString("hex").toUpperCase();
-    return {
-      success: true,
-      orderId,
-      amount,
-      currency,
-      itemName,
-      quantity,
-      approveUrl: `https://www.sandbox.paypal.com/checkoutnow?token=${orderId}`,
-      mode: isLive ? "live_simulated" : "sandbox",
-    };
+    throw new Error("PayPal order creation failed to return an approval URL");
   }
 
   public static async capturePayPalOrder(orderId: string) {
     const clientId = process.env.PAYPAL_CLIENT_ID;
     const clientSecret = process.env.PAYPAL_CLIENT_SECRET;
 
-    if (clientId && clientSecret && !orderId.startsWith("PAYPAL-ORD-")) {
-      try {
-        const auth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
-        const tokenRes = await fetch("https://api-m.sandbox.paypal.com/v1/oauth2/token", {
-          method: "POST",
-          headers: {
-            "Authorization": `Basic ${auth}`,
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          body: "grant_type=client_credentials",
-        });
-
-        if (tokenRes.ok) {
-          const tokenData = await tokenRes.json();
-          const accessToken = tokenData.access_token;
-
-          const captureRes = await fetch(`https://api-m.sandbox.paypal.com/v2/checkout/orders/${orderId}/capture`, {
-            method: "POST",
-            headers: {
-              "Authorization": `Bearer ${accessToken}`,
-              "Content-Type": "application/json",
-            },
-          });
-
-          if (captureRes.ok) {
-            const captureData = await captureRes.json();
-            return {
-              success: true,
-              orderId,
-              status: captureData.status || "COMPLETED",
-              transactionId: captureData.purchase_units?.[0]?.payments?.captures?.[0]?.id || "TXN-" + orderId,
-              capturedAt: new Date().toISOString(),
-            };
-          }
-        }
-      } catch (err) {
-        console.warn("[PayPal Integration] Native capture failed, returning verified fallback capture state:", err);
-      }
+    if (!clientId || !clientSecret) {
+      throw new Error("PayPal integration is not configured. Missing provider credentials cannot simulate payment success.");
     }
 
-    return {
-      success: true,
-      orderId,
-      status: "COMPLETED",
-      transactionId: "TXN-" + crypto.randomBytes(6).toString("hex").toUpperCase(),
-      capturedAt: new Date().toISOString(),
-    };
+    if (orderId.startsWith("PAYPAL-ORD-")) {
+      throw new Error("Invalid PayPal order ID. Simulated test orders cannot be captured.");
+    }
+
+    try {
+      const auth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
+      const tokenRes = await fetch("https://api-m.sandbox.paypal.com/v1/oauth2/token", {
+        method: "POST",
+        headers: {
+          "Authorization": `Basic ${auth}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: "grant_type=client_credentials",
+      });
+
+      if (!tokenRes.ok) {
+        throw new Error(`PayPal token request failed (${tokenRes.status})`);
+      }
+
+      const tokenData = await tokenRes.json();
+      const accessToken = tokenData.access_token;
+
+      const captureRes = await fetch(`https://api-m.sandbox.paypal.com/v2/checkout/orders/${orderId}/capture`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!captureRes.ok) {
+        throw new Error(`PayPal capture request failed (${captureRes.status})`);
+      }
+
+      const captureData = await captureRes.json();
+      return {
+        success: true,
+        orderId,
+        status: captureData.status || "COMPLETED",
+        transactionId: captureData.purchase_units?.[0]?.payments?.captures?.[0]?.id || "TXN-" + orderId,
+        capturedAt: new Date().toISOString(),
+      };
+    } catch (err: any) {
+      console.warn("[PayPal Integration] Native capture failed:", err);
+      throw new Error(`PayPal order capture failed: ${err?.message || "Unknown error"}`);
+    }
   }
 
   public static async createStripeCheckoutSession(amount: string, currency: string, itemName: string) {

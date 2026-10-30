@@ -2,6 +2,7 @@
  * Phase 19: Website Backup Controller
  * Create, list, restore, and manage backup policy per website.
  */
+import fs from "fs";
 import { Request, Response } from "express";
 import { prisma } from "../config/prisma.js";
 import {
@@ -12,6 +13,8 @@ import {
   pruneExpiredBackups,
   validateBackupPolicy,
   updateBackupRecord,
+  deleteBackupFile,
+  validateRestoreSnapshot,
   type BackupTrigger,
 } from "../services/backups/websiteBackup.service.js";
 
@@ -171,8 +174,28 @@ export async function restoreBackup(req: Request, res: Response) {
     const backup = backups.find((b: any) => b.id === backupId);
     if (!backup) return res.status(404).json({ success: false, message: "Backup not found" });
 
+    // Inspect and validate target snapshot before altering live website or creating pre-restore snapshot
+    let candidateSnapshot = backup.snapshot;
+    if (backup.storagePath && fs.existsSync(backup.storagePath)) {
+      try {
+        const raw = fs.readFileSync(backup.storagePath, "utf8");
+        candidateSnapshot = JSON.parse(raw);
+      } catch (readErr: any) {
+        console.warn(`[Backup] Could not read durable file, falling back to DB snapshot:`, readErr);
+      }
+    }
+
+    const validation = validateRestoreSnapshot(candidateSnapshot);
+    if (!validation.valid) {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot restore backup "${backupId}": ${validation.error}`,
+      });
+    }
+
     // First create a pre-restore backup of the current state
     const preRestoreBackup = createBackupRecord(editorData, {
+      websiteId,
       trigger: "pre-restore",
       label: `Pre-Restore Snapshot (before restoring ${backupId})`,
     });
@@ -203,9 +226,20 @@ export async function deleteBackup(req: Request, res: Response) {
     if (!website) return res.status(404).json({ success: false, message: "Website not found or unauthorized" });
 
     const backups = readBackups(website);
-    const filtered = backups.filter((b: any) => b.id !== backupId);
-    if (filtered.length === backups.length) return res.status(404).json({ success: false, message: "Backup not found" });
+    const backupToDelete = backups.find((b: any) => b.id === backupId);
+    if (!backupToDelete) return res.status(404).json({ success: false, message: "Backup not found" });
 
+    // Safely remove the durable backup file from disk first
+    try {
+      deleteBackupFile(websiteId, backupId, backupToDelete.storagePath);
+    } catch (fsErr: any) {
+      return res.status(500).json({
+        success: false,
+        message: `Failed to delete backup storage file: ${fsErr.message}`,
+      });
+    }
+
+    const filtered = backups.filter((b: any) => b.id !== backupId);
     await patchEditorData(websiteId, website, { backups: filtered });
     return res.status(200).json({ success: true, message: "Backup deleted" });
   } catch (err: any) {

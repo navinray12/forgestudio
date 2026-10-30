@@ -95,11 +95,11 @@ export async function updateDesignSystem(req: Request, res: Response) {
       }
     }
 
-    const validatedVars = validateVariables(variables || []);
-    const validatedClasses = validateClasses(classes || []);
+    const currentEditorData: any = website.editorData || {};
+    const validatedVars = variables !== undefined ? validateVariables(variables || []) : validateVariables(currentEditorData.globalVariables || []);
+    const validatedClasses = classes !== undefined ? validateClasses(classes || []) : validateClasses(currentEditorData.globalClasses || []);
     const compiledCss = compileDesignSystemCss(validatedVars, validatedClasses);
 
-    const currentEditorData: any = website.editorData || {};
     const updatedEditorData = {
       ...currentEditorData,
       globalVariables: validatedVars,
@@ -142,12 +142,13 @@ export async function updateDesignSystem(req: Request, res: Response) {
 }
 
 /**
- * POST /api/websites/:websiteId/design-system/export
+ * POST or GET /api/websites/:websiteId/design-system/export
  */
 export async function exportDesignSystemPayload(req: Request, res: Response) {
   try {
     const websiteId = String(req.params.websiteId || "");
     const userId = res.locals.user?.id || (req as any).user?.id;
+    const exportType = String(req.query.type || req.body?.type || "all");
 
     const website = await getAuthorizedWebsite(websiteId, userId);
     if (!website) {
@@ -155,9 +156,32 @@ export async function exportDesignSystemPayload(req: Request, res: Response) {
     }
 
     const editorData: any = website.editorData || {};
-    const payload = exportDesignSystem(editorData.globalVariables || [], editorData.globalClasses || []);
+    const validatedVars = validateVariables(editorData.globalVariables || []);
+    const validatedClasses = validateClasses(editorData.globalClasses || []);
 
-    res.setHeader("Content-Disposition", `attachment; filename="${website.slug}-design-tokens.json"`);
+    let payload: any;
+    let filenameSuffix = "design-tokens";
+
+    if (exportType === "variables") {
+      payload = {
+        version: 2,
+        exportedAt: new Date().toISOString(),
+        variables: validatedVars,
+      };
+      filenameSuffix = "design-tokens";
+    } else if (exportType === "classes") {
+      payload = {
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        classes: validatedClasses,
+      };
+      filenameSuffix = "global-classes";
+    } else {
+      payload = exportDesignSystem(validatedVars, validatedClasses);
+      filenameSuffix = "design-system";
+    }
+
+    res.setHeader("Content-Disposition", `attachment; filename="${website.slug || "forgestudio"}-${filenameSuffix}.json"`);
     res.setHeader("Content-Type", "application/json");
     return res.status(200).send(JSON.stringify(payload, null, 2));
   } catch (error: any) {
@@ -186,25 +210,34 @@ export async function importDesignSystemPayload(req: Request, res: Response) {
 
     const imported = importDesignSystem(payload);
     const currentEditorData: any = website.editorData || {};
+    const existingVars = validateVariables(currentEditorData.globalVariables || []);
+    const existingClasses = validateClasses(currentEditorData.globalClasses || []);
 
-    let finalVariables = imported.variables;
-    let finalClasses = imported.classes;
+    let finalVariables: any[];
+    let finalClasses: any[];
 
-    if (mode === "merge") {
-      const existingVars = validateVariables(currentEditorData.globalVariables || []);
-      const existingClasses = validateClasses(currentEditorData.globalClasses || []);
-
-      // Merge variables by token
+    // If variables were in payload, update or merge; otherwise safely preserve existing variables
+    if (!imported.hasVariables) {
+      finalVariables = existingVars;
+    } else if (mode === "merge") {
       const varMap = new Map<string, any>();
       for (const v of existingVars) varMap.set(v.token, v);
       for (const v of imported.variables) varMap.set(v.token, v);
       finalVariables = Array.from(varMap.values());
+    } else {
+      finalVariables = imported.variables;
+    }
 
-      // Merge classes by className
+    // If classes were in payload, update or merge; otherwise safely preserve existing classes
+    if (!imported.hasClasses) {
+      finalClasses = existingClasses;
+    } else if (mode === "merge") {
       const clsMap = new Map<string, any>();
       for (const c of existingClasses) clsMap.set(c.className, c);
       for (const c of imported.classes) clsMap.set(c.className, c);
       finalClasses = Array.from(clsMap.values());
+    } else {
+      finalClasses = imported.classes;
     }
 
     const compiledCss = compileDesignSystemCss(finalVariables, finalClasses);
@@ -219,9 +252,13 @@ export async function importDesignSystemPayload(req: Request, res: Response) {
       data: { editorData: updatedEditorData },
     });
 
+    const parts: string[] = [];
+    if (imported.hasVariables) parts.push(`${imported.variables.length} variables`);
+    if (imported.hasClasses) parts.push(`${imported.classes.length} classes`);
+
     return res.status(200).json({
       success: true,
-      message: `Successfully imported ${imported.variables.length} variables and ${imported.classes.length} classes`,
+      message: `Successfully imported ${parts.join(" and ") || "design system"}`,
       variables: finalVariables,
       classes: finalClasses,
       compiledCss,

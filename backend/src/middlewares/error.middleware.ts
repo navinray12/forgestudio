@@ -12,12 +12,20 @@ export function errorMiddleware(
   res: Response,
   _next: NextFunction
 ) {
-  if (error instanceof AppError) {
-    return res.status(error.statusCode).json({
+  if (
+    error instanceof AppError ||
+    (error && typeof error === "object" && ("statusCode" in (error as any) || "status" in (error as any)))
+  ) {
+    const err = error as any;
+    const statusCode = err.statusCode || err.status || 400;
+    return res.status(statusCode).json({
       success: false,
+      message: err.message,
+      code: err.code || (err.type === "entity.parse.failed" ? "INVALID_JSON" : "BAD_REQUEST"),
       error: {
-        code: error.code,
-        message: error.message,
+        code: err.code || (err.type === "entity.parse.failed" ? "INVALID_JSON" : "BAD_REQUEST"),
+        message: err.message,
+        details: err.details,
       },
     });
   }

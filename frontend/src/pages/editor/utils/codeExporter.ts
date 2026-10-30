@@ -219,7 +219,8 @@ export function exportElementNodeToJSX(el: EditorElement, ctx: ExportContext): s
         objectFit: stylesObj.objectFit || "cover",
         display: "block",
       };
-      return `${indent}<img src="${el.src || "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800&auto=format&fit=crop&q=80"}" alt="${el.alt || "Image"}" style={${formatStylesToJSX(imageStyles)}} />`;
+      const safeAlt = (el.alt !== undefined && el.alt !== null ? String(el.alt) : "").replace(/"/g, "&quot;");
+      return `${indent}<img src="${el.src || "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800&auto=format&fit=crop&q=80"}" alt="${safeAlt}" style={${formatStylesToJSX(imageStyles)}} />`;
     }
 
     // -------------------------------------------------------------------

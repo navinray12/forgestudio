@@ -77,6 +77,21 @@ async function runPhase4Tests() {
       },
     });
 
+    // Clean up any stale test websites from prior interrupted test runs
+    const userWebsites = await db.website.findMany({ where: { userId: ownerUser.id }, orderBy: { createdAt: "asc" } });
+    if (userWebsites.length >= 40) {
+      const toDelete = userWebsites.slice(0, 20).map((w: any) => w.id);
+      await db.deployment.deleteMany({ where: { websiteId: { in: toDelete } } });
+      await db.website.deleteMany({ where: { id: { in: toDelete } } });
+    }
+
+    await db.website.deleteMany({
+      where: {
+        userId: ownerUser.id,
+        name: { in: ["Phase 4 Publishing Website", "Phase 4 Invalid Website", "Phase 4 Reconciliation Website"] },
+      },
+    });
+
     // 2. Create test websites
     testWebsite = await createWebsite(ownerUser.id, "Phase 4 Publishing Website");
     invalidWebsite = await createWebsite(ownerUser.id, "Phase 4 Invalid Website");

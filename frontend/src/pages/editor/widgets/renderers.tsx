@@ -305,6 +305,7 @@ export const FormWidgetRenderer = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [formData, setFormData] = useState<Record<string, any>>({});
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [validationError, setValidationError] = useState<string | null>(null);
   const [honeypotVal, setHoneypotVal] = useState("");
 
@@ -355,31 +356,119 @@ export const FormWidgetRenderer = ({
 
   const visibleFields = currentStepFields.filter((f) => isFieldVisible(f, formData));
 
-  const validateStepFields = (fieldsToValidate: FormFieldItem[]) => {
-    setValidationError(null);
-    for (const field of fieldsToValidate) {
-      const val = formData[field.id];
-      if (field.required && (val === undefined || val === null || val === "" || (Array.isArray(val) && val.length === 0))) {
-        return `Please fill in the required field: "${field.label}"`;
-      }
-      if (val && field.type === "email") {
-        const emailRegex = /^\S+@\S+\.\S+$/;
-        if (!emailRegex.test(String(val))) {
-          return `Please enter a valid email address for "${field.label}"`;
+  const handleFieldChange = (fieldId: string, value: any) => {
+    setFormData((prev) => ({ ...prev, [fieldId]: value }));
+    // Instantly clear field-level error as user corrects their input
+    if (fieldErrors[fieldId]) {
+      setFieldErrors((prev) => {
+        const next = { ...prev };
+        delete next[fieldId];
+        return next;
+      });
+      setValidationError(null);
+    }
+  };
+
+  const validateField = (field: FormFieldItem, val: any): string | null => {
+    // 1. Required Check
+    if (field.required) {
+      if (field.type === "checkbox") {
+        if (!val) {
+          return field.customErrorMessage || `${field.label} must be checked`;
         }
-      }
-      if (val && field.type === "number") {
-        if (isNaN(Number(val))) {
-          return `Please enter a valid number for "${field.label}"`;
-        }
-      }
-      if (val && field.type === "tel") {
-        const phoneRegex = /[0-9]/;
-        if (!phoneRegex.test(String(val))) {
-          return `Please enter a valid phone number for "${field.label}"`;
-        }
+      } else if (
+        val === undefined ||
+        val === null ||
+        String(val).trim() === "" ||
+        (Array.isArray(val) && val.length === 0)
+      ) {
+        return field.customErrorMessage || `${field.label} is required`;
       }
     }
+
+    if (val === undefined || val === null || String(val).trim() === "") {
+      return null;
+    }
+
+    const strVal = String(val).trim();
+
+    // 2. Email Validation
+    if (field.type === "email") {
+      const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+      if (!emailRegex.test(strVal)) {
+        return field.customErrorMessage || `Please enter a valid email address for "${field.label}"`;
+      }
+    }
+
+    // 3. Tel / Phone Validation
+    if (field.type === "tel") {
+      const digitsOnly = strVal.replace(/\D/g, "");
+      const validTelChars = /^[+]?[0-9\s()./-]+$/;
+      if (digitsOnly.length < 5 || digitsOnly.length > 18 || !validTelChars.test(strVal)) {
+        return field.customErrorMessage || `Please enter a valid phone number for "${field.label}"`;
+      }
+    }
+
+    // 4. Number Validation
+    if (field.type === "number") {
+      if (isNaN(Number(strVal)) || isNaN(parseFloat(strVal))) {
+        return field.customErrorMessage || `Please enter a valid number for "${field.label}"`;
+      }
+    }
+
+    // 5. URL Validation
+    if (field.type === "url") {
+      let isValidUrl = false;
+      try {
+        const parsed = new URL(strVal);
+        isValidUrl = (parsed.protocol === "http:" || parsed.protocol === "https:") && parsed.hostname.includes(".");
+      } catch {
+        isValidUrl = false;
+      }
+      if (!isValidUrl) {
+        return field.customErrorMessage || `Please enter a valid URL starting with http:// or https:// for "${field.label}"`;
+      }
+    }
+
+    // 6. Custom Regex Validation
+    if (field.validationRegex) {
+      try {
+        const customReg = new RegExp(field.validationRegex);
+        if (!customReg.test(strVal)) {
+          return field.customErrorMessage || `Invalid format for "${field.label}"`;
+        }
+      } catch (err) {
+        console.error("Invalid custom regex for field:", field.label, err);
+      }
+    }
+
+    return null;
+  };
+
+  const validateStepFields = (fieldsToValidate: FormFieldItem[]) => {
+    const newErrors: Record<string, string> = {};
+    for (const field of fieldsToValidate) {
+      if (!isFieldVisible(field, formData)) continue;
+      const err = validateField(field, formData[field.id]);
+      if (err) {
+        newErrors[field.id] = err;
+      }
+    }
+    setFieldErrors(newErrors);
+    const errKeys = Object.keys(newErrors);
+    if (errKeys.length > 0) {
+      const firstMsg = newErrors[errKeys[0]];
+      setValidationError(firstMsg);
+      // Accessible keyboard focus on first failing field
+      setTimeout(() => {
+        const inputEl = document.getElementById(`field_${errKeys[0]}`) || document.querySelector(`[name="${errKeys[0]}"]`);
+        if (inputEl && "focus" in inputEl) {
+          (inputEl as HTMLElement).focus();
+        }
+      }, 50);
+      return firstMsg;
+    }
+    setValidationError(null);
     return null;
   };
 
@@ -388,7 +477,6 @@ export const FormWidgetRenderer = ({
     e.stopPropagation();
     const error = validateStepFields(visibleFields);
     if (error) {
-      setValidationError(error);
       return;
     }
     setValidationError(null);
@@ -412,14 +500,13 @@ export const FormWidgetRenderer = ({
     const fieldsToValidate = isMultiStep ? visibleFields : fields;
     const error = validateStepFields(fieldsToValidate);
     if (error) {
-      setValidationError(error);
       return;
     }
     setValidationError(null);
     setSubmitError(null);
 
-    if (isPreview && websiteId) {
-      // Real submission in preview/published mode
+    if (websiteId) {
+      // Real submission with valid website context
       try {
         setIsSubmitting(true);
         const payload = {
@@ -428,7 +515,33 @@ export const FormWidgetRenderer = ({
           formName: el.formTitle || el.content || "Website Form",
           fields: formData,
           data: formData,
+          fieldConfigs: fields.map((f) => ({
+            id: f.id,
+            name: f.name || f.id,
+            label: f.label,
+            type: f.type,
+            required: !!f.required,
+            validationRegex: f.validationRegex,
+            customErrorMessage: f.customErrorMessage,
+          })),
+          conditionalLogic: fields
+            .filter((f) => f.conditionalLogic)
+            .map((f) => ({
+              id: `cl_${f.id}`,
+              action: f.conditionalLogic!.action,
+              targetFieldId: f.id,
+              matchType: "all",
+              rules: [
+                {
+                  id: `r_${f.id}`,
+                  fieldId: f.conditionalLogic!.targetFieldId,
+                  operator: f.conditionalLogic!.operator,
+                  value: f.conditionalLogic!.value,
+                },
+              ],
+            })),
           honeypotValue: honeypotVal,
+          actions: (el as any).actions,
         };
         const res = await fetch(`${apiUrl}/api/forms/submit`, {
           method: "POST",
@@ -436,9 +549,15 @@ export const FormWidgetRenderer = ({
           body: JSON.stringify(payload),
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data?.message || "Submission failed");
+        if (!res.ok) {
+          if (data?.error?.details?.fieldErrors) {
+            setFieldErrors(data.error.details.fieldErrors);
+          }
+          throw new Error(data?.error?.message || data?.message || "Submission failed");
+        }
         setSubmitted(true);
         setFormData({});
+        setFieldErrors({});
         // Handle redirect
         const redirectUrl = el.formRedirectUrl || data?.redirectUrl;
         if (redirectUrl && redirectUrl !== "#") {
@@ -450,7 +569,7 @@ export const FormWidgetRenderer = ({
         setIsSubmitting(false);
       }
     } else {
-      // In editor mode — just show success state locally
+      // In editor mode — validate and show success state locally
       setSubmitted(true);
     }
   };
@@ -626,21 +745,37 @@ export const FormWidgetRenderer = ({
               {field.type === "date" ? (
                 <input
                   type="date"
+                  id={`field_${field.id}`}
+                  name={field.name || field.id}
                   required={field.required}
+                  aria-invalid={!!fieldErrors[field.id]}
+                  aria-describedby={fieldErrors[field.id] ? `err_${field.id}` : undefined}
                   value={formData[field.id] || ""}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, [field.id]: e.target.value }))}
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50/60 px-4 py-3 text-xs sm:text-sm font-medium text-slate-800 placeholder-slate-400 outline-none transition duration-200 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 hover:border-slate-300"
+                  onChange={(e) => handleFieldChange(field.id, e.target.value)}
+                  className={`w-full rounded-2xl border px-4 py-3 text-xs sm:text-sm font-medium outline-none transition duration-200 ${
+                    fieldErrors[field.id]
+                      ? "border-red-500 bg-red-50/20 text-slate-800 ring-2 ring-red-500/20 focus:border-red-600 focus:ring-red-500/30"
+                      : "border-slate-200 bg-slate-50/60 text-slate-800 placeholder-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 hover:border-slate-300"
+                  }`}
                 />
               ) : field.type === "file" ? (
                 <div className="flex flex-col gap-1.5">
                   <input
                     type="file"
+                    id={`field_${field.id}`}
+                    name={field.name || field.id}
                     required={field.required}
+                    aria-invalid={!!fieldErrors[field.id]}
+                    aria-describedby={fieldErrors[field.id] ? `err_${field.id}` : undefined}
                     onChange={(e) => {
                       const file = e.target.files?.[0];
-                      setFormData((prev) => ({ ...prev, [field.id]: file ? file.name : "" }));
+                      handleFieldChange(field.id, file ? file.name : "");
                     }}
-                    className="w-full rounded-2xl border border-dashed border-slate-300 bg-slate-50/60 px-4 py-3 text-xs sm:text-sm font-medium text-slate-700 file:mr-3 file:rounded-xl file:border-0 file:bg-emerald-50 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer"
+                    className={`w-full rounded-2xl border border-dashed px-4 py-3 text-xs sm:text-sm font-medium file:mr-3 file:rounded-xl file:border-0 file:bg-emerald-50 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer ${
+                      fieldErrors[field.id]
+                        ? "border-red-500 bg-red-50/20 text-slate-800 ring-2 ring-red-500/20"
+                        : "border-slate-300 bg-slate-50/60 text-slate-700"
+                    }`}
                   />
                   {formData[field.id] && (
                     <span className="text-[11px] text-slate-500 truncate">Selected: {formData[field.id]}</span>
@@ -648,20 +783,36 @@ export const FormWidgetRenderer = ({
                 </div>
               ) : field.type === "textarea" ? (
                 <textarea
+                  id={`field_${field.id}`}
+                  name={field.name || field.id}
                   rows={4}
                   required={field.required}
+                  aria-invalid={!!fieldErrors[field.id]}
+                  aria-describedby={fieldErrors[field.id] ? `err_${field.id}` : undefined}
                   placeholder={field.placeholder || ""}
                   value={formData[field.id] || ""}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, [field.id]: e.target.value }))}
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50/60 px-4 py-3 text-xs sm:text-sm font-medium text-slate-800 placeholder-slate-400 outline-none transition duration-200 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 hover:border-slate-300"
+                  onChange={(e) => handleFieldChange(field.id, e.target.value)}
+                  className={`w-full rounded-2xl border px-4 py-3 text-xs sm:text-sm font-medium outline-none transition duration-200 ${
+                    fieldErrors[field.id]
+                      ? "border-red-500 bg-red-50/20 text-slate-800 ring-2 ring-red-500/20 focus:border-red-600 focus:ring-red-500/30"
+                      : "border-slate-200 bg-slate-50/60 text-slate-800 placeholder-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 hover:border-slate-300"
+                  }`}
                 />
               ) : field.type === "select" ? (
                 <div className="relative">
                   <select
+                    id={`field_${field.id}`}
+                    name={field.name || field.id}
                     required={field.required}
+                    aria-invalid={!!fieldErrors[field.id]}
+                    aria-describedby={fieldErrors[field.id] ? `err_${field.id}` : undefined}
                     value={formData[field.id] || ""}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, [field.id]: e.target.value }))}
-                    className="w-full appearance-none rounded-2xl border border-slate-200 bg-slate-50/60 px-4 py-3 pr-10 text-xs sm:text-sm font-medium text-slate-800 outline-none transition duration-200 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 hover:border-slate-300 cursor-pointer"
+                    onChange={(e) => handleFieldChange(field.id, e.target.value)}
+                    className={`w-full appearance-none rounded-2xl border px-4 py-3 pr-10 text-xs sm:text-sm font-medium outline-none transition duration-200 cursor-pointer ${
+                      fieldErrors[field.id]
+                        ? "border-red-500 bg-red-50/20 text-slate-800 ring-2 ring-red-500/20 focus:border-red-600 focus:ring-red-500/30"
+                        : "border-slate-200 bg-slate-50/60 text-slate-800 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 hover:border-slate-300"
+                    }`}
                   >
                     <option value="">{field.placeholder || "Select an option..."}</option>
                     {(field.options || []).map((opt, i) => (
@@ -677,27 +828,46 @@ export const FormWidgetRenderer = ({
                   </div>
                 </div>
               ) : field.type === "checkbox" ? (
-                <label className="flex items-center gap-3 rounded-2xl border border-slate-200/80 bg-slate-50/40 p-3.5 text-xs font-medium text-slate-700 cursor-pointer transition hover:bg-slate-50">
+                <label
+                  className={`flex items-center gap-3 rounded-2xl border p-3.5 text-xs font-medium text-slate-700 cursor-pointer transition ${
+                    fieldErrors[field.id]
+                      ? "border-red-500 bg-red-50/20 ring-2 ring-red-500/20"
+                      : "border-slate-200/80 bg-slate-50/40 hover:bg-slate-50"
+                  }`}
+                >
                   <input
                     type="checkbox"
+                    id={`field_${field.id}`}
+                    name={field.name || field.id}
                     required={field.required}
+                    aria-invalid={!!fieldErrors[field.id]}
+                    aria-describedby={fieldErrors[field.id] ? `err_${field.id}` : undefined}
                     checked={!!formData[field.id]}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, [field.id]: e.target.checked }))}
+                    onChange={(e) => handleFieldChange(field.id, e.target.checked)}
                     className="h-4 w-4 rounded-md border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
                   />
                   <span>{field.placeholder || field.label}</span>
                 </label>
               ) : field.type === "radio" ? (
-                <div className="space-y-2 rounded-2xl border border-slate-200/80 bg-slate-50/40 p-3.5">
+                <div
+                  className={`space-y-2 rounded-2xl border p-3.5 ${
+                    fieldErrors[field.id]
+                      ? "border-red-500 bg-red-50/20 ring-2 ring-red-500/20"
+                      : "border-slate-200/80 bg-slate-50/40"
+                  }`}
+                >
                   {(field.options || ["Option 1", "Option 2"]).map((opt, i) => (
                     <label key={i} className="flex items-center gap-3 text-xs font-medium text-slate-700 cursor-pointer transition hover:text-slate-900">
                       <input
                         type="radio"
+                        id={`field_${field.id}_${i}`}
                         name={`radio_${field.id}`}
                         required={field.required}
+                        aria-invalid={!!fieldErrors[field.id]}
+                        aria-describedby={fieldErrors[field.id] ? `err_${field.id}` : undefined}
                         value={opt}
                         checked={formData[field.id] === opt}
-                        onChange={(e) => setFormData((prev) => ({ ...prev, [field.id]: e.target.value }))}
+                        onChange={(e) => handleFieldChange(field.id, e.target.value)}
                         className="h-4 w-4 border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
                       />
                       <span>{opt}</span>
@@ -741,24 +911,74 @@ export const FormWidgetRenderer = ({
                   <input
                     type="tel"
                     id={`field_${field.id}`}
+                    name={field.name || field.id}
                     required={field.required}
+                    aria-invalid={!!fieldErrors[field.id]}
+                    aria-describedby={fieldErrors[field.id] ? `err_${field.id}` : undefined}
                     placeholder={formData[`${field.id}_placeholder`] || field.placeholder || "Enter phone number"}
                     value={formData[field.id] || ""}
-                    onChange={(e) => setFormData((prev: any) => ({ ...prev, [field.id]: e.target.value }))}
-                    className="w-full rounded-2xl border border-slate-200 bg-slate-50/60 px-4 py-3 text-xs sm:text-sm font-medium text-slate-800 placeholder-slate-400 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 hover:border-slate-300"
+                    onChange={(e) => handleFieldChange(field.id, e.target.value)}
+                    className={`w-full rounded-2xl border px-4 py-3 text-xs sm:text-sm font-medium outline-none transition ${
+                      fieldErrors[field.id]
+                        ? "border-red-500 bg-red-50/20 text-slate-800 ring-2 ring-red-500/20 focus:border-red-600 focus:ring-red-500/30"
+                        : "border-slate-200 bg-slate-50/60 text-slate-800 placeholder-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 hover:border-slate-300"
+                    }`}
+                  />
+                </div>
+              ) : field.type === "url" ? (
+                <div className="relative flex items-center">
+                  <input
+                    type="url"
+                    id={`field_${field.id}`}
+                    name={field.name || field.id}
+                    required={field.required}
+                    aria-invalid={!!fieldErrors[field.id]}
+                    aria-describedby={fieldErrors[field.id] ? `err_${field.id}` : undefined}
+                    placeholder={field.placeholder || "https://example.com"}
+                    value={formData[field.id] || ""}
+                    onChange={(e) => handleFieldChange(field.id, e.target.value)}
+                    className={`w-full rounded-2xl border px-4 py-3 text-xs sm:text-sm font-medium outline-none transition duration-200 ${
+                      fieldErrors[field.id]
+                        ? "border-red-500 bg-red-50/20 text-slate-800 ring-2 ring-red-500/20 focus:border-red-600 focus:ring-red-500/30"
+                        : "border-slate-200 bg-slate-50/60 text-slate-800 placeholder-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 hover:border-slate-300"
+                    }`}
                   />
                 </div>
               ) : (
                 <div className="relative flex items-center">
                   <input
                     type={field.type}
+                    id={`field_${field.id}`}
+                    name={field.name || field.id}
                     required={field.required}
+                    aria-invalid={!!fieldErrors[field.id]}
+                    aria-describedby={fieldErrors[field.id] ? `err_${field.id}` : undefined}
                     placeholder={field.placeholder || ""}
                     value={formData[field.id] || ""}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, [field.id]: e.target.value }))}
-                    className="w-full rounded-2xl border border-slate-200 bg-slate-50/60 px-4 py-3 text-xs sm:text-sm font-medium text-slate-800 placeholder-slate-400 outline-none transition duration-200 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 hover:border-slate-300"
+                    onChange={(e) => handleFieldChange(field.id, e.target.value)}
+                    className={`w-full rounded-2xl border px-4 py-3 text-xs sm:text-sm font-medium outline-none transition duration-200 ${
+                      fieldErrors[field.id]
+                        ? "border-red-500 bg-red-50/20 text-slate-800 ring-2 ring-red-500/20 focus:border-red-600 focus:ring-red-500/30"
+                        : "border-slate-200 bg-slate-50/60 text-slate-800 placeholder-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 hover:border-slate-300"
+                    }`}
                   />
                 </div>
+              )}
+
+              {/* Field-level Accessible Error Message */}
+              {fieldErrors[field.id] && (
+                <p
+                  id={`err_${field.id}`}
+                  className="mt-1.5 text-xs text-red-600 font-semibold flex items-center gap-1.5 animate-in fade-in slide-in-from-top-1"
+                  role="alert"
+                >
+                  <svg className="h-3.5 w-3.5 shrink-0 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="12" />
+                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                  </svg>
+                  <span>{fieldErrors[field.id]}</span>
+                </p>
               )}
             </div>
           );

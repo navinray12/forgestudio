@@ -43,11 +43,21 @@ async function runMilestoneBTests() {
   let testWebsite: any;
 
   try {
+    const uploadedFiles = new Map<string, { name: string; size: number; type: string }>();
     setSftpClientFactory(() => ({
       connect: async () => {},
       mkdir: async () => "",
-      put: async () => "",
-      list: async () => [],
+      put: async (input: any, remoteFilePath: string) => {
+        const buf = Buffer.isBuffer(input) ? input : Buffer.from(input || "", "utf8");
+        const filename = remoteFilePath.split("/").pop() || "";
+        uploadedFiles.set(filename, {
+          name: filename,
+          size: buf.length > 0 ? buf.length : 100,
+          type: "-",
+        });
+        return remoteFilePath;
+      },
+      list: async (_remotePath: string) => Array.from(uploadedFiles.values()),
       end: async () => {},
     }));
 

@@ -33,6 +33,8 @@ import usageRoutes from "./usage.routes.js";
 import stagingRoutes from "./staging.routes.js";
 import serverConfigRoutes from "./serverConfig.routes.js";
 import hostingRoutes from "./hosting.routes.js";
+import workspaceRoutes from "./workspace.routes.js";
+import approvalRoutes, { websiteApprovalRoutes } from "./approval.routes.js";
 
 const apiRouter = Router();
 
@@ -62,6 +64,7 @@ apiRouter.use("/websites", stagingRoutes);
 apiRouter.use("/websites", serverConfigRoutes);
 apiRouter.use("/websites", hostingRoutes);
 apiRouter.use("/teams", teamRoutes);
+apiRouter.use("/workspaces", workspaceRoutes);
 apiRouter.use("/uploads", uploadRoutes);
 apiRouter.use("/api-keys", apiKeysRoutes);
 apiRouter.use("/developer", developerRoutes);
@@ -69,6 +72,8 @@ apiRouter.use("/composer", composerRoutes);
 apiRouter.use("/sftp", sftpRoutes);
 apiRouter.use("/plugins-integration", pluginIntegrationRoutes);
 apiRouter.use("/multisite", multisiteRoutes);
+apiRouter.use("/approval-requests", approvalRoutes);
+apiRouter.use("/websites", websiteApprovalRoutes);
 
 // Custom Types, Code, and Components
 apiRouter.use("/", customPostTypeRoutes);
@@ -90,6 +95,7 @@ export { default as authRoutes } from "./auth.routes.js";
 export { default as subscriptionRoutes } from "./subscription.routes.js";
 export { default as websiteRoutes } from "./website.routes.js";
 export { default as teamRoutes } from "./team.routes.js";
+export { default as workspaceRoutes } from "./workspace.routes.js";
 export { default as uploadRoutes } from "./upload.routes.js";
 export { default as apiKeysRoutes } from "./apiKeys.routes.js";
 export { default as developerRoutes } from "./developer.routes.js";
@@ -119,4 +125,5 @@ export { default as imageOptimizationRoutes } from "./imageOptimization.routes.j
 export { default as aiHostingRoutes } from "./aiHosting.routes.js";
 export { default as elementorCloudRoutes } from "./elementorCloud.routes.js";
 export { default as exportRoutes } from "./export.routes.js";
+export { default as approvalRoutes, websiteApprovalRoutes } from "./approval.routes.js";
 

@@ -1,6 +1,7 @@
 import { registerJobHandler } from "./jobRunner.js";
 import { publishWebsite } from "../publishing.service.js";
 import { prisma } from "../../config/prisma.js";
+import { dispatchWebhookRequest } from "../form/form.service.js";
 
 export function initJobHandlers() {
   // 1. SCHEDULED_PUBLISH Handler
@@ -60,28 +61,129 @@ export function initJobHandlers() {
     return { deploymentId, status: "HEALTHY" };
   });
 
-  // 3. WEBHOOK_RETRY Handler
+  // 3. WEBHOOK_RETRY Handler (Feature 5: Secure, Idempotent & Differentiated Failure Handling)
   registerJobHandler("WEBHOOK_RETRY", async (payload) => {
-    const { url, event, body, headers } = payload;
+    const { url, event, body, deliveryId, websiteId } = payload;
     if (!url) {
       throw new Error("Missing url in WEBHOOK_RETRY payload");
     }
 
-    const res = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Forge-Event": event || "webhook",
-        ...(headers || {}),
-      },
-      body: JSON.stringify(body || {}),
-    });
-
-    if (!res.ok) {
-      throw new Error(`Webhook endpoint returned HTTP ${res.status}`);
+    // A. Idempotency Check: Prevent duplicate deliveries if already SUCCESS
+    if (deliveryId) {
+      try {
+        const existingRows: any[] = await prisma.$queryRaw`
+          SELECT status, "attemptCount"
+          FROM form_webhook_deliveries
+          WHERE id = ${deliveryId}::uuid
+          LIMIT 1
+        `;
+        if (existingRows && existingRows.length > 0) {
+          if (existingRows[0].status === "SUCCESS") {
+            console.log(`[Webhook Retry] Delivery ${deliveryId} is already marked SUCCESS. Skipping duplicate HTTP dispatch.`);
+            return { status: "ALREADY_COMPLETED", skipped: true, deliveryId };
+          }
+        }
+      } catch (checkErr) {
+        console.warn("[Webhook Retry] Could not check delivery status before retry:", checkErr);
+      }
     }
 
-    return { status: "DELIVERED", statusCode: res.status };
+    // B. Load Current Signing Configuration Safely (avoid stale signature on retry)
+    let currentSecret: string | null = null;
+    if (websiteId) {
+      try {
+        const settingsRows: any[] = await prisma.$queryRaw`
+          SELECT "signingSecret"
+          FROM form_webhook_settings
+          WHERE "websiteId" = ${websiteId}::uuid
+          LIMIT 1
+        `;
+        if (settingsRows && settingsRows.length > 0) {
+          currentSecret = settingsRows[0].signingSecret || null;
+        }
+      } catch (secretErr) {
+        console.warn("[Webhook Retry] Could not query current signing secret:", secretErr);
+      }
+    }
+    if (!currentSecret && payload.signingSecret) {
+      currentSecret = payload.signingSecret;
+    }
+
+    // C. Dispatch Webhook using the secure, SSRF-guarded, redirect-checked dispatcher
+    let outcome: any;
+    try {
+      outcome = await dispatchWebhookRequest(url, body, {
+        signingSecret: currentSecret,
+        timeoutMs: 8000,
+        maxRedirects: 3,
+      });
+    } catch (dispatchErr: any) {
+      outcome = {
+        success: false,
+        errorMessage: dispatchErr.message || String(dispatchErr),
+      };
+    }
+
+    // D. Persist outcome to form_webhook_deliveries
+    if (deliveryId) {
+      try {
+        const newStatus = outcome.success ? "SUCCESS" : "FAILED";
+        const newHttpStatus = outcome.httpStatus || null;
+        const newRespBody = outcome.responseBody || null;
+        const newErrMsg = outcome.errorMessage || null;
+
+        await prisma.$executeRawUnsafe(
+          `UPDATE form_webhook_deliveries
+           SET status = $1, "httpStatus" = $2, "responseBody" = $3, "errorMessage" = $4, "attemptCount" = "attemptCount" + 1, "updatedAt" = NOW()
+           WHERE id = $5::uuid`,
+          newStatus,
+          newHttpStatus,
+          newRespBody,
+          newErrMsg,
+          deliveryId
+        );
+      } catch (dbErr) {
+        console.error("[Webhook Retry] Failed to update delivery record in database:", dbErr);
+      }
+    }
+
+    // E. Evaluation: Success vs. Permanent Failure vs. Retryable Failure
+    if (outcome.success) {
+      return { status: "DELIVERED", statusCode: outcome.httpStatus || 200, deliveryId };
+    }
+
+    // Determine whether failure is permanent (non-retryable) or retryable:
+    // Permanent: HTTP 4xx (except 429 and 408) or SSRF security blocks
+    const isPermanentClientError =
+      outcome.httpStatus &&
+      outcome.httpStatus >= 400 &&
+      outcome.httpStatus < 500 &&
+      outcome.httpStatus !== 429 &&
+      outcome.httpStatus !== 408;
+
+    const isSsrfBlock =
+      Boolean(outcome.errorMessage?.includes("SSRF")) ||
+      Boolean(outcome.errorMessage?.includes("blocked by SSRF"));
+
+    if (isPermanentClientError || isSsrfBlock) {
+      console.warn(
+        `[Webhook Retry] Non-retryable permanent failure (${outcome.httpStatus || outcome.errorMessage}) for delivery ${deliveryId}. Terminating retries.`
+      );
+      // Cleanly complete background job without throwing, preventing infinite re-queuing
+      return {
+        status: "PERMANENT_FAILURE",
+        statusCode: outcome.httpStatus,
+        errorMessage: outcome.errorMessage,
+        retryable: false,
+        deliveryId,
+      };
+    }
+
+    // Retryable failure (HTTP 5xx, 429, 408, timeout, network error):
+    // Throwing signals jobRunner to re-queue with bounded exponential backoff
+    throw new Error(
+      `Webhook endpoint returned retryable failure: ${outcome.errorMessage || `HTTP ${outcome.httpStatus}`}`
+    );
   });
 
   // 4. MEDIA_OPTIMIZATION Handler
@@ -227,6 +329,32 @@ export function initJobHandlers() {
     }
 
     return { status: "COMPLETED", websiteId, operationType, scope };
+  });
+
+  // 14. FORM_EMAIL_NOTIFICATION_RETRY Handler
+  registerJobHandler("FORM_EMAIL_NOTIFICATION_RETRY", async (payload) => {
+    const { websiteId, to, subject, html, text, fromName } = payload;
+    if (!websiteId || !to || !subject) {
+      throw new Error("Missing websiteId, to, or subject in FORM_EMAIL_NOTIFICATION_RETRY payload");
+    }
+
+    const { sendSiteEmail } = await import("../siteMailer.service.js");
+    const result = await sendSiteEmail(websiteId, {
+      to,
+      subject,
+      html,
+      text,
+      fromName,
+    });
+    return result;
+  });
+
+  // 15. SSL_CERTIFICATE_RENEWAL Handler (Module 19.2)
+  registerJobHandler("SSL_CERTIFICATE_RENEWAL", async (payload) => {
+    const { processExpiringSslCertificates } = await import("../domains/customDomain.service.js");
+    const windowDays = payload?.windowDays ? Number(payload.windowDays) : 30;
+    const summary = await processExpiringSslCertificates(windowDays);
+    return summary;
   });
 }
 

@@ -1,5 +1,5 @@
 import { AppError } from "./app-error.js";
-import { isSafeUrl, validateSafeUrl } from "./ssrf.validator.js";
+import { isSafeUrl, validateSafeUrl, validateWebhookUrl, assertValidWebhookUrl } from "./ssrf.validator.js";
 
 /**
  * F-439: SSRF Guard
@@ -23,4 +23,4 @@ export function assertSafeUrl(url: string, context = "Target URL"): void {
   }
 }
 
-export { isSafeUrl, validateSafeUrl };
+export { isSafeUrl, validateSafeUrl, validateWebhookUrl, assertValidWebhookUrl };

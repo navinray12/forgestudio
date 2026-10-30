@@ -56,6 +56,7 @@ interface WooCommerceContextType {
   selectedProductId: string | null;
   setSelectedProductId: (id: string | null) => void;
   lastOrder: WcOrderReceipt | null;
+  isCheckingOut?: boolean;
   placeOrder: (checkoutData: {
     customerName: string;
     customerEmail: string;
@@ -155,6 +156,69 @@ export const WooCommerceProvider: React.FC<{
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [lastOrder, setLastOrder] = useState<WcOrderReceipt | null>(null);
+  const [isCheckingOut, setIsCheckingOut] = useState<boolean>(false);
+
+  // Return verification for Stripe Checkout redirect
+  useEffect(() => {
+    if (typeof window === "undefined" || !websiteId) return;
+    const urlParams = new URLSearchParams(window.location.search);
+    const checkoutParam = urlParams.get("checkout");
+    const sessionId = urlParams.get("session_id");
+    const orderId = urlParams.get("order_id");
+
+    if (checkoutParam === "success" && sessionId) {
+      addNotice("info", "🔄 Verifying payment confirmation with payment gateway...");
+      fetch(
+        `/api/websites/${websiteId}/commerce/checkout-session/${encodeURIComponent(sessionId)}/verify?orderId=${encodeURIComponent(orderId || "")}`
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          if (data && data.success && (data.verified || data.paymentStatus === "paid")) {
+            clearCart();
+            const verifiedOrder = data.order || {};
+            const receipt: WcOrderReceipt = {
+              id: verifiedOrder.id || orderId || "WC-ORD-PAID",
+              customerName: verifiedOrder.customerName || "Valued Customer",
+              customerEmail: verifiedOrder.customerEmail || "",
+              items: (verifiedOrder.items || []).map((it: any) => ({
+                name: it.name,
+                quantity: it.quantity,
+                unitPrice: it.unitPrice,
+                total: it.unitPrice * it.quantity,
+              })),
+              subtotal: verifiedOrder.subtotal || 0,
+              taxAmount: verifiedOrder.taxAmount || 0,
+              shippingCost: verifiedOrder.shippingCost || 0,
+              total: verifiedOrder.total || 0,
+              currency: verifiedOrder.currency || "USD",
+              paymentMethod: "Stripe Checkout",
+              createdAt: verifiedOrder.createdAt || new Date().toISOString(),
+              status: "Processing",
+            };
+            setLastOrder(receipt);
+            addNotice("success", `✅ Payment confirmed! Order #${receipt.id} placed successfully.`);
+          } else {
+            addNotice(
+              "error",
+              data?.message || "Payment confirmation could not be verified by Stripe. Your cart has been preserved."
+            );
+          }
+        })
+        .catch((err) => {
+          console.error("Payment verification error:", err);
+          addNotice("error", "Error communicating with payment gateway. Your cart has been preserved.");
+        })
+        .finally(() => {
+          // Clean query parameters from address bar without reloading
+          const cleanUrl = window.location.pathname;
+          window.history.replaceState({}, document.title, cleanUrl);
+        });
+    } else if (checkoutParam === "cancel") {
+      addNotice("warning", "Checkout was canceled. Your shopping cart has been preserved.");
+      const cleanUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
+    }
+  }, [websiteId]);
 
   // Live remote product catalog sync from backend commerce endpoint
   useEffect(() => {
@@ -279,69 +343,80 @@ export const WooCommerceProvider: React.FC<{
     paymentMethod?: string;
     couponCode?: string;
   }): Promise<WcOrderReceipt> => {
-    const orderItems = cart.map((i) => {
-      const unitPrice = i.customPrice ?? parsePriceNum(i.product.price);
-      const addOnSuffix = i.selectedAddOns && Object.keys(i.selectedAddOns).length > 0
-        ? ` (+ Add-ons: ${Object.entries(i.selectedAddOns).map(([k, v]) => `${k}: ${v}`).join(", ")})`
-        : "";
-      return {
-        name: `${i.product.name}${addOnSuffix}`,
-        quantity: i.quantity,
-        unitPrice,
-        total: unitPrice * i.quantity,
-      };
-    });
-
-    const subtotal = orderItems.reduce((acc, i) => acc + i.total, 0);
-    const taxAmount = Math.round(subtotal * 0.08 * 100) / 100;
-    const shippingCost = subtotal > 50 ? 0 : 9.99;
-    const grandTotal = Math.round((subtotal + taxAmount + shippingCost) * 100) / 100;
-
-    // Dispatch POST to commerce orders endpoint
-    if (websiteId) {
-      try {
-        await fetch(`/api/websites/${websiteId}/commerce/orders`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            customerName: checkoutData.customerName,
-            customerEmail: checkoutData.customerEmail,
-            billingAddress: checkoutData.billingAddress,
-            shippingAddress: checkoutData.shippingAddress,
-            paymentMethod: checkoutData.paymentMethod || "Credit Card",
-            couponCode: checkoutData.couponCode,
-            items: cart.map((i) => ({
-              productId: i.product.id,
-              name: i.product.name,
-              quantity: i.quantity,
-              unitPrice: i.customPrice ?? parsePriceNum(i.product.price),
-            })),
-          }),
-        });
-      } catch (err) {
-        console.warn("Could not dispatch order to commerce backend endpoint", err);
-      }
+    if (!cart || cart.length === 0) {
+      addNotice("error", "Your shopping cart is empty.");
+      throw new Error("Cart is empty");
     }
 
-    const newOrder: WcOrderReceipt = {
-      id: "WC-ORD-" + Math.floor(100000 + Math.random() * 900000),
-      customerName: checkoutData.customerName || "Valued Customer",
-      customerEmail: checkoutData.customerEmail || "customer@example.com",
-      items: orderItems,
-      subtotal,
-      taxAmount,
-      shippingCost,
-      total: grandTotal,
-      currency: "USD",
-      paymentMethod: checkoutData.paymentMethod || "Credit Card",
-      createdAt: new Date().toISOString(),
-      status: "Processing",
-    };
+    if (!websiteId) {
+      addNotice("error", "Website identifier is missing for checkout.");
+      throw new Error("Missing websiteId");
+    }
 
-    setLastOrder(newOrder);
-    clearCart();
-    addNotice("success", `✅ Order #${newOrder.id} successfully placed! Summary updated.`);
-    return newOrder;
+    setIsCheckingOut(true);
+    addNotice("info", "Initiating secure Stripe Checkout...");
+
+    try {
+      const res = await fetch(`/api/websites/${websiteId}/commerce/checkout-session`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerName: checkoutData.customerName,
+          customerEmail: checkoutData.customerEmail,
+          billingAddress: checkoutData.billingAddress,
+          shippingAddress: checkoutData.shippingAddress,
+          paymentMethod: checkoutData.paymentMethod || "stripe",
+          couponCode: checkoutData.couponCode,
+          items: cart.map((i) => ({
+            productId: i.product.id,
+            quantity: i.quantity,
+            variantId: i.selectedVariant,
+          })),
+        }),
+      });
+
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok || !data?.success || !data?.checkoutUrl) {
+        const errorMsg =
+          data?.message ||
+          (res.status === 503
+            ? "Stripe payment gateway is not configured"
+            : "Payment gateway checkout session could not be created");
+        addNotice("error", `❌ ${errorMsg}`);
+        setIsCheckingOut(false);
+        throw new Error(errorMsg);
+      }
+
+      // DO NOT clear cart here — cart is preserved until verified payment confirmation!
+      // Redirect to Stripe Checkout URL
+      window.location.href = data.checkoutUrl;
+
+      const pendingOrder: WcOrderReceipt = {
+        id: data.orderId || "WC-ORD-PENDING",
+        customerName: checkoutData.customerName || "Valued Customer",
+        customerEmail: checkoutData.customerEmail || "",
+        items: cart.map((i) => ({
+          name: i.product.name,
+          quantity: i.quantity,
+          unitPrice: parsePriceNum(i.product.price),
+          total: parsePriceNum(i.product.price) * i.quantity,
+        })),
+        subtotal: data.total || cartSubtotal,
+        taxAmount: 0,
+        shippingCost: 0,
+        total: data.total || cartSubtotal,
+        currency: data.currency || "USD",
+        paymentMethod: "Stripe",
+        createdAt: new Date().toISOString(),
+        status: "Pending Payment",
+      };
+
+      return pendingOrder;
+    } catch (err: any) {
+      setIsCheckingOut(false);
+      throw err;
+    }
   };
 
   return (
@@ -366,6 +441,7 @@ export const WooCommerceProvider: React.FC<{
         selectedProductId,
         setSelectedProductId,
         lastOrder,
+        isCheckingOut,
         placeOrder,
       }}
     >

@@ -60,6 +60,13 @@ export async function initLicensingTables() {
     )`,
     `CREATE INDEX IF NOT EXISTS billing_invoices_userId_idx ON billing_invoices("userId")`,
     `CREATE INDEX IF NOT EXISTS billing_invoices_invoiceNumber_idx ON billing_invoices("invoiceNumber")`,
+    `ALTER TABLE billing_invoices ADD COLUMN IF NOT EXISTS "planName" VARCHAR(255)`,
+    `ALTER TABLE billing_invoices ADD COLUMN IF NOT EXISTS "description" VARCHAR(500)`,
+    `ALTER TABLE billing_invoices ADD COLUMN IF NOT EXISTS "paymentProvider" VARCHAR(50) DEFAULT 'stripe'`,
+    `ALTER TABLE billing_invoices ADD COLUMN IF NOT EXISTS "paymentReference" VARCHAR(255)`,
+    `ALTER TABLE billing_invoices ADD COLUMN IF NOT EXISTS "taxAmount" DOUBLE PRECISION DEFAULT 0`,
+    `ALTER TABLE billing_invoices ADD COLUMN IF NOT EXISTS "subtotal" DOUBLE PRECISION`,
+    `CREATE INDEX IF NOT EXISTS billing_invoices_paymentReference_idx ON billing_invoices("paymentReference")`,
   ];
 
   for (const sql of statements) {
@@ -476,37 +483,45 @@ export async function getUserLicenses(userId: string) {
 export async function syncUserLicenseForPlan(
   userId: string,
   planSlug: string,
-  maxSites: number = 1
+  maxSites: number = 1,
+  forceExact: boolean = false,
+  txClient?: any
 ) {
-  const existingLicense = await (db.license?.findFirst
-    ? db.license.findFirst({
+  const client = txClient || db;
+  const rawClient = txClient || prisma;
+  const isDowngradeOrExact = forceExact || planSlug.toLowerCase() === "free";
+
+  const existingLicense = await (client.license?.findFirst
+    ? client.license.findFirst({
         where: { userId },
         orderBy: { createdAt: "desc" },
       })
     : (async () => {
-        const rows: any[] = await prisma.$queryRaw`
+        const rows: any[] = await rawClient.$queryRaw`
           SELECT * FROM licenses WHERE "userId" = ${userId}::uuid ORDER BY "createdAt" DESC LIMIT 1
         `;
         return rows[0] || null;
       })());
 
   if (existingLicense) {
-    // Update existing license with higher/new site limit and plan slug
-    const updated = await (db.license?.update
-      ? db.license.update({
+    // Update existing license with site limit and plan slug
+    const newMaxSites = isDowngradeOrExact ? maxSites : Math.max(existingLicense.maxSites, maxSites);
+
+    const updated = await (client.license?.update
+      ? client.license.update({
           where: { id: existingLicense.id },
           data: {
             planSlug,
-            maxSites: Math.max(existingLicense.maxSites, maxSites),
+            maxSites: newMaxSites,
             status: "ACTIVE",
             updatedAt: new Date(),
           },
         })
       : (async () => {
-          const rows: any[] = await prisma.$queryRaw`
+          const rows: any[] = await rawClient.$queryRaw`
             UPDATE licenses
             SET "planSlug" = ${planSlug},
-                "maxSites" = GREATEST("maxSites", ${maxSites}),
+                "maxSites" = ${newMaxSites},
                 status = 'ACTIVE',
                 "updatedAt" = NOW()
             WHERE id = ${existingLicense.id}::uuid
@@ -520,8 +535,8 @@ export async function syncUserLicenseForPlan(
 
   // Create brand new license
   const newKey = generateLicenseKey();
-  const created = await (db.license?.create
-    ? db.license.create({
+  const created = await (client.license?.create
+    ? client.license.create({
         data: {
           key: newKey,
           userId,
@@ -531,7 +546,7 @@ export async function syncUserLicenseForPlan(
         },
       })
     : (async () => {
-        const rows: any[] = await prisma.$queryRaw`
+        const rows: any[] = await rawClient.$queryRaw`
           INSERT INTO licenses (id, key, "userId", "planSlug", "maxSites", status, "createdAt", "updatedAt")
           VALUES (gen_random_uuid(), ${newKey}, ${userId}::uuid, ${planSlug}, ${maxSites}, 'ACTIVE', NOW(), NOW())
           RETURNING *

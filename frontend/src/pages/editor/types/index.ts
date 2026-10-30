@@ -391,6 +391,7 @@ export type FormFieldType =
   | "email"
   | "number"
   | "tel"
+  | "url"
   | "textarea"
   | "select"
   | "checkbox"
@@ -406,6 +407,7 @@ export interface FormStepItem {
 
 export interface FormFieldItem {
   id: string;
+  name?: string;
   type: FormFieldType;
   label: string;
   placeholder?: string;
@@ -414,6 +416,8 @@ export interface FormFieldItem {
   defaultValue?: string;
   width?: "full" | "half";
   stepId?: string;
+  validationRegex?: string;
+  customErrorMessage?: string;
   conditionalLogic?: {
     action: "show" | "hide";
     targetFieldId: string;
@@ -1778,7 +1782,9 @@ export type DeploymentStatus =
   | "VALIDATION_FAILED"
   | "BUILD_FAILED"
   | "DEPLOY_FAILED"
+  | "DEPLOYMENT_FAILED"
   | "VERIFICATION_FAILED"
+  | "ROLLED_BACK"
   | "UNPUBLISHED_CHANGES";
 
 export interface PublishingState {

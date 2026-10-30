@@ -15,6 +15,7 @@ import PerformancePanel from "./components/PerformancePanel";
 import { exportWebsiteKitAsJson } from "../../features/templates/utils/websiteKitExport";
 import { ImportWebsiteKitDialog } from "../../features/templates/components/ImportWebsiteKitDialog";
 import { ManagedSiteModal } from "./components/ManagedSiteModal";
+import { FormSubmissionsModal } from "./components/FormSubmissionsModal";
 import { ActivityLogModal } from "./components/ActivityLogModal";
 import LicensingPanel from "./components/LicensingPanel";
 import UsageTelemetryWidget from "./components/UsageTelemetryWidget";
@@ -48,6 +49,7 @@ interface Website {
 
 type Tab =
   | "websites"
+  | "forms"
   | "licensing"
   | "usage-limits"
   | "white-label"
@@ -70,6 +72,7 @@ const NAV_GROUPS: NavGroup[] = [
     label: "General",
     items: [
       { id: "websites", label: "My Websites", icon: "🌐" },
+      { id: "forms", label: "Form Submissions", icon: "📋" },
     ],
   },
   {
@@ -114,9 +117,24 @@ function UserDashboard() {
   const [deleting, setDeleting] = useState(false);
   const [roleManagerSite, setRoleManagerSite] = useState<Website | null>(null);
   const [managedSiteTarget, setManagedSiteTarget] = useState<Website | null>(null);
+  const [formsTargetSite, setFormsTargetSite] = useState<Website | null>(null);
   const [isGlobalActivityLogOpen, setIsGlobalActivityLogOpen] = useState(false);
   const [currentTeamId, setCurrentTeamId] = useState<string | null>(null);
-  const [currentWorkspaceId, setCurrentWorkspaceId] = useState<string | null>(null);
+  const [currentWorkspaceId, setCurrentWorkspaceId] = useState<string | null>(() => {
+    try {
+      return localStorage.getItem("forgestudio_active_workspace_id") || "all";
+    } catch {
+      return "all";
+    }
+  });
+
+  const handleSelectWorkspace = (id: string | null) => {
+    const finalId = id || "all";
+    setCurrentWorkspaceId(finalId);
+    try {
+      localStorage.setItem("forgestudio_active_workspace_id", finalId);
+    } catch {}
+  };
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [exportingKitId, setExportingKitId] = useState<string | null>(null);
   const [isImportKitOpen, setIsImportKitOpen] = useState(false);
@@ -240,7 +258,10 @@ function UserDashboard() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ name: siteName }),
+        body: JSON.stringify({
+          name: siteName,
+          workspaceId: currentWorkspaceId || undefined,
+        }),
       });
       const data = await res.json();
 
@@ -278,17 +299,28 @@ function UserDashboard() {
     setSidebarOpen(false);
   };
 
-  const fetchWebsites = async () => {
+  const fetchWebsites = async (wsId: string | null = currentWorkspaceId) => {
     setWLoading(true);
     try {
-      const res = await fetch(`${apiUrl}/api/websites`, { credentials: "include" });
+      const targetWs = wsId || "all";
+      const url = targetWs && targetWs !== "all"
+        ? `${apiUrl}/api/websites?workspaceId=${encodeURIComponent(targetWs)}`
+        : `${apiUrl}/api/websites?workspaceId=all`;
+      const res = await fetch(url, { credentials: "include" });
       const data = await res.json();
-      if (res.ok && data.websites) setWebsites(data.websites);
+      if (res.ok && data.websites) {
+        setWebsites(data.websites);
+      } else if (res.status === 403 || res.status === 404) {
+        // Fallback safely to all projects if active workspace access was revoked/deleted
+        handleSelectWorkspace("all");
+      }
     } catch { /* no-op */ }
     finally { setWLoading(false); }
   };
 
-  useEffect(() => { fetchWebsites(); }, []);
+  useEffect(() => {
+    fetchWebsites(currentWorkspaceId);
+  }, [currentWorkspaceId]);
 
   const handleLogout = async () => { await logout(); navigate("/login", { replace: true }); };
 
@@ -299,7 +331,10 @@ function UserDashboard() {
       setCreating(true);
       const res = await fetch(`${apiUrl}/api/websites`, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        credentials: "include", body: JSON.stringify({ name: websiteName.trim() }),
+        credentials: "include", body: JSON.stringify({
+          name: websiteName.trim(),
+          workspaceId: currentWorkspaceId && currentWorkspaceId !== "all" && currentWorkspaceId !== "personal" ? currentWorkspaceId : undefined,
+        }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data?.error?.message || data?.message || "Failed to create website."); return; }
@@ -332,11 +367,70 @@ function UserDashboard() {
       case "cpts": return <CustomPostTypesPanel />;
       case "composer-installation": return <ComposerPanel />;
       case "performance": return <PerformancePanel />;
+      case "forms": return <FormSubmissionsDashboardTab />;
       default: return <WebsitesTab />;
     }
   };
 
   const activeNavItem = NAV_GROUPS.flatMap(g => g.items).find(i => i.id === activeTab);
+
+  // ─── Form Submissions Dashboard Tab ──────────────────────────
+  function FormSubmissionsDashboardTab() {
+    const [selectedId, setSelectedId] = useState<string>(websites[0]?.id || "");
+    const activeSite = websites.find(w => w.id === selectedId) || websites[0];
+
+    if (wLoading) {
+      return (
+        <div className="flex items-center justify-center text-xs font-semibold text-slate-400 p-12 text-center bg-white rounded-2xl border border-slate-200">
+          Loading your websites…
+        </div>
+      );
+    }
+
+    if (websites.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600 text-xl font-bold">📋</div>
+          <h3 className="mt-4 text-base font-bold text-slate-800">No websites created yet</h3>
+          <p className="mt-1 text-xs text-slate-500 max-w-sm">Create a website first to start receiving and exporting form submissions.</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between flex-wrap gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <div>
+            <h2 className="text-lg font-bold text-slate-900">Form Submissions & Leads</h2>
+            <p className="text-xs text-slate-500">Inspect captured visitor inquiries and export CSV leads.</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="text-xs font-semibold text-slate-600">Select Website:</label>
+            <select
+              value={activeSite?.id || ""}
+              onChange={(e) => setSelectedId(e.target.value)}
+              className="h-9 rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs font-semibold text-slate-800 outline-none focus:border-blue-500 shadow-sm cursor-pointer"
+            >
+              {websites.map(w => (
+                <option key={w.id} value={w.id}>{w.name} (/{w.slug})</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {activeSite && (
+          <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 shadow-xl">
+            <FormSubmissionsModal
+              key={activeSite.id}
+              websiteId={activeSite.id}
+              websiteName={activeSite.name}
+              isEmbedded={true}
+            />
+          </div>
+        )}
+      </div>
+    );
+  }
 
   // ─── Websites Tab ────────────────────────────────────────────
   function WebsitesTab() {
@@ -355,7 +449,7 @@ function UserDashboard() {
             </div>
           </div>
           <div className="mt-4 pt-4 border-t border-slate-100 flex flex-wrap items-center gap-3">
-            <WorkspaceSwitcher apiUrl={apiUrl} currentWorkspaceId={currentWorkspaceId} onSelectWorkspace={setCurrentWorkspaceId} />
+            <WorkspaceSwitcher apiUrl={apiUrl} currentWorkspaceId={currentWorkspaceId} onSelectWorkspace={handleSelectWorkspace} />
             <TeamSwitcher apiUrl={apiUrl} currentTeamId={currentTeamId} onSelectTeam={setCurrentTeamId} />
             <Link
               to="/subscriptions"
@@ -431,21 +525,34 @@ function UserDashboard() {
                     🌐
                   </div>
                   <h3 className="mt-4 text-base font-bold text-slate-800">
-                    No websites created yet
+                    {currentWorkspaceId && currentWorkspaceId !== "all"
+                      ? "No websites in this workspace"
+                      : "No websites created yet"}
                   </h3>
                   <p className="mt-1 text-xs text-slate-500 max-w-sm">
-                    Get started by creating your first website. Drag, drop, and edit in seconds.
+                    {currentWorkspaceId && currentWorkspaceId !== "all"
+                      ? "Switch to another workspace or 'All Projects' above, or create a new website here."
+                      : "Get started by creating your first website. Drag, drop, and edit in seconds."}
                   </p>
-                  <button
-                    onClick={() => {
-                      setError("");
-                      setWebsiteName("");
-                      setIsModalOpen(true);
-                    }}
-                    className="mt-5 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 transition"
-                  >
-                    Create New Website
-                  </button>
+                  {currentWorkspaceId && currentWorkspaceId !== "all" ? (
+                    <button
+                      onClick={() => handleSelectWorkspace("all")}
+                      className="mt-4 inline-flex items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-xs font-semibold text-blue-700 hover:bg-blue-100 transition"
+                    >
+                      <span>View All Projects Across Workspaces →</span>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setError("");
+                        setWebsiteName("");
+                        setIsModalOpen(true);
+                      }}
+                      className="mt-5 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 transition"
+                    >
+                      Create New Website
+                    </button>
+                  )}
                 </div>
               ) : (
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -509,6 +616,15 @@ function UserDashboard() {
                         </button>
 
                         <div className="flex items-center gap-1.5 flex-wrap">
+                          <button
+                            onClick={() => setFormsTargetSite(site)}
+                            className="inline-flex h-8 items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50/80 px-2.5 text-[11px] font-bold text-emerald-700 hover:bg-emerald-100 transition shadow-2xs"
+                            title="View form submissions and export CSV leads"
+                          >
+                            <span>📥</span>
+                            <span>Leads</span>
+                          </button>
+
                           <button
                             onClick={() => setManagedSiteTarget(site)}
                             className="inline-flex h-8 items-center gap-1 rounded-lg border border-indigo-200 bg-indigo-50/60 px-2.5 text-[11px] font-bold text-indigo-700 hover:bg-indigo-100/80 transition shadow-2xs"
@@ -687,6 +803,16 @@ function UserDashboard() {
           isOpen={!!managedSiteTarget}
           onClose={() => setManagedSiteTarget(null)}
           onWebsiteUpdated={fetchWebsites}
+        />
+      )}
+
+      {/* Form Submissions Modal */}
+      {formsTargetSite && (
+        <FormSubmissionsModal
+          websiteId={formsTargetSite.id}
+          websiteName={formsTargetSite.name}
+          isOpen={!!formsTargetSite}
+          onClose={() => setFormsTargetSite(null)}
         />
       )}
 

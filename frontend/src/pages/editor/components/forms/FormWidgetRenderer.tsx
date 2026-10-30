@@ -163,7 +163,28 @@ export default function FormWidgetRenderer({
       }
     }
 
-    // 4. Custom Regex Validation
+    // 4. Number Validation
+    if (field.type === "number") {
+      if (isNaN(Number(value)) || isNaN(parseFloat(String(value)))) {
+        return field.customErrorMessage || `Please enter a valid number for ${field.label}`;
+      }
+    }
+
+    // 5. URL Validation
+    if (field.type === "url") {
+      let isValidUrl = false;
+      try {
+        const parsed = new URL(String(value));
+        isValidUrl = (parsed.protocol === "http:" || parsed.protocol === "https:") && parsed.hostname.includes(".");
+      } catch {
+        isValidUrl = false;
+      }
+      if (!isValidUrl) {
+        return field.customErrorMessage || `Please enter a valid URL (starting with http:// or https://) for ${field.label}`;
+      }
+    }
+
+    // 6. Custom Regex Validation
     if (field.validationRegex) {
       try {
         const customReg = new RegExp(field.validationRegex);

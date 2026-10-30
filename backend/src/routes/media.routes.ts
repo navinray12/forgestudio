@@ -5,6 +5,8 @@ import {
   getMediaAssetHandler,
   updateMediaAssetHandler,
   deleteMediaAssetHandler,
+  optimizeMediaAssetHandler,
+  convertMediaAssetToWebpHandler,
 } from "../controllers/media.controller.js";
 
 const router = Router();
@@ -16,5 +18,7 @@ router.get("/", listMediaAssetsHandler);
 router.get("/:id", getMediaAssetHandler);
 router.patch("/:id", updateMediaAssetHandler);
 router.delete("/:id", deleteMediaAssetHandler);
+router.post("/:id/optimize", optimizeMediaAssetHandler);
+router.post("/:id/convert-webp", convertMediaAssetToWebpHandler);
 
 export default router;

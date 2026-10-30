@@ -2,6 +2,8 @@ import fs from "fs";
 import path from "path";
 import { prisma } from "../config/prisma.js";
 import { AppError } from "../utils/app-error.js";
+import { getWebsiteById } from "./website.service.js";
+import { resolveMediaAssetFilePath } from "../config/storage.config.js";
 
 const db = prisma as any;
 
@@ -186,7 +188,7 @@ export interface CreateMediaAssetInput {
   url: string;
   width?: number;
   height?: number;
-  altText?: string;
+  altText?: string | null;
 }
 
 /**
@@ -210,6 +212,24 @@ export async function createMediaAsset(input: CreateMediaAssetInput) {
     throw new AppError("Missing required media asset fields", 400, "INVALID_MEDIA_ASSET");
   }
 
+  // Verify website ownership/access if associated with a website
+  if (websiteId) {
+    await getWebsiteById(websiteId, userId);
+  }
+
+  let sanitizedAltText: string | null = null;
+  if (altText !== undefined && altText !== null) {
+    if (typeof altText === "string") {
+      const trimmed = altText.trim();
+      if (trimmed.length > 500) {
+        throw new AppError("Alt text must not exceed 500 characters", 400, "INVALID_ALT_TEXT");
+      }
+      sanitizedAltText = trimmed;
+    } else {
+      throw new AppError("Alt text must be a valid string or null", 400, "INVALID_ALT_TEXT");
+    }
+  }
+
   const asset = await db.mediaAsset.create({
     data: {
       userId,
@@ -221,7 +241,7 @@ export async function createMediaAsset(input: CreateMediaAssetInput) {
       url,
       width: width || null,
       height: height || null,
-      altText: altText || null,
+      altText: sanitizedAltText,
     },
   });
 
@@ -229,7 +249,7 @@ export async function createMediaAsset(input: CreateMediaAssetInput) {
 }
 
 /**
- * List media assets with tenant isolation
+ * List media assets with tenant isolation and website authorization
  */
 export async function listMediaAssets(
   userId: string,
@@ -245,10 +265,21 @@ export async function listMediaAssets(
   const limit = Math.min(100, Math.max(1, options.limit || 50));
   const skip = (page - 1) * limit;
 
+  const rawWebsiteId = typeof options.websiteId === "string" ? options.websiteId.trim() : undefined;
+  const targetWebsiteId =
+    rawWebsiteId && rawWebsiteId !== "undefined" && rawWebsiteId !== "null" && rawWebsiteId !== ""
+      ? rawWebsiteId
+      : undefined;
+
+  // Verify website access if websiteId is requested
+  if (targetWebsiteId) {
+    await getWebsiteById(targetWebsiteId, userId);
+  }
+
   const where: any = { userId };
 
-  if (options.websiteId) {
-    where.OR = [{ websiteId: options.websiteId }, { websiteId: null }];
+  if (targetWebsiteId) {
+    where.OR = [{ websiteId: targetWebsiteId }, { websiteId: null }];
   }
 
   if (options.mimeType) {
@@ -310,15 +341,35 @@ export async function getMediaAssetById(id: string, userId: string) {
 export async function updateMediaAsset(
   id: string,
   userId: string,
-  data: { altText?: string; websiteId?: string }
+  data: { altText?: string | null; websiteId?: string | null }
 ) {
   // Ensure ownership
   await getMediaAssetById(id, userId);
 
+  // If reassigning website, ensure requester has access to target website
+  if (data.websiteId) {
+    await getWebsiteById(data.websiteId, userId);
+  }
+
+  let sanitizedAltText: string | null | undefined = undefined;
+  if (data.altText !== undefined) {
+    if (data.altText === null) {
+      sanitizedAltText = null;
+    } else if (typeof data.altText === "string") {
+      const trimmed = data.altText.trim();
+      if (trimmed.length > 500) {
+        throw new AppError("Alt text must not exceed 500 characters", 400, "INVALID_ALT_TEXT");
+      }
+      sanitizedAltText = trimmed;
+    } else {
+      throw new AppError("Alt text must be a valid string or null", 400, "INVALID_ALT_TEXT");
+    }
+  }
+
   const updated = await db.mediaAsset.update({
     where: { id },
     data: {
-      altText: data.altText !== undefined ? data.altText : undefined,
+      altText: sanitizedAltText !== undefined ? sanitizedAltText : undefined,
       websiteId: data.websiteId !== undefined ? data.websiteId : undefined,
     },
   });
@@ -327,25 +378,71 @@ export async function updateMediaAsset(
 }
 
 /**
- * Delete media asset and remove file from disk
+ * Delete media asset safely:
+ * 1. Verifies ownership.
+ * 2. Checks whether asset URL or filename is actively referenced in website editorData.
+ *    Throws 409 ASSET_IN_USE if referenced (unless force: true is explicitly requested).
+ * 3. Removes the physical file from the actual upload directory (uploads/images/).
+ * 4. Ensures DB record is only removed if physical deletion succeeds (or file already missing).
  */
-export async function deleteMediaAsset(id: string, userId: string) {
+export async function deleteMediaAsset(
+  id: string,
+  userId: string,
+  options: { force?: boolean } = {}
+) {
   const asset = await getMediaAssetById(id, userId);
 
+  // 1. Reference Check: Protect websites from broken assets
+  const referencingWebsites: any[] = await prisma.$queryRaw`
+    SELECT id, name, slug
+    FROM websites
+    WHERE ("editorData"::text LIKE ${'%' + asset.url + '%'}
+       OR "editorData"::text LIKE ${'%' + asset.filename + '%'})
+    LIMIT 5
+  `;
+
+  if (referencingWebsites.length > 0 && !options.force) {
+    const siteNames = referencingWebsites.map((w) => w.name || w.slug).join(", ");
+    throw new AppError(
+      `Cannot delete media asset "${asset.originalName || asset.filename}" because it is currently used by website(s): ${siteNames}. Remove it from the website first or force deletion.`,
+      409,
+      "ASSET_IN_USE"
+    );
+  }
+
+  // 2. Resolve Physical File Path under configured persistent uploads directory
+  let resolvedFilePath: string;
+  try {
+    resolvedFilePath = resolveMediaAssetFilePath(asset);
+  } catch (pathErr: any) {
+    throw new AppError(
+      `Invalid storage path or unsafe filename for asset: ${pathErr?.message}`,
+      400,
+      "INVALID_STORAGE_PATH"
+    );
+  }
+
+  // 3. Physical cleanup first: If physical deletion throws unexpectedly, abort to keep DB consistent
+  if (fs.existsSync(resolvedFilePath)) {
+    try {
+      fs.unlinkSync(resolvedFilePath);
+    } catch (fsErr: any) {
+      console.error("[Media Service] Failed to delete physical media file from disk:", fsErr);
+      throw new AppError(
+        `Failed to delete physical media file from storage: ${fsErr?.message || "Disk I/O error"}`,
+        500,
+        "STORAGE_DELETE_FAILED"
+      );
+    }
+  } else {
+    // Missing file handled safely: Log notice and allow DB cleanup so orphaned records can be removed
+    console.warn(`[Media Service] Physical file missing during deletion (${resolvedFilePath}), proceeding with DB cleanup.`);
+  }
+
+  // 4. Delete Database Record once physical cleanup is confirmed
   await db.mediaAsset.delete({
     where: { id },
   });
-
-  // Attempt to delete physical file from disk if under local uploads
-  try {
-    const uploadsDir = path.resolve(process.cwd(), "public/uploads");
-    const filePath = path.join(uploadsDir, asset.filename);
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-    }
-  } catch (fsErr) {
-    console.warn("Could not delete physical media file from disk:", fsErr);
-  }
 
   return { success: true };
 }

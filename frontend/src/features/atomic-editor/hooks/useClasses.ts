@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import type { AtomicClass, CreateClassPayload, UpdateClassPayload } from "../types/classes.types";
 import { fetchClasses, saveClasses } from "../services/classService";
 import { formatClassName, validateClassName } from "../utils/class.utils";
 
-export function useClasses() {
+export function useClasses(websiteId?: string) {
   const [classes, setClasses] = useState<AtomicClass[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -15,22 +15,49 @@ export function useClasses() {
   const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
   const [defaultIsGlobal, setDefaultIsGlobal] = useState<boolean>(true);
 
+  // Stale request guard to prevent responses from a previously selected website from overwriting new data
+  const activeWebsiteIdRef = useRef<string | undefined>(websiteId);
+  activeWebsiteIdRef.current = websiteId;
+
   const loadClasses = useCallback(async () => {
+    const targetWebsiteId = websiteId;
     setIsLoading(true);
     setError(null);
     try {
-      const data = await fetchClasses();
+      const data = await fetchClasses(targetWebsiteId);
+      // Ignore response if the user has navigated or switched to another website in the meantime
+      if (activeWebsiteIdRef.current !== targetWebsiteId) {
+        return;
+      }
       setClasses(data);
     } catch (err: any) {
-      setError("Unable to load classes.");
+      if (activeWebsiteIdRef.current === targetWebsiteId) {
+        setError("Unable to load classes.");
+      }
     } finally {
-      setIsLoading(false);
+      if (activeWebsiteIdRef.current === targetWebsiteId) {
+        setIsLoading(false);
+      }
     }
-  }, []);
+  }, [websiteId]);
 
   useEffect(() => {
     loadClasses();
   }, [loadClasses]);
+
+  // Synchronize on external design system update (e.g. import in ClassManagerModal)
+  useEffect(() => {
+    const handleUpdate = (e: any) => {
+      const detail = e?.detail;
+      if (!detail) return;
+      if (detail.websiteId && websiteId && detail.websiteId !== websiteId) return;
+      loadClasses();
+    };
+    window.addEventListener("fs-design-system-updated" as any, handleUpdate);
+    return () => {
+      window.removeEventListener("fs-design-system-updated" as any, handleUpdate);
+    };
+  }, [websiteId, loadClasses]);
 
   const filteredClasses = useMemo(() => {
     return classes.filter((c) => {
@@ -86,11 +113,11 @@ export function useClasses() {
 
       const updatedList = [newClass, ...classes];
       setClasses(updatedList);
-      await saveClasses(updatedList);
+      await saveClasses(updatedList, websiteId);
       setIsFormOpen(false);
       return newClass;
     },
-    [classes]
+    [classes, websiteId]
   );
 
   const handleUpdateClass = useCallback(
@@ -128,12 +155,12 @@ export function useClasses() {
 
       const updatedList = classes.map((c) => (c.id === id ? updatedClass : c));
       setClasses(updatedList);
-      await saveClasses(updatedList);
+      await saveClasses(updatedList, websiteId);
       setEditingClass(null);
       setIsFormOpen(false);
       return updatedClass;
     },
-    [classes]
+    [classes, websiteId]
   );
 
   const handleDeleteClass = useCallback(
@@ -141,10 +168,10 @@ export function useClasses() {
       setError(null);
       const updatedList = classes.filter((c) => c.id !== id);
       setClasses(updatedList);
-      await saveClasses(updatedList);
+      await saveClasses(updatedList, websiteId);
       setDeletingClass(null);
     },
-    [classes]
+    [classes, websiteId]
   );
 
   return {

@@ -27,3 +27,4 @@ Thumbs.db
 # Runtime / test generated files
 backend/artifacts/
 backend/uploads/backups/
+backend/storage/

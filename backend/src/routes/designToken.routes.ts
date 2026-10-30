@@ -8,6 +8,7 @@ router.use(requireAuth);
 
 router.get("/:websiteId/design-system", designTokenController.getDesignSystem);
 router.put("/:websiteId/design-system", designTokenController.updateDesignSystem);
+router.get("/:websiteId/design-system/export", designTokenController.exportDesignSystemPayload);
 router.post("/:websiteId/design-system/export", designTokenController.exportDesignSystemPayload);
 router.post("/:websiteId/design-system/import", designTokenController.importDesignSystemPayload);
 

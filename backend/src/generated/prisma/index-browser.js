@@ -214,6 +214,8 @@ exports.Prisma.UserSubscriptionScalarFieldEnum = {
   userId: 'userId',
   planId: 'planId',
   status: 'status',
+  stripeCustomerId: 'stripeCustomerId',
+  stripeSubscriptionId: 'stripeSubscriptionId',
   currentPeriodStart: 'currentPeriodStart',
   currentPeriodEnd: 'currentPeriodEnd',
   createdAt: 'createdAt',
@@ -572,6 +574,19 @@ exports.Prisma.WorkspaceMemberScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.WorkspaceInvitationScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  email: 'email',
+  role: 'role',
+  tokenHash: 'tokenHash',
+  status: 'status',
+  expiresAt: 'expiresAt',
+  invitedBy: 'invitedBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.PublishApprovalRequestScalarFieldEnum = {
   id: 'id',
   websiteId: 'websiteId',
@@ -718,12 +733,30 @@ exports.Prisma.BillingInvoiceScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   planId: 'planId',
+  planName: 'planName',
+  description: 'description',
   amount: 'amount',
   currency: 'currency',
   status: 'status',
   invoiceNumber: 'invoiceNumber',
+  paymentProvider: 'paymentProvider',
+  paymentReference: 'paymentReference',
+  taxAmount: 'taxAmount',
+  subtotal: 'subtotal',
   billingPeriodStart: 'billingPeriodStart',
   billingPeriodEnd: 'billingPeriodEnd',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.PaymentWebhookEventScalarFieldEnum = {
+  id: 'id',
+  eventId: 'eventId',
+  provider: 'provider',
+  eventType: 'eventType',
+  checkoutSessionId: 'checkoutSessionId',
+  userId: 'userId',
+  amount: 'amount',
+  currency: 'currency',
   createdAt: 'createdAt'
 };
 
@@ -838,6 +871,7 @@ exports.Prisma.ModelName = {
   Organization: 'Organization',
   OrganizationMember: 'OrganizationMember',
   WorkspaceMember: 'WorkspaceMember',
+  WorkspaceInvitation: 'WorkspaceInvitation',
   PublishApprovalRequest: 'PublishApprovalRequest',
   BackgroundJob: 'BackgroundJob',
   MediaAsset: 'MediaAsset',
@@ -849,7 +883,8 @@ exports.Prisma.ModelName = {
   License: 'License',
   LicenseActivation: 'LicenseActivation',
   WhiteLabelConfig: 'WhiteLabelConfig',
-  BillingInvoice: 'BillingInvoice'
+  BillingInvoice: 'BillingInvoice',
+  PaymentWebhookEvent: 'PaymentWebhookEvent'
 };
 
 /**

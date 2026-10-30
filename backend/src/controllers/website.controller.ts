@@ -14,13 +14,14 @@ import {
  * Fetch all websites for current authenticated user
  */
 export async function getWebsitesHandler(
-  _req: Request,
+  req: Request,
   res: Response,
   next: NextFunction
 ) {
   try {
     const user = res.locals.user;
-    const websites = await getUserWebsites(user.id);
+    const workspaceId = req.query.workspaceId as string | undefined;
+    const websites = await getUserWebsites(user.id, workspaceId);
 
     return res.status(200).json({
       success: true,
@@ -135,9 +136,16 @@ export async function createWebsiteHandler(
 ) {
   try {
     const user = res.locals.user;
-    const { name } = req.body;
+    const { name, slug, editorData, templateId, workspaceId } = req.body;
 
-    const website = await createWebsite(user.id, name);
+    const website = await createWebsite({
+      userId: user.id,
+      name,
+      slug,
+      editorData,
+      templateId,
+      workspaceId,
+    });
 
     return res.status(201).json({
       success: true,
