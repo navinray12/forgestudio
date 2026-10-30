@@ -493,7 +493,9 @@ model DeveloperApiKey {
   userId     String    @db.Uuid
   name       String
   tokenHash  String    @unique
+  maskedKey  String?
   scopes     Json      @default("[\"websites:read\"]")
+  expiresAt  DateTime?
   lastUsedAt DateTime?
   revokedAt  DateTime?
   createdAt  DateTime  @default(now())

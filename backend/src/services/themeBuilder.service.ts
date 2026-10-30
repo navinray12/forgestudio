@@ -21,10 +21,15 @@ export interface ThemeCondition {
 
 export interface EvaluateContext {
   locationType: ThemeLocationType;
+  pageId?: string;
   pageSlug?: string;
+  slug?: string;
   isHomepage?: boolean;
+  isHome?: boolean;
   cptSlug?: string;
   entrySlug?: string;
+  entryId?: string;
+  isArchive?: boolean;
   is404?: boolean;
 }
 

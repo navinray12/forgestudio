@@ -20,6 +20,9 @@ export function sendSuccess(res: Response, data: any, meta?: any, status = 200) 
   if (meta !== undefined) {
     payload.meta = meta;
   }
+  if (res.locals.correlationId) {
+    payload.requestId = res.locals.correlationId;
+  }
   return res.status(status).json(payload);
 }
 
@@ -40,7 +43,18 @@ export function sendError(
   if (details !== undefined) {
     payload.error.details = details;
   }
+  if (res.locals.correlationId) {
+    payload.requestId = res.locals.correlationId;
+    payload.error.requestId = res.locals.correlationId;
+  }
   return res.status(status).json(payload);
+}
+
+function handleControllerError(res: Response, err: any, fallbackMessage: string) {
+  if (err instanceof AppError) {
+    return sendError(res, err.code, err.message, err.statusCode);
+  }
+  return sendError(res, "SERVER_ERROR", err?.message || fallbackMessage, 500);
 }
 
 // 1. List Websites
@@ -76,7 +90,7 @@ export async function listWebsitesHandler(req: Request, res: Response) {
 
     return sendSuccess(res, paginated, { total, page, limit });
   } catch (err: any) {
-    return sendError(res, "SERVER_ERROR", err.message || "Failed to list websites", 500);
+    return handleControllerError(res, err, "Failed to list websites");
   }
 }
 
@@ -100,7 +114,7 @@ export async function createWebsiteHandler(req: Request, res: Response) {
 
     return sendSuccess(res, website, undefined, 201);
   } catch (err: any) {
-    return sendError(res, "SERVER_ERROR", err.message || "Failed to create website", 500);
+    return handleControllerError(res, err, "Failed to create website");
   }
 }
 
@@ -122,7 +136,7 @@ export async function getWebsiteByIdHandler(req: Request, res: Response) {
 
     return sendSuccess(res, website);
   } catch (err: any) {
-    return sendError(res, "SERVER_ERROR", err.message || "Failed to get website", 500);
+    return handleControllerError(res, err, "Failed to get website");
   }
 }
 
@@ -137,17 +151,33 @@ export async function updateWebsiteHandler(req: Request, res: Response) {
       return sendError(res, "FORBIDDEN", "You do not have permission to edit this website", 403);
     }
 
-    const { name, slug, editorData, status } = req.body;
+    const { name, slug, editorData, status, expectedVersion, lastKnownUpdatedAt } = req.body;
     const updateData: any = {};
     if (name !== undefined) updateData.name = name;
     if (slug !== undefined) updateData.slug = slug;
     if (editorData !== undefined) updateData.editorData = editorData;
     if (status !== undefined) updateData.status = status;
 
+    if (editorData !== undefined && (expectedVersion !== undefined || lastKnownUpdatedAt !== undefined)) {
+      const expVer = expectedVersion !== undefined ? Number(expectedVersion) : undefined;
+      const updated = await updateWebsiteEditorData(
+        websiteId,
+        user.id,
+        editorData,
+        undefined,
+        lastKnownUpdatedAt,
+        expVer
+      );
+      if (name !== undefined || slug !== undefined || status !== undefined) {
+        await updateWebsite(websiteId, { name, slug, status }, user.id);
+      }
+      return sendSuccess(res, updated);
+    }
+
     const updated = await updateWebsite(websiteId, updateData, user.id);
     return sendSuccess(res, updated);
   } catch (err: any) {
-    return sendError(res, "SERVER_ERROR", err.message || "Failed to update website", 500);
+    return handleControllerError(res, err, "Failed to update website");
   }
 }
 
@@ -189,7 +219,7 @@ export async function getPagesHandler(req: Request, res: Response) {
 
     return sendSuccess(res, pages, { total: pages.length });
   } catch (err: any) {
-    return sendError(res, "SERVER_ERROR", err.message || "Failed to get pages", 500);
+    return handleControllerError(res, err, "Failed to get pages");
   }
 }
 
@@ -259,7 +289,7 @@ export async function updatePagesHandler(req: Request, res: Response) {
 
     return sendSuccess(res, { pages: sanitizedPages });
   } catch (err: any) {
-    return sendError(res, "SERVER_ERROR", err.message || "Failed to update pages", 500);
+    return handleControllerError(res, err, "Failed to update pages");
   }
 }
 
@@ -293,10 +323,7 @@ export async function publishWebsiteV1Handler(req: Request, res: Response) {
 
     return sendSuccess(res, result, undefined, 201);
   } catch (err: any) {
-    if (err instanceof AppError) {
-      return sendError(res, err.code, err.message, err.statusCode);
-    }
-    return sendError(res, "PUBLISH_FAILED", err.message || "Publish failed", 500);
+    return handleControllerError(res, err, "Publish failed");
   }
 }
 
@@ -314,7 +341,7 @@ export async function getDeploymentsV1Handler(req: Request, res: Response) {
     const deployments = await getWebsiteDeployments(websiteId, user.id);
     return sendSuccess(res, deployments, { total: deployments.length });
   } catch (err: any) {
-    return sendError(res, "SERVER_ERROR", err.message || "Failed to get deployments", 500);
+    return handleControllerError(res, err, "Failed to get deployments");
   }
 }
 
@@ -333,6 +360,6 @@ export async function rollbackDeploymentV1Handler(req: Request, res: Response) {
     const result = await rollbackDeployment(websiteId, deploymentId, user.id);
     return sendSuccess(res, result);
   } catch (err: any) {
-    return sendError(res, "ROLLBACK_FAILED", err.message || "Rollback failed", 500);
+    return handleControllerError(res, err, "Rollback failed");
   }
 }

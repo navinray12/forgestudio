@@ -12,7 +12,9 @@ export default function DeveloperApiSettings() {
   const [keys, setKeys] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
+  const [rotatingId, setRotatingId] = useState<string | null>(null);
   const [newKeyName, setNewKeyName] = useState("");
+  const [expiresInDays, setExpiresInDays] = useState<string>("0"); // "0" = Never
   const [selectedScopes, setSelectedScopes] = useState<string[]>([
     "websites:read",
     "websites:write",
@@ -64,6 +66,7 @@ export default function DeveloperApiSettings() {
     try {
       setCreating(true);
       setError(null);
+      const days = parseInt(expiresInDays, 10);
       const res = await fetch(`${apiUrl}/api/v1/apikeys`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -71,6 +74,7 @@ export default function DeveloperApiSettings() {
         body: JSON.stringify({
           name: newKeyName.trim(),
           scopes: selectedScopes,
+          expiresInDays: days > 0 ? days : null,
         }),
       });
       const data = await res.json();
@@ -106,6 +110,32 @@ export default function DeveloperApiSettings() {
     }
   };
 
+  const handleRotate = async (id: string) => {
+    if (!window.confirm("Rotate this API key? The old secret will be revoked immediately and a new secret generated.")) return;
+    try {
+      setRotatingId(id);
+      setError(null);
+      const res = await fetch(`${apiUrl}/api/v1/apikeys/${id}/rotate`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setGeneratedSecret(data.rawSecret);
+        fetchKeys();
+      } else {
+        setError(data?.error?.message || "Failed to rotate API key.");
+      }
+    } catch (err) {
+      console.error("Failed to rotate key", err);
+      setError("Network error rotating API key.");
+    } finally {
+      setRotatingId(null);
+    }
+  };
+
   const copyToClipboard = (text: string, type: "key" | "snippet") => {
     navigator.clipboard.writeText(text);
     if (type === "key") {
@@ -131,7 +161,7 @@ const client = new ForgeStudioClient({
 });
 
 // List all managed websites
-const { websites, meta } = await client.listWebsites({ page: 1, limit: 10 });
+const websites = await client.websites.list({ page: 1, limit: 10 });
 console.log("Websites:", websites);`;
 
   const fetchSnippet = `const response = await fetch("${apiUrl}/api/v1/websites", {
@@ -208,21 +238,35 @@ console.log("Data:", data.data);`;
         <div className="mt-8 pt-8 border-t border-slate-100">
           <h3 className="text-sm font-bold text-slate-800 mb-2">Generate New API Token</h3>
           <p className="text-xs text-slate-500 mb-4">
-            Select the granular access scopes required for your integration.
+            Select the granular access scopes and optional expiration for your integration.
           </p>
 
           <form onSubmit={handleCreateKey} className="space-y-4">
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <input
                 type="text"
                 required
                 maxLength={50}
                 value={newKeyName}
                 onChange={(e) => setNewKeyName(e.target.value)}
-                placeholder="Key label (e.g. GitHub Actions Deployer, Headless Sync)"
-                className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:border-purple-500 focus:outline-none"
+                placeholder="Key label (e.g. GitHub Actions, Headless Sync)"
+                className="sm:col-span-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:border-purple-500 focus:outline-none"
                 disabled={creating}
               />
+              <select
+                value={expiresInDays}
+                onChange={(e) => setExpiresInDays(e.target.value)}
+                className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-700 bg-white focus:border-purple-500 focus:outline-none"
+                disabled={creating}
+              >
+                <option value="0">Never Expires</option>
+                <option value="30">Expires in 30 Days</option>
+                <option value="90">Expires in 90 Days</option>
+                <option value="365">Expires in 1 Year</option>
+              </select>
+            </div>
+
+            <div className="flex justify-end">
               <button
                 type="submit"
                 disabled={creating || !newKeyName.trim() || selectedScopes.length === 0}
@@ -283,50 +327,76 @@ console.log("Data:", data.data);`;
                 No active API keys found. Generate one above to get started.
               </div>
             ) : (
-              keys.map((key) => (
-                <div
-                  key={key.id}
-                  className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-4 transition hover:border-slate-200"
-                >
-                  <div className="space-y-1">
-                    <div className="font-bold text-slate-800 text-sm flex items-center gap-2">
-                      <span>{key.name}</span>
-                      {key.isRevoked ? (
-                        <span className="bg-red-100 text-red-700 text-[9px] uppercase px-2 py-0.5 rounded-full font-bold">
-                          Revoked
-                        </span>
-                      ) : (
-                        <span className="bg-emerald-100 text-emerald-700 text-[9px] uppercase px-2 py-0.5 rounded-full font-bold">
-                          Active
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex flex-wrap gap-1.5 pt-0.5">
-                      {Array.isArray(key.scopes) &&
-                        key.scopes.map((scope: string) => (
-                          <span
-                            key={scope}
-                            className="inline-block px-2 py-0.5 rounded bg-white text-slate-600 border border-slate-200 text-[10px] font-mono font-medium"
-                          >
-                            {scope}
+              keys.map((key) => {
+                const isRevoked = key.isRevoked || key.status === "REVOKED";
+                const isExpired = key.isExpired || key.status === "EXPIRED";
+
+                return (
+                  <div
+                    key={key.id}
+                    className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-4 transition hover:border-slate-200 flex-wrap gap-4"
+                  >
+                    <div className="space-y-1">
+                      <div className="font-bold text-slate-800 text-sm flex items-center gap-2">
+                        <span>{key.name}</span>
+                        {key.maskedKey && (
+                          <span className="font-mono text-xs text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">
+                            {key.maskedKey}
                           </span>
-                        ))}
+                        )}
+                        {isRevoked ? (
+                          <span className="bg-red-100 text-red-700 text-[9px] uppercase px-2 py-0.5 rounded-full font-bold">
+                            Revoked
+                          </span>
+                        ) : isExpired ? (
+                          <span className="bg-amber-100 text-amber-700 text-[9px] uppercase px-2 py-0.5 rounded-full font-bold">
+                            Expired
+                          </span>
+                        ) : (
+                          <span className="bg-emerald-100 text-emerald-700 text-[9px] uppercase px-2 py-0.5 rounded-full font-bold">
+                            Active
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap gap-1.5 pt-0.5">
+                        {Array.isArray(key.scopes) &&
+                          key.scopes.map((scope: string) => (
+                            <span
+                              key={scope}
+                              className="inline-block px-2 py-0.5 rounded bg-white text-slate-600 border border-slate-200 text-[10px] font-mono font-medium"
+                            >
+                              {scope}
+                            </span>
+                          ))}
+                      </div>
+                      <div className="text-[11px] text-slate-400 pt-1 flex flex-wrap gap-4">
+                        <span>Created: {new Date(key.createdAt).toLocaleDateString()}</span>
+                        <span>Last used: {key.lastUsedAt ? new Date(key.lastUsedAt).toLocaleDateString() : "Never"}</span>
+                        <span>
+                          Expires: {key.expiresAt ? new Date(key.expiresAt).toLocaleDateString() : "Never"}
+                        </span>
+                      </div>
                     </div>
-                    <div className="text-[11px] text-slate-400 pt-1 flex gap-4">
-                      <span>Created: {new Date(key.createdAt).toLocaleDateString()}</span>
-                      <span>Last used: {key.lastUsedAt ? new Date(key.lastUsedAt).toLocaleDateString() : "Never"}</span>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleRotate(key.id)}
+                        disabled={isRevoked || rotatingId === key.id}
+                        className="text-xs font-bold text-slate-600 hover:text-purple-600 disabled:opacity-30 transition px-3 py-1.5 rounded-lg border border-slate-200 hover:border-purple-300 bg-white"
+                      >
+                        {rotatingId === key.id ? "Rotating..." : "Rotate Key"}
+                      </button>
+                      <button
+                        onClick={() => handleRevoke(key.id)}
+                        disabled={isRevoked}
+                        className="text-xs font-bold text-red-500 hover:text-red-700 disabled:opacity-30 transition px-3 py-1.5 rounded-lg hover:bg-red-50"
+                      >
+                        Revoke Key
+                      </button>
                     </div>
                   </div>
-
-                  <button
-                    onClick={() => handleRevoke(key.id)}
-                    disabled={key.isRevoked}
-                    className="text-xs font-bold text-red-500 hover:text-red-700 disabled:opacity-30 transition px-3 py-1.5 rounded-lg hover:bg-red-50"
-                  >
-                    Revoke Key
-                  </button>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>
