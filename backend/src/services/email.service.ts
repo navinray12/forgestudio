@@ -141,6 +141,9 @@ If you did not request this code, please ignore this email.
     });
 
     console.log(`[EMAIL SERVICE] Email successfully sent to ${toEmail} (Message ID: ${info.messageId})`);
+    if (process.env.NODE_ENV !== "production") {
+      console.log(`[DEV OTP] Verification code for ${toEmail}: ${otp}`);
+    }
   } catch (error) {
     console.error("[EMAIL SERVICE] Failed to send email via SMTP:", error);
     throw error;
