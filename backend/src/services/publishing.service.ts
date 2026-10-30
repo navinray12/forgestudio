@@ -60,6 +60,7 @@ export interface PublishResult {
   filesTransferred?: number;
   warnings?: ValidationIssue[];
   releaseId?: string;
+  updatedAt?: string;
 }
 
 /**
@@ -251,6 +252,14 @@ export async function publishWebsite(
     throw new AppError("You do not have permission to publish this website.", 403, "FORBIDDEN");
   }
 
+  // 1.1 Administrative moderation check (Phase 2)
+  if ((website as any).moderationStatus === "SUSPENDED") {
+    throw new AppError(
+      "This website has been suspended by administration and cannot be published.",
+      403,
+      "WEBSITE_SUSPENDED"
+    );
+  }
   const environment = options.environment || "PRODUCTION";
   const destinationType = options.destinationType || "INTERNAL";
 
@@ -723,6 +732,11 @@ export async function publishWebsite(
       }
     } catch (auditErr) {}
 
+    const finalWebsite = await prisma.website.findUnique({
+      where: { id: websiteId },
+      select: { updatedAt: true },
+    });
+
     return {
       success: true,
       deploymentId: deployment.id,
@@ -736,6 +750,7 @@ export async function publishWebsite(
       sourceRevisionId: publishRevision?.id,
       filesTransferred,
       warnings: validation.warnings,
+      updatedAt: finalWebsite?.updatedAt ? finalWebsite.updatedAt.toISOString() : (website as any).updatedAt,
     };
   } catch (error: any) {
     // Revert claimed approval if deployment failed prior to successful PUBLISHED state

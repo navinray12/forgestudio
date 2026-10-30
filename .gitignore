@@ -26,5 +26,15 @@ Thumbs.db
 
 # Runtime / test generated files
 backend/artifacts/
+<<<<<<< HEAD
 backend/uploads/backups/
 backend/storage/
+=======
+backend/uploads/
+# Agent scratch files & patches
+.agent/
+frontend/.agent/
+frontend/fix.js
+frontend/test.js
+*.tmp
+>>>>>>> origin/new-backup-devnew

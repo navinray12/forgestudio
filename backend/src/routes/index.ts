@@ -75,7 +75,12 @@ apiRouter.use("/multisite", multisiteRoutes);
 apiRouter.use("/approval-requests", approvalRoutes);
 apiRouter.use("/websites", websiteApprovalRoutes);
 
+import themeBuilderRoutes from "./themeBuilder.routes.js";
+
 // Custom Types, Code, and Components
+apiRouter.use("/theme", themeBuilderRoutes);
+apiRouter.use("/", themeBuilderRoutes);
+apiRouter.use("/cpt", customPostTypeRoutes);
 apiRouter.use("/", customPostTypeRoutes);
 apiRouter.use("/", customCodeRoutes);
 apiRouter.use("/", pluginCompatRoutes);
@@ -126,4 +131,5 @@ export { default as aiHostingRoutes } from "./aiHosting.routes.js";
 export { default as elementorCloudRoutes } from "./elementorCloud.routes.js";
 export { default as exportRoutes } from "./export.routes.js";
 export { default as approvalRoutes, websiteApprovalRoutes } from "./approval.routes.js";
+export { default as themeBuilderRoutes } from "./themeBuilder.routes.js";
 

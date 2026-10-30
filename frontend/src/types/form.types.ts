@@ -151,7 +151,7 @@ export interface FormSubmissionRecord {
   websiteId: string;
   formId: string;
   formName: string;
-  data: Record<string, any>;
+  data: Record<string, unknown>;
   metadata: {
     ip?: string;
     userAgent?: string;

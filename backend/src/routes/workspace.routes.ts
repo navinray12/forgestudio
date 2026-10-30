@@ -2,6 +2,7 @@ import { Router } from "express";
 import { requireAuth } from "../middlewares/auth.middleware.js";
 import {
   listWorkspacesHandler,
+  getUserWorkspacesHandler,
   createWorkspaceHandler,
   getWorkspaceHandler,
   addWorkspaceMemberHandler,
@@ -37,7 +38,10 @@ router.get("/:id", getWorkspaceHandler);
 router.post("/:id/members", addWorkspaceMemberHandler);
 router.patch("/:id/members/:userId", updateWorkspaceMemberRoleHandler);
 router.delete("/:id/members/:userId", removeWorkspaceMemberHandler);
+
+// Workspace website assignment (both query and parameter based)
 router.post("/:id/assign-website", assignWebsiteToWorkspaceHandler);
+router.post("/:id/websites/:websiteId", assignWebsiteToWorkspaceHandler);
 
 // Workspace-scoped invitation routes
 router.get("/:id/invitations", listWorkspaceInvitationsHandler);

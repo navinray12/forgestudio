@@ -10,7 +10,7 @@ import {
     compileDesignSystemCss
 } from "../editor/utils";
 import type { EditorElement, Breakpoint } from "../editor/types";
-import { resolveDynamicTokens } from "../editor/types";
+import { resolveDynamicTokens, matchesThemeCondition } from "../editor/types";
 import type { PopupConfig } from "../../types/popup.types";
 
 const BackgroundSlideshow: React.FC<{ urls: string[]; interval?: number }> = ({ urls, interval }) => {
@@ -184,7 +184,22 @@ import {
     resolveButtonHref,
     SearchBarWidgetRenderer,
     LoopGridWidgetRenderer,
-    DEFAULT_LOOP_ITEMS
+    DEFAULT_LOOP_ITEMS,
+    NestedTabsWidgetRenderer,
+    NestedAccordionWidgetRenderer,
+    CounterWidgetRenderer,
+    ProgressBarWidgetRenderer,
+    RatingWidgetRenderer,
+    AlertWidgetRenderer,
+    GoogleMapsWidgetRenderer,
+    SoundcloudWidgetRenderer,
+    LinkInBioWidgetRenderer,
+    ImageBoxWidgetRenderer,
+    IconBoxWidgetRenderer,
+    IconListWidgetRenderer,
+    PostsWidgetRenderer,
+    PortfolioWidgetRenderer,
+    VideoPlaylistWidgetRenderer
 } from "../editor/widgets";
 import {
     BreadcrumbsRenderer,
@@ -211,18 +226,30 @@ const renderSvgIcon = (_name: string, size: string, color: string) => (
     <svg width={size} height={size} fill={color} viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" /></svg>
 );
 
-const findTargetPage = (pagesList: PageConfig[] | undefined, target: string): PageConfig | undefined => {
+const normalizeRoutePath = (path: string): string => {
+    if (!path) return "";
+    return path
+        .split("?")[0]
+        .split("#")[0]
+        .trim()
+        .replace(/^\/+/, "")
+        .replace(/\/+$/, "")
+        .toLowerCase();
+};
+
+const findTargetPage = (pagesList: PageConfig[] | undefined, target: string, homePageId?: string): PageConfig | undefined => {
     if (!target || !pagesList || pagesList.length === 0) return undefined;
-    const clean = target.replace(/^\//, "").split("?")[0].split("#")[0];
+    const cleanTarget = normalizeRoutePath(target);
+    if (cleanTarget === "") {
+        return pagesList.find((p) => p.isHome || (homePageId && p.id === homePageId) || p.slug === "/" || p.id === "home") || pagesList[0];
+    }
     return pagesList.find(
         (p) =>
             p.id === target ||
-            p.slug === target ||
-            p.slug === `/${clean}` ||
-            p.slug.replace(/^\//, "") === clean ||
-            p.name.toLowerCase() === target.toLowerCase() ||
-            p.name.toLowerCase() === clean.toLowerCase() ||
-            (clean === "" && (p.isHome || p.id === "home"))
+            normalizeRoutePath(p.slug) === cleanTarget ||
+            normalizeRoutePath((p as any).pageSettings?.path || "") === cleanTarget ||
+            p.name.toLowerCase() === cleanTarget ||
+            p.name.toLowerCase() === target.toLowerCase()
     );
 };
 
@@ -296,11 +323,11 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
     const stickyStyles = resolveStickyStyles(el);
 
     // Defer Background Image safely via F-355
-    let finalMergedStyles: any = {
+    const finalMergedStyles: any = {
         ...(optClass ? {} : resolvedStyles),
         ...stickyStyles
     };
-    let finalInnerStyles: any = optClass ? {} : getInnerStyles(resolvedStyles);
+    const finalInnerStyles: any = optClass ? {} : getInnerStyles(resolvedStyles);
 
     // Keep backgroundImage strictly inline safely
     if (resolvedStyles.backgroundImage) {
@@ -348,7 +375,7 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
         return <React.Fragment key={el.id}><h2 ref={assignRefIfTracked as any} {...mergedProps} className={`${mergedProps.className} ${optInnerClass}`} style={{ fontSize: "32px", fontWeight: "700", color: "#0f172a", ...mergedProps.style, ...finalInnerStyles }}>{resolvedHeading}</h2></React.Fragment>;
     }
 
-    if (el.type === "text") {
+    if (el.type === "text" || el.type === "paragraph") {
         const resolvedText = resolveDynamicTokens(el.content || "", tokenContext);
         return <React.Fragment key={el.id}><p ref={assignRefIfTracked as any} {...mergedProps} className={`${mergedProps.className} ${optInnerClass}`} style={{ fontSize: "16px", color: "#475569", ...mergedProps.style, ...finalInnerStyles }}>{resolvedText}</p></React.Fragment>;
     }
@@ -735,6 +762,21 @@ const RenderNode: React.FC<RenderNodeProps> = React.memo(({ el, isCritical, acti
             />
         </div>
     );
+    if (el.type === "counter") return <div ref={assignRefIfTracked as any} {...mergedProps}><CounterWidgetRenderer el={el} mergedStyles={finalMergedStyles} isPreview={true} /></div>;
+    if (el.type === "progress-bar") return <div ref={assignRefIfTracked as any} {...mergedProps}><ProgressBarWidgetRenderer el={el} mergedStyles={finalMergedStyles} isPreview={true} /></div>;
+    if (el.type === "rating") return <div ref={assignRefIfTracked as any} {...mergedProps}><RatingWidgetRenderer el={el} mergedStyles={finalMergedStyles} isPreview={true} /></div>;
+    if (el.type === "alert") return <div ref={assignRefIfTracked as any} {...mergedProps}><AlertWidgetRenderer el={el} mergedStyles={finalMergedStyles} isPreview={true} /></div>;
+    if (el.type === "google-maps") return <div ref={assignRefIfTracked as any} {...mergedProps}><GoogleMapsWidgetRenderer el={el} mergedStyles={finalMergedStyles} isPreview={true} /></div>;
+    if (el.type === "soundcloud") return <div ref={assignRefIfTracked as any} {...mergedProps}><SoundcloudWidgetRenderer el={el} mergedStyles={finalMergedStyles} isPreview={true} /></div>;
+    if (el.type === "link-in-bio") return <div ref={assignRefIfTracked as any} {...mergedProps}><LinkInBioWidgetRenderer el={el} mergedStyles={finalMergedStyles} isPreview={true} apiUrl={apiUrl} /></div>;
+    if (el.type === "image-box") return <div ref={assignRefIfTracked as any} {...mergedProps}><ImageBoxWidgetRenderer el={el} mergedStyles={finalMergedStyles} isPreview={true} apiUrl={apiUrl} /></div>;
+    if (el.type === "icon-box") return <div ref={assignRefIfTracked as any} {...mergedProps}><IconBoxWidgetRenderer el={el} mergedStyles={finalMergedStyles} isPreview={true} /></div>;
+    if (el.type === "icon-list") return <div ref={assignRefIfTracked as any} {...mergedProps}><IconListWidgetRenderer el={el} mergedStyles={finalMergedStyles} isPreview={true} /></div>;
+    if (el.type === "posts") return <div ref={assignRefIfTracked as any} {...mergedProps}><PostsWidgetRenderer el={el} mergedStyles={finalMergedStyles} activeDevice={activeBreakpointId === "mobile" ? "mobile" : activeBreakpointId === "tablet" ? "tablet" : "desktop"} isPreview={true} apiUrl={apiUrl} /></div>;
+    if (el.type === "portfolio") return <div ref={assignRefIfTracked as any} {...mergedProps}><PortfolioWidgetRenderer el={el} mergedStyles={finalMergedStyles} activeDevice={activeBreakpointId === "mobile" ? "mobile" : activeBreakpointId === "tablet" ? "tablet" : "desktop"} isPreview={true} /></div>;
+    if (el.type === "video-playlist") return <div ref={assignRefIfTracked as any} {...mergedProps}><VideoPlaylistWidgetRenderer el={el} mergedStyles={finalMergedStyles} isPreview={true} apiUrl={apiUrl} /></div>;
+    if (el.type === "nested-tabs") return <div ref={assignRefIfTracked as any} {...mergedProps}><NestedTabsWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
+    if (el.type === "nested-accordion") return <div ref={assignRefIfTracked as any} {...mergedProps}><NestedAccordionWidgetRenderer el={el} isPreview={true} mergedStyles={finalMergedStyles} /></div>;
 
     if (el.type === "container" || el.type === "div-block") {
         const deviceMode = (activeBreakpointId === "mobile" || activeBreakpointId === "tablet") ? activeBreakpointId : "desktop";
@@ -847,8 +889,8 @@ function PublishedSite() {
     const [globalVariables, setGlobalVariables] = useState<any[]>([]);
     const [globalClasses, setGlobalClasses] = useState<any[]>([]);
     const [cookieConsentConfig, setCookieConsentConfig] = useState<any>(null);
-    const [sitePartsState, setSitePartsState] = useState<any>(null);
     const [siteStatus, setSiteStatus] = useState<string>("DRAFT");
+    const [sitePartsState, setSitePartsState] = useState<any>(null);
     const [_themeRules, _setThemeRules] = useState<any[]>([]);
     const [statementOpen, setStatementOpen] = useState<boolean>(false);
     const [experiments, setExperiments] = useState<any[]>([]);
@@ -896,11 +938,13 @@ function PublishedSite() {
                     setPages(pagesList);
                     const urlParams = new URLSearchParams(window.location.search);
                     const queryPage = urlParams.get("page");
-                    const initialSlug = pageSlug || queryPage;
+                    const pathParts = window.location.pathname.split("/").filter(Boolean);
+                    const slugFromPath = pathParts.length >= 2 && pathParts[0] === "site" ? pathParts.slice(2).join("/") : undefined;
+                    const initialSlug = pageSlug || slugFromPath || queryPage;
                     const cleanSlug = initialSlug ? initialSlug.replace(/^\//, "") : "";
                     const isPostRoute = cleanSlug.startsWith("post/") || cleanSlug.startsWith("blog/");
                     const isTermRoute = cleanSlug.startsWith("category/") || cleanSlug.startsWith("tag/");
-                    const matchedPage = initialSlug ? findTargetPage(pagesList, initialSlug) : undefined;
+                    const matchedPage = initialSlug ? findTargetPage(pagesList, initialSlug, editorData.homePageId) : undefined;
 
                     if (matchedPage) {
                         setActivePageId(matchedPage.id || "home");
@@ -922,8 +966,10 @@ function PublishedSite() {
                         // F-239: 404 Template Fallback for unmatched route
                         setActivePageId("404-template");
                         setElements(loadedSiteParts.notFound404.elements);
+                    } else if (initialSlug && !isPostRoute && !isTermRoute) {
+                        setErrorMessage("The requested page cannot be found or does not exist.");
                     } else {
-                        const activePage = pagesList.find((p: any) => p.isHome || p.slug === "/") || pagesList[0];
+                        const activePage = pagesList.find((p: any) => p.isHome || (editorData.homePageId && p.id === editorData.homePageId) || p.slug === "/") || pagesList[0];
                         setActivePageId(activePage.id || "home");
                         setElements(activePage.elements?.length ? activePage.elements : (editorData.elements || []));
                     }
@@ -1233,12 +1279,15 @@ function PublishedSite() {
         );
     }
     if (errorMessage) {
+        const is404 = errorMessage.includes("cannot be found") || errorMessage.includes("does not exist");
         return (
-            <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col items-center justify-center p-6 text-center">
-                <div className="text-5xl mb-4">🌐</div>
-                <h1 className="text-2xl font-bold mb-2">This website is unavailable.</h1>
-                <p className="text-slate-500 max-w-md text-sm">
-                    The requested page cannot be found or is not currently published.
+            <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col items-center justify-center p-6 text-center" data-testid="error-container">
+                <div className="text-5xl mb-4">{is404 ? "🔍" : "🌐"}</div>
+                <h1 className="text-2xl font-bold mb-2" data-testid="error-title">
+                    {is404 ? "404 - Page Not Found" : "This website is unavailable."}
+                </h1>
+                <p className="text-slate-500 max-w-md text-sm" data-testid="error-message">
+                    {errorMessage}
                 </p>
             </div>
         );
@@ -1273,7 +1322,7 @@ function PublishedSite() {
             )}
 
             {/* Configured Global Header */}
-            {sitePartsState?.header?.elements && sitePartsState.header.elements.length > 0 && (sitePartsState.header.isEnabled ?? true) && (
+            {sitePartsState?.header?.elements && sitePartsState.header.elements.length > 0 && (sitePartsState.header.isEnabled ?? true) && matchesThemeCondition(sitePartsState.header.conditions, { pageId: activePageId, isHome: activePageId === "home" || Boolean(pages?.find(p => p.id === activePageId)?.isHome) || pages?.find(p => p.id === activePageId)?.slug === "/", slug: pages?.find(p => p.id === activePageId)?.slug }) && (
                 <header className="site-global-header w-full">
                     {sitePartsState.header.elements.map((el: EditorElement, index: number) => (
                         <RenderNode
@@ -1404,7 +1453,7 @@ function PublishedSite() {
             />
 
             {/* Configured Global Footer */}
-            {sitePartsState?.footer?.elements && sitePartsState.footer.elements.length > 0 && (sitePartsState.footer.isEnabled ?? true) && (
+            {sitePartsState?.footer?.elements && sitePartsState.footer.elements.length > 0 && (sitePartsState.footer.isEnabled ?? true) && matchesThemeCondition(sitePartsState.footer.conditions, { pageId: activePageId, isHome: activePageId === "home" || Boolean(pages?.find(p => p.id === activePageId)?.isHome) || pages?.find(p => p.id === activePageId)?.slug === "/", slug: pages?.find(p => p.id === activePageId)?.slug }) && (
                 <footer className="site-global-footer w-full">
                     {sitePartsState.footer.elements.map((el: EditorElement, index: number) => (
                         <RenderNode

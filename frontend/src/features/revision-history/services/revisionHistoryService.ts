@@ -285,16 +285,29 @@ export const revisionHistoryService = {
   /**
    * Restores a revision snapshot to working draft on the server.
    * INVARIANT: Restore updates working draft ONLY. Does NOT publish.
+   * Supports optimistic concurrency check via expectedVersion.
    */
-  async restoreServerRevision(websiteId: string, revisionId: string, apiUrl: string = ""): Promise<any> {
+  async restoreServerRevision(
+    websiteId: string,
+    revisionId: string,
+    apiUrl: string = "",
+    expectedVersion?: number
+  ): Promise<any> {
     const res = await fetch(`${apiUrl}/api/websites/${websiteId}/revisions/${revisionId}/restore`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
+      body: JSON.stringify(expectedVersion !== undefined && expectedVersion !== null ? { expectedVersion } : {}),
     });
 
     if (!res.ok) {
       const errData = await res.json().catch(() => ({}));
+      if (res.status === 409) {
+        throw new Error(
+          errData.message ||
+            "Conflict: Website was modified by another user or session. Please refresh the editor before restoring."
+        );
+      }
       throw new Error(errData.message || `Failed to restore revision: HTTP ${res.status}`);
     }
 

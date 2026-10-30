@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import { getWebsiteById, updateWebsiteEditorData } from "../services/website.service.js";
+import { AppError } from "../utils/app-error.js";
 import {
   analyzePageSeo,
   auditPageImages,
@@ -251,6 +252,19 @@ export async function saveWebsiteSeoHandler(
     const websiteId = req.params.id as string;
     const { pageId, pageSettings, siteSettings, structuredData } = req.body;
 
+    // Concurrency check: User editing requests must supply a client revision
+    const rawExpectedVersion = req.body?.expectedVersion;
+    const expTimestamp = req.body?.lastKnownUpdatedAt;
+    const expVer = rawExpectedVersion !== undefined && rawExpectedVersion !== null ? Number(rawExpectedVersion) : undefined;
+
+    if (expVer === undefined && !expTimestamp) {
+      throw new AppError(
+        "Expected revision (expectedVersion or lastKnownUpdatedAt) is required for SEO updates",
+        400,
+        "MISSING_REVISION"
+      );
+    }
+
     const website = await getWebsiteById(websiteId, user.id);
     const editorData = website.editorData || { version: 1, elements: [], pages: [] };
 
@@ -282,7 +296,7 @@ export async function saveWebsiteSeoHandler(
       });
     }
 
-    const updatedWebsite = await updateWebsiteEditorData(websiteId, user.id, editorData);
+    const updatedWebsite = await updateWebsiteEditorData(websiteId, user.id, editorData, undefined, expTimestamp, expVer);
 
     return res.status(200).json({
       success: true,

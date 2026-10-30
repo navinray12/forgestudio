@@ -52,6 +52,9 @@ export async function listWorkspacesHandler(
   }
 }
 
+// Backward-compatible alias
+export const getUserWorkspacesHandler = listWorkspacesHandler;
+
 /**
  * POST /api/v1/workspaces
  * Create a new workspace
@@ -141,7 +144,8 @@ export async function addWorkspaceMemberHandler(
     }
 
     const workspaceId = req.params.id as string;
-    const { targetUserId, role } = req.body;
+    const targetUserId = (req.body.targetUserId || req.body.userId) as string;
+    const { role } = req.body;
 
     if (!targetUserId) {
       throw new AppError("targetUserId is required", 400, "BAD_REQUEST");
@@ -230,6 +234,7 @@ export async function updateWorkspaceMemberRoleHandler(
 
 /**
  * POST /api/v1/workspaces/:id/assign-website
+ * POST /api/v1/workspaces/:id/websites/:websiteId
  * Assign a website to a workspace
  */
 export async function assignWebsiteToWorkspaceHandler(
@@ -244,7 +249,7 @@ export async function assignWebsiteToWorkspaceHandler(
     }
 
     const workspaceId = req.params.id as string;
-    const { websiteId } = req.body;
+    const websiteId = (req.body?.websiteId || req.params?.websiteId) as string;
 
     if (!websiteId) {
       throw new AppError("websiteId is required", 400, "BAD_REQUEST");

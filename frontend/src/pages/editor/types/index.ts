@@ -1572,7 +1572,7 @@ export interface DynamicContext {
  * Replaces {{site.name}}, {{page.title}}, {{current.year}}, {{entry.field}}, {{post.field}}, {{request.param}}, etc. tokens inside a string.
  */
 export function resolveDynamicTokens(content: string, context: DynamicContext = {}): string {
-  if (typeof content !== "string" || !content.includes("{{")) {
+  if (typeof content !== "string" || !content.includes("{")) {
     return content;
   }
 
@@ -1584,8 +1584,8 @@ export function resolveDynamicTokens(content: string, context: DynamicContext = 
   const query = context.query || context.requestParams || {};
   const custom = context.custom || {};
 
-  return content.replace(/\{\{([^{}]+)\}\}/g, (match, rawKey) => {
-    const key = rawKey.trim();
+  return content.replace(/\{{1,2}([^{}]+)\}{1,2}/g, (match, rawKey) => {
+    const key = rawKey.trim().replace(/:/g, ".");
 
     // Site level tokens
     if (key === "site.name" || key === "site.title") {
@@ -1626,35 +1626,34 @@ export function resolveDynamicTokens(content: string, context: DynamicContext = 
       return "";
     }
 
-    // Post / Article level tokens: {{post.title}}, {{post.excerpt}}, {{post.date}}, {{post.author}}, {{post.featuredImage}}
-    if (key.startsWith("post.")) {
-      const field = key.replace(/^post\./, "");
-      const postData = post.data || {};
-      if (field === "title" || field === "name") return post.title || post.name || "";
-      if (field === "slug") return post.slug || "";
-      if (field === "excerpt") return post.excerpt || postData.excerpt || postData.description || "";
-      if (field === "date") return post.date || postData.date || post.createdAt || "";
-      if (field === "author") return post.author || postData.author || "";
-      if (field === "featuredImage" || field === "image") return post.featuredImage || postData.featuredImage || postData.image || "";
-      if (postData[field] !== undefined) {
-        return String(postData[field]);
-      }
-      if (post[field] !== undefined) {
-        return String(post[field]);
-      }
-      return "";
-    }
+    // Post / CPT / Dynamic Entry tokens: {{post.title}}, {post:data.field}, {entry:status}, etc.
+    if (key.startsWith("post.") || key.startsWith("entry.") || key.startsWith("cpt.")) {
+      const field = key.replace(/^(post|entry|cpt)\./, "");
+      const cleanField = field.startsWith("data.") ? field.replace(/^data\./, "") : field;
+      const targetObj = post || entry;
+      const targetData = targetObj.data || {};
 
-    // CPT / Dynamic Entry tokens: {{entry.fieldName}}, {{cpt.fieldName}}
-    if (key.startsWith("entry.") || key.startsWith("cpt.")) {
-      const field = key.replace(/^(entry|cpt)\./, "");
-      if (field === "title" || field === "name") return entry.title || "";
-      if (field === "slug") return entry.slug || "";
-      if (entry.data && entry.data[field] !== undefined) {
-        return String(entry.data[field]);
+      if (cleanField === "title" || cleanField === "name") return targetObj.title || targetObj.name || "";
+      if (cleanField === "slug") return targetObj.slug || "";
+      if (cleanField === "status") return targetObj.status || "";
+      if (cleanField === "excerpt") return targetObj.excerpt || targetData.excerpt || targetData.description || "";
+      if (cleanField === "date") return targetObj.date || targetData.date || targetObj.createdAt || "";
+      if (cleanField === "createdAt") return targetObj.createdAt ? new Date(targetObj.createdAt).toISOString().split("T")[0] : "";
+      if (cleanField === "updatedAt") return targetObj.updatedAt ? new Date(targetObj.updatedAt).toISOString().split("T")[0] : "";
+      if (cleanField === "author") return targetObj.author || targetData.author || "";
+      if (cleanField === "featuredImage" || cleanField === "image") return targetObj.featuredImage || targetData.featuredImage || targetData.image || "";
+
+      if (targetData[cleanField] !== undefined) {
+        return String(targetData[cleanField]);
       }
-      if (entry[field] !== undefined) {
-        return String(entry[field]);
+      if (targetObj[cleanField] !== undefined) {
+        return String(targetObj[cleanField]);
+      }
+      if (targetData[field] !== undefined) {
+        return String(targetData[field]);
+      }
+      if (targetObj[field] !== undefined) {
+        return String(targetObj[field]);
       }
       return "";
     }
@@ -1693,20 +1692,85 @@ export function resolveTokensInTree(obj: any, context: DynamicContext): any {
  * Evaluates theme builder display conditions (include:all, include:singular:home, include:page:id, exclude:page:id, etc.)
  */
 export function matchesThemeCondition(
-  conditions: string[] | undefined,
-  pageContext: { pageId?: string; isHome?: boolean; slug?: string }
+  conditions: (string | any)[] | undefined,
+  pageContext: {
+    pageId?: string;
+    isHome?: boolean;
+    slug?: string;
+    cptSlug?: string;
+    entrySlug?: string;
+    isArchive?: boolean;
+    is404?: boolean;
+    isSearch?: boolean;
+  }
 ): boolean {
   if (!conditions || !Array.isArray(conditions) || conditions.length === 0) {
     return true; // Default: include everywhere
   }
 
+  // Normalize all conditions into string tuples: type:target
+  const normalized: string[] = [];
+  for (const item of conditions) {
+    if (typeof item === "string") {
+      normalized.push(item);
+    } else if (item && typeof item === "object") {
+      let ruleType = (item.type || item.condition || "entire_site").toLowerCase();
+      let isExclude = Boolean(item.isExcluded || item.type?.toUpperCase() === "EXCLUDE");
+      if (ruleType.startsWith("exclude:")) {
+        isExclude = true;
+        ruleType = ruleType.replace(/^exclude:/, "");
+      } else if (ruleType.startsWith("include:")) {
+        ruleType = ruleType.replace(/^include:/, "");
+      }
+      const prefix = isExclude ? "exclude" : "include";
+
+      if (ruleType === "entire_site" || ruleType === "all") {
+        normalized.push(`${prefix}:all`);
+      } else if (ruleType === "homepage" || ruleType === "singular:home") {
+        normalized.push(`${prefix}:singular:home`);
+      } else if (ruleType === "specific_page" || ruleType.startsWith("page:")) {
+        const target = item.targetId || ruleType.replace(/^page:/, "");
+        if (target) normalized.push(`${prefix}:page:${target}`);
+      } else if (ruleType === "specific_cpt" || ruleType.startsWith("cpt:")) {
+        const target = item.targetId || ruleType.replace(/^cpt:/, "");
+        if (target) normalized.push(`${prefix}:cpt:${target}`);
+      } else if (ruleType === "cpt_archive" || ruleType.startsWith("archive:")) {
+        const target = item.targetId || ruleType.replace(/^archive:/, "");
+        if (target) normalized.push(`${prefix}:archive:${target}`);
+        else normalized.push(`${prefix}:archive`);
+      } else if (ruleType === "specific_entry" || ruleType.startsWith("entry:")) {
+        const target = item.targetId || ruleType.replace(/^entry:/, "");
+        if (target) normalized.push(`${prefix}:entry:${target}`);
+      } else if (ruleType === "error_404" || ruleType === "404") {
+        normalized.push(`${prefix}:404`);
+      } else {
+        normalized.push(`${prefix}:${ruleType}`);
+      }
+    }
+  }
+
   // 1. Check exclusions first (exclusion takes priority)
-  for (const cond of conditions) {
+  for (const cond of normalized) {
     if (cond === "exclude:all") return false;
     if (cond === "exclude:singular:home" && pageContext.isHome) return false;
+    if (cond === "exclude:404" && pageContext.is404) return false;
+    if (cond === "exclude:search" && pageContext.isSearch) return false;
+    if (cond === "exclude:archive" && pageContext.isArchive) return false;
     if (cond.startsWith("exclude:page:")) {
-      const target = cond.replace("exclude:page:", "").trim();
-      if (target === pageContext.pageId || target === pageContext.slug) return false;
+      const target = cond.replace("exclude:page:", "").trim().toLowerCase();
+      if (target === pageContext.pageId?.toLowerCase() || target === pageContext.slug?.toLowerCase()) return false;
+    }
+    if (cond.startsWith("exclude:cpt:")) {
+      const target = cond.replace("exclude:cpt:", "").trim().toLowerCase();
+      if (target === pageContext.cptSlug?.toLowerCase()) return false;
+    }
+    if (cond.startsWith("exclude:archive:")) {
+      const target = cond.replace("exclude:archive:", "").trim().toLowerCase();
+      if (pageContext.isArchive && target === pageContext.cptSlug?.toLowerCase()) return false;
+    }
+    if (cond.startsWith("exclude:entry:")) {
+      const target = cond.replace("exclude:entry:", "").trim().toLowerCase();
+      if (target === pageContext.entrySlug?.toLowerCase() || target === pageContext.slug?.toLowerCase()) return false;
     }
   }
 
@@ -1714,14 +1778,29 @@ export function matchesThemeCondition(
   let explicitlyIncluded = false;
   let hasInclusionRule = false;
 
-  for (const cond of conditions) {
+  for (const cond of normalized) {
     if (cond.startsWith("include:")) {
       hasInclusionRule = true;
       if (cond === "include:all") explicitlyIncluded = true;
       if (cond === "include:singular:home" && pageContext.isHome) explicitlyIncluded = true;
+      if (cond === "include:404" && pageContext.is404) explicitlyIncluded = true;
+      if (cond === "include:search" && pageContext.isSearch) explicitlyIncluded = true;
+      if (cond === "include:archive" && pageContext.isArchive) explicitlyIncluded = true;
       if (cond.startsWith("include:page:")) {
-        const target = cond.replace("include:page:", "").trim();
-        if (target === pageContext.pageId || target === pageContext.slug) explicitlyIncluded = true;
+        const target = cond.replace("include:page:", "").trim().toLowerCase();
+        if (target === pageContext.pageId?.toLowerCase() || target === pageContext.slug?.toLowerCase()) explicitlyIncluded = true;
+      }
+      if (cond.startsWith("include:cpt:")) {
+        const target = cond.replace("include:cpt:", "").trim().toLowerCase();
+        if (target === pageContext.cptSlug?.toLowerCase()) explicitlyIncluded = true;
+      }
+      if (cond.startsWith("include:archive:")) {
+        const target = cond.replace("include:archive:", "").trim().toLowerCase();
+        if (pageContext.isArchive && target === pageContext.cptSlug?.toLowerCase()) explicitlyIncluded = true;
+      }
+      if (cond.startsWith("include:entry:")) {
+        const target = cond.replace("include:entry:", "").trim().toLowerCase();
+        if (target === pageContext.entrySlug?.toLowerCase() || target === pageContext.slug?.toLowerCase()) explicitlyIncluded = true;
       }
     }
   }
@@ -1863,6 +1942,8 @@ export interface WebsiteData {
   name: string;
   slug: string;
   status: string;
+  version?: number;
+  updatedAt?: string;
   userPermission?: string;
   editorData?: CanonicalWebsiteData | any;
 }

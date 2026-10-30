@@ -1,133 +1,195 @@
 import type { Request, Response, NextFunction } from "express";
+import * as cptService from "../services/cpt.service.js";
 import { prisma } from "../config/prisma.js";
 
 // ====== CPT Management ======
+
 export async function getCustomPostTypesHandler(req: Request, res: Response, next: NextFunction) {
-    try {
-        const websiteId = req.params.websiteId as string;
-        const cpts = await prisma.customPostType.findMany({
-            where: { websiteId },
-            include: { _count: { select: { entries: true, fields: true } } },
-            orderBy: { createdAt: 'desc' }
-        });
-        res.status(200).json({ success: true, data: cpts });
-    } catch (e) { next(e); }
+  try {
+    const websiteId = req.params.websiteId as string;
+    const userId = res.locals.user?.id;
+    const cpts = await cptService.listCustomPostTypes(websiteId, userId);
+    res.status(200).json({ success: true, data: cpts });
+  } catch (e) {
+    next(e);
+  }
 }
 
 export async function createCustomPostTypeHandler(req: Request, res: Response, next: NextFunction) {
-    try {
-        const websiteId = req.params.websiteId as string;
-        const { name, singular, plural, slug, description, hasArchive } = req.body;
+  try {
+    const websiteId = req.params.websiteId as string;
+    const userId = res.locals.user?.id;
+    const cpt = await cptService.createCustomPostType(websiteId, userId, req.body);
+    res.status(201).json({ success: true, data: cpt });
+  } catch (e) {
+    next(e);
+  }
+}
 
-        const existing = await prisma.customPostType.findFirst({ where: { websiteId, slug } });
-        if (existing) {
-            return res.status(409).json({ success: false, error: { message: "Slug already exists" } });
-        }
-
-        const cpt = await prisma.customPostType.create({
-            data: { websiteId, name, singular, plural, slug, description, hasArchive }
-        });
-        res.status(201).json({ success: true, data: cpt });
-    } catch (e) { next(e); }
+export async function updateCustomPostTypeHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const cptId = req.params.cptId as string;
+    const userId = res.locals.user?.id;
+    const cpt = await cptService.updateCustomPostType(cptId, userId, req.body);
+    res.status(200).json({ success: true, data: cpt });
+  } catch (e) {
+    next(e);
+  }
 }
 
 export async function deleteCustomPostTypeHandler(req: Request, res: Response, next: NextFunction) {
-    try {
-        const cptId = req.params.cptId as string;
-        // Cascade-delete all related fields and entries first (if Prisma schema doesn't cascade automatically)
-        await prisma.customField.deleteMany({ where: { postTypeId: cptId } });
-        await prisma.customEntry.deleteMany({ where: { postTypeId: cptId } });
-        await prisma.customPostType.delete({ where: { id: cptId } });
-        res.status(200).json({ success: true, message: "Custom Post Type deleted successfully." });
-    } catch (e) { next(e); }
+  try {
+    const cptId = req.params.cptId as string;
+    const userId = res.locals.user?.id;
+    const result = await cptService.deleteCustomPostType(cptId, userId);
+    res.status(200).json(result);
+  } catch (e) {
+    next(e);
+  }
 }
 
 // ====== Custom Fields ======
+
 export async function getCustomFieldsHandler(req: Request, res: Response, next: NextFunction) {
-    try {
-        const cptId = req.params.cptId as string;
-        const fields = await prisma.customField.findMany({
-            where: { postTypeId: cptId },
-            orderBy: { order: 'asc' }
-        });
-        res.status(200).json({ success: true, data: fields });
-    } catch (e) { next(e); }
+  try {
+    const cptId = req.params.cptId as string;
+    const userId = res.locals.user?.id;
+    const fields = await cptService.getCustomFields(cptId, userId);
+    res.status(200).json({ success: true, data: fields });
+  } catch (e) {
+    next(e);
+  }
 }
 
 export async function saveCustomFieldsHandler(req: Request, res: Response, next: NextFunction) {
-    try {
-        const cptId = req.params.cptId as string;
-        const { fields } = req.body; // Array of fields from drag-and-drop
-
-        await prisma.$transaction(async (tx) => {
-            await tx.customField.deleteMany({ where: { postTypeId: cptId } });
-            if (fields && fields.length > 0) {
-                await tx.customField.createMany({
-                    data: fields.map((f: any, idx: number) => ({
-                        postTypeId: cptId,
-                        name: f.name,
-                        key: f.key,
-                        type: f.type,
-                        required: f.required || false,
-                        order: idx,
-                        options: f.options || {}
-                    }))
-                });
-            }
-        });
-
-        res.status(200).json({ success: true });
-    } catch (e) { next(e); }
+  try {
+    const cptId = req.params.cptId as string;
+    const userId = res.locals.user?.id;
+    const fields = req.body.fields || req.body;
+    const saved = await cptService.saveCustomFields(cptId, userId, fields);
+    res.status(200).json({ success: true, data: saved });
+  } catch (e) {
+    next(e);
+  }
 }
 
 // ====== Custom Entries ======
+
 export async function getCustomEntriesHandler(req: Request, res: Response, next: NextFunction) {
-    try {
-        const cptId = req.params.cptId as string;
-        const entries = await prisma.customEntry.findMany({
-            where: { postTypeId: cptId },
-            include: { author: { select: { fullName: true, email: true } } },
-            orderBy: { updatedAt: 'desc' }
-        });
-        res.status(200).json({ success: true, data: entries });
-    } catch (e) { next(e); }
+  try {
+    const cptId = req.params.cptId as string;
+    const userId = res.locals.user?.id;
+    const { search, status, sortBy, order, page, limit } = req.query;
+
+    const result = await cptService.listCustomEntries(cptId, userId, {
+      search: search ? String(search) : undefined,
+      status: status ? String(status) : undefined,
+      sortBy: sortBy as any,
+      order: order as any,
+      page: page ? Number(page) : undefined,
+      limit: limit ? Number(limit) : undefined,
+    });
+
+    res.status(200).json({
+      success: true,
+      data: result.entries,
+      entries: result.entries,
+      pagination: {
+        total: result.total,
+        page: result.page,
+        limit: result.limit,
+        totalPages: result.totalPages,
+      },
+    });
+  } catch (e) {
+    next(e);
+  }
+}
+
+export async function getCustomEntryHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const entryId = req.params.entryId as string;
+    const userId = res.locals.user?.id;
+    const entry = await cptService.getCustomEntry(entryId, userId);
+    res.status(200).json({ success: true, data: entry });
+  } catch (e) {
+    next(e);
+  }
 }
 
 export async function createCustomEntryHandler(req: Request, res: Response, next: NextFunction) {
-    try {
-        const cptId = req.params.cptId as string;
-        const { title, slug, status, values } = req.body;
-        const authorId = res.locals.user.id; // From requireAuth
-
-        const existing = await prisma.customEntry.findFirst({ where: { postTypeId: cptId, slug } });
-        if (existing) {
-            return res.status(409).json({ success: false, error: { message: "Slug already exists" } });
-        }
-
-        const entry = await prisma.customEntry.create({
-            data: { postTypeId: cptId, title, slug, status, values, authorId }
-        });
-        res.status(201).json({ success: true, data: entry });
-    } catch (e) { next(e); }
+  try {
+    const cptId = req.params.cptId as string;
+    const userId = res.locals.user?.id;
+    const entry = await cptService.createCustomEntry(cptId, userId, req.body);
+    res.status(201).json({ success: true, data: entry });
+  } catch (e) {
+    next(e);
+  }
 }
 
 export async function updateCustomEntryHandler(req: Request, res: Response, next: NextFunction) {
-    try {
-        const entryId = req.params.entryId as string;
-        const { title, slug, status, values } = req.body;
-
-        const entry = await prisma.customEntry.update({
-            where: { id: entryId },
-            data: { title, slug, status, values }
-        });
-        res.status(200).json({ success: true, data: entry });
-    } catch (e) { next(e); }
+  try {
+    const entryId = req.params.entryId as string;
+    const userId = res.locals.user?.id;
+    const entry = await cptService.updateCustomEntry(entryId, userId, req.body);
+    res.status(200).json({ success: true, data: entry });
+  } catch (e) {
+    next(e);
+  }
 }
 
 export async function deleteCustomEntryHandler(req: Request, res: Response, next: NextFunction) {
-    try {
-        const entryId = req.params.entryId as string;
-        await prisma.customEntry.delete({ where: { id: entryId } });
-        res.status(200).json({ success: true });
-    } catch (e) { next(e); }
+  try {
+    const entryId = req.params.entryId as string;
+    const userId = res.locals.user?.id;
+    const result = await cptService.deleteCustomEntry(entryId, userId);
+    res.status(200).json(result);
+  } catch (e) {
+    next(e);
+  }
+}
+
+// Public entry query handler for anonymous frontends & published views
+export async function getPublicEntriesByCptSlugHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const websiteId = String(req.params.websiteId);
+    const cptSlug = String(req.params.cptSlug);
+    const { search, sortBy, order, page, limit } = req.query;
+
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cptSlug);
+    const targetCpt = await prisma.customPostType.findFirst({
+      where: {
+        websiteId,
+        ...(isUuid ? { OR: [{ slug: cptSlug }, { id: cptSlug }] } : { slug: cptSlug }),
+      },
+    });
+
+    if (!targetCpt) {
+      return res.status(404).json({ success: false, error: { message: "Post type not found" } });
+    }
+
+    const result = await cptService.listCustomEntries(targetCpt.id, undefined, {
+      status: "PUBLISHED",
+      search: search ? String(search) : undefined,
+      sortBy: sortBy as any,
+      order: order as any,
+      page: page ? Number(page) : undefined,
+      limit: limit ? Number(limit) : undefined,
+    });
+
+    res.status(200).json({
+      success: true,
+      data: result.entries,
+      entries: result.entries,
+      pagination: {
+        total: result.total,
+        page: result.page,
+        limit: result.limit,
+        totalPages: result.totalPages,
+      },
+    });
+  } catch (e) {
+    next(e);
+  }
 }

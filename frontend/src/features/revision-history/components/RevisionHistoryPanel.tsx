@@ -162,6 +162,7 @@ export const RevisionHistoryPanel: React.FC<RevisionHistoryPanelProps> = ({
             type="button"
             onClick={onClose}
             aria-label="Close Revision History drawer"
+            data-testid="revision-panel-close"
             className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-200 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-white transition"
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -360,6 +361,7 @@ export const RevisionHistoryPanel: React.FC<RevisionHistoryPanelProps> = ({
                               e.stopPropagation();
                               promptRestore(rev);
                             }}
+                            data-testid="prompt-restore-button"
                             className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-blue-700 active:scale-95 transition flex items-center gap-1"
                           >
                             <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -387,7 +389,7 @@ export const RevisionHistoryPanel: React.FC<RevisionHistoryPanelProps> = ({
 
       {/* Confirmation Modal */}
       {confirmRestoreState.isOpen && confirmRestoreState.revision && (
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-slate-950/60 backdrop-blur-xs p-4 animate-fade-in">
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-slate-950/60 backdrop-blur-xs p-4 animate-fade-in" data-testid="restore-confirm-modal">
           <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-800 dark:bg-slate-900">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 text-amber-600 dark:bg-amber-950/60 dark:text-amber-400 text-xl font-bold mb-4">
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -426,6 +428,7 @@ export const RevisionHistoryPanel: React.FC<RevisionHistoryPanelProps> = ({
               <button
                 type="button"
                 onClick={() => confirmRestore(onRestore)}
+                data-testid="confirm-restore-button"
                 className="rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-md hover:bg-blue-700 active:scale-95 transition"
               >
                 Restore Revision

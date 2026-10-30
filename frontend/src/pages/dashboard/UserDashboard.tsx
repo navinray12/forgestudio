@@ -299,10 +299,10 @@ function UserDashboard() {
     setSidebarOpen(false);
   };
 
-  const fetchWebsites = async (wsId: string | null = currentWorkspaceId) => {
+  const fetchWebsites = async (wsId?: string | null) => {
     setWLoading(true);
     try {
-      const targetWs = wsId || "all";
+      const targetWs = wsId !== undefined ? wsId : currentWorkspaceId;
       const url = targetWs && targetWs !== "all"
         ? `${apiUrl}/api/websites?workspaceId=${encodeURIComponent(targetWs)}`
         : `${apiUrl}/api/websites?workspaceId=all`;

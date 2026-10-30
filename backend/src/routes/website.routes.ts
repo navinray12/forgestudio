@@ -16,6 +16,7 @@ import {
   removeWebsiteMemberHandler,
   getGranularPermissionsHandler,
   setGranularPermissionHandler,
+  getEffectivePermissionsHandler,
   getPublicWebsiteHandler,
   getManagedWebsiteDetailsHandler,
   getCookieConsentHandler,
@@ -32,6 +33,7 @@ import {
   getRevisionByIdHandler,
   createRevisionHandler,
   restoreRevisionHandler,
+  compareRevisionsHandler,
 } from "../controllers/revision.controller.js";
 import {
   validatePublishHandler,
@@ -194,10 +196,16 @@ import {
   performanceBudgetHandler,
 } from "../controllers/seo.controller.js";
 
+import { getPublicEntriesByCptSlugHandler } from "../controllers/customPostType.controller.js";
+
 const router = Router();
 
 // Public endpoint for published websites (Unauthenticated, Comment 7 & 8)
 router.get("/public/:id", getPublicWebsiteHandler);
+
+// Public CPT entries endpoints (Unauthenticated)
+router.get("/:websiteId/public/types/:cptSlug/entries", getPublicEntriesByCptSlugHandler);
+router.get("/public/:websiteId/types/:cptSlug/entries", getPublicEntriesByCptSlugHandler);
 
 // Public webhook endpoint for WordPress events (HMAC signature protected)
 router.post("/:id/wordpress/webhook", handleWordPressWebhook);
@@ -423,6 +431,7 @@ router.post("/:id/seo/performance-budget", authorizeCapability("VIEW"), performa
 
 // Revisions API
 router.get("/:id/revisions", authorizeCapability("VIEW"), getWebsiteRevisionsHandler);
+router.get("/:id/revisions/compare", authorizeCapability("VIEW"), compareRevisionsHandler);
 router.get("/:id/revisions/:revisionId", authorizeCapability("VIEW"), getRevisionByIdHandler);
 router.post("/:id/revisions", authorizeCapability("EDIT"), createRevisionHandler);
 router.post("/:id/revisions/:revisionId/restore", authorizeCapability("EDIT"), restoreRevisionHandler);
@@ -441,5 +450,6 @@ router.post("/:id/invitations/:inviteId/resend", authorizeCapability("MANAGE_TEA
 
 router.get("/:id/permissions", authorizeCapability("MANAGE_TEAM"), getGranularPermissionsHandler);
 router.post("/:id/permissions", authorizeCapability("MANAGE_TEAM"), setGranularPermissionHandler);
+router.get("/:id/effective-permissions", authorizeCapability("VIEW"), getEffectivePermissionsHandler);
 
 export default router;

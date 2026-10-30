@@ -75,6 +75,10 @@ export async function sendLoginOtpController(
       throw new AppError("User account not found.", 404, "USER_NOT_FOUND");
     }
 
+    if (user.status !== "ACTIVE") {
+      throw new AppError("Account is suspended or inactive. Please contact support.", 403, "ACCOUNT_SUSPENDED");
+    }
+
     if (selectedChannel === "WHATSAPP") {
       await generateAndSendOtp({
         userId: user.id,
@@ -154,6 +158,10 @@ export async function verifyLoginOtpController(
       throw new AppError("User account not found.", 404, "USER_NOT_FOUND");
     }
 
+    if (user.status !== "ACTIVE") {
+      throw new AppError("Account is suspended or inactive. Please contact support.", 403, "ACCOUNT_SUSPENDED");
+    }
+
     const session = await createUserSession(user.id);
     res.cookie(AUTH_COOKIE_NAME, session.token, AUTH_COOKIE_OPTIONS);
 
@@ -208,6 +216,10 @@ export async function resendLoginOtpController(
         404,
         "USER_NOT_FOUND"
       );
+    }
+
+    if (user.status !== "ACTIVE") {
+      throw new AppError("Account is suspended or inactive. Please contact support.", 403, "ACCOUNT_SUSPENDED");
     }
 
     if (selectedChannel === "WHATSAPP") {

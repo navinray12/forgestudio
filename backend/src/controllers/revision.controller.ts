@@ -4,6 +4,7 @@ import {
   getRevisionById,
   createRevision,
   restoreRevision,
+  compareRevisions,
 } from "../services/revision.service.js";
 
 /**
@@ -94,11 +95,46 @@ export async function restoreRevisionHandler(
     const websiteId = req.params.id as string;
     const revisionId = req.params.revisionId as string;
     const user = res.locals.user;
-
-    const result = await restoreRevision(websiteId, revisionId, user.id);
+    const expectedVersion = req.body?.expectedVersion ?? req.query?.expectedVersion;
+    const result = await restoreRevision(
+      websiteId,
+      revisionId,
+      user.id,
+      expectedVersion !== undefined && expectedVersion !== null ? Number(expectedVersion) : undefined
+    );
 
     return res.status(200).json(result);
   } catch (error) {
     next(error);
   }
 }
+
+/**
+ * GET /api/websites/:id/revisions/compare
+ * Compare two revisions or compare a revision with current working draft
+ */
+export async function compareRevisionsHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const websiteId = req.params.id as string;
+    const user = res.locals.user;
+    const baseVersion = (req.query.baseVersion || req.query.baseRevisionId) as string;
+    const targetVersion = (req.query.targetVersion || req.query.targetRevisionId || "current") as string;
+
+    if (!baseVersion) {
+      return res.status(400).json({
+        success: false,
+        error: { code: "MISSING_VERSION", message: "baseVersion parameter is required for comparison" },
+      });
+    }
+
+    const diff = await compareRevisions(websiteId, baseVersion, targetVersion, user.id);
+    return res.status(200).json(diff);
+  } catch (error) {
+    next(error);
+  }
+}
+

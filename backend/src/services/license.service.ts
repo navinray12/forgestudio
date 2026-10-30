@@ -81,11 +81,6 @@ export async function initLicensingTables() {
   }
 }
 
-// Ensure database tables exist upon module loading
-initLicensingTables().catch((err) => {
-  console.error("[Licensing] Initialization error:", err);
-});
-
 /**
  * Generate cryptographically secure license key
  * Format: FS-XXXX-XXXX-XXXX-XXXX

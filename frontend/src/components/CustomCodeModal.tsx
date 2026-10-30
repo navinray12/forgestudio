@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { type CustomCodeSnippet, getCustomCodeSnippets, createCustomCodeSnippet, updateCustomCodeSnippet, deleteCustomCodeSnippet } from '../services/customCode.service';
 
 interface CustomCodeModalProps {
@@ -14,18 +14,18 @@ const CustomCodeModal: React.FC<CustomCodeModalProps> = ({ isOpen, onClose, webs
 
     const [editingSnippet, setEditingSnippet] = useState<Partial<CustomCodeSnippet> | null>(null);
 
-    useEffect(() => {
-        if (isOpen && websiteId) {
-            loadSnippets();
-        }
-    }, [isOpen, websiteId]);
-
-    const loadSnippets = async () => {
+    const loadSnippets = useCallback(async () => {
         setIsLoading(true);
         const data = await getCustomCodeSnippets(websiteId);
         setSnippets(data);
         setIsLoading(false);
-    };
+    }, [websiteId]);
+
+    useEffect(() => {
+        if (isOpen && websiteId) {
+            loadSnippets();
+        }
+    }, [isOpen, websiteId, loadSnippets]);
 
     const handleSave = async () => {
         if (!editingSnippet?.title || !editingSnippet.language || !editingSnippet.placement) {

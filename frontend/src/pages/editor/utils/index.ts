@@ -329,7 +329,7 @@ export function duplicateTreeElement(
   let newId: string | null = null;
 
   function process(items: EditorElement[]): EditorElement[] {
-    let result: EditorElement[] = [];
+    const result: EditorElement[] = [];
 
     for (const item of items) {
       if (item.id === id) {

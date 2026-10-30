@@ -1,25 +1,90 @@
 import nodemailer from "nodemailer";
 
+export interface SentTestEmail {
+  toEmail: string;
+  otp: string;
+  purpose: "SIGNUP" | "LOGIN";
+  sentAt: Date;
+}
+
+export const emailTestTransport: SentTestEmail[] = [];
+
+let isolatedTestTransportExplicitlyEnabled = false;
+
+export function enableIsolatedTestTransport(): void {
+  isolatedTestTransportExplicitlyEnabled = true;
+}
+
+export function disableIsolatedTestTransport(): void {
+  isolatedTestTransportExplicitlyEnabled = false;
+  emailTestTransport.length = 0;
+}
+
+export function isIsolatedTestTransportEnabled(): boolean {
+  return (
+    isolatedTestTransportExplicitlyEnabled ||
+    (process.env.NODE_ENV === "test" && process.env.ENABLE_TEST_OTP_TRANSPORT === "true")
+  );
+}
+
+export function clearEmailTestTransport(): void {
+  emailTestTransport.length = 0;
+}
+
+export function getLastSentOtp(email?: string): string | undefined {
+  if (!isIsolatedTestTransportEnabled()) {
+    return undefined;
+  }
+  if (email) {
+    const matching = emailTestTransport.filter((e) => e.toEmail.toLowerCase() === email.toLowerCase());
+    return matching[matching.length - 1]?.otp;
+  }
+  return emailTestTransport[emailTestTransport.length - 1]?.otp;
+}
+
 export async function sendOtpEmail(
   toEmail: string,
   otp: string,
   purpose: "SIGNUP" | "LOGIN"
 ): Promise<void> {
+  // Capture into isolated test transport ONLY when explicitly enabled for isolated tests
+  if (isIsolatedTestTransportEnabled()) {
+    emailTestTransport.push({
+      toEmail,
+      otp,
+      purpose,
+      sentAt: new Date(),
+    });
+  }
+
   const smtpHost = process.env.SMTP_HOST;
   const smtpPort = Number(process.env.SMTP_PORT || 587);
   const smtpUser = process.env.SMTP_USER;
   const smtpPassword = process.env.SMTP_PASSWORD;
   const smtpFrom = process.env.SMTP_FROM || smtpUser;
 
-  if (!smtpHost || !smtpUser || !smtpPassword || !smtpFrom) {
-    console.log(`\n==================================================`);
-    console.log(`[EMAIL OTP] (SIMULATED - NO SMTP SETUP) Sent to: ${toEmail}`);
-    console.log(`[EMAIL OTP] Purpose: ${purpose}`);
-    console.log(`[EMAIL OTP] OTP Code: ${otp}`);
-    console.log(`==================================================\n`);
+  const hasSmtpConfig = Boolean(smtpHost && smtpUser && smtpPassword && smtpFrom);
+  const isProduction = process.env.NODE_ENV === "production";
+
+  // Production requirement: missing SMTP configuration must fail clearly, not silently simulate delivery
+  if (isProduction && !hasSmtpConfig) {
+    console.error("[EMAIL SERVICE] Error: SMTP configuration is missing in production environment");
+    throw new Error("SMTP configuration is missing. Cannot send verification email in production.");
+  }
+
+  // In test mode with isolated transport enabled, return after capture without network calls
+  if (isIsolatedTestTransportEnabled()) {
+    console.log(`[EMAIL SERVICE] OTP dispatched to ${toEmail} via isolated test transport (purpose: ${purpose})`);
     return;
   }
 
+  // In development without SMTP config, log simulated delivery without plaintext OTP
+  if (!hasSmtpConfig) {
+    console.log(`[EMAIL SERVICE] (DEVELOPMENT SIMULATION) OTP dispatched to ${toEmail} (purpose: ${purpose})`);
+    return;
+  }
+
+  // Real SMTP integration via Nodemailer
   const transporter = nodemailer.createTransport({
     host: smtpHost,
     port: smtpPort,
@@ -66,12 +131,6 @@ If you did not request this code, please ignore this email.
     </div>
   `;
 
-  console.log(`\n==================================================`);
-  console.log(`[EMAIL OTP] Sent to: ${toEmail}`);
-  console.log(`[EMAIL OTP] Purpose: ${purpose}`);
-  console.log(`[EMAIL OTP] OTP Code: ${otp}`);
-  console.log(`==================================================\n`);
-
   try {
     const info = await transporter.sendMail({
       from: smtpFrom,
@@ -81,12 +140,9 @@ If you did not request this code, please ignore this email.
       html: htmlContent,
     });
 
-    console.log(
-      `[EMAIL SERVICE] Email successfully sent to ${toEmail}`
-    );
-    console.log(`[EMAIL SERVICE] Message ID: ${info.messageId}`);
+    console.log(`[EMAIL SERVICE] Email successfully sent to ${toEmail} (Message ID: ${info.messageId})`);
   } catch (error) {
-    console.error("[EMAIL SERVICE] Failed to send email:", error);
+    console.error("[EMAIL SERVICE] Failed to send email via SMTP:", error);
     throw error;
   }
 }

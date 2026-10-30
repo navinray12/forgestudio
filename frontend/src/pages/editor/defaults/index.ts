@@ -892,83 +892,6 @@ export function createDefaultElement(type: ElementType): EditorElement {
           backgroundColor: "transparent",
         },
       };
-    case "price-table":
-      return {
-        id,
-        type: "price-table",
-        content: "Price Table",
-        pricingColumns: 3,
-        pricingGap: 24,
-        pricingCardBg: "#ffffff",
-        pricingCardBorder: "#e2e8f0",
-        pricingHighlightColor: "#2563eb",
-        pricingBtnBg: "#2563eb",
-        pricingBtnColor: "#ffffff",
-        pricingPlans: [
-          {
-            id: "1",
-            name: "Starter",
-            price: "$19",
-            period: "/ month",
-            description: "Essential tools for personal projects & freelancers.",
-            isPopular: false,
-            buttonText: "Get Started",
-            buttonUrl: "#",
-            features: [
-              { id: "f1", text: "5 Projects included", included: true },
-              { id: "f2", text: "10GB SSD Storage", included: true },
-              { id: "f3", text: "Basic Analytics", included: true },
-              { id: "f4", text: "Custom Domain", included: false },
-              { id: "f5", text: "24/7 Dedicated Support", included: false },
-            ],
-          },
-          {
-            id: "2",
-            name: "Professional",
-            price: "$49",
-            period: "/ month",
-            description: "Best for growing teams & expanding SaaS startups.",
-            isPopular: true,
-            badgeText: "MOST POPULAR",
-            buttonText: "Start Free Trial",
-            buttonUrl: "#",
-            features: [
-              { id: "f1", text: "Unlimited Projects", included: true },
-              { id: "f2", text: "100GB SSD Storage", included: true },
-              { id: "f3", text: "Advanced Analytics & Reports", included: true },
-              { id: "f4", text: "Custom Domain & SSL", included: true },
-              { id: "f5", text: "Priority Support", included: true },
-            ],
-          },
-          {
-            id: "3",
-            name: "Enterprise",
-            price: "$99",
-            period: "/ month",
-            description: "Advanced security, custom SLA, and dedicated scale.",
-            isPopular: false,
-            buttonText: "Contact Sales",
-            buttonUrl: "#",
-            features: [
-              { id: "f1", text: "Unlimited Everything", included: true },
-              { id: "f2", text: "1TB High Speed Storage", included: true },
-              { id: "f3", text: "Custom Analytics & Export", included: true },
-              { id: "f4", text: "Multi-Region Cloud Hosting", included: true },
-              { id: "f5", text: "24/7 Dedicated Account Manager", included: true },
-            ],
-          },
-        ],
-        styles: {
-          width: "100%",
-          marginTop: "24px",
-          marginBottom: "24px",
-          paddingTop: "16px",
-          paddingRight: "16px",
-          paddingBottom: "16px",
-          paddingLeft: "16px",
-          backgroundColor: "transparent",
-        },
-      };
     case "price-list":
       return {
         id,
@@ -2266,6 +2189,91 @@ export function createDefaultElement(type: ElementType): EditorElement {
           backgroundColor: "#ffffff",
           borderRadius: "16px",
           boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+        },
+      };
+
+    case "soundcloud":
+      return {
+        id,
+        type: "soundcloud",
+        content: "https://soundcloud.com/forss/flickermood",
+        styles: {
+          width: "100%",
+          marginTop: "16px",
+          marginBottom: "16px",
+          borderRadius: "12px",
+        },
+      } as any;
+
+    case "link-in-bio":
+      return {
+        id,
+        type: "link-in-bio",
+        content: "@username",
+        bioName: "@username",
+        bioTagline: "Digital Creator & Designer",
+        bioAvatarUrl: "",
+        bioLinks: [
+          { id: `bio_1`, label: "My Portfolio", url: "https://example.com", icon: "🌐", badge: "New" },
+          { id: `bio_2`, label: "Subscribe to Newsletter", url: "#", icon: "📩" },
+          { id: `bio_3`, label: "Latest Project", url: "#", icon: "⚡" },
+        ],
+        styles: {
+          width: "100%",
+          maxWidth: "420px",
+          marginTop: "20px",
+          marginBottom: "20px",
+        },
+      } as any;
+
+    case "image-box":
+      return {
+        id,
+        type: "image-box",
+        title: "Feature Highlight",
+        content: "Describe your key product feature or benefit in concise detail.",
+        src: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&auto=format&fit=crop&q=80",
+        href: "#",
+        imageBoxPosition: "top",
+        styles: {
+          width: "100%",
+          marginTop: "16px",
+          marginBottom: "16px",
+          borderRadius: "12px",
+        },
+      };
+
+    case "icon-box":
+      return {
+        id,
+        type: "icon-box",
+        title: "Lightning Performance",
+        content: "Optimized static output delivers instantaneous sub-second page loads worldwide.",
+        iconName: "zap",
+        icon: "⚡",
+        iconBoxPosition: "top",
+        styles: {
+          width: "100%",
+          marginTop: "16px",
+          marginBottom: "16px",
+          borderRadius: "12px",
+        },
+      };
+
+    case "icon-list":
+      return {
+        id,
+        type: "icon-list",
+        content: "Features Checklist",
+        iconListItems: [
+          { id: `il_1`, text: "High priority SLA support", icon: "✓", color: "#10b981" },
+          { id: `il_2`, text: "Unlimited custom domains", icon: "✓", color: "#10b981" },
+          { id: `il_3`, text: "Advanced analytics dashboard", icon: "✓", color: "#10b981" },
+        ],
+        styles: {
+          width: "100%",
+          marginTop: "12px",
+          marginBottom: "12px",
         },
       };
 

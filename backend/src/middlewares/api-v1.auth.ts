@@ -2,7 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 import crypto from "crypto";
 import { prisma } from "../config/prisma.js";
 import { AUTH_COOKIE_NAME } from "../config/auth.js";
-import { verifyApiKey } from "../services/apiKey.service.js";
+import { verifyApiKey, CANONICAL_SCOPES, type CanonicalScope } from "../services/apiKey.service.js";
 
 function hashToken(token: string): string {
   return crypto.createHash("sha256").update(token).digest("hex");
@@ -19,20 +19,60 @@ export async function authenticateApiV1(
     if (authHeader && authHeader.startsWith("Bearer ")) {
       const token = authHeader.substring(7).trim();
 
+      if (!token) {
+        return res.status(401).json({
+          success: false,
+          error: {
+            code: "UNAUTHORIZED",
+            message: "Missing token in authorization header.",
+          },
+        });
+      }
+
       // 1. Check Developer API Keys
       const keyResult = await verifyApiKey(token);
       if (keyResult) {
-        if ("error" in keyResult && keyResult.error === "REVOKED") {
-          return res.status(401).json({
-            success: false,
-            error: {
-              code: "UNAUTHORIZED",
-              message: "API key has been revoked.",
-            },
-          });
+        if ("error" in keyResult) {
+          if (keyResult.error === "REVOKED") {
+            return res.status(401).json({
+              success: false,
+              error: {
+                code: "REVOKED_API_KEY",
+                message: "API key has been revoked.",
+              },
+            });
+          }
+          if (keyResult.error === "EXPIRED") {
+            return res.status(401).json({
+              success: false,
+              error: {
+                code: "EXPIRED_API_KEY",
+                message: "API key has expired.",
+              },
+            });
+          }
+          if (keyResult.error === "SUSPENDED") {
+            return res.status(403).json({
+              success: false,
+              error: {
+                code: "ACCOUNT_SUSPENDED",
+                message: "User account has been suspended.",
+              },
+            });
+          }
         }
 
         if ("user" in keyResult && keyResult.user) {
+          if (keyResult.user.status === "SUSPENDED") {
+            return res.status(403).json({
+              success: false,
+              error: {
+                code: "ACCOUNT_SUSPENDED",
+                message: "User account has been suspended.",
+              },
+            });
+          }
+
           res.locals.user = keyResult.user;
           res.locals.apiKey = keyResult.apiKey;
           res.locals.authType = "API_KEY";
@@ -47,7 +87,27 @@ export async function authenticateApiV1(
         include: { user: true },
       });
 
-      if (session && !session.revokedAt && session.expiresAt > new Date()) {
+      if (session) {
+        if (session.revokedAt || session.expiresAt <= new Date()) {
+          return res.status(401).json({
+            success: false,
+            error: {
+              code: "UNAUTHORIZED",
+              message: "Session has expired or was revoked.",
+            },
+          });
+        }
+
+        if (session.user.status === "SUSPENDED") {
+          return res.status(403).json({
+            success: false,
+            error: {
+              code: "ACCOUNT_SUSPENDED",
+              message: "User account has been suspended.",
+            },
+          });
+        }
+
         await prisma.session.update({
           where: { id: session.id },
           data: { lastUsedAt: new Date() },
@@ -60,7 +120,7 @@ export async function authenticateApiV1(
       }
     }
 
-    // 3. Check Session Cookie fallback
+    // 3. Check Session Cookie fallback (First-party dashboard browser session)
     const cookieToken = req.cookies?.[AUTH_COOKIE_NAME];
     if (cookieToken) {
       const cookieHash = hashToken(cookieToken);
@@ -70,6 +130,16 @@ export async function authenticateApiV1(
       });
 
       if (cookieSession && !cookieSession.revokedAt && cookieSession.expiresAt > new Date()) {
+        if (cookieSession.user.status === "SUSPENDED") {
+          return res.status(403).json({
+            success: false,
+            error: {
+              code: "ACCOUNT_SUSPENDED",
+              message: "User account has been suspended.",
+            },
+          });
+        }
+
         await prisma.session.update({
           where: { id: cookieSession.id },
           data: { lastUsedAt: new Date() },
@@ -82,7 +152,7 @@ export async function authenticateApiV1(
       }
     }
 
-    // Unauthenticated
+    // Fail closed on unauthenticated request
     return res.status(401).json({
       success: false,
       error: {
@@ -101,21 +171,37 @@ export async function authenticateApiV1(
   }
 }
 
-export function requireApiV1Scope(requiredScope: string) {
+export function requireApiV1Scope(requiredScope: CanonicalScope | string) {
   return (req: Request, res: Response, next: NextFunction) => {
+    // Fail closed if security context is missing
+    if (!res.locals.user) {
+      return res.status(401).json({
+        success: false,
+        error: {
+          code: "UNAUTHORIZED",
+          message: "Authentication context missing.",
+        },
+      });
+    }
+
     // If authenticated via API Key, verify scopes
     if (res.locals.authType === "API_KEY" && res.locals.apiKey) {
-      const scopes = Array.isArray(res.locals.apiKey.scopes)
+      const rawScopes: string[] = Array.isArray(res.locals.apiKey.scopes)
         ? res.locals.apiKey.scopes
         : [];
 
-      const hasScope =
-        scopes.includes(requiredScope) ||
-        scopes.includes("*") ||
-        scopes.includes("all") ||
-        (requiredScope.endsWith(":read") && scopes.includes(requiredScope.replace(":read", ":write")));
+      // Check for privileged wildcard scope - restrict wildcard to super admins only
+      const userRole = res.locals.user.role;
+      const isSuperAdmin = userRole === "SUPER_ADMIN" || userRole === "PLATFORM_ADMIN";
 
-      if (!hasScope) {
+      const hasDirectScope = rawScopes.includes(requiredScope);
+      const hasWriteImpliesRead =
+        requiredScope === "websites:read" && rawScopes.includes("websites:write");
+      const hasWildcard = isSuperAdmin && (rawScopes.includes("*") || rawScopes.includes("all"));
+
+      const isAuthorized = hasDirectScope || hasWriteImpliesRead || hasWildcard;
+
+      if (!isAuthorized) {
         return res.status(403).json({
           success: false,
           error: {
@@ -126,7 +212,7 @@ export function requireApiV1Scope(requiredScope: string) {
       }
     }
 
-    // Sessions or authorized API keys proceed
+    // Sessions and scoped API keys proceed to resource RBAC validation in controller
     next();
   };
 }

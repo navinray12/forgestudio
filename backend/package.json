@@ -10,7 +10,15 @@
     "start": "node dist/server.js",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
-    "db:seed": "tsx prisma/seed.ts"
+    "db:seed": "tsx prisma/seed.ts",
+    "db:validate": "prisma validate",
+    "test:phase13": "tsx tests/phase13-developer-api.test.ts",
+    "test:phase7": "tsx tests/phase7-theme-cms.test.ts",
+    "test:phase6": "tsx tests/phase6-widget-parity.test.ts",
+    "test:phase5": "tsx tests/phase5-editor-stability.test.ts",
+    "test:phase4": "tsx tests/phase4-page-lifecycle.test.ts",
+    "test:phase3": "tsx tests/phase3-auth-rbac.test.ts",
+    "test:phase2": "tsx tests/phase2-admin.test.ts"
   },
   "keywords": [],
   "author": "",
@@ -56,6 +64,7 @@
     "@types/pg": "^8.23.1",
     "@types/ssh2-sftp-client": "^9.0.6",
     "@types/ws": "^8.18.1",
+    "playwright": "^1.64.1",
     "prisma": "^7.10.0",
     "tsx": "^4.23.12",
     "typescript": "^7.0.2"
