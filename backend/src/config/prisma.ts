@@ -72,6 +72,15 @@ export async function validateDatabaseSchema(): Promise<void> {
   }
   try {
     await prisma.$executeRawUnsafe(`
+      ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "suspensionReason" TEXT;
+      ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "suspendedAt" TIMESTAMP(3);
+      ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "suspendedBy" UUID;
+    `);
+  } catch (e: any) {
+    console.log("Migration check users suspension columns:", e?.message || e);
+  }
+  try {
+    await prisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "payment_webhook_events" (
         "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         "eventId" VARCHAR(255) UNIQUE NOT NULL,
