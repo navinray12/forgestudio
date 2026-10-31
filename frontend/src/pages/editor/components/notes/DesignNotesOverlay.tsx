@@ -73,14 +73,18 @@ export const DesignNotesOverlay: React.FC<DesignNotesOverlayProps> = ({
   // Initial load on mount or when website changes to seed count
   useEffect(() => {
     if (websiteId) {
-      fetchNotes();
+      queueMicrotask(() => {
+        fetchNotes();
+      });
     }
   }, [websiteId, fetchNotes]);
 
   // Re-fetch when opened
   useEffect(() => {
     if (isOpen && websiteId) {
-      fetchNotes();
+      queueMicrotask(() => {
+        fetchNotes();
+      });
     }
   }, [isOpen, websiteId, fetchNotes]);
 

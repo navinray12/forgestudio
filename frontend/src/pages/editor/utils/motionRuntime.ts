@@ -74,16 +74,22 @@ function safeQuerySelector<T extends Element = HTMLElement>(selector: string | n
   try {
     const found = document.querySelector<T>(trimmed);
     if (found) return found;
-  } catch {}
+  } catch {
+    /* invalid query selector */
+  }
   try {
     const escaped = CSS.escape ? CSS.escape(trimmed) : trimmed;
     const foundByElId = document.querySelector<T>(`[data-el-id="${escaped}"]`);
     if (foundByElId) return foundByElId;
-  } catch {}
+  } catch {
+    /* invalid attribute selector */
+  }
   try {
     const foundById = document.getElementById(trimmed);
     if (foundById) return foundById as unknown as T;
-  } catch {}
+  } catch {
+    /* getElementById fallback failure */
+  }
   return null;
 }
 
@@ -413,7 +419,7 @@ export function initMotionRuntime(root: HTMLElement | Document = document): Moti
     const rawInteractions = el.getAttribute("data-interactions");
     if (!rawInteractions) return;
 
-    let rules: InteractionRule[] = [];
+    let rules: InteractionRule[];
     try {
       rules = JSON.parse(rawInteractions);
     } catch {
@@ -547,7 +553,9 @@ export function initMotionRuntime(root: HTMLElement | Document = document): Moti
       cleanupFns.forEach((fn) => {
         try {
           fn();
-        } catch {}
+        } catch {
+          /* ignore individual cleanup error */
+        }
       });
       cleanupFns.length = 0;
 
@@ -573,7 +581,9 @@ export function initMotionRuntime(root: HTMLElement | Document = document): Moti
       cleanupFns.forEach((fn) => {
         try {
           fn();
-        } catch {}
+        } catch {
+          /* ignore individual cleanup error */
+        }
       });
       cleanupFns.length = 0;
       childController = initMotionRuntime(root);

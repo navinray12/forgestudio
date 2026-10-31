@@ -21,8 +21,10 @@ export const ShareTemplateDialog: React.FC<ShareTemplateDialogProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      setIsCopied(false);
-      setErrorMessage(null);
+      queueMicrotask(() => {
+        setIsCopied(false);
+        setErrorMessage(null);
+      });
     }
   }, [isOpen, template]);
 

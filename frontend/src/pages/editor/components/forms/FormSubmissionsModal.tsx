@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import type { FormSubmissionRecord } from "../../../../types/form.types";
 
 interface FormSubmissionsModalProps {
@@ -18,13 +18,27 @@ export default function FormSubmissionsModal({
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSubmission, setSelectedSubmission] = useState<FormSubmissionRecord | null>(null);
+  const [exporting, setExporting] = useState<"csv" | "json" | null>(null);
+  const [exportError, setExportError] = useState<string | null>(null);
 
-  const fetchSubmissions = async () => {
+  const getAuthHeaders = useCallback((): Record<string, string> => {
+    const headers: Record<string, string> = {
+      "x-requested-with": "XMLHttpRequest",
+    };
+    const token = localStorage.getItem("token");
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+    return headers;
+  }, []);
+
+  const fetchSubmissions = useCallback(async () => {
     if (!websiteId) return;
     try {
       setLoading(true);
       const res = await fetch(`${apiUrl}/api/forms/${websiteId}/submissions`, {
         credentials: "include",
+        headers: getAuthHeaders(),
       });
       const data = await res.json();
       if (res.ok && data.submissions) {
@@ -35,13 +49,15 @@ export default function FormSubmissionsModal({
     } finally {
       setLoading(false);
     }
-  };
+  }, [apiUrl, getAuthHeaders, websiteId]);
 
   useEffect(() => {
     if (isOpen && websiteId) {
-      fetchSubmissions();
+      queueMicrotask(() => {
+        fetchSubmissions();
+      });
     }
-  }, [isOpen, websiteId]);
+  }, [isOpen, websiteId, fetchSubmissions]);
 
   if (!isOpen) return null;
 
@@ -51,6 +67,7 @@ export default function FormSubmissionsModal({
       const res = await fetch(`${apiUrl}/api/forms/${websiteId}/submissions/${submissionId}`, {
         method: "DELETE",
         credentials: "include",
+        headers: getAuthHeaders(),
       });
       if (res.ok) {
         setSubmissions((prev) => prev.filter((s) => s.id !== submissionId));
@@ -61,9 +78,58 @@ export default function FormSubmissionsModal({
     }
   };
 
-  const handleExport = (format: "csv" | "json") => {
-    if (!websiteId) return;
-    window.open(`${apiUrl}/api/forms/${websiteId}/export?format=${format}`, "_blank");
+  const handleExport = async (format: "csv" | "json") => {
+    if (!websiteId || exporting) return;
+    try {
+      setExporting(format);
+      setExportError(null);
+
+      const res = await fetch(`${apiUrl}/api/forms/${websiteId}/export?format=${format}`, {
+        method: "GET",
+        credentials: "include",
+        headers: getAuthHeaders(),
+      });
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          throw new Error("Your session has expired. Please log in again to export leads.");
+        }
+        let errMessage = `Export failed with status ${res.status}`;
+        try {
+          const errData = await res.json();
+          if (errData?.message || errData?.error) {
+            errMessage = errData.message || errData.error;
+          }
+        } catch {
+          // ignore parsing error
+        }
+        throw new Error(errMessage);
+      }
+
+      const blob = await res.blob();
+      const contentDisposition = res.headers.get("content-disposition");
+      let filename = `leads-${websiteId}-${new Date().toISOString().slice(0, 10)}.${format}`;
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename=["']?([^"';]+)["']?/i);
+        if (match && match[1]) {
+          filename = match[1].trim();
+        }
+      }
+
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (err: any) {
+      console.error("Error exporting submissions:", err);
+      setExportError(err?.message || "Failed to download export file.");
+    } finally {
+      setExporting(null);
+    }
   };
 
   const filteredSubmissions = submissions.filter((s) => {
@@ -80,6 +146,9 @@ export default function FormSubmissionsModal({
       className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-md p-4 animate-in fade-in"
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="form-submissions-modal-title"
         onClick={(e) => e.stopPropagation()}
         className="w-full max-w-5xl rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[88vh]"
       >
@@ -90,7 +159,7 @@ export default function FormSubmissionsModal({
               📊
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-800">Leads & Form Submissions</h2>
+              <h2 id="form-submissions-modal-title" className="text-base font-bold text-slate-800">Leads & Form Submissions</h2>
               <p className="text-xs text-slate-500">
                 View, search, and export visitor leads captured by your site forms
               </p>
@@ -99,31 +168,51 @@ export default function FormSubmissionsModal({
 
           <div className="flex items-center gap-2">
             <button
+              type="button"
+              disabled={exporting !== null}
               onClick={() => handleExport("csv")}
-              className="rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-sm transition"
+              className="rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-sm transition disabled:opacity-50 cursor-pointer"
             >
-              Export CSV ⬇
+              {exporting === "csv" ? "Exporting CSV..." : "Export CSV ⬇"}
             </button>
             <button
+              type="button"
+              disabled={exporting !== null}
               onClick={() => handleExport("json")}
-              className="rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-sm transition"
+              className="rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-sm transition disabled:opacity-50 cursor-pointer"
             >
-              Export JSON ⬇
+              {exporting === "json" ? "Exporting JSON..." : "Export JSON ⬇"}
             </button>
             <button
+              type="button"
               onClick={onClose}
-              className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition ml-2"
+              aria-label="Close submissions modal"
+              className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition ml-2 cursor-pointer"
             >
               ✕
             </button>
           </div>
         </div>
 
+        {exportError && (
+          <div className="px-6 py-2 bg-rose-50 border-b border-rose-200 text-xs font-medium text-rose-700 flex items-center justify-between">
+            <span>⚠️ {exportError}</span>
+            <button
+              type="button"
+              onClick={() => setExportError(null)}
+              className="text-rose-500 hover:text-rose-800 font-bold ml-2 cursor-pointer"
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
+
         {/* Toolbar & Search */}
         <div className="p-4 border-b border-slate-100 flex items-center justify-between gap-4">
           <div className="relative flex-1 max-w-md">
             <input
               type="text"
+              aria-label="Search leads by name, email, or field value"
               placeholder="Search leads by name, email, or field value..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}

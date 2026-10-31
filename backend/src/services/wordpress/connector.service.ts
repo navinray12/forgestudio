@@ -12,7 +12,7 @@ import { canUserAccessResource } from "../permission.service.js";
 import { createRevision } from "../revision.service.js";
 import { transformPageToWordPress, transformPageToHTML, computeHtmlHash, sanitizeHtml, TransformedWordPressPage, TransformedHtmlPage } from "./transformer.service.js";
 import { assertSafeUrl } from "../../utils/ssrf.guard.js";
-import { validateSafeUrl, isSafeUrl } from "../../utils/ssrf.validator.js";
+import { validateSafeUrl, isSafeUrl, safeFetch } from "../../utils/ssrf.validator.js";
 import { enqueueJob, getJobById, listJobs, cancelJob, retryJob, processNextJob } from "../jobs/jobRunner.js";
 
 const db = prisma as any;
@@ -207,7 +207,7 @@ export async function sendSignedWordPressRequest(
   };
 
   try {
-    const res = await fetch(targetUrl, {
+    const res = await safeFetch(targetUrl, {
       method,
       headers,
       body: method !== "GET" ? rawBody : undefined,

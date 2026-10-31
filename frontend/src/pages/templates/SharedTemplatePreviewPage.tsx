@@ -20,8 +20,10 @@ export const SharedTemplatePreviewPage: React.FC = () => {
 
   useEffect(() => {
     if (!shareToken) {
-      setError("This template is no longer available.");
-      setIsLoading(false);
+      queueMicrotask(() => {
+        setError("This template is no longer available.");
+        setIsLoading(false);
+      });
       return;
     }
 

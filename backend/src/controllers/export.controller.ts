@@ -2,20 +2,43 @@ import { Request, Response } from "express";
 import { prisma } from "../config/prisma.js";
 import { generateAllCodeOutputs, buildProjectZipStream } from "../services/codeGenerator.service.js";
 import { buildHelloThemeZipStream, generateHelloThemeFiles } from "../services/helloTheme.service.js";
+import { getWebsiteById } from "../services/website.service.js";
+import { normalizeGlobalRole } from "../services/permission.service.js";
 
 const db = prisma as any;
 
+/**
+ * Validates and retrieves website with strict centralized authorization.
+ * Fails closed if userId or websiteId is missing or invalid.
+ */
 async function getAuthorizedWebsite(websiteId: string, userId?: string) {
-  const website = await db.website.findUnique({ where: { id: websiteId } });
-  if (!website) return null;
-  if (userId && website.userId !== userId) {
-    const collab = await db.websiteCollaborator?.findFirst?.({ where: { websiteId, userId } });
-    if (!collab) {
-      const user = await db.user.findUnique({ where: { id: userId } });
-      if (!user || !["ADMIN", "SUPER_ADMIN", "PLATFORM_ADMIN"].includes(user.role as string)) return null;
+  if (!userId || typeof userId !== "string" || !userId.trim()) {
+    return null;
+  }
+  if (!websiteId || typeof websiteId !== "string" || !websiteId.trim()) {
+    return null;
+  }
+
+  const cleanWebsiteId = websiteId.trim();
+  const cleanUserId = userId.trim();
+
+  // 1. Delegate to centralized website authorization service (handles Owner, Collaborators, Workspace & Org members)
+  try {
+    const website = await getWebsiteById(cleanWebsiteId, cleanUserId);
+    if (website) return website;
+  } catch {
+    // 2. Fallback check for global platform administrator privileges
+    const user = await db.user.findUnique({ where: { id: cleanUserId } });
+    if (user && user.role) {
+      const normRole = normalizeGlobalRole(user.role);
+      if (normRole === "SUPER_ADMIN" || normRole === "PLATFORM_ADMIN") {
+        const site = await db.website.findUnique({ where: { id: cleanWebsiteId } });
+        if (site) return site;
+      }
     }
   }
-  return website;
+
+  return null;
 }
 
 /**
@@ -24,8 +47,16 @@ async function getAuthorizedWebsite(websiteId: string, userId?: string) {
  */
 export async function getCodePreview(req: Request, res: Response) {
   try {
-    const websiteId = String(req.params.websiteId || "");
+    const websiteId = String(req.params.websiteId || "").trim();
     const userId = res.locals.user?.id || (req as any).user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Authentication required" });
+    }
+    if (!websiteId) {
+      return res.status(400).json({ success: false, message: "Website ID is required" });
+    }
+
     const scope = (req.query.scope as any) === "component" ? "component" : "full";
     const componentId = req.query.componentId ? String(req.query.componentId) : undefined;
 
@@ -57,8 +88,16 @@ export async function getCodePreview(req: Request, res: Response) {
  */
 export async function downloadProjectZip(req: Request, res: Response) {
   try {
-    const websiteId = String(req.params.websiteId || "");
+    const websiteId = String(req.params.websiteId || "").trim();
     const userId = res.locals.user?.id || (req as any).user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Authentication required" });
+    }
+    if (!websiteId) {
+      return res.status(400).json({ success: false, message: "Website ID is required" });
+    }
+
     const exportType = (req.query.type as any) || "static";
     const scope = (req.query.scope as any) === "component" ? "component" : "full";
     const componentId = req.query.componentId ? String(req.query.componentId) : undefined;

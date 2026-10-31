@@ -121,7 +121,9 @@ export async function fetchVariables(websiteId?: string): Promise<AtomicVariable
         const converted = rawVars.map(designVariableToAtomicVariable);
         try {
           localStorage.setItem(storageKey, JSON.stringify(converted));
-        } catch (_) {}
+        } catch (_) {
+          /* ignore localStorage write failure in restricted context */
+        }
         return converted;
       }
     } catch (_err) {
@@ -146,7 +148,9 @@ export async function fetchVariables(websiteId?: string): Promise<AtomicVariable
           return converted;
         }
       }
-    } catch (_) {}
+    } catch (_) {
+      /* ignore malformed cache read failure */
+    }
 
     // Return empty list for a clean website with no tokens (prevent cross-site pollution)
     return [];
@@ -189,11 +193,13 @@ export async function saveVariables(variables: AtomicVariable[], websiteId?: str
           })
         );
       }
-    } catch (_) {}
+    } catch (_) {
+      /* ignore event dispatch failure in non-browser context */
+    }
 
     // 3. Persist to backend database via canonical endpoint
     try {
-      let res = await fetch(`${apiUrl}/api/websites/${websiteId}/design-system`, {
+      const res = await fetch(`${apiUrl}/api/websites/${websiteId}/design-system`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

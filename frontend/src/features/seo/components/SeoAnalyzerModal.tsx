@@ -88,11 +88,13 @@ export const SeoAnalyzerModal: React.FC<SeoAnalyzerModalProps> = ({
   // Sync initial alt texts
   useEffect(() => {
     if (imageResult.items.length > 0) {
-      const initial: Record<string, string> = {};
-      imageResult.items.forEach((item) => {
-        initial[item.elementId] = item.alt || "";
+      queueMicrotask(() => {
+        const initial: Record<string, string> = {};
+        imageResult.items.forEach((item) => {
+          initial[item.elementId] = item.alt || "";
+        });
+        setInPlaceAltTexts(initial);
       });
-      setInPlaceAltTexts(initial);
     }
   }, [imageResult]);
 

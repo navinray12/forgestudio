@@ -25,10 +25,6 @@ export default function WhiteLabelPanel() {
 
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-  useEffect(() => {
-    fetchWhiteLabelConfig();
-  }, []);
-
   const fetchWhiteLabelConfig = async () => {
     try {
       setLoading(true);
@@ -57,6 +53,12 @@ export default function WhiteLabelPanel() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      fetchWhiteLabelConfig();
+    });
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

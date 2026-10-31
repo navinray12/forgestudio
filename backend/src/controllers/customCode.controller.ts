@@ -1,10 +1,12 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { prisma } from '../config/prisma.js';
 import * as acorn from 'acorn';
+import { authorizeResourceAccess } from '../services/permission.service.js';
 
-export const getCustomCodeSnippets = async (req: Request, res: Response) => {
+export const getCustomCodeSnippets = async (req: Request, res: Response, next?: NextFunction) => {
     try {
         const { websiteId } = req.params;
+        const user = res.locals.user || (req as any).user;
 
         if (!websiteId) {
             return res.status(400).json({ success: false, message: 'Website ID is required' });
@@ -15,13 +17,14 @@ export const getCustomCodeSnippets = async (req: Request, res: Response) => {
             return res.status(200).json({ success: true, snippets: [] });
         }
 
+        // Defense-in-depth: Verify caller has at least VIEW capability on the website
+        if (user) {
+            await authorizeResourceAccess(user.id, websiteId as string, "*", "VIEW");
+        }
+
         const snippets = await customCodeSnippetModel.findMany({
             where: {
                 websiteId: websiteId as string,
-                // Ensure implicit verification that user has access to website
-                website: {
-                    userId: res.locals.user?.id
-                }
             },
             orderBy: {
                 createdAt: 'asc'
@@ -30,14 +33,16 @@ export const getCustomCodeSnippets = async (req: Request, res: Response) => {
 
         res.status(200).json({ success: true, snippets });
     } catch (error) {
+        if (next) return next(error);
         console.error('Error fetching custom code snippets:', error);
         res.status(500).json({ success: false, message: 'Internal server error' });
     }
 };
 
-export const createCustomCodeSnippet = async (req: Request, res: Response) => {
+export const createCustomCodeSnippet = async (req: Request, res: Response, next?: NextFunction) => {
     try {
         const { websiteId } = req.params;
+        const user = res.locals.user || (req as any).user;
         const { title, language, code, placement, scope, pageId, isActive, conditions, priority, status, scheduledFor } = req.body;
 
         if (!websiteId || !title || !language || !placement) {
@@ -52,13 +57,9 @@ export const createCustomCodeSnippet = async (req: Request, res: Response) => {
             }
         }
 
-        // Verify website ownership
-        const website = await prisma.website.findUnique({
-            where: { id: websiteId as string }
-        });
-
-        if (!website || website.userId !== res.locals.user?.id) {
-            return res.status(403).json({ success: false, message: 'Unauthorized access to website' });
+        // Defense-in-depth: Verify caller has CUSTOM_CODE capability on the website
+        if (user) {
+            await authorizeResourceAccess(user.id, websiteId as string, "*", "CUSTOM_CODE");
         }
 
         const customCodeSnippetModel = (prisma as any)?.customCodeSnippet;
@@ -85,14 +86,16 @@ export const createCustomCodeSnippet = async (req: Request, res: Response) => {
 
         res.status(201).json({ success: true, snippet: newSnippet });
     } catch (error) {
+        if (next) return next(error);
         console.error('Error creating custom code snippet:', error);
         res.status(500).json({ success: false, message: 'Internal server error' });
     }
 };
 
-export const updateCustomCodeSnippet = async (req: Request, res: Response) => {
+export const updateCustomCodeSnippet = async (req: Request, res: Response, next?: NextFunction) => {
     try {
         const { id } = req.params;
+        const user = res.locals.user || (req as any).user;
         const { title, language, code, placement, scope, pageId, isActive, conditions, priority, status, scheduledFor } = req.body;
 
         if (language === 'JS' && code) {
@@ -108,14 +111,19 @@ export const updateCustomCodeSnippet = async (req: Request, res: Response) => {
             return res.status(500).json({ success: false, message: 'Custom code model not initialized' });
         }
 
-        // Verify snippet exists and user owns it via website
+        // Verify snippet exists
         const existingSnippet = await customCodeSnippetModel.findUnique({
             where: { id: id as string },
             include: { website: true }
         });
 
-        if (!existingSnippet || existingSnippet.website.userId !== res.locals.user?.id) {
-            return res.status(403).json({ success: false, message: 'Unauthorized or snippet not found' });
+        if (!existingSnippet) {
+            return res.status(404).json({ success: false, message: 'Snippet not found' });
+        }
+
+        // Defense-in-depth: Verify caller has CUSTOM_CODE capability on snippet's website
+        if (user) {
+            await authorizeResourceAccess(user.id, existingSnippet.websiteId, "*", "CUSTOM_CODE");
         }
 
         const updatedSnippet = await customCodeSnippetModel.update({
@@ -137,14 +145,16 @@ export const updateCustomCodeSnippet = async (req: Request, res: Response) => {
 
         res.status(200).json({ success: true, snippet: updatedSnippet });
     } catch (error) {
+        if (next) return next(error);
         console.error('Error updating custom code snippet:', error);
         res.status(500).json({ success: false, message: 'Internal server error' });
     }
 };
 
-export const deleteCustomCodeSnippet = async (req: Request, res: Response) => {
+export const deleteCustomCodeSnippet = async (req: Request, res: Response, next?: NextFunction) => {
     try {
         const { id } = req.params;
+        const user = res.locals.user || (req as any).user;
 
         const customCodeSnippetModel = (prisma as any)?.customCodeSnippet;
         if (!customCodeSnippetModel) {
@@ -156,8 +166,13 @@ export const deleteCustomCodeSnippet = async (req: Request, res: Response) => {
             include: { website: true }
         });
 
-        if (!existingSnippet || existingSnippet.website.userId !== res.locals.user?.id) {
-            return res.status(403).json({ success: false, message: 'Unauthorized or snippet not found' });
+        if (!existingSnippet) {
+            return res.status(404).json({ success: false, message: 'Snippet not found' });
+        }
+
+        // Defense-in-depth: Verify caller has CUSTOM_CODE capability on snippet's website
+        if (user) {
+            await authorizeResourceAccess(user.id, existingSnippet.websiteId, "*", "CUSTOM_CODE");
         }
 
         await customCodeSnippetModel.delete({
@@ -166,6 +181,7 @@ export const deleteCustomCodeSnippet = async (req: Request, res: Response) => {
 
         res.status(200).json({ success: true, message: 'Snippet deleted successfully' });
     } catch (error) {
+        if (next) return next(error);
         console.error('Error deleting custom code snippet:', error);
         res.status(500).json({ success: false, message: 'Internal server error' });
     }

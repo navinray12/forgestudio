@@ -12,6 +12,18 @@ interface UseEditorHistoryProps {
   isLoadingWebsite?: boolean;
 }
 
+interface HistoryState {
+  history: EditorElement[][];
+  historyIndex: number;
+}
+
+function cloneSnapshot<T>(data: T): T {
+  if (typeof structuredClone === "function") {
+    return structuredClone(data);
+  }
+  return JSON.parse(JSON.stringify(data));
+}
+
 export function useEditorHistory({
   elements,
   setElements,
@@ -21,10 +33,22 @@ export function useEditorHistory({
   maxHistory = 50,
   isLoadingWebsite = false,
 }: UseEditorHistoryProps) {
-  const [history, setHistory] = useState<EditorElement[][]>([]);
-  const [historyIndex, setHistoryIndex] = useState<number>(-1);
+  const [historyState, setHistoryState] = useState<HistoryState>(() => {
+    if (!isLoadingWebsite && elements && elements.length > 0) {
+      const initialClone = cloneSnapshot(elements);
+      return {
+        history: [initialClone],
+        historyIndex: 0,
+      };
+    }
+    return {
+      history: [],
+      historyIndex: -1,
+    };
+  });
+
   const isUndoRedoActionRef = useRef<boolean>(false);
-  const isInitializedRef = useRef<boolean>(false);
+  const snapshotStringCache = useRef<WeakMap<EditorElement[], string>>(new WeakMap());
 
   // Initialize or record changes to history
   useEffect(() => {
@@ -35,40 +59,67 @@ export function useEditorHistory({
       return;
     }
 
-    // Protection against initial empty state before website data arrives
-    if (!isInitializedRef.current) {
-      if (elements.length > 0) {
-        setHistory([JSON.parse(JSON.stringify(elements))]);
-        setHistoryIndex(0);
-        isInitializedRef.current = true;
+    if (elements.length === 0) return;
+
+    setHistoryState((prevState) => {
+      const { history, historyIndex } = prevState;
+
+      // Protection against initial empty state before website data arrives
+      if (history.length === 0) {
+        const currentSnapshotStr = JSON.stringify(elements);
+        const snapshot: EditorElement[] = JSON.parse(currentSnapshotStr);
+        snapshotStringCache.current.set(snapshot, currentSnapshotStr);
+        return {
+          history: [snapshot],
+          historyIndex: 0,
+        };
       }
-      return;
-    }
 
-    // Check if the current elements actually differ from the latest history snapshot
-    setHistory((prev) => {
+      const currentIndex = historyIndex >= 0 ? historyIndex : history.length - 1;
+      const currentSnapshot = history[currentIndex];
+
+      // Quick reference check: identical reference means no changes were made
+      if (currentSnapshot && elements === currentSnapshot) {
+        return prevState;
+      }
+
+      // Serialize current elements once
       const currentSnapshotStr = JSON.stringify(elements);
-      const currentIndex = historyIndex >= 0 ? historyIndex : prev.length - 1;
-      const latestInHistoryStr = prev[currentIndex] ? JSON.stringify(prev[currentIndex]) : null;
 
+      // Fast cache lookup for previous snapshot's string (O(1) without re-stringifying)
+      let latestInHistoryStr = currentSnapshot ? snapshotStringCache.current.get(currentSnapshot) : null;
+      if (latestInHistoryStr === undefined && currentSnapshot) {
+        latestInHistoryStr = JSON.stringify(currentSnapshot);
+        snapshotStringCache.current.set(currentSnapshot, latestInHistoryStr);
+      }
+
+      // Check if current elements actually differ from the latest history snapshot
       if (currentSnapshotStr === latestInHistoryStr) {
-        return prev;
+        return prevState;
       }
 
       // Drop redo forward branch and append new snapshot
-      const sliced = historyIndex >= 0 ? prev.slice(0, historyIndex + 1) : prev;
-      const updated = [...sliced, JSON.parse(JSON.stringify(elements))];
+      // Re-use currentSnapshotStr to avoid double stringification
+      const sliced = historyIndex >= 0 ? history.slice(0, historyIndex + 1) : history;
+      const newSnapshot: EditorElement[] = JSON.parse(currentSnapshotStr);
+      snapshotStringCache.current.set(newSnapshot, currentSnapshotStr);
+
+      const updated = [...sliced, newSnapshot];
 
       // Enforce bounded history queue
       if (updated.length > maxHistory) {
         updated.shift();
       }
-      return updated;
-    });
 
-    setHistoryIndex((prevIndex) => {
-      if (prevIndex < 0) return 0;
-      return Math.min(prevIndex + 1, maxHistory - 1);
+      const nextIndex = Math.min(
+        historyIndex >= 0 ? historyIndex + 1 : updated.length - 1,
+        maxHistory - 1
+      );
+
+      return {
+        history: updated,
+        historyIndex: nextIndex,
+      };
     });
   }, [elements, isLoadingWebsite, maxHistory]);
 
@@ -76,21 +127,28 @@ export function useEditorHistory({
    * Reset history stack (e.g. on page switch or revision restoration)
    */
   const resetHistory = useCallback((initialSnapshot: EditorElement[]) => {
-    const clone = JSON.parse(JSON.stringify(initialSnapshot || []));
-    setHistory([clone]);
-    setHistoryIndex(0);
-    isInitializedRef.current = true;
+    const safeSnapshot = initialSnapshot || [];
+    const str = JSON.stringify(safeSnapshot);
+    const clone: EditorElement[] = JSON.parse(str);
+    snapshotStringCache.current.set(clone, str);
+    setHistoryState({
+      history: [clone],
+      historyIndex: 0,
+    });
   }, []);
 
   /**
    * Undo to previous snapshot
    */
   const undo = useCallback(() => {
-    if (historyIndex > 0 && history[historyIndex - 1]) {
+    if (historyState.historyIndex > 0 && historyState.history[historyState.historyIndex - 1]) {
       isUndoRedoActionRef.current = true;
-      const targetIndex = historyIndex - 1;
-      const targetSnapshot: EditorElement[] = JSON.parse(JSON.stringify(history[targetIndex]));
-      setHistoryIndex(targetIndex);
+      const targetIndex = historyState.historyIndex - 1;
+      const targetSnapshot: EditorElement[] = cloneSnapshot(historyState.history[targetIndex]);
+      setHistoryState((prev) => ({
+        ...prev,
+        historyIndex: targetIndex,
+      }));
       setElements(targetSnapshot);
 
       // Preserve selection if element still exists in restored snapshot
@@ -102,17 +160,24 @@ export function useEditorHistory({
         }
       }
     }
-  }, [historyIndex, history, selectedId, setElements, setSelectedId, setSelectedIds]);
+  }, [historyState, selectedId, setElements, setSelectedId, setSelectedIds]);
 
   /**
    * Redo to next snapshot
    */
   const redo = useCallback(() => {
-    if (historyIndex < history.length - 1 && history[historyIndex + 1]) {
+    if (
+      historyState.historyIndex >= 0 &&
+      historyState.historyIndex < historyState.history.length - 1 &&
+      historyState.history[historyState.historyIndex + 1]
+    ) {
       isUndoRedoActionRef.current = true;
-      const targetIndex = historyIndex + 1;
-      const targetSnapshot: EditorElement[] = JSON.parse(JSON.stringify(history[targetIndex]));
-      setHistoryIndex(targetIndex);
+      const targetIndex = historyState.historyIndex + 1;
+      const targetSnapshot: EditorElement[] = cloneSnapshot(historyState.history[targetIndex]);
+      setHistoryState((prev) => ({
+        ...prev,
+        historyIndex: targetIndex,
+      }));
       setElements(targetSnapshot);
 
       // Preserve selection if element still exists
@@ -124,14 +189,16 @@ export function useEditorHistory({
         }
       }
     }
-  }, [historyIndex, history, selectedId, setElements, setSelectedId, setSelectedIds]);
+  }, [historyState, selectedId, setElements, setSelectedId, setSelectedIds]);
 
-  const canUndo = historyIndex > 0;
-  const canRedo = historyIndex >= 0 && historyIndex < history.length - 1;
+  const canUndo = historyState.historyIndex > 0;
+  const canRedo =
+    historyState.historyIndex >= 0 &&
+    historyState.historyIndex < historyState.history.length - 1;
 
   return {
-    history,
-    historyIndex,
+    history: historyState.history,
+    historyIndex: historyState.historyIndex,
     undo,
     redo,
     canUndo,

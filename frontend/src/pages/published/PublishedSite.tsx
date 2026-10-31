@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import { useParams } from "react-router-dom";
 import {
     resolveElementStyles,
@@ -894,7 +894,7 @@ function PublishedSite() {
     const [_themeRules, _setThemeRules] = useState<any[]>([]);
     const [statementOpen, setStatementOpen] = useState<boolean>(false);
     const [experiments, setExperiments] = useState<any[]>([]);
-    const [assignedVariants, setAssignedVariants] = useState<Record<string, string>>({});
+    const assignedVariantsRef = useRef<Record<string, string>>({});
 
     // F-339 & F-344: Compile Design System CSS Variables (:root) and Global Classes
     const compiledDesignTokensCss = useMemo(() => {
@@ -1032,7 +1032,9 @@ function PublishedSite() {
                 variantId = selected;
                 try {
                     localStorage.setItem(storageKey, variantId);
-                } catch {}
+                } catch {
+                    /* ignore storage write error in private browsing */
+                }
             }
 
             assignments[exp.id] = variantId;
@@ -1045,14 +1047,14 @@ function PublishedSite() {
             }).catch(() => {});
         }
 
-        setAssignedVariants(assignments);
+        assignedVariantsRef.current = assignments;
     }, [experiments, websiteId, apiUrl]);
 
     const recordConversionForGoal = (action: string) => {
         if (!experiments || experiments.length === 0 || !websiteId) return;
         const matching = experiments.filter((e) => e.status === "RUNNING" && e.goalAction === action);
         for (const exp of matching) {
-            const variantId = assignedVariants[exp.id] || localStorage.getItem(`fs_exp_${exp.id}`);
+            const variantId = assignedVariantsRef.current[exp.id] || localStorage.getItem(`fs_exp_${exp.id}`);
             if (variantId) {
                 fetch(`${apiUrl}/api/websites/${websiteId}/experiments/${exp.id}/conversion`, {
                     method: "POST",

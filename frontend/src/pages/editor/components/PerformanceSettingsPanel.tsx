@@ -18,29 +18,26 @@ interface PerformanceSettingsPanelProps {
     onChange: (newSettings: PerformanceSettings) => void;
 }
 
-export default function PerformanceSettingsPanel({
-    settings,
-    onChange,
-}: PerformanceSettingsPanelProps) {
-    const toggle = (key: keyof PerformanceSettings) => {
-        onChange({ ...settings, [key]: !settings[key] });
-    };
+interface OptionRowProps {
+    label: string;
+    desc: string;
+    id: keyof PerformanceSettings;
+    active: boolean;
+    tag: string;
+    onToggle: (id: keyof PerformanceSettings) => void;
+}
 
-    const OptionRow = ({
-        label,
-        desc,
-        id,
-        active,
-        tag
-    }: {
-        label: string;
-        desc: string;
-        id: keyof PerformanceSettings;
-        active: boolean;
-        tag: string;
-    }) => (
+function OptionRow({
+    label,
+    desc,
+    id,
+    active,
+    tag,
+    onToggle,
+}: OptionRowProps) {
+    return (
         <div
-            onClick={() => toggle(id)}
+            onClick={() => onToggle(id)}
             className={`p-3 rounded-xl border flex items-start gap-3 cursor-pointer transition-all ${active
                     ? "border-emerald-500 bg-emerald-50 shadow-sm"
                     : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
@@ -67,6 +64,15 @@ export default function PerformanceSettingsPanel({
             </div>
         </div>
     );
+}
+
+export default function PerformanceSettingsPanel({
+    settings,
+    onChange,
+}: PerformanceSettingsPanelProps) {
+    const toggle = (key: keyof PerformanceSettings) => {
+        onChange({ ...settings, [key]: !settings[key] });
+    };
 
     return (
         <div className="space-y-3 pt-1">
@@ -76,6 +82,7 @@ export default function PerformanceSettingsPanel({
                 active={!!settings.f351_flattenDom}
                 id="f351_flattenDom"
                 tag="F-351"
+                onToggle={toggle}
             />
             <OptionRow
                 label="Lazy Load Media"
@@ -83,6 +90,7 @@ export default function PerformanceSettingsPanel({
                 active={!!settings.f352_lazyImages}
                 id="f352_lazyImages"
                 tag="F-352"
+                onToggle={toggle}
             />
             <OptionRow
                 label="Minify Page Styles"
@@ -90,6 +98,7 @@ export default function PerformanceSettingsPanel({
                 active={!!settings.f353_minifyCss}
                 id="f353_minifyCss"
                 tag="F-353"
+                onToggle={toggle}
             />
             <OptionRow
                 label="Minify JS Outputs"
@@ -97,6 +106,7 @@ export default function PerformanceSettingsPanel({
                 active={!!settings.f354_minifyJs}
                 id="f354_minifyJs"
                 tag="F-354"
+                onToggle={toggle}
             />
             <OptionRow
                 label="Defer Injected Scripts"
@@ -104,6 +114,7 @@ export default function PerformanceSettingsPanel({
                 active={!!settings.f355_deferScripts}
                 id="f355_deferScripts"
                 tag="F-355"
+                onToggle={toggle}
             />
             <OptionRow
                 label="Font Display Swap"
@@ -111,6 +122,7 @@ export default function PerformanceSettingsPanel({
                 active={!!settings.f356_fontDisplaySwap}
                 id="f356_fontDisplaySwap"
                 tag="F-356"
+                onToggle={toggle}
             />
             <OptionRow
                 label="Auto Critical CSS"
@@ -118,6 +130,7 @@ export default function PerformanceSettingsPanel({
                 active={!!settings.f357_criticalCss}
                 id="f357_criticalCss"
                 tag="F-357"
+                onToggle={toggle}
             />
             <OptionRow
                 label="Component Memory Cache"
@@ -125,6 +138,7 @@ export default function PerformanceSettingsPanel({
                 active={!!settings.f358_elementCache}
                 id="f358_elementCache"
                 tag="F-358"
+                onToggle={toggle}
             />
             <OptionRow
                 label="Brotli SEO Compression"
@@ -132,6 +146,7 @@ export default function PerformanceSettingsPanel({
                 active={!!settings.f359_seoCompression}
                 id="f359_seoCompression"
                 tag="F-359"
+                onToggle={toggle}
             />
             <OptionRow
                 label="WebP Media Conversion"
@@ -139,6 +154,7 @@ export default function PerformanceSettingsPanel({
                 active={!!settings.f360_webpConversion}
                 id="f360_webpConversion"
                 tag="F-360"
+                onToggle={toggle}
             />
         </div>
     );

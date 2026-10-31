@@ -28,25 +28,27 @@ export const GlobalElementFormModal: React.FC<GlobalElementFormModalProps> = ({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
-    if (elementToEdit) {
-      setName(elementToEdit.name);
-      setElementType(elementToEdit.elementType);
-      setContent(elementToEdit.content || "");
-      setDescription(elementToEdit.description || "");
-      setStyles(elementToEdit.styles || {});
-    } else {
-      setName("");
-      setElementType("button");
-      setContent("Get Started Now");
-      setDescription("");
-      setStyles({
-        backgroundColor: "#4f46e5",
-        color: "#ffffff",
-        padding: "12px 24px",
-        borderRadius: "8px",
-      });
-    }
-    setErrorMsg(null);
+    queueMicrotask(() => {
+      if (elementToEdit) {
+        setName(elementToEdit.name);
+        setElementType(elementToEdit.elementType);
+        setContent(elementToEdit.content || "");
+        setDescription(elementToEdit.description || "");
+        setStyles(elementToEdit.styles || {});
+      } else {
+        setName("");
+        setElementType("button");
+        setContent("Get Started Now");
+        setDescription("");
+        setStyles({
+          backgroundColor: "#4f46e5",
+          color: "#ffffff",
+          padding: "12px 24px",
+          borderRadius: "8px",
+        });
+      }
+      setErrorMsg(null);
+    });
   }, [elementToEdit, isOpen]);
 
   if (!isOpen) return null;

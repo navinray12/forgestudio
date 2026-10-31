@@ -90,6 +90,8 @@ export const CANONICAL_PROJECT_ROLES = [
   "DEVELOPER",
   "CONTENT_EDITOR",
   "SEO_MANAGER",
+  "REVIEWER",
+  "CLIENT",
   "VIEWER",
 ] as const;
 
@@ -98,8 +100,7 @@ export type ProjectRole = typeof CANONICAL_PROJECT_ROLES[number];
 export const PROJECT_ROLE_ALIASES: Record<string, ProjectRole> = {
   PROJECT_OWNER: "OWNER",
   PROJECT_ADMIN: "ADMIN",
-  REVIEWER: "VIEWER",
-  CLIENT: "VIEWER",
+  MEMBER: "REVIEWER",
 };
 
 export function normalizeProjectRole(role: string): ProjectRole {
@@ -301,7 +302,6 @@ export const DEFAULT_CAPABILITIES: Record<string, string[]> = {
   ],
   VIEWER: [
     "VIEW",
-    "COMMENT",
   ],
 };
 

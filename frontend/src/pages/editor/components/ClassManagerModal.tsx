@@ -58,8 +58,10 @@ export const ClassManagerModal: React.FC<ClassManagerModalProps> = ({
     } | null>(null);
 
     useEffect(() => {
-        setLocalClasses(classes);
-        initialClassesRef.current = new Map(classes.map((c) => [c.id, c.className]));
+        queueMicrotask(() => {
+            setLocalClasses(classes);
+            initialClassesRef.current = new Map(classes.map((c) => [c.id, c.className]));
+        });
     }, [classes, isOpen]);
 
     if (!isOpen) return null;
@@ -304,7 +306,12 @@ export const ClassManagerModal: React.FC<ClassManagerModalProps> = ({
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <div className="bg-slate-900 border border-slate-750 text-slate-100 rounded-xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="class-manager-title"
+                className="bg-slate-900 border border-slate-755 text-slate-100 rounded-xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150"
+            >
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-950/50">
                     <div className="flex items-center gap-3">
@@ -313,7 +320,7 @@ export const ClassManagerModal: React.FC<ClassManagerModalProps> = ({
                         </div>
                         <div>
                             <div className="flex items-center gap-2">
-                                <h2 className="text-lg font-bold">Global Class Manager</h2>
+                                <h2 id="class-manager-title" className="text-lg font-bold">Global Class Manager</h2>
                                 {isReadOnly && (
                                     <span className="flex items-center gap-1 text-[10px] uppercase font-semibold px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
                                         <ShieldAlert className="w-3 h-3" /> Read Only ({userRole})
@@ -346,6 +353,7 @@ export const ClassManagerModal: React.FC<ClassManagerModalProps> = ({
                         <button
                             type="button"
                             onClick={onClose}
+                            aria-label="Close Global Class Manager"
                             className="p-1.5 text-slate-400 hover:text-slate-100 hover:bg-slate-800 rounded-lg transition-colors ml-2 cursor-pointer"
                         >
                             <X className="w-5 h-5" />

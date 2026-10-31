@@ -157,7 +157,7 @@ export default function FormWidgetRenderer({
 
     // 3. Tel / Phone Validation
     if (field.type === "tel") {
-      const telRegex = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/;
+      const telRegex = /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/;
       if (!telRegex.test(String(value).replace(/[\s()-]/g, ""))) {
         return field.customErrorMessage || "Please enter a valid phone number";
       }
@@ -172,7 +172,7 @@ export default function FormWidgetRenderer({
 
     // 5. URL Validation
     if (field.type === "url") {
-      let isValidUrl = false;
+      let isValidUrl: boolean;
       try {
         const parsed = new URL(String(value));
         isValidUrl = (parsed.protocol === "http:" || parsed.protocol === "https:") && parsed.hostname.includes(".");

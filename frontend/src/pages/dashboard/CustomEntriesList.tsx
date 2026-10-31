@@ -7,11 +7,6 @@ export default function CustomEntriesList() {
     const { websiteId, cptId } = useParams();
     const [entries, setEntries] = useState<any[]>([]);
 
-    useEffect(() => {
-        if (!cptId) return;
-        fetchEntries();
-    }, [cptId]);
-
     const fetchEntries = async () => {
         try {
             const res = await fetch(`${apiUrl}/api/cpt/types/${cptId}/entries`, {
@@ -23,6 +18,13 @@ export default function CustomEntriesList() {
             }
         } catch (e) { console.error(e); }
     };
+
+    useEffect(() => {
+        if (!cptId) return;
+        queueMicrotask(() => {
+            fetchEntries();
+        });
+    }, [cptId]);
 
     return (
         <div className="p-8 max-w-5xl mx-auto">

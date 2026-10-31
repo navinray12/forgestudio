@@ -143,20 +143,61 @@ export const WooCommerceProvider: React.FC<{
     }
   });
 
-  const [notices, setNotices] = useState<WcNotice[]>([
-    {
-      id: "wc-init-notice",
-      type: "info",
-      message: "👋 Welcome to WooCommerce Store! Free shipping on all orders over $50.",
-      timestamp: Date.now(),
+  const [notices, setNotices] = useState<WcNotice[]>(() => {
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const checkoutParam = urlParams.get("checkout");
+      const sessionId = urlParams.get("session_id");
+      if (checkoutParam === "success" && sessionId) {
+        return [
+          {
+            id: "wc-verify-notice",
+            type: "info",
+            message: "🔄 Verifying payment confirmation with payment gateway...",
+            timestamp: Date.now(),
+          },
+        ];
+      }
+      if (checkoutParam === "cancel") {
+        return [
+          {
+            id: "wc-cancel-notice",
+            type: "warning",
+            message: "Checkout was canceled. Your shopping cart has been preserved.",
+            timestamp: Date.now(),
+          },
+        ];
+      }
     }
-  ]);
+    return [
+      {
+        id: "wc-init-notice",
+        type: "info",
+        message: "👋 Welcome to WooCommerce Store! Free shipping on all orders over $50.",
+        timestamp: Date.now(),
+      },
+    ];
+  });
 
   const [activeShopLayout, setActiveShopLayout] = useState<"grid" | "list">("grid");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [lastOrder, setLastOrder] = useState<WcOrderReceipt | null>(null);
   const [isCheckingOut, setIsCheckingOut] = useState<boolean>(false);
+
+  const addNotice = (type: WcNotice["type"], message: string) => {
+    const newNotice: WcNotice = {
+      id: "wc-notif-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+      type,
+      message,
+      timestamp: Date.now(),
+    };
+    setNotices((prev) => [newNotice, ...prev.slice(0, 4)]);
+  };
+
+  const clearCart = () => {
+    setCart([]);
+  };
 
   // Return verification for Stripe Checkout redirect
   useEffect(() => {
@@ -167,7 +208,6 @@ export const WooCommerceProvider: React.FC<{
     const orderId = urlParams.get("order_id");
 
     if (checkoutParam === "success" && sessionId) {
-      addNotice("info", "🔄 Verifying payment confirmation with payment gateway...");
       fetch(
         `/api/websites/${websiteId}/commerce/checkout-session/${encodeURIComponent(sessionId)}/verify?orderId=${encodeURIComponent(orderId || "")}`
       )
@@ -214,7 +254,6 @@ export const WooCommerceProvider: React.FC<{
           window.history.replaceState({}, document.title, cleanUrl);
         });
     } else if (checkoutParam === "cancel") {
-      addNotice("warning", "Checkout was canceled. Your shopping cart has been preserved.");
       const cleanUrl = window.location.pathname;
       window.history.replaceState({}, document.title, cleanUrl);
     }
@@ -257,16 +296,6 @@ export const WooCommerceProvider: React.FC<{
       console.warn("Could not persist WooCommerce cart", e);
     }
   }, [cart]);
-
-  const addNotice = (type: WcNotice["type"], message: string) => {
-    const newNotice: WcNotice = {
-      id: "wc-notif-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
-      type,
-      message,
-      timestamp: Date.now(),
-    };
-    setNotices((prev) => [newNotice, ...prev.slice(0, 4)]);
-  };
 
   const dismissNotice = (id: string) => {
     setNotices((prev) => prev.filter((n) => n.id !== id));
@@ -317,10 +346,6 @@ export const WooCommerceProvider: React.FC<{
         item.product.id === productId ? { ...item, quantity } : item
       )
     );
-  };
-
-  const clearCart = () => {
-    setCart([]);
   };
 
   const parsePriceNum = (priceStr?: string): number => {

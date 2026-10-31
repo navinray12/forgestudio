@@ -3,6 +3,7 @@ import { queryAuditLogs, type AuditLogFilters } from "../services/audit.service.
 import { getWebsiteById } from "../services/website.service.js";
 import { prisma } from "../config/prisma.js";
 import { AppError } from "../utils/app-error.js";
+import { normalizeGlobalRole } from "../services/permission.service.js";
 
 const db = prisma as any;
 
@@ -46,7 +47,8 @@ export async function getAuditLogsHandler(req: Request, res: Response, next: Nex
       throw new AppError("Authentication required", 401, "UNAUTHORIZED");
     }
 
-    const isAdmin = user.role === "ADMIN" || user.role === "SUPER_ADMIN";
+    const normalizedRole = normalizeGlobalRole(user.role);
+    const isAdmin = normalizedRole === "PLATFORM_ADMIN" || normalizedRole === "SUPER_ADMIN";
     const query = req.query as Record<string, string | undefined>;
 
     const filters: AuditLogFilters = {

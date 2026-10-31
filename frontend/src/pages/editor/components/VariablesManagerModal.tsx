@@ -70,8 +70,10 @@ export const VariablesManagerModal: React.FC<VariablesManagerModalProps> = ({
     } | null>(null);
 
     useEffect(() => {
-        setLocalVars(variables);
-        initialTokensRef.current = new Map(variables.map((v) => [v.id, v.token]));
+        queueMicrotask(() => {
+            setLocalVars(variables);
+            initialTokensRef.current = new Map(variables.map((v) => [v.id, v.token]));
+        });
     }, [variables, isOpen]);
 
     if (!isOpen) return null;
@@ -295,7 +297,12 @@ export const VariablesManagerModal: React.FC<VariablesManagerModalProps> = ({
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-            <div className="bg-slate-900 border border-slate-800 rounded-xl shadow-2xl w-full max-w-4xl max-h-[85vh] flex flex-col text-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="variables-manager-title"
+                className="bg-slate-900 border border-slate-800 rounded-xl shadow-2xl w-full max-w-4xl max-h-[85vh] flex flex-col text-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+            >
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-950/50">
                     <div className="flex items-center gap-3">
@@ -303,7 +310,7 @@ export const VariablesManagerModal: React.FC<VariablesManagerModalProps> = ({
                             <Palette className="w-5 h-5" />
                         </div>
                         <div>
-                            <h2 className="text-lg font-bold">Design Token Multi-Mode System</h2>
+                            <h2 id="variables-manager-title" className="text-lg font-bold">Design Token Multi-Mode System</h2>
                             <p className="text-xs text-slate-400">Manage centralized CSS variables with dual Dark and Light mode themes (F-339)</p>
                         </div>
                     </div>
@@ -326,6 +333,7 @@ export const VariablesManagerModal: React.FC<VariablesManagerModalProps> = ({
                         <button
                             type="button"
                             onClick={onClose}
+                            aria-label="Close Design Token Manager"
                             className="p-1.5 text-slate-400 hover:text-slate-100 hover:bg-slate-800 rounded-lg transition-colors ml-2 cursor-pointer"
                         >
                             <X className="w-5 h-5" />
@@ -336,14 +344,14 @@ export const VariablesManagerModal: React.FC<VariablesManagerModalProps> = ({
                 {importError && (
                     <div className="bg-red-500/10 border-b border-red-500/20 px-6 py-2 text-xs text-red-400 flex items-center justify-between">
                         <span>{importError}</span>
-                        <button type="button" onClick={() => setImportError(null)} className="text-red-400 hover:text-red-300">✕</button>
+                        <button type="button" onClick={() => setImportError(null)} aria-label="Dismiss error" className="text-red-400 hover:text-red-300 cursor-pointer">✕</button>
                     </div>
                 )}
 
                 {importSuccess && (
                     <div className="bg-emerald-500/10 border-b border-emerald-500/20 px-6 py-2 text-xs text-emerald-400 flex items-center justify-between">
                         <span>{importSuccess}</span>
-                        <button type="button" onClick={() => setImportSuccess(null)} className="text-emerald-400 hover:text-emerald-300">✕</button>
+                        <button type="button" onClick={() => setImportSuccess(null)} aria-label="Dismiss success message" className="text-emerald-400 hover:text-emerald-300 cursor-pointer">✕</button>
                     </div>
                 )}
 

@@ -218,7 +218,12 @@ export const PageManagerModal: React.FC<PageManagerModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4 animate-fadeIn">
-      <div className="w-full max-w-2xl rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="page-manager-modal-title"
+        className="w-full max-w-2xl rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl overflow-hidden flex flex-col max-h-[85vh]"
+      >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-800 px-6 py-4 bg-slate-950/60">
           <div className="flex items-center gap-3">
@@ -226,7 +231,7 @@ export const PageManagerModal: React.FC<PageManagerModalProps> = ({
               📄
             </div>
             <div>
-              <h2 className="text-base font-extrabold text-white flex items-center gap-2">
+              <h2 id="page-manager-modal-title" className="text-base font-extrabold text-white flex items-center gap-2">
                 <span>Manage Website Pages</span>
                 <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
                   {pages.length} {pages.length === 1 ? "page" : "pages"}
@@ -240,6 +245,7 @@ export const PageManagerModal: React.FC<PageManagerModalProps> = ({
           <button
             type="button"
             onClick={onClose}
+            aria-label="Close page manager"
             className="text-slate-400 hover:text-white text-lg font-bold p-1 rounded-lg hover:bg-slate-800 transition cursor-pointer"
           >
             ✕
@@ -252,6 +258,7 @@ export const PageManagerModal: React.FC<PageManagerModalProps> = ({
             <span className="absolute left-3 top-2.5 text-xs text-slate-400">🔍</span>
             <input
               type="text"
+              aria-label="Search pages by name or slug"
               placeholder="Search pages by name or slug..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}

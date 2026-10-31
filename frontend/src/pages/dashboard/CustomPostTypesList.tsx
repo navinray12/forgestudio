@@ -8,11 +8,6 @@ export default function CustomPostTypesList() {
     const [cpts, setCpts] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        if (!websiteId) return;
-        fetchCpts();
-    }, [websiteId]);
-
     const fetchCpts = async () => {
         try {
             setLoading(true);
@@ -29,6 +24,13 @@ export default function CustomPostTypesList() {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        if (!websiteId) return;
+        queueMicrotask(() => {
+            fetchCpts();
+        });
+    }, [websiteId]);
 
     return (
         <div className="p-8 max-w-5xl mx-auto">

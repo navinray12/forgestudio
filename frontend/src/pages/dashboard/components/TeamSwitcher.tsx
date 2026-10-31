@@ -16,7 +16,9 @@ export const TeamSwitcher: React.FC<{ apiUrl: string, currentTeamId: string | nu
     };
 
     useEffect(() => {
-        fetchTeams();
+        queueMicrotask(() => {
+            fetchTeams();
+        });
     }, []);
 
     const handleCreate = async (e: React.FormEvent) => {

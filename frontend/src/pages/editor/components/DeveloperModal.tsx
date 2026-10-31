@@ -72,12 +72,14 @@ export default function DeveloperModal({
 
   // Sync state if modal opens with a new initialValue or element
   useEffect(() => {
-    setValue(initialValue || "");
-    if (mode === "export-code") {
-      const code = getCanvasGeneratedCode(codeLanguage);
-      setEditedCode(code);
-      setApplyMessage(null);
-    }
+    queueMicrotask(() => {
+      setValue(initialValue || "");
+      if (mode === "export-code") {
+        const code = getCanvasGeneratedCode(codeLanguage);
+        setEditedCode(code);
+        setApplyMessage(null);
+      }
+    });
   }, [initialValue, isOpen, mode, targetElement, getCanvasGeneratedCode]);
 
   // Handle switching language tabs in export-code mode
@@ -187,14 +189,21 @@ export default function DeveloperModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col border border-slate-200">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="developer-modal-title"
+        className="bg-white rounded-xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col border border-slate-200"
+      >
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 bg-slate-50/80">
-          <h2 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+          <h2 id="developer-modal-title" className="text-sm font-bold text-slate-800 flex items-center gap-2">
             <span className="text-blue-600 font-mono font-black">{"</>"}</span>
             {getTitle()}
           </h2>
           <button
+            type="button"
             onClick={onClose}
+            aria-label="Close developer tools"
             className="text-slate-400 hover:text-slate-600 hover:bg-slate-200 p-1 rounded transition cursor-pointer"
           >
             ✕

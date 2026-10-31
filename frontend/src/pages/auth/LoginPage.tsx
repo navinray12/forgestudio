@@ -8,23 +8,69 @@ function LoginPage() {
   const [phoneVal, setPhoneVal] = useState<PhoneInputValue | null>(null);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [initialOAuth] = useState(() => {
+    if (typeof window === "undefined") {
+      return {
+        step: "credentials" as const,
+        userId: "",
+        email: "",
+        phone: "",
+        channel: "EMAIL" as const,
+        error: "",
+      };
+    }
+    const params = new URLSearchParams(window.location.search);
+    const oauthCreatePassword = params.get("oauth_create_password");
+    const oauthSelect = params.get("oauth_select");
+    const oauthUserId = params.get("userId") || "";
+    const oauthEmail = params.get("email") || "";
+    const oauthPhone = params.get("phone") || "";
+    const oauthError = params.get("error");
+
+    let initialStep: "credentials" | "create_password" | "select_method" | "otp" = "credentials";
+    let initialChannel: "EMAIL" | "WHATSAPP" = "EMAIL";
+    let initialError = "";
+
+    if (oauthCreatePassword === "true" && oauthUserId) {
+      initialStep = "create_password";
+    } else if (oauthSelect === "true" && oauthUserId) {
+      initialStep = "select_method";
+      initialChannel = "EMAIL";
+    }
+
+    if (oauthError === "google_auth_failed") {
+      initialError = "Google authentication failed. Please try again.";
+    } else if (oauthError === "github_auth_failed") {
+      initialError = "GitHub authentication failed. Please try again.";
+    }
+
+    return {
+      step: initialStep,
+      userId: initialStep !== "credentials" ? oauthUserId : "",
+      email: initialStep !== "credentials" ? oauthEmail : "",
+      phone: initialStep !== "credentials" ? oauthPhone : "",
+      channel: initialChannel,
+      error: initialError,
+    };
+  });
+
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(initialOAuth.error);
 
   // =========================
   // OTP Verification States
   // =========================
-  const [step, setStep] = useState<"credentials" | "create_password" | "select_method" | "otp">("credentials");
+  const [step, setStep] = useState<"credentials" | "create_password" | "select_method" | "otp">(initialOAuth.step);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const [selectedChannel, setSelectedChannel] = useState<"EMAIL" | "WHATSAPP">("EMAIL");
+  const [selectedChannel, setSelectedChannel] = useState<"EMAIL" | "WHATSAPP">(initialOAuth.channel);
   const [otp, setOtp] = useState("");
-  const [otpUserId, setOtpUserId] = useState("");
-  const [otpEmail, setOtpEmail] = useState("");
-  const [otpPhone, setOtpPhone] = useState("");
+  const [otpUserId, setOtpUserId] = useState(initialOAuth.userId);
+  const [otpEmail, setOtpEmail] = useState(initialOAuth.email);
+  const [otpPhone, setOtpPhone] = useState(initialOAuth.phone);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [resendLoading, setResendLoading] = useState(false);
   const [resendMessage, setResendMessage] = useState("");
@@ -66,37 +112,11 @@ function LoginPage() {
   // =========================
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-
-    const oauthCreatePassword = params.get("oauth_create_password");
-    const oauthSelect = params.get("oauth_select");
-    const oauthUserId = params.get("userId");
-    const oauthEmail = params.get("email");
-    const oauthPhone = params.get("phone");
     const oauthStatus = params.get("oauth");
-    const oauthError = params.get("error");
 
-    if (oauthCreatePassword === "true" && oauthUserId) {
-      setOtpUserId(oauthUserId);
-      setOtpEmail(oauthEmail || "");
-      setOtpPhone(oauthPhone || "");
-      setStep("create_password");
-    } else if (oauthSelect === "true" && oauthUserId) {
-      setOtpUserId(oauthUserId);
-      setOtpEmail(oauthEmail || "");
-      setOtpPhone(oauthPhone || "");
-      setStep("select_method");
-      setSelectedChannel("EMAIL");
-    } else if (oauthStatus === "google_success" || oauthStatus === "github_success") {
+    if (oauthStatus === "google_success" || oauthStatus === "github_success") {
       console.log("OAuth login successful, redirecting to dashboard...");
       window.location.href = "/dashboard";
-    }
-
-    if (oauthError === "google_auth_failed") {
-      setError("Google authentication failed. Please try again.");
-    }
-
-    if (oauthError === "github_auth_failed") {
-      setError("GitHub authentication failed. Please try again.");
     }
   }, []);
 

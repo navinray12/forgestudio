@@ -136,7 +136,7 @@ export function validateAndNormalizeCanonicalWebsite(data: any): ValidationResul
   }
 
   // 1. Version Check & Upgrade
-  let version = typeof data.version === "number" && data.version > 0 ? data.version : 1;
+  const version = typeof data.version === "number" && data.version > 0 ? data.version : 1;
 
   // 2. Elements validation
   const rootElements = Array.isArray(data.elements) ? data.elements : [];

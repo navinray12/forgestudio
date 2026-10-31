@@ -357,7 +357,7 @@ export const PostsWidgetRenderer: React.FC<{
   const showExcerpt = el.postsShowExcerpt !== false;
   const showReadMore = el.postsShowReadMore !== false;
 
-  let gridColsStyle: React.CSSProperties = {};
+  let gridColsStyle: React.CSSProperties;
   if (activeDevice === "mobile") {
     gridColsStyle = { gridTemplateColumns: "repeat(1, minmax(0, 1fr))" };
   } else if (activeDevice === "tablet") {

@@ -12,9 +12,14 @@ export default function IframeModal({ isOpen, onClose, url, title }: IframeModal
 
     return (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-            <div className="bg-slate-50 flex flex-col rounded-xl shadow-2xl w-full max-w-5xl h-[85vh] overflow-hidden border border-slate-300">
+            <div
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="iframe-modal-title"
+                className="bg-slate-50 flex flex-col rounded-xl shadow-2xl w-full max-w-5xl h-[85vh] overflow-hidden border border-slate-300"
+            >
                 <div className="flex shrink-0 items-center justify-between px-5 py-3 border-b border-slate-200 bg-white shadow-sm">
-                    <h2 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                    <h2 id="iframe-modal-title" className="text-sm font-bold text-slate-800 flex items-center gap-2">
                         <span className="text-blue-600">⚡</span>
                         {title}
                     </h2>
@@ -28,8 +33,10 @@ export default function IframeModal({ isOpen, onClose, url, title }: IframeModal
                             Open in New Tab
                         </a>
                         <button
+                            type="button"
                             onClick={onClose}
-                            className="text-slate-400 font-bold hover:text-slate-700 hover:bg-slate-100 p-1 rounded transition"
+                            aria-label="Close dialog"
+                            className="text-slate-400 font-bold hover:text-slate-700 hover:bg-slate-100 p-1 rounded transition cursor-pointer"
                         >
                             ✕
                         </button>

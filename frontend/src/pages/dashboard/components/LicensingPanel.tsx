@@ -76,7 +76,9 @@ export default function LicensingPanel() {
   };
 
   useEffect(() => {
-    fetchLicenses();
+    queueMicrotask(() => {
+      fetchLicenses();
+    });
   }, []);
 
   const handleCopyKey = (key: string) => {

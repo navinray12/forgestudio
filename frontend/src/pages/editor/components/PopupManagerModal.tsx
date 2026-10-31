@@ -54,6 +54,9 @@ export default function PopupManagerModal({
       className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-md p-4 animate-in fade-in duration-150"
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="popup-manager-modal-title"
         onClick={(e) => e.stopPropagation()}
         className="w-full max-w-4xl rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[85vh]"
       >
@@ -69,7 +72,7 @@ export default function PopupManagerModal({
               </svg>
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-800">Popup & Conversion Engine</h2>
+              <h2 id="popup-manager-modal-title" className="text-base font-bold text-slate-800">Popup & Conversion Engine</h2>
               <p className="text-xs text-slate-500">Manage high-converting modals, off-canvas slide-ins, and hello bars</p>
             </div>
           </div>
@@ -77,6 +80,7 @@ export default function PopupManagerModal({
           <div className="flex items-center gap-3">
             <div className="flex rounded-lg bg-slate-200/70 p-1 text-xs font-semibold">
               <button
+                type="button"
                 onClick={() => {
                   setActiveTab("popups");
                   setIsCreatingCustom(false);
@@ -88,6 +92,7 @@ export default function PopupManagerModal({
                 My Popups ({popups.length})
               </button>
               <button
+                type="button"
                 onClick={() => {
                   setActiveTab("templates");
                   setIsCreatingCustom(false);
@@ -101,7 +106,9 @@ export default function PopupManagerModal({
             </div>
 
             <button
+              type="button"
               onClick={onClose}
+              aria-label="Close popup manager"
               className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition"
             >
               ✕

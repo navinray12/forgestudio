@@ -37,12 +37,14 @@ export const ImportWebsiteKitDialog: React.FC<ImportWebsiteKitDialogProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      setSelectedFile(null);
-      setValidationError(null);
-      setValidatedKit(null);
-      setPreviewSummary(null);
-      setIsImporting(false);
-      setIsDragOver(false);
+      queueMicrotask(() => {
+        setSelectedFile(null);
+        setValidationError(null);
+        setValidatedKit(null);
+        setPreviewSummary(null);
+        setIsImporting(false);
+        setIsDragOver(false);
+      });
     }
   }, [isOpen]);
 

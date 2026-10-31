@@ -11,9 +11,17 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({
   id = "country-selector",
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [prevIsOpen, setPrevIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen);
+    if (!isOpen && searchQuery !== "") {
+      setSearchQuery("");
+    }
+  }
 
   const filteredCountries = searchCountries(searchQuery, COUNTRY_DATA);
 
@@ -42,8 +50,6 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({
       setTimeout(() => {
         searchInputRef.current?.focus();
       }, 50);
-    } else {
-      setSearchQuery("");
     }
   }, [isOpen]);
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { CountrySelector } from "./CountrySelector";
 import {
   parsePhoneNumber,
@@ -36,6 +36,23 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
     return parsed.nationalNumber;
   });
 
+  const [prevValue, setPrevValue] = useState(value);
+  const [prevDefaultCountryIso, setPrevDefaultCountryIso] = useState(defaultCountryIso);
+
+  if (value !== prevValue || defaultCountryIso !== prevDefaultCountryIso) {
+    setPrevValue(value);
+    setPrevDefaultCountryIso(defaultCountryIso);
+    if (value !== undefined) {
+      const parsed = parsePhoneNumber(value, defaultCountryIso);
+      if (parsed.country.iso !== selectedCountry.iso && value.startsWith("+")) {
+        setSelectedCountry(parsed.country);
+      }
+      if (parsed.nationalNumber !== nationalNumber) {
+        setNationalNumber(parsed.nationalNumber);
+      }
+    }
+  }
+
   const [internalError, setInternalError] = useState<string | undefined>(
     undefined
   );
@@ -70,26 +87,7 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
     [onChange, required]
   );
 
-  // Sync external value changes (e.g., initial form load or reset)
-  useEffect(() => {
-    if (value !== undefined) {
-      const parsed = parsePhoneNumber(value, defaultCountryIso);
-      setSelectedCountry((prevCountry) => {
-        // If parsed country differs from state (e.g. initial load with full international number)
-        if (parsed.country.iso !== prevCountry.iso && value.startsWith("+")) {
-          return parsed.country;
-        }
-        return prevCountry;
-      });
 
-      setNationalNumber((prevNum) => {
-        if (parsed.nationalNumber !== prevNum) {
-          return parsed.nationalNumber;
-        }
-        return prevNum;
-      });
-    }
-  }, [value, defaultCountryIso]);
 
   // Handle Country Selection
   const handleCountrySelect = (country: CountryData) => {

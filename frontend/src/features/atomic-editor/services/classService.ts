@@ -145,7 +145,9 @@ export async function fetchClasses(websiteId?: string): Promise<AtomicClass[]> {
         const converted = rawClasses.map(globalClassToAtomicClass);
         try {
           localStorage.setItem(storageKey, JSON.stringify(converted));
-        } catch (_) {}
+        } catch (_) {
+          /* ignore localStorage write failure in restricted context */
+        }
         return converted;
       }
     } catch (_err) {
@@ -169,7 +171,9 @@ export async function fetchClasses(websiteId?: string): Promise<AtomicClass[]> {
           return converted;
         }
       }
-    } catch (_) {}
+    } catch (_) {
+      /* ignore malformed cache read failure */
+    }
 
     // Return empty list for a clean website with no classes (prevent cross-site pollution)
     return [];
@@ -212,11 +216,13 @@ export async function saveClasses(classes: AtomicClass[], websiteId?: string): P
           })
         );
       }
-    } catch (_) {}
+    } catch (_) {
+      /* ignore event dispatch failure in non-browser context */
+    }
 
     // 3. Persist to backend database via canonical endpoint
     try {
-      let res = await fetch(`${apiUrl}/api/websites/${websiteId}/design-system`, {
+      const res = await fetch(`${apiUrl}/api/websites/${websiteId}/design-system`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

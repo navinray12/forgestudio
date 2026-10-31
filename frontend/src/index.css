@@ -35,10 +35,10 @@ body {
 }
 
 /* ==========================================================================
-   ForgeStudio Motion Engine (F-102 – F-120)
+   ForgeStudio Motion Engine (F-102 â€“ F-120)
    ========================================================================== */
 
-/* ── Keyframe definitions ─────────────────────────────────────────────────── */
+/* â”€â”€ Keyframe definitions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @keyframes fs-fade-in {
   from { opacity: 0; }
   to   { opacity: 1; }
@@ -70,14 +70,14 @@ body {
   100% { opacity: 1; transform: scale(1);    }
 }
 
-/* ── Pre-animation hidden state ───────────────────────────────────────────── */
+/* â”€â”€ Pre-animation hidden state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 /* Elements with a non-none entrance animation start invisible until
    the IntersectionObserver fires and adds .fs-entrance-active. */
 [data-entrance]:not([data-entrance="none"]) {
   opacity: 0;
 }
 
-/* ── Entrance activation classes (added by JS runtime) ───────────────────── */
+/* â”€â”€ Entrance activation classes (added by JS runtime) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 /* The runtime adds .fs-entrance-active once the element enters the viewport. */
 @media (prefers-reduced-motion: no-preference) {
   .fs-entrance-active[data-entrance="fade-in"]      { animation: fs-fade-in      var(--fs-entrance-dur, 600ms) var(--fs-entrance-delay, 0ms) both ease-out; }
@@ -89,7 +89,7 @@ body {
   .fs-entrance-active[data-entrance="bounce-in"]    { animation: fs-bounce-in    var(--fs-entrance-dur, 700ms) var(--fs-entrance-delay, 0ms) both ease-out; }
 }
 
-/* ── Reduced-motion: show immediately with no animation ──────────────────── */
+/* â”€â”€ Reduced-motion: show immediately with no animation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media (prefers-reduced-motion: reduce) {
   [data-entrance] {
     opacity: 1 !important;
@@ -98,10 +98,103 @@ body {
   }
 }
 
-/* ── Hover transition helper (applied by buildHoverCSS injection) ─────────── */
+/* â”€â”€ Hover transition helper (applied by buildHoverCSS injection) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 /* The runtime injects per-element :hover rules into #fs-motion-hover <style>.
    This class ensures smooth transitions in all cases. */
 .fs-hover-transition {
   transition-property: transform, opacity, filter;
   transition-timing-function: ease;
-}
+}
+
+/* ==========================================================================
+   ForgeStudio Accessibility Engine (WCAG 2.1 AAA Compliant)
+   ========================================================================== */
+
+/* â”€â”€ 1. Global Visible Focus Indicator (WCAG 2.4.7 Focus Visible) â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+:focus-visible {
+  outline: 2px solid #4f46e5;
+  outline-offset: 2px;
+}
+
+/* â”€â”€ 2. High-Contrast Focus Ring â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.fs-a11y-focus-ring *:focus-visible,
+.fs-a11y-focus-ring *:focus {
+  outline: 3px solid #6366f1 !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 5px rgba(99, 102, 241, 0.4) !important;
+}
+
+/* â”€â”€ 3. Contrast Modes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.fs-a11y-high-contrast {
+  filter: contrast(150%) brightness(105%);
+}
+
+.fs-a11y-dark-contrast {
+  filter: invert(100%) hue-rotate(180deg) contrast(140%);
+  background-color: #000 !important;
+}
+.fs-a11y-dark-contrast img,
+.fs-a11y-dark-contrast video,
+.fs-a11y-dark-contrast iframe {
+  filter: invert(100%) hue-rotate(180deg);
+}
+
+.fs-a11y-light-contrast {
+  filter: contrast(125%) brightness(115%);
+  background-color: #ffffff !important;
+}
+
+.fs-a11y-monochrome {
+  filter: grayscale(100%) contrast(120%);
+}
+
+/* â”€â”€ 4. Reduced Motion & Animation Pause â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.fs-a11y-pause-animations *,
+.fs-a11y-pause-animations *::before,
+.fs-a11y-pause-animations *::after {
+  animation-play-state: paused !important;
+  transition-duration: 0.001ms !important;
+}
+
+/* â”€â”€ 5. Media & Image Visibility â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.fs-a11y-hide-images img,
+.fs-a11y-hide-images svg:not([role="img"]),
+.fs-a11y-hide-images [style*="background-image"] {
+  visibility: hidden !important;
+}
+
+/* â”€â”€ 6. Cursor Enlargement â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.fs-a11y-big-cursor,
+.fs-a11y-big-cursor * {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 24 24' fill='%234f46e5' stroke='white' stroke-width='2'%3E%3Cpolygon points='3 3 10 21 14 14 21 10 3 3'/%3E%3C/svg%3E"), auto !important;
+}
+
+/* â”€â”€ 7. Link Highlighting â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.fs-a11y-highlight-links a {
+  text-decoration: underline !important;
+  text-decoration-thickness: 2px !important;
+  background-color: #fef08a !important;
+  color: #1e1b4b !important;
+}
+
+/* â”€â”€ 8. Dyslexia-Friendly Font Override â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.fs-a11y-dyslexic-font,
+.fs-a11y-dyslexic-font * {
+  font-family: "OpenDyslexic", "Comic Sans MS", "Comic Sans", cursive, sans-serif !important;
+}
+
+/* â”€â”€ 9. Text Spacing & Line Height (WCAG 1.4.12 Text Spacing) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+[data-a11y-spacing="wide"] * {
+  letter-spacing: 0.12em !important;
+  word-spacing: 0.16em !important;
+}
+[data-a11y-spacing="wider"] * {
+  letter-spacing: 0.18em !important;
+  word-spacing: 0.24em !important;
+}
+[data-a11y-lineheight="loose"] * {
+  line-height: 1.8 !important;
+}
+[data-a11y-lineheight="very-loose"] * {
+  line-height: 2.2 !important;
+}

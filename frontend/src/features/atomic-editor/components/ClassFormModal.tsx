@@ -30,23 +30,25 @@ export const ClassFormModal: React.FC<ClassFormModalProps> = ({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
-    if (classToEdit) {
-      setName(classToEdit.name);
-      setDescription(classToEdit.description || "");
-      setIsGlobal(Boolean(classToEdit.isGlobal || classToEdit.scope === "global"));
-      setStyles(classToEdit.styles || {});
-    } else {
-      setName("");
-      setDescription("");
-      setIsGlobal(defaultIsGlobal);
-      setStyles({
-        backgroundColor: "#ffffff",
-        color: "#0f172a",
-        padding: "16px",
-        borderRadius: "8px",
-      });
-    }
-    setErrorMsg(null);
+    queueMicrotask(() => {
+      if (classToEdit) {
+        setName(classToEdit.name);
+        setDescription(classToEdit.description || "");
+        setIsGlobal(Boolean(classToEdit.isGlobal || classToEdit.scope === "global"));
+        setStyles(classToEdit.styles || {});
+      } else {
+        setName("");
+        setDescription("");
+        setIsGlobal(defaultIsGlobal);
+        setStyles({
+          backgroundColor: "#ffffff",
+          color: "#0f172a",
+          padding: "16px",
+          borderRadius: "8px",
+        });
+      }
+      setErrorMsg(null);
+    });
   }, [classToEdit, defaultIsGlobal, isOpen]);
 
   if (!isOpen) return null;

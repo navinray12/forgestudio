@@ -42,10 +42,6 @@ export default function SubscriptionBillingPanel() {
 
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-  useEffect(() => {
-    fetchBillingData();
-  }, []);
-
   const fetchBillingData = async () => {
     try {
       setLoading(true);
@@ -74,6 +70,12 @@ export default function SubscriptionBillingPanel() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      fetchBillingData();
+    });
+  }, []);
 
   const handleCancelSubscription = async () => {
     try {

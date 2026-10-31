@@ -60,10 +60,6 @@ export default function UsageTelemetryWidget({ compact = false }: Props) {
 
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-  useEffect(() => {
-    fetchUsage();
-  }, []);
-
   const fetchUsage = async () => {
     try {
       setLoading(true);
@@ -80,6 +76,12 @@ export default function UsageTelemetryWidget({ compact = false }: Props) {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      fetchUsage();
+    });
+  }, []);
 
   if (loading) {
     return (

@@ -19,7 +19,9 @@ export const DeleteTemplateConfirmDialog: React.FC<DeleteTemplateConfirmDialogPr
 
   useEffect(() => {
     if (isOpen) {
-      setError(null);
+      queueMicrotask(() => {
+        setError(null);
+      });
     }
   }, [isOpen]);
 

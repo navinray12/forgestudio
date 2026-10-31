@@ -26,7 +26,9 @@ export function useGlobalElements() {
   }, []);
 
   useEffect(() => {
-    fetchGlobalElements();
+    queueMicrotask(() => {
+      fetchGlobalElements();
+    });
   }, [fetchGlobalElements]);
 
   const filteredGlobalElements = useMemo(() => {

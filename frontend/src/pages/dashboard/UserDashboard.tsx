@@ -1,26 +1,52 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { RoleManagerModal } from "./components/RoleManagerModal";
 import { TeamSwitcher } from "./components/TeamSwitcher";
 import { WorkspaceSwitcher } from "./components/WorkspaceSwitcher";
 import { TeamDashboardView } from "./components/TeamDashboardView";
-import DeveloperApiSettings from "./components/DeveloperApiSettings";
-import PluginHub from "./components/PluginHub";
-import ComposerPanel from "./components/ComposerPanel";
-import CustomCodePanel from "./components/CustomCodePanel";
-import AdvancedCodePanel from "./components/AdvancedCodePanel";
-import CustomPostTypesPanel from "./components/CustomPostTypesPanel";
-import PerformancePanel from "./components/PerformancePanel";
 import { exportWebsiteKitAsJson } from "../../features/templates/utils/websiteKitExport";
-import { ImportWebsiteKitDialog } from "../../features/templates/components/ImportWebsiteKitDialog";
-import { ManagedSiteModal } from "./components/ManagedSiteModal";
-import { FormSubmissionsModal } from "./components/FormSubmissionsModal";
-import { ActivityLogModal } from "./components/ActivityLogModal";
-import LicensingPanel from "./components/LicensingPanel";
-import UsageTelemetryWidget from "./components/UsageTelemetryWidget";
-import WhiteLabelPanel from "./components/WhiteLabelPanel";
-import SubscriptionBillingPanel from "./components/SubscriptionBillingPanel";
+import { SkipLinks } from "../../components/accessibility/SkipLinks";
+
+// Lazy-loaded secondary tab panels for dashboard bundle optimization
+const LicensingPanel = lazy(() => import("./components/LicensingPanel"));
+const UsageTelemetryWidget = lazy(() => import("./components/UsageTelemetryWidget"));
+const WhiteLabelPanel = lazy(() => import("./components/WhiteLabelPanel"));
+const SubscriptionBillingPanel = lazy(() => import("./components/SubscriptionBillingPanel"));
+const DeveloperApiSettings = lazy(() => import("./components/DeveloperApiSettings"));
+const PluginHub = lazy(() => import("./components/PluginHub"));
+const CustomCodePanel = lazy(() => import("./components/CustomCodePanel"));
+const AdvancedCodePanel = lazy(() => import("./components/AdvancedCodePanel"));
+const CustomPostTypesPanel = lazy(() => import("./components/CustomPostTypesPanel"));
+const ComposerPanel = lazy(() => import("./components/ComposerPanel"));
+const PerformancePanel = lazy(() => import("./components/PerformancePanel"));
+
+// Lazy-loaded modal components (loaded on-demand when opened)
+const RoleManagerModal = lazy(() =>
+  import("./components/RoleManagerModal").then((m) => ({ default: m.RoleManagerModal }))
+);
+const ManagedSiteModal = lazy(() =>
+  import("./components/ManagedSiteModal").then((m) => ({ default: m.ManagedSiteModal }))
+);
+const FormSubmissionsModal = lazy(() =>
+  import("./components/FormSubmissionsModal").then((m) => ({ default: m.FormSubmissionsModal }))
+);
+const ActivityLogModal = lazy(() =>
+  import("./components/ActivityLogModal").then((m) => ({ default: m.ActivityLogModal }))
+);
+const ImportWebsiteKitDialog = lazy(() =>
+  import("../../features/templates/components/ImportWebsiteKitDialog").then((m) => ({
+    default: m.ImportWebsiteKitDialog,
+  }))
+);
+
+function DashboardPanelLoading() {
+  return (
+    <div className="flex items-center justify-center text-xs font-semibold text-slate-400 p-12 text-center bg-white rounded-2xl border border-slate-200">
+      Loading...
+    </div>
+  );
+}
+
 
 interface Website {
   id: string;
@@ -133,7 +159,9 @@ function UserDashboard() {
     setCurrentWorkspaceId(finalId);
     try {
       localStorage.setItem("forgestudio_active_workspace_id", finalId);
-    } catch {}
+    } catch {
+      // Ignore localStorage write failures
+    }
   };
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [exportingKitId, setExportingKitId] = useState<string | null>(null);
@@ -487,7 +515,9 @@ function UserDashboard() {
         </div>
 
         {/* Real-Time Resource Usage & Quota Bar (F-450, F-452) */}
-        <UsageTelemetryWidget compact />
+        <Suspense fallback={<div className="h-10 w-full rounded-2xl bg-slate-100 animate-pulse border border-slate-200" />}>
+          <UsageTelemetryWidget compact />
+        </Suspense>
 
         {currentTeamId ? (
           <TeamDashboardView teamId={currentTeamId} apiUrl={apiUrl} onNavigateEditor={id => navigate(`/editor/${id}`)} />
@@ -672,13 +702,20 @@ function UserDashboard() {
 
   return (
     <div className="min-h-screen bg-[#F5F5F7] font-sans text-slate-900 flex flex-col">
+      <SkipLinks targetId="main-content" />
 
       {/* ── TOP NAV ──────────────────────────── */}
       <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm">
         <div className="mx-auto max-w-[1400px] px-4 sm:px-8 h-14 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="lg:hidden p-2 rounded-lg hover:bg-slate-100 transition">
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect y="3" width="18" height="1.5" rx="1" fill="#64748b" /><rect y="8.25" width="18" height="1.5" rx="1" fill="#64748b" /><rect y="13.5" width="18" height="1.5" rx="1" fill="#64748b" /></svg>
+            <button
+              type="button"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              aria-label="Toggle navigation menu"
+              aria-expanded={sidebarOpen}
+              className="lg:hidden p-2 rounded-lg hover:bg-slate-100 transition focus-visible:ring-2 focus-visible:ring-blue-500"
+            >
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><rect y="3" width="18" height="1.5" rx="1" fill="#64748b" /><rect y="8.25" width="18" height="1.5" rx="1" fill="#64748b" /><rect y="13.5" width="18" height="1.5" rx="1" fill="#64748b" /></svg>
             </button>
             <Link to="/dashboard" className="text-base font-black tracking-tight text-slate-900">ForgeStudio</Link>
             <span className="hidden sm:inline text-slate-300 text-lg font-light">/</span>
@@ -711,35 +748,38 @@ function UserDashboard() {
           ${sidebarOpen ? "translate-x-0 shadow-xl" : "-translate-x-full lg:translate-x-0"}
           flex flex-col gap-4 p-4 lg:p-0
         `}>
-          {NAV_GROUPS.map(group => (
-            <div key={group.label}>
-              <p className="text-[9px] font-extrabold uppercase tracking-widest text-slate-400 px-3 pb-1.5 mb-1">{group.label}</p>
-              <div className="flex flex-col gap-0.5">
-                {group.items.map(item => {
-                  const isActive = activeTab === item.id;
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => setTab(item.id)}
-                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left transition-all ${isActive ? "bg-slate-900 text-white shadow" : "text-slate-600 hover:bg-white hover:text-slate-900 hover:shadow-sm"}`}
-                    >
-                      <span className="text-sm leading-none">{item.icon}</span>
-                      <span className="text-xs font-bold flex-1 truncate">{item.label}</span>
-                      {item.badge && (
-                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0 ${isActive ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"}`}>
-                          {item.badge}
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
+          <nav role="navigation" aria-label="Dashboard sections" className="flex flex-col gap-4">
+            {NAV_GROUPS.map(group => (
+              <div key={group.label}>
+                <p className="text-[9px] font-extrabold uppercase tracking-widest text-slate-400 px-3 pb-1.5 mb-1">{group.label}</p>
+                <div className="flex flex-col gap-0.5">
+                  {group.items.map(item => {
+                    const isActive = activeTab === item.id;
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => setTab(item.id)}
+                        className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left transition-all ${isActive ? "bg-slate-900 text-white shadow" : "text-slate-600 hover:bg-white hover:text-slate-900 hover:shadow-sm"}`}
+                      >
+                        <span className="text-sm leading-none" aria-hidden="true">{item.icon}</span>
+                        <span className="text-xs font-bold flex-1 truncate">{item.label}</span>
+                        {item.badge && (
+                          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0 ${isActive ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"}`}>
+                            {item.badge}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </nav>
         </aside>
 
         {/* ── MAIN CONTENT ───────────────────── */}
-        <main className="flex-1 min-w-0">
+        <main id="main-content" role="main" tabIndex={-1} className="flex-1 min-w-0 focus:outline-none">
           {activeNavItem && (
             <div className="mb-5 flex items-center gap-2">
               <span className="text-xl">{activeNavItem?.icon}</span>
@@ -749,7 +789,9 @@ function UserDashboard() {
               </div>
             </div>
           )}
-          {renderContent()}
+          <Suspense fallback={<DashboardPanelLoading />}>
+            {renderContent()}
+          </Suspense>
         </main>
       </div>
 
@@ -786,41 +828,55 @@ function UserDashboard() {
       )}
 
       {roleManagerSite && (
-        <RoleManagerModal websiteId={roleManagerSite.id} websiteName={roleManagerSite.name} onClose={() => setRoleManagerSite(null)} apiUrl={apiUrl} />
+        <Suspense fallback={null}>
+          <RoleManagerModal websiteId={roleManagerSite.id} websiteName={roleManagerSite.name} onClose={() => setRoleManagerSite(null)} apiUrl={apiUrl} />
+        </Suspense>
       )}
 
       {/* Import Website Kit Dialog */}
-      <ImportWebsiteKitDialog
-        isOpen={isImportKitOpen}
-        onClose={() => setIsImportKitOpen(false)}
-        onImportKit={handleImportDashboardKit}
-      />
+      {isImportKitOpen && (
+        <Suspense fallback={null}>
+          <ImportWebsiteKitDialog
+            isOpen={isImportKitOpen}
+            onClose={() => setIsImportKitOpen(false)}
+            onImportKit={handleImportDashboardKit}
+          />
+        </Suspense>
+      )}
 
       {/* Managed Site Modal (F-426, F-427, F-435-437) */}
       {managedSiteTarget && (
-        <ManagedSiteModal
-          website={managedSiteTarget}
-          isOpen={!!managedSiteTarget}
-          onClose={() => setManagedSiteTarget(null)}
-          onWebsiteUpdated={fetchWebsites}
-        />
+        <Suspense fallback={null}>
+          <ManagedSiteModal
+            website={managedSiteTarget}
+            isOpen={!!managedSiteTarget}
+            onClose={() => setManagedSiteTarget(null)}
+            onWebsiteUpdated={fetchWebsites}
+          />
+        </Suspense>
       )}
 
       {/* Form Submissions Modal */}
       {formsTargetSite && (
-        <FormSubmissionsModal
-          websiteId={formsTargetSite.id}
-          websiteName={formsTargetSite.name}
-          isOpen={!!formsTargetSite}
-          onClose={() => setFormsTargetSite(null)}
-        />
+        <Suspense fallback={null}>
+          <FormSubmissionsModal
+            websiteId={formsTargetSite.id}
+            websiteName={formsTargetSite.name}
+            isOpen={!!formsTargetSite}
+            onClose={() => setFormsTargetSite(null)}
+          />
+        </Suspense>
       )}
 
       {/* Global Activity Log Modal (F-428) */}
-      <ActivityLogModal
-        isOpen={isGlobalActivityLogOpen}
-        onClose={() => setIsGlobalActivityLogOpen(false)}
-      />
+      {isGlobalActivityLogOpen && (
+        <Suspense fallback={null}>
+          <ActivityLogModal
+            isOpen={isGlobalActivityLogOpen}
+            onClose={() => setIsGlobalActivityLogOpen(false)}
+          />
+        </Suspense>
+      )}
 
       {/* Floating Bulk Action Bar (F-430) */}
       {selectedSiteIds.length > 0 && (

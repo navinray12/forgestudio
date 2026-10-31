@@ -294,7 +294,9 @@ function AdminDashboard() {
   }, [activeTab, fetchStats, fetchUsers, fetchWebsites, fetchAuditLogs, fetchMonitoring]);
 
   useEffect(() => {
-    refreshActiveTab();
+    queueMicrotask(() => {
+      refreshActiveTab();
+    });
   }, [refreshActiveTab]);
 
   // Configurable polling

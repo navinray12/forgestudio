@@ -27,9 +27,11 @@ export const SaveGlobalWidgetDialog: React.FC<SaveGlobalWidgetDialogProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      setName(elementToSave?.content || (elementToSave as any)?.name || "My Global Widget");
-      setDescription("");
-      setValidationError(null);
+      queueMicrotask(() => {
+        setName(elementToSave?.content || (elementToSave as any)?.name || "My Global Widget");
+        setDescription("");
+        setValidationError(null);
+      });
       setTimeout(() => {
         nameInputRef.current?.focus();
         nameInputRef.current?.select();

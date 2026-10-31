@@ -321,7 +321,9 @@ function SuperAdminDashboard() {
   }, [activeTab, fetchStats, fetchUsers, fetchWebsites, fetchAuditLogs, fetchJobs, fetchMonitoring]);
 
   useEffect(() => {
-    refreshActiveTab();
+    queueMicrotask(() => {
+      refreshActiveTab();
+    });
   }, [refreshActiveTab]);
 
   useEffect(() => {

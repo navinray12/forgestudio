@@ -48,7 +48,7 @@ export function useEditorDnD({
       const offsetY = e.clientY - rect.top;
       const height = rect.height;
 
-      let pos: "before" | "after" | "inside" = "after";
+      let pos: "before" | "after" | "inside";
       if (isContainer) {
         if (offsetY < Math.min(height * 0.25, 30)) {
           pos = "before";

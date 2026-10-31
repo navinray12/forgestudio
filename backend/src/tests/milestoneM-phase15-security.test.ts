@@ -56,6 +56,33 @@ async function runMilestoneMTests() {
       userId: tenantA.id,
     });
 
+    await db.website.update({
+      where: { id: siteA.id },
+      data: {
+        status: "PUBLISHED",
+        editorData: {
+          elements: [
+            {
+              id: "contact-form-ssrf",
+              type: "form",
+              settings: {
+                fields: [
+                  { name: "name", label: "Name", required: true },
+                  { name: "email", label: "Email", required: true },
+                ],
+                actions: {
+                  activeActions: ["database", "webhook"],
+                  webhookConfig: {
+                    endpointUrl: "http://127.0.0.1:5000/internal-admin",
+                  },
+                },
+              },
+            },
+          ],
+        },
+      },
+    });
+
     siteB = await createWebsite({
       name: "Site Beta",
       slug: `site-beta-${Date.now()}`,

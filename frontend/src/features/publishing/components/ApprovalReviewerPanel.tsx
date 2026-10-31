@@ -120,7 +120,9 @@ export const ApprovalReviewerPanel: React.FC<ApprovalReviewerPanelProps> = ({
 
   useEffect(() => {
     if (websiteId) {
-      loadRequests();
+      queueMicrotask(() => {
+        loadRequests();
+      });
     }
   }, [websiteId]);
 
@@ -201,7 +203,9 @@ export const ApprovalReviewerPanel: React.FC<ApprovalReviewerPanelProps> = ({
       navigator.clipboard.writeText(JSON.stringify(snapshot, null, 2));
       setCopiedSnapshotId(requestId);
       setTimeout(() => setCopiedSnapshotId(null), 2500);
-    } catch (_) {}
+    } catch (_) {
+      /* ignore clipboard write failure in unsecured context */
+    }
   };
 
   const pendingRequests = requests.filter((r) => r.status === "PENDING");

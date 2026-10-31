@@ -23,20 +23,22 @@ export const ReusableComponentFormModal: React.FC<ReusableComponentFormModalProp
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
-    if (componentToEdit) {
-      setName(componentToEdit.name);
-      setCategory(componentToEdit.category || "Cards");
-      setDescription(componentToEdit.description || "");
-      setRootTitle(componentToEdit.rootElement?.children?.[0]?.content || "Heading Title");
-      setRootContent(componentToEdit.rootElement?.children?.[1]?.content || "Content description...");
-    } else {
-      setName("");
-      setCategory("Cards");
-      setDescription("");
-      setRootTitle("Pro Feature Card");
-      setRootContent("High performance modular UI component definition.");
-    }
-    setErrorMsg(null);
+    queueMicrotask(() => {
+      if (componentToEdit) {
+        setName(componentToEdit.name);
+        setCategory(componentToEdit.category || "Cards");
+        setDescription(componentToEdit.description || "");
+        setRootTitle(componentToEdit.rootElement?.children?.[0]?.content || "Heading Title");
+        setRootContent(componentToEdit.rootElement?.children?.[1]?.content || "Content description...");
+      } else {
+        setName("");
+        setCategory("Cards");
+        setDescription("");
+        setRootTitle("Pro Feature Card");
+        setRootContent("High performance modular UI component definition.");
+      }
+      setErrorMsg(null);
+    });
   }, [componentToEdit, isOpen]);
 
   if (!isOpen) return null;

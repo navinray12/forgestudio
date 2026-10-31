@@ -24,13 +24,17 @@ export const MediaLightboxModal: React.FC<MediaLightboxModalProps> = ({
   items,
   currentIndex = 0,
 }) => {
+  const [prevCurrentIndex, setPrevCurrentIndex] = useState(currentIndex);
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
   const [index, setIndex] = useState(currentIndex);
   const [zoom, setZoom] = useState(1);
 
-  useEffect(() => {
+  if (currentIndex !== prevCurrentIndex || isOpen !== prevIsOpen) {
+    setPrevCurrentIndex(currentIndex);
+    setPrevIsOpen(isOpen);
     setIndex(currentIndex);
     setZoom(1);
-  }, [currentIndex, isOpen]);
+  }
 
   useEffect(() => {
     if (!isOpen) return;
@@ -73,6 +77,9 @@ export const MediaLightboxModal: React.FC<MediaLightboxModalProps> = ({
 
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Media Lightbox Preview"
       className="fixed inset-0 z-[999999] flex flex-col items-center justify-between bg-black/95 text-white backdrop-blur-lg animate-in fade-in duration-200 select-none"
       onClick={onClose}
     >
@@ -95,6 +102,7 @@ export const MediaLightboxModal: React.FC<MediaLightboxModalProps> = ({
             <button
               type="button"
               onClick={toggleZoom}
+              aria-label={zoom === 1 ? 'Zoom in' : 'Zoom out'}
               className="p-2 rounded-xl bg-white/10 hover:bg-white/20 transition cursor-pointer text-white"
               title={zoom === 1 ? 'Zoom In' : 'Zoom Out'}
             >
@@ -105,6 +113,7 @@ export const MediaLightboxModal: React.FC<MediaLightboxModalProps> = ({
           <button
             type="button"
             onClick={onClose}
+            aria-label="Close Lightbox"
             className="p-2 rounded-xl bg-white/10 hover:bg-white/20 transition cursor-pointer text-white"
             title="Close Lightbox (Esc)"
           >
@@ -122,6 +131,7 @@ export const MediaLightboxModal: React.FC<MediaLightboxModalProps> = ({
           <button
             type="button"
             onClick={handlePrev}
+            aria-label="Previous item"
             className="absolute left-4 top-1/2 -translate-y-1/2 z-20 flex h-12 w-12 items-center justify-center rounded-full bg-white/15 hover:bg-white/30 text-white backdrop-blur-md transition shadow-2xl cursor-pointer"
             title="Previous (Left Arrow)"
           >
@@ -151,6 +161,7 @@ export const MediaLightboxModal: React.FC<MediaLightboxModalProps> = ({
           <button
             type="button"
             onClick={handleNext}
+            aria-label="Next item"
             className="absolute right-4 top-1/2 -translate-y-1/2 z-20 flex h-12 w-12 items-center justify-center rounded-full bg-white/15 hover:bg-white/30 text-white backdrop-blur-md transition shadow-2xl cursor-pointer"
             title="Next (Right Arrow)"
           >

@@ -1,6 +1,6 @@
 import { isSafeShareUrl, getCurrentResolvedPageUrl, resolveButtonHref, getLinkedPageStatus } from "../widgets/renderers";
 import { IconRenderer } from "../widgets/icons";
-import React from "react";
+import React, { useMemo } from "react";
 import type {
   EditorElement,
   GalleryImageItem,
@@ -213,6 +213,15 @@ export function UniversalItemManager<T extends { id: string }>(props: {
   const [draggedIdx, setDraggedIdx] = React.useState<number | null>(null);
   const [dragOverIdx, setDragOverIdx] = React.useState<number | null>(null);
 
+  React.useEffect(() => {
+    if (draggedIdx !== null) {
+      document.body.style.cursor = "grabbing";
+      return () => {
+        document.body.style.cursor = "";
+      };
+    }
+  }, [draggedIdx]);
+
   // Pointer Mouse Drag Handler (Guarantees smooth drag reordering in all webviews/iframes)
   const handlePointerStart = (startIdx: number, startEvent: React.MouseEvent) => {
     startEvent.stopPropagation();
@@ -242,7 +251,6 @@ export function UniversalItemManager<T extends { id: string }>(props: {
     const handleMouseUp = () => {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
-      document.body.style.cursor = "";
 
       if (currentHoverIdx !== startIdx && currentHoverIdx >= 0 && currentHoverIdx < currentItems.length) {
         const copy = [...currentItems];
@@ -255,7 +263,6 @@ export function UniversalItemManager<T extends { id: string }>(props: {
       setDragOverIdx(null);
     };
 
-    document.body.style.cursor = "grabbing";
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleMouseUp);
   };
@@ -266,7 +273,9 @@ export function UniversalItemManager<T extends { id: string }>(props: {
     try {
       e.dataTransfer.setData("text/plain", index.toString());
       e.dataTransfer.effectAllowed = "move";
-    } catch (err) {}
+    } catch {
+      /* ignore dataTransfer setData failure */
+    }
 
     setTimeout(() => {
       setDraggedIdx(index);
@@ -278,7 +287,9 @@ export function UniversalItemManager<T extends { id: string }>(props: {
     e.stopPropagation();
     try {
       e.dataTransfer.dropEffect = "move";
-    } catch (err) {}
+    } catch {
+      /* ignore dropEffect failure */
+    }
     if (dragOverIdx !== index) {
       setDragOverIdx(index);
     }
@@ -301,7 +312,9 @@ export function UniversalItemManager<T extends { id: string }>(props: {
       try {
         const str = e.dataTransfer.getData("text/plain");
         if (str) sourceIdx = parseInt(str, 10);
-      } catch (err) {}
+      } catch {
+        /* ignore dataTransfer getData failure */
+      }
     }
 
     if (
@@ -1050,13 +1063,27 @@ export function ShareButtonsInspector({
   const shareText = el.shareText || "";
   const shareHashtags = el.shareHashtags || "";
 
-  const resolvedPageUrl = getCurrentResolvedPageUrl(pages, activePageId);
-  const activePageObj = pages?.find((p) => p.id === activePageId || p.slug === activePageId);
+  const resolvedPageUrl = useMemo(
+    () => getCurrentResolvedPageUrl(pages, activePageId),
+    [pages, activePageId]
+  );
+  const activePageObj = useMemo(
+    () => pages?.find((p) => p.id === activePageId || p.slug === activePageId),
+    [pages, activePageId]
+  );
   const activePageName = activePageObj?.name || "Current Page";
 
   // URL Safety & Validation
-  const isValidUrl = isSafeShareUrl(shareUrl);
-  const isHttpOrRelative = !shareUrl || shareUrl.startsWith("http://") || shareUrl.startsWith("https://") || shareUrl.startsWith("/") || shareUrl.startsWith("#");
+  const isValidUrl = useMemo(() => isSafeShareUrl(shareUrl), [shareUrl]);
+  const isHttpOrRelative = useMemo(
+    () =>
+      !shareUrl ||
+      shareUrl.startsWith("http://") ||
+      shareUrl.startsWith("https://") ||
+      shareUrl.startsWith("/") ||
+      shareUrl.startsWith("#"),
+    [shareUrl]
+  );
 
   const handleUseCurrentPage = () => {
     updateProp("shareUrlSource", "current-page");
@@ -3033,8 +3060,8 @@ export function ButtonWidgetInspector({
   const activeDest = el.destinationType || el.linkType || (el.pageId ? "page" : "url");
 
   // Linked Page Status
-  const pageStatus = getLinkedPageStatus(el, pages);
-  const resolvedHref = resolveButtonHref(el, pages);
+  const pageStatus = useMemo(() => getLinkedPageStatus(el, pages), [el, pages]);
+  const resolvedHref = useMemo(() => resolveButtonHref(el, pages), [el, pages]);
 
   // Independent Button Color (Button Fill) ONLY
   const handleButtonColorChange = (color: string) => {
@@ -3722,6 +3749,18 @@ export function AnimatedTextWidgetInspector({
   );
 }
 
+function generatePricingPlanId(): string {
+  return `plan_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+}
+
+function generatePricingFeatureId(suffix: string | number): string {
+  return `f_${Date.now()}_${suffix}`;
+}
+
+function generatePricingFeatureRandomId(): string {
+  return `f_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+}
+
 // 18. Price Table Inspector
 export function PriceTableWidgetInspector({
   el,
@@ -3790,6 +3829,15 @@ export function PriceTableWidgetInspector({
   const [draggedFeatKey, setDraggedFeatKey] = React.useState<string | null>(null);
   const [dragOverFeatKey, setDragOverFeatKey] = React.useState<string | null>(null);
 
+  React.useEffect(() => {
+    if (draggedPlanIdx !== null || draggedFeatKey !== null) {
+      document.body.style.cursor = "grabbing";
+      return () => {
+        document.body.style.cursor = "";
+      };
+    }
+  }, [draggedPlanIdx, draggedFeatKey]);
+
   const handlePlanPointerStart = (startIdx: number, startEvent: React.MouseEvent) => {
     startEvent.stopPropagation();
     startEvent.preventDefault();
@@ -3818,7 +3866,6 @@ export function PriceTableWidgetInspector({
     const handleMouseUp = () => {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
-      document.body.style.cursor = "";
 
       if (currentHoverIdx !== startIdx && currentHoverIdx >= 0 && currentHoverIdx < plans.length) {
         const copy = [...plans];
@@ -3831,7 +3878,6 @@ export function PriceTableWidgetInspector({
       setDragOverPlanIdx(null);
     };
 
-    document.body.style.cursor = "grabbing";
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleMouseUp);
   };
@@ -3867,7 +3913,6 @@ export function PriceTableWidgetInspector({
     const handleMouseUp = () => {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
-      document.body.style.cursor = "";
 
       const targetFeatures = plans[planIndex]?.features || [];
       if (currentHoverFeatIdx !== startFeatIdx && currentHoverFeatIdx >= 0 && currentHoverFeatIdx < targetFeatures.length) {
@@ -3881,7 +3926,6 @@ export function PriceTableWidgetInspector({
       setDragOverFeatKey(null);
     };
 
-    document.body.style.cursor = "grabbing";
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleMouseUp);
   };
@@ -3892,7 +3936,7 @@ export function PriceTableWidgetInspector({
   };
 
   const handleAddPlan = () => {
-    const newId = `plan_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+    const newId = generatePricingPlanId();
     const newPlan: PricingPlan = {
       id: newId,
       name: `Plan ${plans.length + 1}`,
@@ -3908,9 +3952,9 @@ export function PriceTableWidgetInspector({
       buttonUrl: "#",
       buttonAlignment: "full",
       features: [
-        { id: `f_${Date.now()}_1`, text: "Feature 1", included: true },
-        { id: `f_${Date.now()}_2`, text: "Feature 2", included: true },
-        { id: `f_${Date.now()}_3`, text: "Feature 3", included: false },
+        { id: generatePricingFeatureId(1), text: "Feature 1", included: true },
+        { id: generatePricingFeatureId(2), text: "Feature 2", included: true },
+        { id: generatePricingFeatureId(3), text: "Feature 3", included: false },
       ],
     };
     const updated = [...plans, newPlan];
@@ -3934,14 +3978,14 @@ export function PriceTableWidgetInspector({
 
   const handleDuplicatePlan = (idx: number) => {
     const source = plans[idx];
-    const newId = `plan_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+    const newId = generatePricingPlanId();
     const copy: PricingPlan = {
       ...source,
       id: newId,
       name: `${source.name} (Copy)`,
       features: (source.features || []).map((f) => ({
         ...f,
-        id: `f_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+        id: generatePricingFeatureRandomId(),
       })),
     };
     const updated = [...plans];
@@ -4147,7 +4191,9 @@ export function PriceTableWidgetInspector({
                   try {
                     e.dataTransfer.setData("text/plain", JSON.stringify({ type: "plan", planIdx }));
                     e.dataTransfer.effectAllowed = "move";
-                  } catch (err) {}
+                  } catch {
+                    /* ignore dataTransfer setData failure */
+                  }
                   setTimeout(() => setDraggedPlanIdx(planIdx), 0);
                 }}
                 onDragOver={(e) => {
@@ -4155,7 +4201,9 @@ export function PriceTableWidgetInspector({
                   e.stopPropagation();
                   try {
                     e.dataTransfer.dropEffect = "move";
-                  } catch (err) {}
+                  } catch {
+                    /* ignore dropEffect failure */
+                  }
                   if (dragOverPlanIdx !== planIdx) setDragOverPlanIdx(planIdx);
                 }}
                 onDragEnter={(e) => {
@@ -4177,7 +4225,9 @@ export function PriceTableWidgetInspector({
                       const raw = e.dataTransfer.getData("text/plain");
                       const parsed = JSON.parse(raw);
                       if (parsed && parsed.type === "plan") sourcePlanIdx = parsed.planIdx;
-                    } catch (err) {}
+                    } catch {
+                      /* ignore dataTransfer parse failure */
+                    }
                   }
 
                   if (
@@ -4227,7 +4277,9 @@ export function PriceTableWidgetInspector({
                         try {
                           e.dataTransfer.setData("text/plain", JSON.stringify({ type: "plan", planIdx }));
                           e.dataTransfer.effectAllowed = "move";
-                        } catch (err) {}
+                        } catch {
+                          /* ignore dataTransfer setData failure */
+                        }
                         setTimeout(() => setDraggedPlanIdx(planIdx), 0);
                       }}
                       className="cursor-grab active:cursor-grabbing text-slate-400 hover:text-blue-600 p-0.5 rounded hover:bg-slate-100 transition shrink-0 flex items-center select-none"
@@ -4455,7 +4507,9 @@ export function PriceTableWidgetInspector({
                                 try {
                                   e.dataTransfer.setData("text/plain", JSON.stringify({ type: "feature", planIdx, featIdx }));
                                   e.dataTransfer.effectAllowed = "move";
-                                } catch (err) {}
+                                } catch {
+                                  /* ignore dataTransfer setData failure */
+                                }
                                 setTimeout(() => setDraggedFeatKey(featKey), 0);
                               }}
                               onDragOver={(e) => {
@@ -4463,7 +4517,9 @@ export function PriceTableWidgetInspector({
                                 e.stopPropagation();
                                 try {
                                   e.dataTransfer.dropEffect = "move";
-                                } catch (err) {}
+                                } catch {
+                                  /* ignore dropEffect failure */
+                                }
                                 if (dragOverFeatKey !== featKey) setDragOverFeatKey(featKey);
                               }}
                               onDragEnter={(e) => {
@@ -4485,7 +4541,9 @@ export function PriceTableWidgetInspector({
                                     const raw = e.dataTransfer.getData("text/plain");
                                     const parsed = JSON.parse(raw);
                                     if (parsed && parsed.type === "feature") refKey = `${parsed.planIdx}_${parsed.featIdx}`;
-                                  } catch (err) {}
+                                  } catch {
+                                    /* ignore dataTransfer parse failure */
+                                  }
                                 }
 
                                 if (refKey) {
@@ -4528,7 +4586,9 @@ export function PriceTableWidgetInspector({
                                   try {
                                     e.dataTransfer.setData("text/plain", JSON.stringify({ type: "feature", planIdx, featIdx }));
                                     e.dataTransfer.effectAllowed = "move";
-                                  } catch (err) {}
+                                  } catch {
+                                    /* ignore dataTransfer setData failure */
+                                  }
                                   setTimeout(() => setDraggedFeatKey(featKey), 0);
                                 }}
                                 className="cursor-grab active:cursor-grabbing text-slate-400 hover:text-blue-600 p-0.5 rounded hover:bg-slate-200/60 transition shrink-0 flex items-center select-none"
@@ -5935,6 +5995,15 @@ export function NestedCarouselWidgetInspector({
   const [draggedSlideIdx, setDraggedSlideIdx] = React.useState<number | null>(null);
   const [dragOverSlideIdx, setDragOverSlideIdx] = React.useState<number | null>(null);
 
+  React.useEffect(() => {
+    if (draggedSlideIdx !== null) {
+      document.body.style.cursor = "grabbing";
+      return () => {
+        document.body.style.cursor = "";
+      };
+    }
+  }, [draggedSlideIdx]);
+
   const handleSlidePointerStart = (startIdx: number, startEvent: React.MouseEvent) => {
     startEvent.stopPropagation();
     startEvent.preventDefault();
@@ -5963,7 +6032,6 @@ export function NestedCarouselWidgetInspector({
     const handleMouseUp = () => {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
-      document.body.style.cursor = "";
 
       if (currentHoverIdx !== startIdx && currentHoverIdx >= 0 && currentHoverIdx < children.length) {
         const copy = [...children];
@@ -5976,7 +6044,6 @@ export function NestedCarouselWidgetInspector({
       setDragOverSlideIdx(null);
     };
 
-    document.body.style.cursor = "grabbing";
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleMouseUp);
   };
@@ -6166,7 +6233,9 @@ export function NestedCarouselWidgetInspector({
                 try {
                   e.dataTransfer.setData("text/plain", sIdx.toString());
                   e.dataTransfer.effectAllowed = "move";
-                } catch (err) {}
+                } catch {
+                  /* ignore dataTransfer setData failure */
+                }
                 setTimeout(() => setDraggedSlideIdx(sIdx), 0);
               }}
               onDragOver={(e) => {
@@ -6174,7 +6243,9 @@ export function NestedCarouselWidgetInspector({
                 e.stopPropagation();
                 try {
                   e.dataTransfer.dropEffect = "move";
-                } catch (err) {}
+                } catch {
+                  /* ignore dropEffect failure */
+                }
                 if (dragOverSlideIdx !== sIdx) setDragOverSlideIdx(sIdx);
               }}
               onDragEnter={(e) => {
@@ -6195,7 +6266,9 @@ export function NestedCarouselWidgetInspector({
                   try {
                     const str = e.dataTransfer.getData("text/plain");
                     if (str) sourceIdx = parseInt(str, 10);
-                  } catch (err) {}
+                  } catch {
+                    /* ignore dataTransfer parse failure */
+                  }
                 }
 
                 if (sourceIdx !== null && !isNaN(sourceIdx) && sourceIdx !== sIdx && sourceIdx >= 0 && sourceIdx < children.length) {
@@ -6233,7 +6306,9 @@ export function NestedCarouselWidgetInspector({
                     try {
                       e.dataTransfer.setData("text/plain", sIdx.toString());
                       e.dataTransfer.effectAllowed = "move";
-                    } catch (err) {}
+                    } catch {
+                      /* ignore dataTransfer setData failure */
+                    }
                     setTimeout(() => setDraggedSlideIdx(sIdx), 0);
                   }}
                   className="cursor-grab active:cursor-grabbing text-slate-400 hover:text-indigo-600 p-0.5 rounded hover:bg-slate-100 transition shrink-0 flex items-center select-none"
@@ -9503,7 +9578,9 @@ export function DisplayConditionsWidgetInspector({
       }
       try {
         localStorage.setItem(FS_DISPLAY_CONDITIONS_CLIPBOARD_KEY, json);
-      } catch {}
+      } catch {
+        /* ignore localStorage write failure */
+      }
       setClipboardStatus("Copied!");
       setTimeout(() => setClipboardStatus(null), 2500);
     } catch {
@@ -9518,12 +9595,16 @@ export function DisplayConditionsWidgetInspector({
       if (typeof navigator !== "undefined" && navigator.clipboard?.readText) {
         try {
           rawText = await navigator.clipboard.readText();
-        } catch {}
+        } catch {
+          /* ignore clipboard read permission denial */
+        }
       }
       if (!rawText) {
         try {
           rawText = localStorage.getItem(FS_DISPLAY_CONDITIONS_CLIPBOARD_KEY) || "";
-        } catch {}
+        } catch {
+          /* ignore localStorage read failure */
+        }
       }
 
       const validated = validateDisplayConditionsData(rawText);

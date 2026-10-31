@@ -6,10 +6,6 @@ export default function PluginHub() {
     const [plugins, setPlugins] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchPlugins();
-    }, []);
-
     const fetchPlugins = async () => {
         try {
             const res = await fetch(`${apiUrl}/api/v1/plugins`, {
@@ -25,6 +21,12 @@ export default function PluginHub() {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        queueMicrotask(() => {
+            fetchPlugins();
+        });
+    }, []);
 
     const activatePlugin = async (id: string) => {
         try {

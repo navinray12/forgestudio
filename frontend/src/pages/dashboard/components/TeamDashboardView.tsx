@@ -8,10 +8,6 @@ export const TeamDashboardView: React.FC<{ teamId: string; apiUrl: string, onNav
     const [inviteRole, setInviteRole] = useState("DESIGNER");
     const [inviting, setInviting] = useState(false);
 
-    useEffect(() => {
-        fetchTeam();
-    }, [teamId]);
-
     const fetchTeam = async () => {
         try {
             setLoading(true);
@@ -25,6 +21,12 @@ export const TeamDashboardView: React.FC<{ teamId: string; apiUrl: string, onNav
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        queueMicrotask(() => {
+            fetchTeam();
+        });
+    }, [teamId]);
 
     const handleInvite = async (e: React.FormEvent) => {
         e.preventDefault();

@@ -87,9 +87,6 @@ export default function AdvancedCodePanel() {
     const [saving, setSaving] = useState(false);
     const [formError, setFormError] = useState<string | null>(null);
 
-    useEffect(() => { loadWebsites(); }, []);
-    useEffect(() => { if (siteId) loadSnippets(); }, [siteId]);
-
     const loadWebsites = async () => {
         try {
             const r = await fetch(`${apiUrl}/api/websites`, { credentials: "include" });
@@ -108,6 +105,9 @@ export default function AdvancedCodePanel() {
         } catch { setGlobalError("Network error."); }
         finally { setLoading(false); }
     };
+
+    useEffect(() => { queueMicrotask(() => { loadWebsites(); }); }, []);
+    useEffect(() => { if (siteId) queueMicrotask(() => { loadSnippets(); }); }, [siteId]);
 
     const openAdd = () => {
         setTitle(""); setLang("JS"); setCode(""); setPlacement("HEAD");

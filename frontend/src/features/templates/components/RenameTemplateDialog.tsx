@@ -24,11 +24,13 @@ export const RenameTemplateDialog: React.FC<RenameTemplateDialogProps> = ({
 
   useEffect(() => {
     if (template) {
-      setName(template.name || "");
-      setDescription(template.description || "");
-      setCategory(template.category || "Other");
-      setValidationError(null);
-      setServerError(null);
+      queueMicrotask(() => {
+        setName(template.name || "");
+        setDescription(template.description || "");
+        setCategory(template.category || "Other");
+        setValidationError(null);
+        setServerError(null);
+      });
     }
   }, [template]);
 

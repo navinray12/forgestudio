@@ -23,18 +23,20 @@ export const VariableFormModal: React.FC<VariableFormModalProps> = ({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
-    if (variableToEdit) {
-      setName(variableToEdit.name);
-      setType(variableToEdit.type);
-      setValue(variableToEdit.value);
-      setDescription(variableToEdit.description || "");
-    } else {
-      setName("");
-      setType("color");
-      setValue("#2563eb");
-      setDescription("");
-    }
-    setErrorMsg(null);
+    queueMicrotask(() => {
+      if (variableToEdit) {
+        setName(variableToEdit.name);
+        setType(variableToEdit.type);
+        setValue(variableToEdit.value);
+        setDescription(variableToEdit.description || "");
+      } else {
+        setName("");
+        setType("color");
+        setValue("#2563eb");
+        setDescription("");
+      }
+      setErrorMsg(null);
+    });
   }, [variableToEdit, isOpen]);
 
   if (!isOpen) return null;

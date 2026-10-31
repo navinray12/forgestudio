@@ -53,15 +53,25 @@ export default function ComponentAccessModal({ isOpen, onClose, websiteId: _webs
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <div className="w-full max-w-2xl bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+            <div
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="component-access-modal-title"
+                className="w-full max-w-2xl bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]"
+            >
 
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50">
                     <div>
-                        <h2 className="text-lg font-bold text-slate-800">Component Access & Permissions</h2>
+                        <h2 id="component-access-modal-title" className="text-lg font-bold text-slate-800">Component Access & Permissions</h2>
                         <p className="text-xs text-slate-500 mt-1">Control which components collaborators can edit.</p>
                     </div>
-                    <button onClick={onClose} className="rounded-lg p-2 text-slate-400 hover:bg-slate-200 hover:text-slate-700 transition">
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        aria-label="Close component access modal"
+                        className="rounded-lg p-2 text-slate-400 hover:bg-slate-200 hover:text-slate-700 transition cursor-pointer"
+                    >
                         ✕
                     </button>
                 </div>
@@ -70,6 +80,7 @@ export default function ComponentAccessModal({ isOpen, onClose, websiteId: _webs
                 <div className="p-4 border-b border-slate-100 bg-white flex items-center gap-4">
                     <input
                         type="text"
+                        aria-label="Search components"
                         placeholder="Search components..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}

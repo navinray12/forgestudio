@@ -31,13 +31,17 @@ class FontServiceClass {
   private saveFavorites() {
     try {
       localStorage.setItem(FAVORITES_KEY, JSON.stringify(Array.from(this.favorites)));
-    } catch (e) {}
+    } catch {
+      /* ignore localStorage write error in restricted context */
+    }
   }
 
   private saveRecentlyUsed() {
     try {
       localStorage.setItem(RECENT_KEY, JSON.stringify(this.recentlyUsed));
-    } catch (e) {}
+    } catch {
+      /* ignore localStorage write error in restricted context */
+    }
   }
 
   public getFavorites(): FontMetadata[] {

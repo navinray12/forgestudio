@@ -119,8 +119,10 @@ export const WorkspaceSwitcher: React.FC<WorkspaceSwitcherProps> = ({
   };
 
   useEffect(() => {
-    fetchWorkspaces();
-    fetchPendingInvitations();
+    queueMicrotask(() => {
+      fetchWorkspaces();
+      fetchPendingInvitations();
+    });
   }, [apiUrl]);
 
   const activeWs = workspaces.find((w) => w.id === currentWorkspaceId);

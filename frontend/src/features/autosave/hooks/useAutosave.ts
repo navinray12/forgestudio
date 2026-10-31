@@ -225,7 +225,7 @@ export function useAutosave({
    * Executes the actual save network request for a specific immutable payload
    */
   const performSave = useCallback(
-    async (payload: SavePayload) => {
+    async function performSaveFn(payload: SavePayload) {
       const { websiteId: currentWebId, apiUrl: currentApiUrl } = latestPropsRef.current;
 
       if (!currentWebId || !payload || !payload.snapshot) {
@@ -324,7 +324,7 @@ export function useAutosave({
         if (queuedPayloadRef.current) {
           const nextPayload = queuedPayloadRef.current;
           queuedPayloadRef.current = null;
-          performSave(nextPayload);
+          performSaveFn(nextPayload);
         } else {
           const currentLiveSnapshot = serializeState(
             latestPropsRef.current.elements,

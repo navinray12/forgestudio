@@ -15,24 +15,10 @@ const MAX_RESPONSE_BYTES = 2 * 1024 * 1024;
 
 const PRIVATE_HOSTNAMES = new Set(["localhost", "localhost.localdomain"]);
 
+import { isPrivateOrLoopbackIp } from "../utils/ssrf.validator.js";
+
 function isPrivateIp(address: string): boolean {
-  const version = net.isIP(address);
-  if (version === 4) {
-    const [a, b] = address.split(".").map(Number);
-    return a === 10 || a === 127 || (a === 169 && b === 254) ||
-      (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) ||
-      (a === 100 && b >= 64 && b <= 127) || a === 0;
-  }
-  if (version === 6) {
-    const normalized = address.toLowerCase();
-    return normalized === "::1" || normalized === "::" ||
-      normalized.startsWith("fc") || normalized.startsWith("fd") ||
-      normalized.startsWith("fe8") || normalized.startsWith("fe9") ||
-      normalized.startsWith("fea") || normalized.startsWith("feb") ||
-      normalized.startsWith("::ffff:127.") || normalized.startsWith("::ffff:10.") ||
-      normalized.startsWith("::ffff:192.168.") || normalized.startsWith("::ffff:172.");
-  }
-  return true;
+  return isPrivateOrLoopbackIp(address);
 }
 
 async function assertSafeExternalUrl(rawUrl: string): Promise<URL> {

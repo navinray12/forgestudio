@@ -31,16 +31,18 @@ export const FontPickerModal: React.FC<FontPickerModalProps> = ({
   selectedFont,
   onSelectFont,
 }) => {
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<FontCategory | 'all' | 'recent' | 'favorites' | 'popular' | 'pairings'>('all');
   const [previewText, setPreviewText] = useState('The quick brown fox jumps over 123');
   const [favTrigger, setFavTrigger] = useState(0);
 
-  useEffect(() => {
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen);
     if (isOpen) {
       setSearchQuery('');
     }
-  }, [isOpen]);
+  }
 
   const fontPairings = useMemo(() => {
     return FontService.getFontPairings();
@@ -78,7 +80,12 @@ export const FontPickerModal: React.FC<FontPickerModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-slate-950/70 backdrop-blur-md p-4 animate-in fade-in duration-200">
-      <div className="flex flex-col w-full max-w-4xl h-[85vh] bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="font-picker-modal-title"
+        className="flex flex-col w-full max-w-4xl h-[85vh] bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden"
+      >
         
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-slate-50/80">
@@ -87,7 +94,7 @@ export const FontPickerModal: React.FC<FontPickerModalProps> = ({
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-extrabold text-slate-900 tracking-tight">Dynamic Font Library</h2>
+              <h2 id="font-picker-modal-title" className="text-lg font-extrabold text-slate-900 tracking-tight">Dynamic Font Library</h2>
               <p className="text-xs font-semibold text-slate-500">Explore, search & preview 1000+ dynamic web & system fonts</p>
             </div>
           </div>
@@ -95,6 +102,7 @@ export const FontPickerModal: React.FC<FontPickerModalProps> = ({
           <button
             type="button"
             onClick={onClose}
+            aria-label="Close font library"
             className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition cursor-pointer"
           >
             <X className="w-5 h-5" />
@@ -109,6 +117,7 @@ export const FontPickerModal: React.FC<FontPickerModalProps> = ({
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
                 type="text"
+                aria-label="Search fonts by name or style"
                 placeholder="Search fonts by name or style (e.g. Abril, Inter, Roboto, Times)..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -119,7 +128,8 @@ export const FontPickerModal: React.FC<FontPickerModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  aria-label="Clear font search"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>

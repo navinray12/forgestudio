@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useCallback, useMemo, useRef } from "react";
 import type { AtomicClass, CreateClassPayload, UpdateClassPayload } from "../types/classes.types";
 import { fetchClasses, saveClasses } from "../services/classService";
 import { formatClassName, validateClassName } from "../utils/class.utils";
@@ -17,7 +17,9 @@ export function useClasses(websiteId?: string) {
 
   // Stale request guard to prevent responses from a previously selected website from overwriting new data
   const activeWebsiteIdRef = useRef<string | undefined>(websiteId);
-  activeWebsiteIdRef.current = websiteId;
+  useLayoutEffect(() => {
+    activeWebsiteIdRef.current = websiteId;
+  }, [websiteId]);
 
   const loadClasses = useCallback(async () => {
     const targetWebsiteId = websiteId;
@@ -42,7 +44,9 @@ export function useClasses(websiteId?: string) {
   }, [websiteId]);
 
   useEffect(() => {
-    loadClasses();
+    queueMicrotask(() => {
+      loadClasses();
+    });
   }, [loadClasses]);
 
   // Synchronize on external design system update (e.g. import in ClassManagerModal)

@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback } from "react";
 
 interface LazyLoadOptions {
     enabled?: boolean;
@@ -43,23 +43,20 @@ const getIntersectionObserver = (() => {
 })();
 
 export function useLazyLoad({ enabled = true, rootMargin = "300px", threshold = 0 }: LazyLoadOptions = {}) {
-    const [isVisible, setIsVisible] = useState(!enabled);
+    const [isVisible, setIsVisible] = useState(false);
     const elementRef = useRef<HTMLElement | null>(null);
 
-    // Ensure we trigger update immediately if disabled
-    useEffect(() => {
-        if (!enabled && !isVisible) setIsVisible(true);
-    }, [enabled, isVisible]);
+    const effectiveIsVisible = !enabled || isVisible;
 
     const setRef = useCallback((node: HTMLElement | null) => {
         // Unobserve previous node if it changed
-        if (elementRef.current && !isVisible && enabled) {
+        if (elementRef.current && !effectiveIsVisible && enabled) {
             getIntersectionObserver(rootMargin, threshold)?.unobserve(elementRef.current);
         }
 
         elementRef.current = node;
 
-        if (node && enabled && !isVisible) {
+        if (node && enabled && !effectiveIsVisible) {
             const sharedObserver = getIntersectionObserver(rootMargin, threshold);
             if (sharedObserver) {
                 sharedObserver.observe(node, () => setIsVisible(true));
@@ -67,7 +64,7 @@ export function useLazyLoad({ enabled = true, rootMargin = "300px", threshold = 
                 setIsVisible(true); // Fallback
             }
         }
-    }, [enabled, isVisible, rootMargin, threshold]);
+    }, [enabled, effectiveIsVisible, rootMargin, threshold]);
 
-    return { ref: setRef, isVisible };
+    return { ref: setRef, isVisible: effectiveIsVisible };
 }

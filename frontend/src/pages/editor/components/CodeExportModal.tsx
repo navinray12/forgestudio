@@ -22,8 +22,10 @@ export const CodeExportModal: React.FC<CodeExportModalProps> = ({
   useEffect(() => {
     if (!isOpen || !websiteId) return;
 
-    setLoading(true);
-    setError(null);
+    queueMicrotask(() => {
+      setLoading(true);
+      setError(null);
+    });
 
     fetch(`/api/websites/${websiteId}/export/preview`, {
       headers: {
@@ -126,7 +128,11 @@ export const CodeExportModal: React.FC<CodeExportModalProps> = ({
       zIndex: 9999,
       backdropFilter: "blur(4px)",
     }}>
-      <div style={{
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="code-export-modal-title"
+        style={{
         backgroundColor: "#111827",
         color: "#f3f4f6",
         borderRadius: "12px",
@@ -147,7 +153,7 @@ export const CodeExportModal: React.FC<CodeExportModalProps> = ({
           justifyContent: "space-between",
         }}>
           <div>
-            <h2 style={{ margin: 0, fontSize: "20px", fontWeight: 700, color: "#ffffff" }}>
+            <h2 id="code-export-modal-title" style={{ margin: 0, fontSize: "20px", fontWeight: 700, color: "#ffffff" }}>
               Code Preview & Export Engine — {websiteName}
             </h2>
             <p style={{ margin: "4px 0 0", fontSize: "13px", color: "#9ca3af" }}>
@@ -155,7 +161,9 @@ export const CodeExportModal: React.FC<CodeExportModalProps> = ({
             </p>
           </div>
           <button
+            type="button"
             onClick={onClose}
+            aria-label="Close code export modal"
             style={{
               background: "none",
               border: "none",

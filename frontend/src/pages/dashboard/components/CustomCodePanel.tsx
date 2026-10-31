@@ -26,9 +26,6 @@ export default function CustomCodePanel() {
     const [form, setForm] = useState({ title: "", placement: "HEAD" as Placement, language: "HTML" as Language, code: "" });
     const [saving, setSaving] = useState(false);
 
-    useEffect(() => { fetchWebsites(); }, []);
-    useEffect(() => { if (selectedSite) fetchEntries(); }, [selectedSite]);
-
     const fetchWebsites = async () => {
         try {
             const res = await fetch(`${apiUrl}/api/websites`, { credentials: "include" });
@@ -50,6 +47,9 @@ export default function CustomCodePanel() {
         } catch { setError("Network error loading custom code."); }
         finally { setLoading(false); }
     };
+
+    useEffect(() => { queueMicrotask(() => { fetchWebsites(); }); }, []);
+    useEffect(() => { if (selectedSite) queueMicrotask(() => { fetchEntries(); }); }, [selectedSite]);
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();

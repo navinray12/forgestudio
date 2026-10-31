@@ -33,7 +33,9 @@ export function useGlobalWidgets({ apiUrl }: UseGlobalWidgetsParams) {
   }, [apiUrl]);
 
   useEffect(() => {
-    fetchWidgets();
+    queueMicrotask(() => {
+      fetchWidgets();
+    });
   }, [fetchWidgets]);
 
   const filteredWidgets = useMemo(() => {

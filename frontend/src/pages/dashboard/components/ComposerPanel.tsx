@@ -18,10 +18,6 @@ export default function ComposerPanel() {
     const [installing, setInstalling] = useState(false);
     const [output, setOutput] = useState("");
 
-    useEffect(() => {
-        fetchStatus();
-    }, []);
-
     const fetchStatus = async () => {
         try {
             // Composer routes use requireAuth (cookie-based session), mounted at /api/v1/composer
@@ -38,6 +34,12 @@ export default function ComposerPanel() {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        queueMicrotask(() => {
+            fetchStatus();
+        });
+    }, []);
 
     const handleValidate = async () => {
         setValidating(true);

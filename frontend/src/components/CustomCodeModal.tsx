@@ -22,10 +22,23 @@ const CustomCodeModal: React.FC<CustomCodeModalProps> = ({ isOpen, onClose, webs
     }, [websiteId]);
 
     useEffect(() => {
-        if (isOpen && websiteId) {
-            loadSnippets();
-        }
-    }, [isOpen, websiteId, loadSnippets]);
+        if (!isOpen || !websiteId) return;
+
+        let isSubscribed = true;
+        const fetchSnippets = async () => {
+            const data = await getCustomCodeSnippets(websiteId);
+            if (isSubscribed) {
+                setSnippets(data);
+                setIsLoading(false);
+            }
+        };
+
+        fetchSnippets();
+
+        return () => {
+            isSubscribed = false;
+        };
+    }, [isOpen, websiteId]);
 
     const handleSave = async () => {
         if (!editingSnippet?.title || !editingSnippet.language || !editingSnippet.placement) {
@@ -63,20 +76,30 @@ const CustomCodeModal: React.FC<CustomCodeModalProps> = ({ isOpen, onClose, webs
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <div className="bg-slate-900 w-full max-w-4xl rounded-xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col max-h-[90vh]">
+            <div
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="custom-code-modal-title"
+                className="bg-slate-900 w-full max-w-4xl rounded-xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col max-h-[90vh]"
+            >
 
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 border-b border-slate-800 bg-slate-900/50">
-                    <h2 className="text-lg font-bold text-slate-100 flex items-center gap-2">
+                    <h2 id="custom-code-modal-title" className="text-lg font-bold text-slate-100 flex items-center gap-2">
                         <span className="text-indigo-400">{'</>'}</span> Custom Code Manager
                     </h2>
-                    <button onClick={() => {
-                        if (editingSnippet && window.confirm("Discard unsaved changes?")) {
-                            setEditingSnippet(null);
-                        } else if (!editingSnippet) {
-                            onClose();
-                        }
-                    }} className="text-slate-400 hover:text-white px-2 py-1 text-xl font-bold leading-none">
+                    <button
+                        type="button"
+                        aria-label="Close Custom Code Manager"
+                        onClick={() => {
+                            if (editingSnippet && window.confirm("Discard unsaved changes?")) {
+                                setEditingSnippet(null);
+                            } else if (!editingSnippet) {
+                                onClose();
+                            }
+                        }}
+                        className="text-slate-400 hover:text-white px-2 py-1 text-xl font-bold leading-none cursor-pointer"
+                    >
                         ×
                     </button>
                 </div>

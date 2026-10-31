@@ -11,7 +11,7 @@ import {
   resolveSafePath,
   resolveMediaAssetFilePath,
 } from "../config/storage.config.js";
-import { validateSafeUrl } from "../utils/ssrf.validator.js";
+import { validateSafeUrl, safeFetch } from "../utils/ssrf.validator.js";
 
 const db = prisma as any;
 
@@ -145,7 +145,7 @@ export async function optimizeImage(
       const ac = new AbortController();
       const timer = setTimeout(() => ac.abort(), 8000);
       try {
-        const resp = await fetch(originalUrl, { signal: ac.signal, redirect: "follow" });
+        const resp = await safeFetch(originalUrl, { signal: ac.signal });
         if (!resp.ok) {
           throw new AppError(`Remote image server responded with HTTP ${resp.status}`, 400, "IMAGE_FETCH_FAILED");
         }
@@ -508,7 +508,7 @@ export async function convertToWebp(
       const ac = new AbortController();
       const timer = setTimeout(() => ac.abort(), 8000);
       try {
-        const resp = await fetch(originalUrl, { signal: ac.signal, redirect: "follow" });
+        const resp = await safeFetch(originalUrl, { signal: ac.signal });
         if (!resp.ok) {
           throw new AppError(`Remote image server responded with HTTP ${resp.status}`, 400, "IMAGE_FETCH_FAILED");
         }

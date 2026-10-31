@@ -12,7 +12,18 @@ function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(() => {
+    if (typeof window === "undefined") return "";
+    const params = new URLSearchParams(window.location.search);
+    const oauthError = params.get("error");
+    if (oauthError === "google_auth_failed") {
+      return "Google authentication failed. Please try again.";
+    }
+    if (oauthError === "github_auth_failed") {
+      return "GitHub authentication failed. Please try again.";
+    }
+    return "";
+  });
 
   // =========================
   // OTP Verification States
@@ -39,22 +50,7 @@ function SignupPage() {
     return () => clearInterval(timer);
   }, [resendCooldown]);
 
-  // =========================
-  // OAuth Callback Handling
-  // =========================
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
 
-    const oauthError = params.get("error");
-
-    if (oauthError === "google_auth_failed") {
-      setError("Google authentication failed. Please try again.");
-    }
-
-    if (oauthError === "github_auth_failed") {
-      setError("GitHub authentication failed. Please try again.");
-    }
-  }, []);
 
   // =========================
   // Google OAuth

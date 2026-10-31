@@ -27,7 +27,9 @@ export function useAtomicLoop() {
   }, [activeLoop]);
 
   useEffect(() => {
-    fetchLoops();
+    queueMicrotask(() => {
+      fetchLoops();
+    });
   }, [fetchLoops]);
 
   const filteredLoops = useMemo(() => {

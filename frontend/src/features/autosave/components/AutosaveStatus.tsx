@@ -32,7 +32,9 @@ export const AutosaveStatusIndicator: React.FC<AutosaveStatusProps> = ({
   useEffect(() => {
     if (status !== "saved" || !lastSavedAt) return;
 
-    setTimeAgoText(formatTimeAgo(lastSavedAt));
+    queueMicrotask(() => {
+      setTimeAgoText(formatTimeAgo(lastSavedAt));
+    });
     const interval = setInterval(() => {
       setTimeAgoText(formatTimeAgo(lastSavedAt));
     }, 10000);

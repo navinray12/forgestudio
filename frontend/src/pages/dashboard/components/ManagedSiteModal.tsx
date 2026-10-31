@@ -1432,23 +1432,25 @@ export const ManagedSiteModal: React.FC<ManagedSiteModalProps> = ({
 
   useEffect(() => {
     if (isOpen && website) {
-      fetchManagedDetails();
-      fetchSiteAuditLogs();
-      fetchPerformance();
-      fetchOptimization();
-      fetchBackups();
-      fetchBackupPolicy();
-      fetchStagingInfo();
-      fetchDomains();
-      fetchReleases();
-      fetchServerConfig();
-      fetchSftpDetails();
-      fetchSecurityOverview();
-      fetchHostingLogs();
-      if (website.wpConnection) {
-        fetchWpAdminOverview();
-      }
-      fetchClientBilling();
+      queueMicrotask(() => {
+        fetchManagedDetails();
+        fetchSiteAuditLogs();
+        fetchPerformance();
+        fetchOptimization();
+        fetchBackups();
+        fetchBackupPolicy();
+        fetchStagingInfo();
+        fetchDomains();
+        fetchReleases();
+        fetchServerConfig();
+        fetchSftpDetails();
+        fetchSecurityOverview();
+        fetchHostingLogs();
+        if (website.wpConnection) {
+          fetchWpAdminOverview();
+        }
+        fetchClientBilling();
+      });
     }
   }, [isOpen, website?.id]);
 
@@ -1573,7 +1575,12 @@ export const ManagedSiteModal: React.FC<ManagedSiteModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-150">
-      <div className="relative w-full max-w-4xl max-h-[90vh] flex flex-col rounded-2xl border border-slate-800 bg-slate-900 text-slate-100 shadow-2xl overflow-hidden font-sans">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="managed-site-modal-title"
+        className="relative w-full max-w-4xl max-h-[90vh] flex flex-col rounded-2xl border border-slate-800 bg-slate-900 text-slate-100 shadow-2xl overflow-hidden font-sans"
+      >
         
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-slate-800 px-6 py-4 bg-slate-950/70">
@@ -1583,7 +1590,7 @@ export const ManagedSiteModal: React.FC<ManagedSiteModalProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base font-bold text-white tracking-tight">{website.name}</h2>
+                <h2 id="managed-site-modal-title" className="text-base font-bold text-white tracking-tight">{website.name}</h2>
                 <span className={`px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider ${
                   website.status === "PUBLISHED"
                     ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
@@ -1603,8 +1610,10 @@ export const ManagedSiteModal: React.FC<ManagedSiteModalProps> = ({
           </div>
 
           <button
+            type="button"
             onClick={onClose}
-            className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition"
+            aria-label="Close managed site modal"
+            className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>

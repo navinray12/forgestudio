@@ -36,7 +36,9 @@ export function useRevisionHistory(websiteId: string, apiUrl: string = "") {
   }, [websiteId, apiUrl]);
 
   useEffect(() => {
-    refreshRevisions();
+    queueMicrotask(() => {
+      refreshRevisions();
+    });
   }, [refreshRevisions]);
 
   /**

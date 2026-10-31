@@ -70,7 +70,9 @@ export const ExperimentManagerModal: React.FC<ExperimentManagerModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      fetchExperiments();
+      queueMicrotask(() => {
+        fetchExperiments();
+      });
     }
   }, [isOpen, websiteId]);
 
@@ -193,7 +195,12 @@ export const ExperimentManagerModal: React.FC<ExperimentManagerModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
-      <div className="w-full max-w-4xl rounded-2xl border border-slate-800 bg-slate-950 p-6 shadow-2xl flex flex-col max-h-[85vh] overflow-hidden">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="experiment-manager-title"
+        className="w-full max-w-4xl rounded-2xl border border-slate-800 bg-slate-950 p-6 shadow-2xl flex flex-col max-h-[85vh] overflow-hidden"
+      >
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
           <div className="flex items-center gap-3">
@@ -201,7 +208,7 @@ export const ExperimentManagerModal: React.FC<ExperimentManagerModalProps> = ({
               <Split className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+              <h2 id="experiment-manager-title" className="text-lg font-bold text-white flex items-center gap-2">
                 A/B Split Testing & Conversion Experiments
               </h2>
               <p className="text-xs text-slate-400">
@@ -211,15 +218,18 @@ export const ExperimentManagerModal: React.FC<ExperimentManagerModalProps> = ({
           </div>
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={() => setShowCreateForm(!showCreateForm)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold shadow-lg shadow-purple-600/20 transition"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold shadow-lg shadow-purple-600/20 transition cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>{showCreateForm ? "Cancel" : "New Experiment"}</span>
             </button>
             <button
+              type="button"
               onClick={onClose}
-              className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition"
+              aria-label="Close A/B testing manager"
+              className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>

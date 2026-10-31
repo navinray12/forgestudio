@@ -41,7 +41,7 @@ function formatRevisionTime(timestamp: number): { dateGroup: string; formattedTi
     date.getMonth() === yesterday.getMonth() &&
     date.getFullYear() === yesterday.getFullYear();
 
-  let dateGroup = "Earlier";
+  let dateGroup: string;
   if (isToday) dateGroup = "Today";
   else if (isYesterday) dateGroup = "Yesterday";
   else {
@@ -94,6 +94,7 @@ export const RevisionHistoryPanel: React.FC<RevisionHistoryPanelProps> = ({
       await createManualCheckpoint(checkpointDesc.trim(), currentWorkingState);
       setCheckpointDesc("");
     } catch (_) {
+      /* Error handled by useRevisionHistory hook error state */
     } finally {
       setIsSubmittingCheckpoint(false);
     }

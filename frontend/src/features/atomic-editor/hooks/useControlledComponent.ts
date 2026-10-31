@@ -14,10 +14,12 @@ export function useControlledComponent(
 
   useEffect(() => {
     if (component) {
-      const keys = ControlledComponentService.getComponentLockSettings(component.id);
-      setAllowedKeys(keys);
-      const instanceOv = ControlledComponentService.getInstanceOverrides(instanceId);
-      setOverrides(instanceOv);
+      queueMicrotask(() => {
+        const keys = ControlledComponentService.getComponentLockSettings(component.id);
+        setAllowedKeys(keys);
+        const instanceOv = ControlledComponentService.getInstanceOverrides(instanceId);
+        setOverrides(instanceOv);
+      });
     }
   }, [component, instanceId]);
 

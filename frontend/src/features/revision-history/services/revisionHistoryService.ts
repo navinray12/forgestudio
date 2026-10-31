@@ -133,7 +133,8 @@ export const revisionHistoryService = {
       throw new Error(
         error?.name === "QuotaExceededError"
           ? "Storage limit exceeded. Unable to save revision snapshot."
-          : "Failed to persist revision snapshot to local storage."
+          : "Failed to persist revision snapshot to local storage.",
+        { cause: error }
       );
     }
 
@@ -206,7 +207,9 @@ export const revisionHistoryService = {
         // Cache server revisions to localStorage as resilient offline fallback
         try {
           localStorage.setItem(`${STORAGE_PREFIX}${websiteId}`, JSON.stringify(serverRevisions.slice(0, MAX_REVISIONS)));
-        } catch (_) {}
+        } catch (_) {
+          /* ignore cache write failure */
+        }
 
         return serverRevisions;
       }
@@ -277,7 +280,9 @@ export const revisionHistoryService = {
       const existing = this.getRevisions(websiteId);
       const updated = [rev, ...existing.filter((e) => e.id !== rev.id)].slice(0, MAX_REVISIONS);
       localStorage.setItem(`${STORAGE_PREFIX}${websiteId}`, JSON.stringify(updated));
-    } catch (_) {}
+    } catch (_) {
+      /* ignore cache write failure */
+    }
 
     return rev;
   },

@@ -59,9 +59,6 @@ export default function CustomPostTypesPanel() {
     // Field editor
     const [savingFields, setSavingFields] = useState(false);
 
-    useEffect(() => { loadWebsites(); }, []);
-    useEffect(() => { if (siteId) loadCpts(); }, [siteId]);
-
     const loadWebsites = async () => {
         try {
             const r = await fetch(`${apiUrl}/api/websites`, { credentials: "include" });
@@ -81,6 +78,9 @@ export default function CustomPostTypesPanel() {
         } catch { setGlobalError("Network error."); }
         finally { setLoading(false); }
     };
+
+    useEffect(() => { queueMicrotask(() => { loadWebsites(); }); }, []);
+    useEffect(() => { if (siteId) queueMicrotask(() => { loadCpts(); }); }, [siteId]);
 
     const autoSlug = (val: string) => val.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
 

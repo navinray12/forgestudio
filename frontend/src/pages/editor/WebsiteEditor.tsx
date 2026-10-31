@@ -1,19 +1,30 @@
 
-import PopupManagerModal from "./components/PopupManagerModal";
-import IconPickerModal from "./components/IconPickerModal";
+import { useEffect, useRef, useState, useCallback, useMemo, lazy, Suspense } from "react";
 import PopupRuntimePreview from "./components/PopupRuntimePreview";
-import DeveloperModal, { type DeveloperModalMode } from "./components/DeveloperModal";
-import { PageManagerModal } from "./components/PageManagerModal";
-import { PublishModal } from "./components/PublishModal";
-import { MediaLibraryModal } from "./components/media/MediaLibraryModal";
-import { SeoAnalyzerModal } from "../../features/seo/components/SeoAnalyzerModal";
-import { MultilingualExportModal } from "../../components/accessibility/MultilingualExportModal";
+import type { DeveloperModalMode } from "./components/DeveloperModal";
 import { AccessibilityWidget } from "../../components/accessibility/AccessibilityWidget";
-import { AccessibilityStatementModal } from "../../components/accessibility/AccessibilityStatementModal";
 import { ReadingGuideBar } from "../../components/accessibility/ReadingGuideBar";
-import { DesignNotesOverlay } from "./components/notes/DesignNotesOverlay";
-import { VariablesManagerModal } from "./components/VariablesManagerModal";
-import { ClassManagerModal } from "./components/ClassManagerModal";
+
+// Lazy-loaded heavy dialogs and overlays for editor performance & bundle optimization
+const PopupManagerModal = lazy(() => import("./components/PopupManagerModal"));
+const IconPickerModal = lazy(() => import("./components/IconPickerModal"));
+const DeveloperModal = lazy(() => import("./components/DeveloperModal"));
+const PageManagerModal = lazy(() => import("./components/PageManagerModal").then((m) => ({ default: m.PageManagerModal })));
+const PublishModal = lazy(() => import("./components/PublishModal").then((m) => ({ default: m.PublishModal })));
+const MediaLibraryModal = lazy(() => import("./components/media/MediaLibraryModal").then((m) => ({ default: m.MediaLibraryModal })));
+const SeoAnalyzerModal = lazy(() => import("../../features/seo/components/SeoAnalyzerModal").then((m) => ({ default: m.SeoAnalyzerModal })));
+const MultilingualExportModal = lazy(() => import("../../components/accessibility/MultilingualExportModal").then((m) => ({ default: m.MultilingualExportModal })));
+const AccessibilityStatementModal = lazy(() => import("../../components/accessibility/AccessibilityStatementModal").then((m) => ({ default: m.AccessibilityStatementModal })));
+const DesignNotesOverlay = lazy(() => import("./components/notes/DesignNotesOverlay").then((m) => ({ default: m.DesignNotesOverlay })));
+const VariablesManagerModal = lazy(() => import("./components/VariablesManagerModal").then((m) => ({ default: m.VariablesManagerModal })));
+const ClassManagerModal = lazy(() => import("./components/ClassManagerModal").then((m) => ({ default: m.ClassManagerModal })));
+const ExperimentManagerModal = lazy(() => import("./components/experiments/ExperimentManagerModal").then((m) => ({ default: m.ExperimentManagerModal })));
+const SaveTemplateDialog = lazy(() => import("../../features/templates/components/SaveTemplateDialog").then((m) => ({ default: m.SaveTemplateDialog })));
+const ReplaceTemplateDialog = lazy(() => import("../../features/templates/components/ReplaceTemplateDialog").then((m) => ({ default: m.ReplaceTemplateDialog })));
+const ImportWebsiteKitDialog = lazy(() => import("../../features/templates/components/ImportWebsiteKitDialog").then((m) => ({ default: m.ImportWebsiteKitDialog })));
+const TemplateLibrary = lazy(() => import("../../features/templates/components/TemplateLibrary").then((m) => ({ default: m.TemplateLibrary })));
+const RevisionHistoryPanel = lazy(() => import("../../features/revision-history/components/RevisionHistoryPanel").then((m) => ({ default: m.RevisionHistoryPanel })));
+const AtomicEditor = lazy(() => import("../../features/atomic-editor/components/AtomicEditor").then((m) => ({ default: m.AtomicEditor })));
 import {
   renameTokenInTree,
   detachTokenInTree,
@@ -22,22 +33,23 @@ import {
 } from "./utils/referenceSafeguards";
 import { validateSlug, generateSlug, safeDeletePage } from "./utils/pageManagerService";
 import { matchesThemeCondition, type SitePartsConfig, type PublishingState, type DeploymentConfig, type CanonicalWebsiteData, type ThemeBuilderScope, resolveDynamicTokens, type DynamicContext } from "./types";
-import { SaveTemplateDialog, ReplaceTemplateDialog, ImportWebsiteKitDialog, useSaveTemplate, useTemplateLibrary, TemplateLibrary, exportWebsiteKitAsJson, type Template } from "../../features/templates";
-import { RevisionHistoryPanel, revisionHistoryService } from "../../features/revision-history";
+import { useSaveTemplate } from "../../features/templates/hooks/useSaveTemplate";
+import { useTemplateLibrary } from "../../features/templates/hooks/useTemplateLibrary";
+import { exportWebsiteKitAsJson } from "../../features/templates/utils/websiteKitExport";
+import type { Template } from "../../features/templates/types/template.types";
+import { revisionHistoryService } from "../../features/revision-history/services/revisionHistoryService";
 import { useAutosave, AutosaveStatusIndicator } from "../../features/autosave";
-import { AtomicEditor, GlobalElementService, ReusableComponentService } from "../../features/atomic-editor";
+import { GlobalElementService } from "../../features/atomic-editor/services/globalElementService";
+import { ReusableComponentService } from "../../features/atomic-editor/services/reusableComponentService";
 import { publishingService } from "../../features/publishing/services/publishingService";
 import { useComponentAccess } from "../../features/permissions/hooks/useComponentAccess";
 import { ContentOnlyInspector } from "./components/ContentOnlyInspector";
-import { ExperimentManagerModal } from "./components/experiments/ExperimentManagerModal";
 import { useCanvasPresence } from "../../features/collaboration/hooks/useCanvasPresence";
 import { WooCommerceProvider } from "../../context/WooCommerceContext";
 import { useEditorMutations } from "./mutations/useEditorMutations";
 import { useEditorHistory } from "./history/useEditorHistory";
 import { useEditorDnD } from "./dnd/useEditorDnD";
 import { EditorHeaderToolbar } from "./components/EditorHeaderToolbar";
-
-import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   Monitor, Smartphone, Tablet, Undo, Redo, Save, Eye, Settings, Plus, Trash2, Copy,
@@ -115,9 +127,9 @@ import {
   NestedTabsWidgetInspector,
   NestedAccordionWidgetInspector,
 } from "./inspector/DynamicWidgetInspectors";
-import { MediaLightboxModal } from "../../components/MediaLightboxModal";
+const MediaLightboxModal = lazy(() => import("../../components/MediaLightboxModal").then((m) => ({ default: m.MediaLightboxModal })));
+const FontPickerModal = lazy(() => import("../../components/FontPickerModal").then((m) => ({ default: m.FontPickerModal })));
 import { MotionInteractionInspector } from "./inspector";
-import { FontPickerModal } from "../../components/FontPickerModal";
 import { FontPickerControl } from "../../components/FontPickerControl";
 import { FontService } from "../../features/fonts/FontService";
 import { syncDocumentFonts } from "../../features/fonts/FontManager";
@@ -328,7 +340,7 @@ import {
   SoundcloudWidgetRenderer
 } from "./widgets";
 
-import { SpacingControl } from "./inspector";
+import { SpacingControl, ScrubbableNumberInput } from "./inspector";
 import { DefaultWebsiteNavbar } from "./components/DefaultWebsiteNavbar";
 import {
   createDefaultHeaderElements,
@@ -337,6 +349,22 @@ import {
   createDefault404Elements,
   createDefaultSearchResultsElements,
 } from "./navigation/navigationDefaults";
+
+const WIDGET_REGISTRY_MAP: Record<string, WidgetRegistryItem> = Object.fromEntries(
+  ALL_WIDGET_REGISTRY.map((w) => [w.type, w])
+);
+
+const CORE_WIDGET_TYPES_SET = new Set<string>([
+  "container", "heading", "text", "image", "button", "posts", "share-buttons", "portfolio", "slides", "form",
+  "login", "nav-menu", "animated-headline", "price-table", "price-list", "gallery", "flip-box", "call-to-action",
+  "media-carousel", "testimonial-carousel", "nested-carousel", "loop-carousel", "table-of-contents", "countdown",
+  "facebook-page", "blockquote", "template", "reviews", "facebook-button", "facebook-embed", "facebook-comments",
+  "paypal-button", "stripe-button", "lottie", "code-highlight", "video-playlist", "mega-menu", "off-canvas", "image-carousel"
+]);
+
+const ADDITIONAL_REGISTERED_WIDGETS = ALL_WIDGET_REGISTRY.filter(
+  (w) => !CORE_WIDGET_TYPES_SET.has(w.type)
+);
 
 interface GlobalClassPickerSectionProps {
   selectedElement: EditorElement;
@@ -790,6 +818,10 @@ const DesignTokenPickerControl: React.FC<DesignTokenPickerControlProps> = ({
   );
 };
 
+function generateRandomPageId(): string {
+  return `page_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+}
+
 export default function WebsiteEditor() {
   const { websiteId } = useParams<{ websiteId: string }>();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -913,13 +945,15 @@ export default function WebsiteEditor() {
   const [isExperimentModalOpen, setIsExperimentModalOpen] = useState(false);
 
   // Real-Time Canvas Presence (Phase 3 Subsystem 3)
-  const currentLoggedInUser = useMemo(() => {
+  const [currentLoggedInUser] = useState(() => {
     try {
       const stored = localStorage.getItem("user");
       if (stored) return JSON.parse(stored);
-    } catch { }
+    } catch {
+      /* ignore invalid user session parse */
+    }
     return { id: "user_editor", name: "Editor User" };
-  }, []);
+  });
 
   const {
     peers: canvasPeers,
@@ -1427,13 +1461,55 @@ export default function WebsiteEditor() {
     }
   };
 
-  const isWidgetLibraryVisible = (type: ElementType, name?: string) => {
-    if (disabledWidgets.includes(type)) return false;
-    if (!widgetLibrarySearch.trim()) return true;
+  const disabledWidgetsSet = useMemo(() => new Set<ElementType>(disabledWidgets), [disabledWidgets]);
+  const favoriteWidgetsSet = useMemo(() => new Set<ElementType>(favoriteWidgets), [favoriteWidgets]);
+
+  const isWidgetLibraryVisible = useCallback(
+    (type: ElementType, name?: string) => {
+      if (disabledWidgetsSet.has(type)) return false;
+      if (!widgetLibrarySearch.trim()) return true;
+      const q = widgetLibrarySearch.toLowerCase().trim();
+      const label = name || WIDGET_REGISTRY_MAP[type]?.name || type;
+      return label.toLowerCase().includes(q) || type.toLowerCase().includes(q);
+    },
+    [disabledWidgetsSet, widgetLibrarySearch]
+  );
+
+  const visibleFavTypes = useMemo(() => {
+    return favoriteWidgets.filter(
+      (type) => !disabledWidgetsSet.has(type) && isWidgetLibraryVisible(type)
+    );
+  }, [favoriteWidgets, disabledWidgetsSet, isWidgetLibraryVisible]);
+
+  const visibleFavComps = useMemo(() => {
+    if (!components) return [];
     const q = widgetLibrarySearch.toLowerCase().trim();
-    const label = name || ALL_WIDGET_REGISTRY.find((w) => w.type === type)?.name || type;
-    return label.toLowerCase().includes(q) || type.toLowerCase().includes(q);
-  };
+    return Object.entries(components).filter(
+      ([_compId, comp]) =>
+        comp.isFavorite && (!q || comp.name.toLowerCase().includes(q))
+    );
+  }, [components, widgetLibrarySearch]);
+
+  const visibleAdditionalWidgets = useMemo(() => {
+    return ADDITIONAL_REGISTERED_WIDGETS.filter((widget) =>
+      isWidgetLibraryVisible(widget.type, widget.name)
+    );
+  }, [isWidgetLibraryVisible]);
+
+  const filteredManagerWidgets = useMemo(() => {
+    return ALL_WIDGET_REGISTRY.filter((w) => {
+      const matchesCat = managerCategoryFilter === "All" || w.category === managerCategoryFilter;
+      if (!matchesCat) return false;
+      if (!managerSearchQuery.trim()) return true;
+      const q = managerSearchQuery.toLowerCase().trim();
+      return (
+        w.name.toLowerCase().includes(q) ||
+        w.type.toLowerCase().includes(q) ||
+        w.description.toLowerCase().includes(q) ||
+        w.category.toLowerCase().includes(q)
+      );
+    });
+  }, [managerCategoryFilter, managerSearchQuery]);
 
   // Copy / Paste State
   const [copiedElement, setCopiedElement] = useState<EditorElement | null>(null);
@@ -1554,7 +1630,7 @@ export default function WebsiteEditor() {
   const publishedDataRef = useRef<any>(null);
 
   // Module 17 Step 7: Reference Safeguards - All trees across website
-  const allWebsiteElementTrees = useMemo(() => {
+  const allWebsiteElementTrees = (() => {
     const trees: EditorElement[][] = [];
     if (Array.isArray(elements)) trees.push(elements);
     if (Array.isArray(pages)) {
@@ -1571,7 +1647,7 @@ export default function WebsiteEditor() {
       if (Array.isArray(siteParts.searchResults?.elements)) trees.push(siteParts.searchResults.elements);
     }
     return trees;
-  }, [elements, pages, siteParts]);
+  })();
 
   const handleSafeguardRenameToken = useCallback((oldToken: string, newToken: string) => {
     setElements((prev) => renameTokenInTree(prev, oldToken, newToken));
@@ -2025,9 +2101,7 @@ export default function WebsiteEditor() {
     }
 
     const newPageObj: PageConfig = {
-      id: `page_${Date.now()}_${Math.random()
-        .toString(36)
-        .substring(2, 6)}`,
+      id: generateRandomPageId(),
 
       name: rawTitle,
       slug: validation.slug,
@@ -2375,9 +2449,11 @@ export default function WebsiteEditor() {
   // Fetch Website Data
   useEffect(() => {
     if (!websiteId) {
-      setLoading(false);
-      setGlobalVariables([]);
-      setGlobalClasses([]);
+      queueMicrotask(() => {
+        setLoading(false);
+        setGlobalVariables([]);
+        setGlobalClasses([]);
+      });
       return;
     }
 
@@ -2563,19 +2639,17 @@ export default function WebsiteEditor() {
   }, [websiteId, apiUrl]);
 
   // Single source of truth: canonicalPages ensures pages[activePageId] is always up-to-date synchronously
-  const canonicalPages = useMemo(() => {
-    return pages.map((p) =>
-      p.id === activePageId && canvasMode === "page"
-        ? {
-          ...p,
-          elements,
-          pageSettings,
-          name: pageSettings.title || p.name,
-          slug: pageSettings.path || p.slug,
-        }
-        : p
-    );
-  }, [pages, activePageId, canvasMode, elements, pageSettings]);
+  const canonicalPages = pages.map((p) =>
+    p.id === activePageId && canvasMode === "page"
+      ? {
+        ...p,
+        elements,
+        pageSettings,
+        name: pageSettings.title || p.name,
+        slug: pageSettings.path || p.slug,
+      }
+      : p
+  );
 
   // F-321 Autosave Integration
   const {
@@ -2859,7 +2933,7 @@ export default function WebsiteEditor() {
 
 
   // Canonical editor snapshot generator matching the publishing pipeline
-  const getCanonicalEditorData = useCallback(() => {
+  const getCanonicalEditorData = () => {
     const canonicalHeaderElements = canvasMode === "header" ? elements : (siteParts.header?.elements || []);
     const canonicalFooterElements = canvasMode === "footer" ? elements : (siteParts.footer?.elements || []);
     const canonicalSingleElements = canvasMode === "single" ? elements : (siteParts.single?.elements || []);
@@ -2910,7 +2984,7 @@ export default function WebsiteEditor() {
       pageCss,
       pageSettings,
     };
-  }, [canvasMode, elements, siteParts, pages, activePageId, pageSettings, homePageId, deployment, breakpoints, globalSettings, popups, pageCss]);
+  };
 
   // F-PUBLISH: Production Publish & Deployment Pipeline Handler (Comment 8)
   const handlePublishWebsite = async (options?: { destinationType?: "INTERNAL" | "WORDPRESS" }) => {
@@ -2927,7 +3001,9 @@ export default function WebsiteEditor() {
 
     try {
       localStorage.setItem(`forgestudio_editor_${websiteId}`, JSON.stringify(payload.editorData));
-    } catch (e) { }
+    } catch {
+      /* ignore local editor backup write failure */
+    }
 
     // Call server publishing endpoint
     const result = await publishingService.publishWebsite(websiteId, payload, apiUrl);
@@ -3154,8 +3230,97 @@ export default function WebsiteEditor() {
   const [finderQuery, setFinderQuery] = useState("");
   const [isShortcutsHelpOpen, setIsShortcutsHelpOpen] = useState(false);
 
+  const editorKeydownStateRef = useRef({
+    selectedId,
+    selectedIds,
+    copiedElement,
+    isPublishModalOpen,
+    isMediaLibraryOpen,
+    isPageManagerModalOpen,
+    isSeoModalOpen,
+    isSeoAnalyzerOpen,
+    isDesignNotesOpen,
+    isIconPickerOpen,
+    isFontPickerModalOpen,
+    isVariablesModalOpen,
+    isClassModalOpen,
+    isExperimentModalOpen,
+    isShortcutsHelpOpen,
+    isFinderOpen,
+    isFullScreenCanvas,
+    handleSave,
+    handleDeleteElement,
+    handleUndo,
+    handleRedo,
+    handleCopyElement,
+    handlePasteElement,
+    handleDuplicateElement,
+    handleReorderElement,
+    setIsPreview,
+    setIsFinderOpen,
+    setIsShortcutsHelpOpen,
+    setIsPublishModalOpen,
+    setIsMediaLibraryOpen,
+    setIsPageManagerModalOpen,
+    setIsSeoModalOpen,
+    setIsSeoAnalyzerOpen,
+    setIsDesignNotesOpen,
+    setIsIconPickerOpen,
+    setIsFontPickerModalOpen,
+    setIsVariablesModalOpen,
+    setIsClassModalOpen,
+    setIsExperimentModalOpen,
+    setIsFullScreenCanvas,
+  });
+
+  useEffect(() => {
+    editorKeydownStateRef.current = {
+      selectedId,
+      selectedIds,
+      copiedElement,
+      isPublishModalOpen,
+      isMediaLibraryOpen,
+      isPageManagerModalOpen,
+      isSeoModalOpen,
+      isSeoAnalyzerOpen,
+      isDesignNotesOpen,
+      isIconPickerOpen,
+      isFontPickerModalOpen,
+      isVariablesModalOpen,
+      isClassModalOpen,
+      isExperimentModalOpen,
+      isShortcutsHelpOpen,
+      isFinderOpen,
+      isFullScreenCanvas,
+      handleSave,
+      handleDeleteElement,
+      handleUndo,
+      handleRedo,
+      handleCopyElement,
+      handlePasteElement,
+      handleDuplicateElement,
+      handleReorderElement,
+      setIsPreview,
+      setIsFinderOpen,
+      setIsShortcutsHelpOpen,
+      setIsPublishModalOpen,
+      setIsMediaLibraryOpen,
+      setIsPageManagerModalOpen,
+      setIsSeoModalOpen,
+      setIsSeoAnalyzerOpen,
+      setIsDesignNotesOpen,
+      setIsIconPickerOpen,
+      setIsFontPickerModalOpen,
+      setIsVariablesModalOpen,
+      setIsClassModalOpen,
+      setIsExperimentModalOpen,
+      setIsFullScreenCanvas,
+    };
+  });
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      const state = editorKeydownStateRef.current;
       const activeEl = document.activeElement;
       const isInput =
         activeEl &&
@@ -3165,78 +3330,109 @@ export default function WebsiteEditor() {
 
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
-        setIsFinderOpen((prev) => !prev);
+        state.setIsFinderOpen((prev) => !prev);
         return;
       }
 
       if (isInput) return;
 
       if (e.key === "Escape") {
-        if (isShortcutsHelpOpen) {
+        if (state.isPublishModalOpen) {
           e.preventDefault();
-          setIsShortcutsHelpOpen(false);
-        } else if (isFinderOpen) {
+          state.setIsPublishModalOpen(false);
+        } else if (state.isMediaLibraryOpen) {
           e.preventDefault();
-          setIsFinderOpen(false);
-        } else if (isFullScreenCanvas) {
+          state.setIsMediaLibraryOpen(false);
+        } else if (state.isPageManagerModalOpen) {
           e.preventDefault();
-          setIsFullScreenCanvas(false);
+          state.setIsPageManagerModalOpen(false);
+        } else if (state.isSeoModalOpen || state.isSeoAnalyzerOpen) {
+          e.preventDefault();
+          state.setIsSeoModalOpen(false);
+          state.setIsSeoAnalyzerOpen(false);
+        } else if (state.isDesignNotesOpen) {
+          e.preventDefault();
+          state.setIsDesignNotesOpen(false);
+        } else if (state.isIconPickerOpen) {
+          e.preventDefault();
+          state.setIsIconPickerOpen(false);
+        } else if (state.isFontPickerModalOpen) {
+          e.preventDefault();
+          state.setIsFontPickerModalOpen(false);
+        } else if (state.isVariablesModalOpen) {
+          e.preventDefault();
+          state.setIsVariablesModalOpen(false);
+        } else if (state.isClassModalOpen) {
+          e.preventDefault();
+          state.setIsClassModalOpen(false);
+        } else if (state.isExperimentModalOpen) {
+          e.preventDefault();
+          state.setIsExperimentModalOpen(false);
+        } else if (state.isShortcutsHelpOpen) {
+          e.preventDefault();
+          state.setIsShortcutsHelpOpen(false);
+        } else if (state.isFinderOpen) {
+          e.preventDefault();
+          state.setIsFinderOpen(false);
+        } else if (state.isFullScreenCanvas) {
+          e.preventDefault();
+          state.setIsFullScreenCanvas(false);
         }
       } else if (e.key === "?" || (e.shiftKey && e.key === "/")) {
         e.preventDefault();
-        setIsShortcutsHelpOpen((prev) => !prev);
+        state.setIsShortcutsHelpOpen((prev) => !prev);
       } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
         e.preventDefault();
-        handleSave();
+        state.handleSave();
       } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "p") {
         e.preventDefault();
-        setIsPreview((prev) => !prev);
+        state.setIsPreview((prev) => !prev);
       } else if (e.key === "Delete" || e.key === "Backspace") {
-        if (selectedId) {
+        if (state.selectedId) {
           e.preventDefault();
-          handleDeleteElement(selectedId);
+          state.handleDeleteElement(state.selectedId);
         }
       } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
         e.preventDefault();
         if (e.shiftKey) {
-          handleRedo();
+          state.handleRedo();
         } else {
-          handleUndo();
+          state.handleUndo();
         }
       } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "y") {
         e.preventDefault();
-        handleRedo();
+        state.handleRedo();
       } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "c") {
-        if (selectedId || selectedIds.length > 0) {
+        if (state.selectedId || state.selectedIds.length > 0) {
           e.preventDefault();
-          handleCopyElement();
+          state.handleCopyElement();
         }
       } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "v") {
-        if (copiedElement) {
+        if (state.copiedElement) {
           e.preventDefault();
-          handlePasteElement();
+          state.handlePasteElement();
         }
       } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "d") {
-        if (selectedId) {
+        if (state.selectedId) {
           e.preventDefault();
-          handleDuplicateElement(selectedId);
+          state.handleDuplicateElement(state.selectedId);
         }
       } else if (e.altKey && e.key === "ArrowUp") {
-        if (selectedId) {
+        if (state.selectedId) {
           e.preventDefault();
-          handleReorderElement(selectedId, "up");
+          state.handleReorderElement(state.selectedId, "up");
         }
       } else if (e.altKey && e.key === "ArrowDown") {
-        if (selectedId) {
+        if (state.selectedId) {
           e.preventDefault();
-          handleReorderElement(selectedId, "down");
+          state.handleReorderElement(state.selectedId, "down");
         }
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedId, selectedIds, copiedElement, elements, historyIndex, history, isFullScreenCanvas, isPreview, saving]);
+  }, []);
 
   // F-102 - F-141: Preview Mode Motion & Interaction Runtime
   useEffect(() => {
@@ -3250,7 +3446,11 @@ export default function WebsiteEditor() {
 
   useEffect(() => {
     if (selectedElement && selectedElement.componentId) {
-      syncComponentInstances(selectedElement.componentId, selectedElement);
+      const compId = selectedElement.componentId;
+      const el = selectedElement;
+      queueMicrotask(() => {
+        syncComponentInstances(compId, el);
+      });
     }
   }, [selectedElement?.content, selectedElement?.src, selectedElement?.styles, selectedElement?.layout, selectedElement?.responsiveStyles, selectedElement?.responsiveLayout]);
 
@@ -3651,7 +3851,7 @@ export default function WebsiteEditor() {
           }}
           onMouseLeave={(e) => {
             e.stopPropagation();
-            if (hoveredId === el.id) setHoveredId(null);
+            setHoveredId((current) => (current === el.id ? null : current));
           }}
           style={{ paddingLeft: `${depth * 14 + 4}px` }}
           className={`group flex items-center justify-between rounded-lg py-1.5 pr-2 text-xs transition cursor-pointer mb-0.5 ${isSelected
@@ -3793,80 +3993,6 @@ export default function WebsiteEditor() {
 
 
 
-  const ScrubbableNumberInput = ({
-    value,
-    onChange,
-    min,
-    max,
-    step = 1,
-    placeholder = "0",
-    className = "w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-center text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white focus:ring-1 focus:ring-blue-500",
-  }: {
-    value: string | number;
-    onChange: (val: string) => void;
-    min?: number;
-    max?: number;
-    step?: number;
-    placeholder?: string;
-    className?: string;
-  }) => {
-    const [isScrubbing, setIsScrubbing] = useState(false);
-    const startXRef = useRef(0);
-    const startValRef = useRef(0);
-
-    const handleMouseDown = (e: React.MouseEvent) => {
-      if (e.button !== 0) return;
-      e.preventDefault();
-
-      const initialVal = typeof value === "number" ? value : parseFloat(String(value)) || 0;
-      startXRef.current = e.clientX;
-      startValRef.current = initialVal;
-      setIsScrubbing(true);
-
-      const handleMouseMove = (moveEvent: MouseEvent) => {
-        const deltaX = moveEvent.clientX - startXRef.current;
-        let multiplier = step;
-        if (moveEvent.shiftKey) multiplier = step * 10;
-        if (moveEvent.altKey || moveEvent.ctrlKey) multiplier = step * 0.1;
-
-        let newVal = startValRef.current + deltaX * multiplier;
-        if (min !== undefined) newVal = Math.max(min, newVal);
-        if (max !== undefined) newVal = Math.min(max, newVal);
-
-        const roundedVal = step < 1 ? Math.round(newVal * 10) / 10 : Math.round(newVal);
-        onChange(String(roundedVal));
-      };
-
-      const handleMouseUp = () => {
-        setIsScrubbing(false);
-        window.removeEventListener("mousemove", handleMouseMove);
-        window.removeEventListener("mouseup", handleMouseUp);
-      };
-
-      window.addEventListener("mousemove", handleMouseMove);
-      window.addEventListener("mouseup", handleMouseUp);
-    };
-
-    return (
-      <div className="relative flex items-center w-full group">
-        <input
-          type="number"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
-          className={`${className} ${isScrubbing ? "border-blue-500 ring-1 ring-blue-500 bg-blue-50/50" : ""}`}
-        />
-        <div
-          onMouseDown={handleMouseDown}
-          title="Drag horizontally to scrub value (Shift for 10x, Alt for 0.1x)"
-          className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center justify-center cursor-ew-resize px-0.5 text-[9px] font-bold text-slate-400 hover:text-blue-600 transition select-none"
-        >
-          ↔
-        </div>
-      </div>
-    );
-  };
-
   const render4SideSpacingControl = (
     title: string,
     type: "margin" | "padding",
@@ -3965,10 +4091,10 @@ export default function WebsiteEditor() {
         img.onerror = () => setExtractedColors([]);
         img.src = resolveImageUrl(srcToUse, apiUrl);
       } else {
-        setExtractedColors([]);
+        queueMicrotask(() => setExtractedColors([]));
       }
     } else {
-      setExtractedColors([]);
+      queueMicrotask(() => setExtractedColors([]));
     }
   }, [selectedElement?.id, selectedElement?.src]);
 
@@ -4046,7 +4172,7 @@ export default function WebsiteEditor() {
   // YouTube & Vimeo Embed Helpers (F-208 Video Widget)
   const getYouTubeId = (url: string): string | null => {
     if (!url) return null;
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
     const match = url.trim().match(regExp);
     return match && match[2].length === 11 ? match[2] : null;
   };
@@ -4243,7 +4369,9 @@ export default function WebsiteEditor() {
         const history = historyRaw ? JSON.parse(historyRaw) : [];
         history.unshift({ name: file.name, url: finalUrl, type: file.type, date: new Date().toISOString() });
         localStorage.setItem("forgestudio_imported_assets", JSON.stringify(history.slice(0, 50)));
-      } catch { }
+      } catch {
+        /* ignore imported asset history write failure */
+      }
 
       if (selectedId) {
         const selected = findTreeElement(elements, selectedId);
@@ -5602,21 +5730,27 @@ export default function WebsiteEditor() {
         }}
         onMouseEnter={(e) => {
           e.stopPropagation();
-          if (!isPreview) setHoveredId(el.id);
+          if (!isPreview && ((leftSidebarTab as string) === "layers" || leftSidebarTab === "navigator")) {
+            setHoveredId(el.id);
+          }
         }}
         onMouseLeave={(e) => {
           e.stopPropagation();
-          if (!isPreview && hoveredId === el.id) setHoveredId(null);
+          if (!isPreview) {
+            setHoveredId((current) => (current === el.id ? null : current));
+          }
         }}
-        className={`relative transition duration-150 ${el.id} ${getElementClasses(el)} ${draggingId === el.id ? "opacity-40 scale-[0.99]" : ""
+        className={`group/leaf relative transition duration-150 ${el.id} ${getElementClasses(el)} ${draggingId === el.id ? "opacity-40 scale-[0.99]" : ""
           } ${isPreview
             ? ""
             : "cursor-grab active:cursor-grabbing hover:outline hover:outline-1 hover:outline-blue-400/60"
           } ${isSelected
             ? "border-2 border-blue-500 p-2.5"
-            : isHovered
-              ? "border border-blue-400 outline outline-2 outline-blue-400/80 p-2.5 shadow-sm"
-              : "p-2.5 border border-transparent"
+            : isPreview
+              ? "p-2.5 border border-transparent"
+              : isHovered
+                ? "border border-blue-400 outline outline-2 outline-blue-400/80 p-2.5 shadow-sm"
+                : "p-2.5 border border-transparent hover:border-blue-400 hover:outline hover:outline-2 hover:outline-blue-400/80 hover:shadow-sm"
           } ${isDropTarget && dropPosition === "before"
             ? "border-t-4 border-t-blue-500"
             : isDropTarget && dropPosition === "after"
@@ -5651,8 +5785,12 @@ export default function WebsiteEditor() {
           <div className="absolute -bottom-1.5 left-0 right-0 h-1.5 bg-blue-600 rounded-full z-50 pointer-events-none shadow-md animate-pulse" />
         )}
 
-        {isHovered && !isSelected && !isPreview && (
-          <span className="absolute -top-3 left-3 z-30 rounded-full bg-blue-500/90 text-white px-2 py-0.5 text-[9px] font-bold shadow-sm pointer-events-none uppercase tracking-wider">
+        {!isSelected && !isPreview && (
+          <span
+            className={`absolute -top-3 left-3 z-30 rounded-full bg-blue-500/90 text-white px-2 py-0.5 text-[9px] font-bold shadow-sm pointer-events-none uppercase tracking-wider ${
+              isHovered ? "inline-block" : "hidden group-hover/leaf:inline-block"
+            }`}
+          >
             {el.type}
           </span>
         )}
@@ -6521,7 +6659,7 @@ export default function WebsiteEditor() {
           const showExcerpt = el.postsShowExcerpt !== false;
           const showReadMore = el.postsShowReadMore !== false;
 
-          let gridColsStyle: React.CSSProperties = {};
+          let gridColsStyle: React.CSSProperties;
           if (activeDevice === "mobile") {
             gridColsStyle = { gridTemplateColumns: "repeat(1, minmax(0, 1fr))" };
           } else if (activeDevice === "tablet") {
@@ -6976,7 +7114,12 @@ export default function WebsiteEditor() {
         )}
 
         {el.type === "audio-playlist" && (
-          <AudioPlaylistWidgetRenderer el={el} isPreview={isPreview} mergedStyles={mergedStyles} />
+          <AudioPlaylistWidgetRenderer
+            el={el}
+            isPreview={isPreview}
+            mergedStyles={mergedStyles}
+            onUpdateTracks={(newTracks) => updateElementProp(el.id, "audioPlaylistTracks", newTracks)}
+          />
         )}
 
         {el.type === "dynamic-lightbox" && (
@@ -7265,7 +7408,7 @@ export default function WebsiteEditor() {
                 </div>
               </div>
               {el.alertDismissible && (
-                <button type="button" className="text-xs opacity-60 hover:opacity-100 font-bold">✕</button>
+                <button type="button" aria-label="Dismiss alert" className="text-xs opacity-60 hover:opacity-100 font-bold">✕</button>
               )}
             </div>
           );
@@ -7463,7 +7606,7 @@ export default function WebsiteEditor() {
             ) : leftSidebarTab === "elements" ? (
               <div className="space-y-3">
                 {/* Main Widget Library Search Input */}
-                {!disabledWidgets.includes("search-bar") && (
+                {!disabledWidgetsSet.has("search-bar") && (
                   <div className="relative">
                     <input
                       type="text"
@@ -7486,7 +7629,7 @@ export default function WebsiteEditor() {
                 )}
 
                 {/* Import Asset Button (F-014) */}
-                {!disabledWidgets.includes("import-asset") && (
+                {!disabledWidgetsSet.has("import-asset") && (
                   <>
                     <input
                       ref={importFileInputRef}
@@ -7512,29 +7655,17 @@ export default function WebsiteEditor() {
                 )}
 
                 {/* Pinned Favorite Widgets & Reusable Components (F-012) */}
-                {!disabledWidgets.includes("favorite-widgets") && (() => {
-                  const visibleFavTypes = favoriteWidgets.filter(
-                    (type) => !disabledWidgets.includes(type) && isWidgetLibraryVisible(type)
-                  );
-                  const visibleFavComps = Object.entries(components).filter(
-                    ([_compId, comp]) => comp.isFavorite && (!widgetLibrarySearch || comp.name.toLowerCase().includes(widgetLibrarySearch.toLowerCase()))
-                  );
-
-                  if (visibleFavTypes.length === 0 && visibleFavComps.length === 0) {
-                    return null;
-                  }
-
-                  return (
-                    <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-3 shadow-xs">
-                      <h4 className="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-2.5 flex items-center justify-between">
-                        <span className="flex items-center gap-1">⭐ Favorite Widgets</span>
-                        <span className="text-[9px] text-amber-600/70 font-normal">Quick Access ({visibleFavTypes.length + visibleFavComps.length})</span>
-                      </h4>
-                      <div className="grid grid-cols-2 gap-2">
-                        {/* Core Favorite Widgets */}
-                        {visibleFavTypes.map((type) => {
-                          const widgetDef = ALL_WIDGET_REGISTRY.find((w) => w.type === type);
-                          const name = widgetDef?.name || type;
+                {!disabledWidgetsSet.has("favorite-widgets") && (visibleFavTypes.length > 0 || visibleFavComps.length > 0) && (
+                  <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-3 shadow-xs">
+                    <h4 className="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-2.5 flex items-center justify-between">
+                      <span className="flex items-center gap-1">⭐ Favorite Widgets</span>
+                      <span className="text-[9px] text-amber-600/70 font-normal">Quick Access ({visibleFavTypes.length + visibleFavComps.length})</span>
+                    </h4>
+                    <div className="grid grid-cols-2 gap-2">
+                      {/* Core Favorite Widgets */}
+                      {visibleFavTypes.map((type) => {
+                        const widgetDef = WIDGET_REGISTRY_MAP[type];
+                        const name = widgetDef?.name || type;
                           return (
                             <div
                               key={`fav_${type}`}
@@ -7622,8 +7753,7 @@ export default function WebsiteEditor() {
                         ))}
                       </div>
                     </div>
-                  );
-                })()}
+                  )}
 
                 <div className="grid grid-cols-2 gap-3">
                   {/* Container */}
@@ -8601,15 +8731,8 @@ export default function WebsiteEditor() {
                   )}
 
                   {/* Dynamically Render All Additional Registered Widgets (F-212 to F-222 & future widgets) */}
-                  {ALL_WIDGET_REGISTRY.filter((w) => ![
-                    "container", "heading", "text", "image", "button", "posts", "share-buttons", "portfolio", "slides", "form",
-                    "login", "nav-menu", "animated-headline", "price-table", "price-list", "gallery", "flip-box", "call-to-action",
-                    "media-carousel", "testimonial-carousel", "nested-carousel", "loop-carousel", "table-of-contents", "countdown",
-                    "facebook-page", "blockquote", "template", "reviews", "facebook-button", "facebook-embed", "facebook-comments",
-                    "paypal-button", "stripe-button", "lottie", "code-highlight", "video-playlist", "mega-menu", "off-canvas", "image-carousel"
-                  ].includes(w.type)).map((widget) => {
-                    if (!isWidgetLibraryVisible(widget.type, widget.name)) return null;
-                    const isFav = favoriteWidgets.includes(widget.type);
+                  {visibleAdditionalWidgets.map((widget) => {
+                    const isFav = favoriteWidgetsSet.has(widget.type);
                     return (
                       <div
                         key={widget.type}
@@ -8640,7 +8763,7 @@ export default function WebsiteEditor() {
                 </div>
 
                 {/* Reusable Components Section (F-005) */}
-                {!disabledWidgets.includes("reusable-components") && (
+                {!disabledWidgetsSet.has("reusable-components") && (
                   <div className="col-span-2 pt-3 border-t border-slate-200 mt-2">
                     <h4 className="text-[10px] font-bold uppercase tracking-wider text-purple-600 mb-2 flex items-center gap-1">
                       <span>🧩</span> Reusable Components
@@ -8771,18 +8894,22 @@ export default function WebsiteEditor() {
                 )}
               </div>
             ) : leftSidebarTab === ("atomic" as any) ? (
-              <AtomicEditor
-                websiteId={websiteId}
-                onClose={() => setLeftSidebarTab("elements")}
-                onInsertGlobalElement={handleInsertGlobalElement}
-                onInsertComponent={handleInsertReusableComponent}
-              />
+              <Suspense fallback={<div className="p-8 text-center text-xs text-slate-400">Loading Atomic Editor…</div>}>
+                <AtomicEditor
+                  websiteId={websiteId}
+                  onClose={() => setLeftSidebarTab("elements")}
+                  onInsertGlobalElement={handleInsertGlobalElement}
+                  onInsertComponent={handleInsertReusableComponent}
+                />
+              </Suspense>
             ) : (
-              <TemplateLibrary
-                apiUrl={apiUrl}
-                onInsertTemplate={handleInsertTemplate}
-                onOpenSaveTemplate={openSaveTemplateDialog}
-              />
+              <Suspense fallback={<div className="p-8 text-center text-xs text-slate-400">Loading Templates…</div>}>
+                <TemplateLibrary
+                  apiUrl={apiUrl}
+                  onInsertTemplate={handleInsertTemplate}
+                  onOpenSaveTemplate={openSaveTemplateDialog}
+                />
+              </Suspense>
             )}
 
           </aside>
@@ -19768,19 +19895,8 @@ export default function WebsiteEditor() {
 
             {/* Widget Toggles List */}
             <div className="p-6 overflow-y-auto space-y-2.5 max-h-[50vh]">
-              {ALL_WIDGET_REGISTRY.filter((w) => {
-                const matchesCat = managerCategoryFilter === "All" || w.category === managerCategoryFilter;
-                if (!matchesCat) return false;
-                if (!managerSearchQuery.trim()) return true;
-                const q = managerSearchQuery.toLowerCase().trim();
-                return (
-                  w.name.toLowerCase().includes(q) ||
-                  w.type.toLowerCase().includes(q) ||
-                  w.description.toLowerCase().includes(q) ||
-                  w.category.toLowerCase().includes(q)
-                );
-              }).map((w) => {
-                const isDisabled = disabledWidgets.includes(w.type);
+              {filteredManagerWidgets.map((w) => {
+                const isDisabled = disabledWidgetsSet.has(w.type);
                 return (
                   <div
                     key={w.type}
@@ -19814,6 +19930,9 @@ export default function WebsiteEditor() {
 
                     <button
                       type="button"
+                      role="switch"
+                      aria-checked={!isDisabled}
+                      aria-label={isDisabled ? `Enable ${w.name} in Widget Library` : `Hide ${w.name} from Widget Library`}
                       onClick={() => toggleWidgetAvailability(w.type)}
                       className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${isDisabled ? "bg-slate-300" : "bg-emerald-500"
                         }`}
@@ -19847,16 +19966,20 @@ export default function WebsiteEditor() {
       )}
 
       {/* Popup Manager Modal */}
-      <PopupManagerModal
-        isOpen={isPopupManagerOpen}
-        onClose={() => setIsPopupManagerOpen(false)}
-        popups={popups}
-        onSelectPopupForEdit={handleSelectPopupForEdit}
-        onCreatePopup={handleCreatePopup}
-        onUpdatePopup={handleUpdatePopup}
-        onDeletePopup={handleDeletePopup}
-        onDuplicatePopup={handleDuplicatePopup}
-      />
+      <Suspense fallback={null}>
+        {isPopupManagerOpen && (
+          <PopupManagerModal
+            isOpen={isPopupManagerOpen}
+            onClose={() => setIsPopupManagerOpen(false)}
+            popups={popups}
+            onSelectPopupForEdit={handleSelectPopupForEdit}
+            onCreatePopup={handleCreatePopup}
+            onUpdatePopup={handleUpdatePopup}
+            onDeletePopup={handleDeletePopup}
+            onDuplicatePopup={handleDuplicatePopup}
+          />
+        )}
+      </Suspense>
 
       {/* Runtime Simulation in Preview Mode (F-282 - F-291) */}
       {isPreview && (
@@ -19871,96 +19994,116 @@ export default function WebsiteEditor() {
       )}
 
       {/* Developer Modal (F-102 - F-109) */}
-      <DeveloperModal
-        isOpen={!!devModalMode}
-        onClose={() => setDevModalMode(null)}
-        mode={devModalMode!}
-        targetElement={selectedElement || elements[0]}
-        initialValue={
-          devModalMode === "element-css" ? selectedElement?.customCss :
-            devModalMode === "css-selectors" ? selectedElement?.customSelectors :
-              devModalMode === "custom-attributes" ? selectedElement?.customAttributes :
-                devModalMode === "page-css" ? pageCss :
-                  devModalMode === "global-css" ? globalSettings?.customCss :
-                    ""
-        }
-        onSave={(val) => {
-          if (devModalMode === "element-css" && selectedElement) {
-            updateSelectedProp("customCss", val);
-          } else if (devModalMode === "css-selectors" && selectedElement) {
-            updateSelectedProp("customSelectors", val);
-          } else if (devModalMode === "custom-attributes" && selectedElement) {
-            updateSelectedProp("customAttributes", val);
-          } else if (devModalMode === "page-css") {
-            setPageCss(val);
-          } else if (devModalMode === "global-css") {
-            setGlobalSettings((prev: any) => ({ ...prev, customCss: val }));
-          } else if (devModalMode === "export-code") {
-            const target = selectedElement || elements[0];
-            if (target && val) {
-              setElements((prev) => updateTreeElement(prev, target.id, () => val));
-              setSelectedId(val.id);
+      <Suspense fallback={null}>
+        {!!devModalMode && (
+          <DeveloperModal
+            isOpen={!!devModalMode}
+            onClose={() => setDevModalMode(null)}
+            mode={devModalMode!}
+            targetElement={selectedElement || elements[0]}
+            initialValue={
+              devModalMode === "element-css" ? selectedElement?.customCss :
+                devModalMode === "css-selectors" ? selectedElement?.customSelectors :
+                  devModalMode === "custom-attributes" ? selectedElement?.customAttributes :
+                    devModalMode === "page-css" ? pageCss :
+                      devModalMode === "global-css" ? globalSettings?.customCss :
+                        ""
             }
-          }
-        }}
-      />
+            onSave={(val) => {
+              if (devModalMode === "element-css" && selectedElement) {
+                updateSelectedProp("customCss", val);
+              } else if (devModalMode === "css-selectors" && selectedElement) {
+                updateSelectedProp("customSelectors", val);
+              } else if (devModalMode === "custom-attributes" && selectedElement) {
+                updateSelectedProp("customAttributes", val);
+              } else if (devModalMode === "page-css") {
+                setPageCss(val);
+              } else if (devModalMode === "global-css") {
+                setGlobalSettings((prev: any) => ({ ...prev, customCss: val }));
+              } else if (devModalMode === "export-code") {
+                const target = selectedElement || elements[0];
+                if (target && val) {
+                  setElements((prev) => updateTreeElement(prev, target.id, () => val));
+                  setSelectedId(val.id);
+                }
+              }
+            }}
+          />
+        )}
+      </Suspense>
 
       {/* F-322 / F-334 Save as Template / Update Template Dialog Modal */}
-      <SaveTemplateDialog
-        isOpen={isSaveTemplateOpen}
-        isUpdateMode={isSaveTemplateUpdateMode}
-        name={saveTemplateName}
-        setName={setSaveTemplateName}
-        description={saveTemplateDescription}
-        setDescription={setSaveTemplateDescription}
-        type={saveTemplateType}
-        setType={setSaveTemplateType}
-        category={saveTemplateCategory}
-        setCategory={setSaveTemplateCategory}
-        isSaving={isSavingTemplate}
-        error={saveTemplateError}
-        validationError={saveTemplateValidationError}
-        onClose={closeSaveTemplateDialog}
-        onSave={handleSaveTemplateSubmit}
-        elements={elements}
-        pageSettings={pageSettings}
-      />
+      {isSaveTemplateOpen && (
+        <Suspense fallback={null}>
+          <SaveTemplateDialog
+            isOpen={isSaveTemplateOpen}
+            isUpdateMode={isSaveTemplateUpdateMode}
+            name={saveTemplateName}
+            setName={setSaveTemplateName}
+            description={saveTemplateDescription}
+            setDescription={setSaveTemplateDescription}
+            type={saveTemplateType}
+            setType={setSaveTemplateType}
+            category={saveTemplateCategory}
+            setCategory={setSaveTemplateCategory}
+            isSaving={isSavingTemplate}
+            error={saveTemplateError}
+            validationError={saveTemplateValidationError}
+            onClose={closeSaveTemplateDialog}
+            onSave={handleSaveTemplateSubmit}
+            elements={elements}
+            pageSettings={pageSettings}
+          />
+        </Suspense>
+      )}
 
       {/* F-332 Replace Template Dialog Modal */}
-      <ReplaceTemplateDialog
-        isOpen={isReplaceTemplateOpen}
-        targetElementName={selectedElement ? selectedElement.content || selectedElement.type : "Selected Element"}
-        templates={libraryTemplates}
-        onClose={() => setIsReplaceTemplateOpen(false)}
-        onConfirmReplace={handleConfirmReplaceTemplate}
-      />
+      {isReplaceTemplateOpen && (
+        <Suspense fallback={null}>
+          <ReplaceTemplateDialog
+            isOpen={isReplaceTemplateOpen}
+            targetElementName={selectedElement ? selectedElement.content || selectedElement.type : "Selected Element"}
+            templates={libraryTemplates}
+            onClose={() => setIsReplaceTemplateOpen(false)}
+            onConfirmReplace={handleConfirmReplaceTemplate}
+          />
+        </Suspense>
+      )}
 
       {/* F-336 Import Website Kit Dialog Modal */}
-      <ImportWebsiteKitDialog
-        isOpen={isImportWebsiteKitOpen}
-        onClose={() => setIsImportWebsiteKitOpen(false)}
-        onImportKit={handleConfirmImportWebsiteKit}
-      />
+      {isImportWebsiteKitOpen && (
+        <Suspense fallback={null}>
+          <ImportWebsiteKitDialog
+            isOpen={isImportWebsiteKitOpen}
+            onClose={() => setIsImportWebsiteKitOpen(false)}
+            onImportKit={handleConfirmImportWebsiteKit}
+          />
+        </Suspense>
+      )}
 
       {/* F-320 Revision History Slide-Over Drawer */}
-      <RevisionHistoryPanel
-        isOpen={isRevisionHistoryOpen}
-        onClose={() => setIsRevisionHistoryOpen(false)}
-        websiteId={websiteId || ""}
-        apiUrl={apiUrl}
-        onRestore={handleRestoreRevision}
-        currentWorkingState={{
-          elements,
-          pageSettings,
-          pages,
-          siteParts,
-          globalSettings,
-          breakpoints,
-          popups,
-          pageCss,
-          homePageId,
-        }}
-      />
+      {isRevisionHistoryOpen && (
+        <Suspense fallback={null}>
+          <RevisionHistoryPanel
+            isOpen={isRevisionHistoryOpen}
+            onClose={() => setIsRevisionHistoryOpen(false)}
+            websiteId={websiteId || ""}
+            apiUrl={apiUrl}
+            onRestore={handleRestoreRevision}
+            currentWorkingState={{
+              elements,
+              pageSettings,
+              pages,
+              siteParts,
+              globalSettings,
+              breakpoints,
+              popups,
+              pageCss,
+              homePageId,
+            }}
+          />
+        </Suspense>
+      )}
 
       {/* Modal for Adding New Page */}
       {isAddPageModalOpen && (
@@ -20107,215 +20250,244 @@ export default function WebsiteEditor() {
         </div>
       )}
 
-      {/* Multi-Page Management Modal (Comments 10, 11, 23, 36, 37) */}
-      <PageManagerModal
-        isOpen={isPageManagerModalOpen}
-        onClose={() => setIsPageManagerModalOpen(false)}
-        pages={pages}
-        activePageId={activePageId}
-        homePageId={homePageId}
-        onSwitchPage={(pageId) => {
-          handleSwitchEditingPage(pageId);
-          setIsPageManagerModalOpen(false);
-        }}
-        onUpdatePages={(updatedPages, newHomeId) => {
-          setPages(updatedPages);
-          if (newHomeId) setHomePageId(newHomeId);
-        }}
-        siteParts={siteParts}
-      />
+      {/* Lazy Loaded Heavy Modals & Overlays wrapped in Suspense */}
+      <Suspense fallback={null}>
+        {/* Multi-Page Management Modal (Comments 10, 11, 23, 36, 37) */}
+        {isPageManagerModalOpen && (
+          <PageManagerModal
+            isOpen={isPageManagerModalOpen}
+            onClose={() => setIsPageManagerModalOpen(false)}
+            pages={pages}
+            activePageId={activePageId}
+            homePageId={homePageId}
+            onSwitchPage={(pageId) => {
+              handleSwitchEditingPage(pageId);
+              setIsPageManagerModalOpen(false);
+            }}
+            onUpdatePages={(updatedPages, newHomeId) => {
+              setPages(updatedPages);
+              if (newHomeId) setHomePageId(newHomeId);
+            }}
+            siteParts={siteParts}
+          />
+        )}
 
-      {/* Website Publishing & Deployment Modal (Comment 8) */}
-      <PublishModal
-        isOpen={isPublishModalOpen}
-        onClose={() => setIsPublishModalOpen(false)}
-        publishing={publishing}
-        deployment={deployment}
-        pages={pages}
-        websiteName={website?.name || "ForgeStudio Project"}
-        websiteId={websiteId || ""}
-        approvalWorkflowEnabled={Boolean((website as any)?.approvalWorkflowEnabled)}
-        canPublish={
-          (website as any)?.userPermission === "OWNER" ||
-          (website as any)?.userPermission === "ADMIN" ||
-          !Boolean((website as any)?.approvalWorkflowEnabled)
-        }
-        getCanonicalSnapshot={getCanonicalEditorData}
-        onPublish={handlePublishWebsite}
-        onRollback={handleRollbackDeployment}
-        onUpdateDeployment={(updatedDep) => setDeployment(updatedDep)}
-        onOpenPreview={() => {
-          setIsPublishModalOpen(false);
-          setIsPreview(true);
-        }}
-      />
-
-      {/* Media & Asset Library Modal (Feature 6) */}
-      <MediaLibraryModal
-        isOpen={isMediaLibraryOpen}
-        onClose={() => {
-          setIsMediaLibraryOpen(false);
-          setMediaPickerCallback(null);
-        }}
-        websiteId={websiteId && websiteId !== "undefined" ? websiteId : ""}
-        onSelect={(url, altText) => {
-          if (mediaPickerCallback) {
-            mediaPickerCallback(url, altText);
-            setMediaPickerCallback(null);
-          } else if (selectedElementAny && (selectedElementAny.type === "image" || selectedElementAny.src !== undefined)) {
-            updateSelectedProp("src", url);
-            updateSelectedProp("alt", altText ?? "");
-          }
-          setIsMediaLibraryOpen(false);
-        }}
-      />
-
-      {/* SEO & Quality Analyzer Modal */}
-      <SeoAnalyzerModal
-        isOpen={isSeoModalOpen}
-        onClose={() => setIsSeoModalOpen(false)}
-        websiteId={websiteId || ""}
-        activePage={pages.find((p) => p.id === activePageId) || pages[0] || { elements }}
-        allPages={pages}
-        websiteData={{
-          name: website?.name,
-          siteSettings: globalSettings || {},
-          pages,
-        }}
-        onSelectElement={handleSelectElementFromAudit}
-        onUpdateElementProp={handleUpdateElementPropById}
-        onUpdatePageSettings={setPageSettings}
-      />
-
-      {/* Collaborative Design Notes & Feedback Overlay */}
-      <DesignNotesOverlay
-        isOpen={isDesignNotesOpen}
-        onClose={() => setIsDesignNotesOpen(false)}
-        websiteId={websiteId || ""}
-        activeElementId={selectedElementAny?.id || null}
-        onSelectElement={handleSelectElementFromAudit}
-        onNotesCountChange={setOpenDesignNotesCount}
-      />
-
-      {/* Advanced Icon Library Modal */}
-      <IconPickerModal
-        isOpen={isIconPickerOpen}
-        onClose={() => setIsIconPickerOpen(false)}
-        currentIcon={
-          selectedElementAny
-            ? (selectedElementAny as any)[iconPickerTargetField] || selectedElementAny.iconName || selectedElementAny.icon || ""
-            : ""
-        }
-        onSelectIcon={(iconName, iconProvider) => {
-          if (selectedElementAny) {
-            updateSelectedProp((iconPickerTargetField || "iconName") as keyof EditorElement, iconName);
-            if (iconProvider) {
-              updateSelectedProp("iconProvider", iconProvider);
+        {/* Website Publishing & Deployment Modal (Comment 8) */}
+        {isPublishModalOpen && (
+          <PublishModal
+            isOpen={isPublishModalOpen}
+            onClose={() => setIsPublishModalOpen(false)}
+            publishing={publishing}
+            deployment={deployment}
+            pages={pages}
+            websiteName={website?.name || "ForgeStudio Project"}
+            websiteId={websiteId || ""}
+            approvalWorkflowEnabled={Boolean((website as any)?.approvalWorkflowEnabled)}
+            canPublish={
+              (website as any)?.userPermission === "OWNER" ||
+              (website as any)?.userPermission === "ADMIN" ||
+              !(website as any)?.approvalWorkflowEnabled
             }
-            updateSelectedProp("icon", iconName);
-          }
-        }}
-        onRemoveIcon={() => {
-          if (selectedElementAny) {
-            updateSelectedProp((iconPickerTargetField || "iconName") as keyof EditorElement, "");
-            updateSelectedProp("icon", "");
-          }
-        }}
-      />
+            getCanonicalSnapshot={getCanonicalEditorData}
+            onPublish={handlePublishWebsite}
+            onRollback={handleRollbackDeployment}
+            onUpdateDeployment={(updatedDep) => setDeployment(updatedDep)}
+            onOpenPreview={() => {
+              setIsPublishModalOpen(false);
+              setIsPreview(true);
+            }}
+          />
+        )}
 
-      {/* Dynamic Font System Modal */}
-      <FontPickerModal
-        isOpen={isFontPickerModalOpen}
-        onClose={() => setIsFontPickerModalOpen(false)}
-        selectedFont={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "fontFamily")}
-        onSelectFont={(fontFamily) => {
-          if (fontPickerCallback) {
-            fontPickerCallback(fontFamily);
-          } else {
-            updateSelectedStyle("fontFamily", fontFamily);
-          }
-          setIsFontPickerModalOpen(false);
-        }}
-      />
+        {/* Media & Asset Library Modal (Feature 6) */}
+        {isMediaLibraryOpen && (
+          <MediaLibraryModal
+            isOpen={isMediaLibraryOpen}
+            onClose={() => {
+              setIsMediaLibraryOpen(false);
+              setMediaPickerCallback(null);
+            }}
+            websiteId={websiteId && websiteId !== "undefined" ? websiteId : ""}
+            onSelect={(url, altText) => {
+              if (mediaPickerCallback) {
+                mediaPickerCallback(url, altText);
+                setMediaPickerCallback(null);
+              } else if (selectedElementAny && (selectedElementAny.type === "image" || selectedElementAny.src !== undefined)) {
+                updateSelectedProp("src", url);
+                updateSelectedProp("alt", altText ?? "");
+              }
+              setIsMediaLibraryOpen(false);
+            }}
+          />
+        )}
 
-      {/* F-339: Variables Manager Modal */}
-      <VariablesManagerModal
-        isOpen={isVariablesModalOpen}
-        onClose={() => setIsVariablesModalOpen(false)}
-        variables={globalVariables}
-        websiteId={websiteId}
-        apiUrl={apiUrl}
-        allElements={allWebsiteElementTrees}
-        onRenameToken={handleSafeguardRenameToken}
-        onDeleteToken={handleSafeguardDeleteToken}
-        onSaveVariables={(updated) => {
-          setGlobalVariables(updated);
-          handleSave();
-        }}
-      />
+        {/* SEO & Quality Analyzer Modal */}
+        {isSeoModalOpen && (
+          <SeoAnalyzerModal
+            isOpen={isSeoModalOpen}
+            onClose={() => setIsSeoModalOpen(false)}
+            websiteId={websiteId || ""}
+            activePage={pages.find((p) => p.id === activePageId) || pages[0] || { elements }}
+            allPages={pages}
+            websiteData={{
+              name: website?.name,
+              siteSettings: globalSettings || {},
+              pages,
+            }}
+            onSelectElement={handleSelectElementFromAudit}
+            onUpdateElementProp={handleUpdateElementPropById}
+            onUpdatePageSettings={setPageSettings}
+          />
+        )}
 
-      {/* F-340: Global Class Manager Modal */}
-      <ClassManagerModal
-        isOpen={isClassModalOpen}
-        onClose={() => setIsClassModalOpen(false)}
-        classes={globalClasses}
-        userRole="OWNER"
-        websiteId={websiteId}
-        apiUrl={apiUrl}
-        allElements={allWebsiteElementTrees}
-        onRenameClass={handleSafeguardRenameClass}
-        onDeleteClass={handleSafeguardDeleteClass}
-        onSaveClasses={(updated) => {
-          setGlobalClasses(updated);
-          handleSave();
-        }}
-      />
+        {/* Collaborative Design Notes & Feedback Overlay */}
+        {isDesignNotesOpen && (
+          <DesignNotesOverlay
+            isOpen={isDesignNotesOpen}
+            onClose={() => setIsDesignNotesOpen(false)}
+            websiteId={websiteId || ""}
+            activeElementId={selectedElementAny?.id || null}
+            onSelectElement={handleSelectElementFromAudit}
+            onNotesCountChange={setOpenDesignNotesCount}
+          />
+        )}
 
-{/* Phase 3: A/B Split Testing & Conversion Experiments Modal */}
-      <ExperimentManagerModal
-        isOpen={isExperimentModalOpen}
-        onClose={() => setIsExperimentModalOpen(false)}
-        websiteId={websiteId || (website as any)?.id || ""}
-      />
+        {/* Advanced Icon Library Modal */}
+        {isIconPickerOpen && (
+          <IconPickerModal
+            isOpen={isIconPickerOpen}
+            onClose={() => setIsIconPickerOpen(false)}
+            currentIcon={
+              selectedElementAny
+                ? (selectedElementAny as any)[iconPickerTargetField] || selectedElementAny.iconName || selectedElementAny.icon || ""
+                : ""
+            }
+            onSelectIcon={(iconName, iconProvider) => {
+              if (selectedElementAny) {
+                updateSelectedProp((iconPickerTargetField || "iconName") as keyof EditorElement, iconName);
+                if (iconProvider) {
+                  updateSelectedProp("iconProvider", iconProvider);
+                }
+                updateSelectedProp("icon", iconName);
+              }
+            }}
+            onRemoveIcon={() => {
+              if (selectedElementAny) {
+                updateSelectedProp((iconPickerTargetField || "iconName") as keyof EditorElement, "");
+                updateSelectedProp("icon", "");
+              }
+            }}
+          />
+        )}
 
-      {/* F-363 & F-371: SEO & WCAG Accessibility Audit Modal */}
-      <SeoAnalyzerModal
-        isOpen={isSeoAnalyzerOpen}
-        onClose={() => setIsSeoAnalyzerOpen(false)}
-        websiteId={websiteId || ""}
-        activePage={pages.find((p) => p.id === activePageId) || { id: activePageId || "home", name: pageSettings.title || "Home", elements, pageSettings }}
-        allPages={pages}
-        websiteData={website}
-        onSelectElement={(elId) => {
-          setSelectedId(elId);
-        }}
-        onUpdateElementProp={(elId, propKey, propVal) => {
-          setElements((prev) => updateTreeElement(prev, elId, (item) => ({ ...item, [propKey]: propVal })));
-        }}
-        onUpdatePageSettings={(updater) => {
-          setPageSettings((prev) => updater(prev));
-        }}
-      />
+        {/* Dynamic Font System Modal */}
+        {isFontPickerModalOpen && (
+          <FontPickerModal
+            isOpen={isFontPickerModalOpen}
+            onClose={() => setIsFontPickerModalOpen(false)}
+            selectedFont={getControlStyleValue(selectedElementAny, activeDevice, activeElementState, "fontFamily")}
+            onSelectFont={(fontFamily) => {
+              if (fontPickerCallback) {
+                fontPickerCallback(fontFamily);
+              } else {
+                updateSelectedStyle("fontFamily", fontFamily);
+              }
+              setIsFontPickerModalOpen(false);
+            }}
+          />
+        )}
 
-      {/* F-381: Multilingual Plugin Compatibility Modal */}
-      <MultilingualExportModal
-        isOpen={isMultilingualModalOpen}
-        onClose={() => setIsMultilingualModalOpen(false)}
-        activePage={pages.find((p) => p.id === activePageId) || { id: activePageId || "home", name: pageSettings.title || "Home", elements, pageSettings }}
-        websiteData={website}
-      />
+        {/* F-339: Variables Manager Modal */}
+        {isVariablesModalOpen && (
+          <VariablesManagerModal
+            isOpen={isVariablesModalOpen}
+            onClose={() => setIsVariablesModalOpen(false)}
+            variables={globalVariables}
+            websiteId={websiteId}
+            apiUrl={apiUrl}
+            allElements={allWebsiteElementTrees}
+            onRenameToken={handleSafeguardRenameToken}
+            onDeleteToken={handleSafeguardDeleteToken}
+            onSaveVariables={(updated) => {
+              setGlobalVariables(updated);
+              handleSave();
+            }}
+          />
+        )}
 
-      {/* F-364 & F-376: Visitor Accessibility Usability Toolbar & Reading Guide */}
-      <ReadingGuideBar />
-      <AccessibilityWidget
-        config={globalSettings?.accessibilityWidget}
-        onOpenStatement={() => setIsStatementOpen(true)}
-      />
-      <AccessibilityStatementModal
-        isOpen={isStatementOpen}
-        onClose={() => setIsStatementOpen(false)}
-        organizationName={globalSettings?.siteIdentity?.name || website?.name || "Website"}
-      />
+        {/* F-340: Global Class Manager Modal */}
+        {isClassModalOpen && (
+          <ClassManagerModal
+            isOpen={isClassModalOpen}
+            onClose={() => setIsClassModalOpen(false)}
+            classes={globalClasses}
+            userRole="OWNER"
+            websiteId={websiteId}
+            apiUrl={apiUrl}
+            allElements={allWebsiteElementTrees}
+            onRenameClass={handleSafeguardRenameClass}
+            onDeleteClass={handleSafeguardDeleteClass}
+            onSaveClasses={(updated) => {
+              setGlobalClasses(updated);
+              handleSave();
+            }}
+          />
+        )}
+
+        {/* Phase 3: A/B Split Testing & Conversion Experiments Modal */}
+        {isExperimentModalOpen && (
+          <ExperimentManagerModal
+            isOpen={isExperimentModalOpen}
+            onClose={() => setIsExperimentModalOpen(false)}
+            websiteId={websiteId || (website as any)?.id || ""}
+          />
+        )}
+
+        {/* F-363 & F-371: SEO & WCAG Accessibility Audit Modal */}
+        {isSeoAnalyzerOpen && (
+          <SeoAnalyzerModal
+            isOpen={isSeoAnalyzerOpen}
+            onClose={() => setIsSeoAnalyzerOpen(false)}
+            websiteId={websiteId || ""}
+            activePage={pages.find((p) => p.id === activePageId) || { id: activePageId || "home", name: pageSettings.title || "Home", elements, pageSettings }}
+            allPages={pages}
+            websiteData={website}
+            onSelectElement={(elId) => {
+              setSelectedId(elId);
+            }}
+            onUpdateElementProp={(elId, propKey, propVal) => {
+              setElements((prev) => updateTreeElement(prev, elId, (item) => ({ ...item, [propKey]: propVal })));
+            }}
+            onUpdatePageSettings={(updater) => {
+              setPageSettings((prev) => updater(prev));
+            }}
+          />
+        )}
+
+        {/* F-381: Multilingual Plugin Compatibility Modal */}
+        {isMultilingualModalOpen && (
+          <MultilingualExportModal
+            isOpen={isMultilingualModalOpen}
+            onClose={() => setIsMultilingualModalOpen(false)}
+            activePage={pages.find((p) => p.id === activePageId) || { id: activePageId || "home", name: pageSettings.title || "Home", elements, pageSettings }}
+            websiteData={website}
+          />
+        )}
+
+        {/* F-364 & F-376: Visitor Accessibility Usability Toolbar & Reading Guide */}
+        <ReadingGuideBar />
+        <AccessibilityWidget
+          config={globalSettings?.accessibilityWidget}
+          onOpenStatement={() => setIsStatementOpen(true)}
+        />
+        {isStatementOpen && (
+          <AccessibilityStatementModal
+            isOpen={isStatementOpen}
+            onClose={() => setIsStatementOpen(false)}
+            organizationName={globalSettings?.siteIdentity?.name || website?.name || "Website"}
+          />
+        )}
+      </Suspense>
     </div>
     </WooCommerceProvider>
   );

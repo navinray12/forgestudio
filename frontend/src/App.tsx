@@ -9,12 +9,19 @@ import {
 import { AuthProvider, useAuth, type UserRole } from "./context/AuthContext";
 import { AccessibilityProvider } from "./context/AccessibilityContext";
 import { ErrorBoundary } from "./components/ErrorBoundary";
-
-import LoginPage from "./pages/auth/LoginPage";
-import SignupPage from "./pages/auth/SignupPage";
-import UserDashboard from "./pages/dashboard/UserDashboard";
+import {
+  normalizeRole,
+  getDefaultDashboardPath,
+  hasRoleAccess,
+  ALL_AUTHENTICATED_ROLES,
+  STANDARD_DASHBOARD_ROLES,
+  ADMIN_ROLES,
+} from "./utils/roleNormalization";
 
 // Route-based code splitting for optimal initial bundle size and load performance
+const LoginPage = lazy(() => import("./pages/auth/LoginPage"));
+const SignupPage = lazy(() => import("./pages/auth/SignupPage"));
+const UserDashboard = lazy(() => import("./pages/dashboard/UserDashboard"));
 const AdminDashboard = lazy(() => import("./pages/dashboard/AdminDashboard"));
 const SuperAdminDashboard = lazy(() => import("./pages/dashboard/SuperAdminDashboard"));
 const SubscriptionPage = lazy(() => import("./pages/subscriptions/SubscriptionPage"));
@@ -27,7 +34,7 @@ const SharedTemplatePreviewPage = lazy(() => import("./pages/templates/SharedTem
 const PublishedSite = lazy(() => import("./pages/published/PublishedSite"));
 
 interface RoleRouteProps {
-  allowedRoles: UserRole[];
+  allowedRoles: (UserRole | string)[];
   children: React.ReactNode;
 }
 
@@ -58,19 +65,17 @@ function RoleRoute({
     return <Navigate to="/login" replace />;
   }
 
-  // Role not allowed
-  if (!allowedRoles.includes(user.role)) {
-    switch (user.role) {
-      case "SUPER_ADMIN":
-        return <Navigate to="/super-admin" replace />;
+  const userRole = normalizeRole(user.role);
 
-      case "ADMIN":
-        return <Navigate to="/admin" replace />;
+  // Unknown role: fail closed
+  if (userRole === "UNKNOWN") {
+    return <Navigate to="/login" replace />;
+  }
 
-      case "USER":
-      default:
-        return <Navigate to="/dashboard" replace />;
-    }
+  // Role not allowed: redirect to user's authorized default dashboard
+  if (!hasRoleAccess(user.role, allowedRoles)) {
+    const destination = getDefaultDashboardPath(user.role);
+    return <Navigate to={destination} replace />;
   }
 
   return <>{children}</>;
@@ -90,32 +95,7 @@ function LoginRoute() {
   }
 
   if (user) {
-    switch (user.role) {
-      case "SUPER_ADMIN":
-        return (
-          <Navigate
-            to="/super-admin"
-            replace
-          />
-        );
-
-      case "ADMIN":
-        return (
-          <Navigate
-            to="/admin"
-            replace
-          />
-        );
-
-      case "USER":
-      default:
-        return (
-          <Navigate
-            to="/dashboard"
-            replace
-          />
-        );
-    }
+    return <Navigate to={getDefaultDashboardPath(user.role)} replace />;
   }
 
   return <LoginPage />;
@@ -135,32 +115,7 @@ function SignupRoute() {
   }
 
   if (user) {
-    switch (user.role) {
-      case "SUPER_ADMIN":
-        return (
-          <Navigate
-            to="/super-admin"
-            replace
-          />
-        );
-
-      case "ADMIN":
-        return (
-          <Navigate
-            to="/admin"
-            replace
-          />
-        );
-
-      case "USER":
-      default:
-        return (
-          <Navigate
-            to="/dashboard"
-            replace
-          />
-        );
-    }
+    return <Navigate to={getDefaultDashboardPath(user.role)} replace />;
   }
 
   return <SignupPage />;
@@ -183,17 +138,7 @@ function HomeRedirect() {
     return <Navigate to="/login" replace />;
   }
 
-  switch (user.role) {
-    case "SUPER_ADMIN":
-      return <Navigate to="/super-admin" replace />;
-
-    case "ADMIN":
-      return <Navigate to="/admin" replace />;
-
-    case "USER":
-    default:
-      return <Navigate to="/dashboard" replace />;
-  }
+  return <Navigate to={getDefaultDashboardPath(user.role)} replace />;
 }
 
 const RouteLoading = () => (
@@ -259,7 +204,7 @@ function App() {
           <Route
             path="/dashboard"
             element={
-              <RoleRoute allowedRoles={["USER"]}>
+              <RoleRoute allowedRoles={STANDARD_DASHBOARD_ROLES}>
                 <UserDashboard />
               </RoleRoute>
             }
@@ -268,7 +213,7 @@ function App() {
           <Route
             path="/subscriptions"
             element={
-              <RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}>
+              <RoleRoute allowedRoles={ALL_AUTHENTICATED_ROLES}>
                 <SubscriptionPage />
               </RoleRoute>
             }
@@ -277,7 +222,7 @@ function App() {
           <Route
             path="/editor/:websiteId"
             element={
-              <RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}>
+              <RoleRoute allowedRoles={ALL_AUTHENTICATED_ROLES}>
                 <WebsiteEditor />
               </RoleRoute>
             }
@@ -288,7 +233,7 @@ function App() {
           <Route
             path="/dashboard/cpts/:websiteId"
             element={
-              <RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}>
+              <RoleRoute allowedRoles={ALL_AUTHENTICATED_ROLES}>
                 <CustomPostTypesList />
               </RoleRoute>
             }
@@ -297,7 +242,7 @@ function App() {
           <Route
             path="/dashboard/cpts/:websiteId/builder"
             element={
-              <RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}>
+              <RoleRoute allowedRoles={ALL_AUTHENTICATED_ROLES}>
                 <CustomPostTypeBuilder />
               </RoleRoute>
             }
@@ -306,7 +251,7 @@ function App() {
           <Route
             path="/dashboard/cpts/:websiteId/builder/:cptId"
             element={
-              <RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}>
+              <RoleRoute allowedRoles={ALL_AUTHENTICATED_ROLES}>
                 <CustomPostTypeBuilder />
               </RoleRoute>
             }
@@ -315,7 +260,7 @@ function App() {
           <Route
             path="/dashboard/cpts/:websiteId/entries/:cptId"
             element={
-              <RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}>
+              <RoleRoute allowedRoles={ALL_AUTHENTICATED_ROLES}>
                 <CustomEntriesList />
               </RoleRoute>
             }
@@ -324,7 +269,7 @@ function App() {
           <Route
             path="/dashboard/cpts/:websiteId/entries/:cptId/editor"
             element={
-              <RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}>
+              <RoleRoute allowedRoles={ALL_AUTHENTICATED_ROLES}>
                 <CustomEntryEditor />
               </RoleRoute>
             }
@@ -333,7 +278,7 @@ function App() {
           <Route
             path="/dashboard/cpts/:websiteId/entries/:cptId/editor/:entryId"
             element={
-              <RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN"]}>
+              <RoleRoute allowedRoles={ALL_AUTHENTICATED_ROLES}>
                 <CustomEntryEditor />
               </RoleRoute>
             }
@@ -345,7 +290,7 @@ function App() {
           <Route
             path="/admin"
             element={
-              <RoleRoute allowedRoles={["ADMIN"]}>
+              <RoleRoute allowedRoles={ADMIN_ROLES}>
                 <AdminDashboard />
               </RoleRoute>
             }

@@ -1159,7 +1159,9 @@ function importVanillaDOMCode(code: string, existingElement?: EditorElement): Im
         warnings,
         unsupportedConstructs: [],
       };
-    } catch {}
+    } catch {
+      /* ignore DOM element parsing failure and proceed to general fallback */
+    }
   }
 
   // General Vanilla JS fallback

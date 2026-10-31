@@ -65,11 +65,15 @@ async function runInternalPublishingE2ETests() {
     const ownerHeaders = {
       "Content-Type": "application/json",
       Cookie: `forge_session=${ownerToken}`,
+      "x-requested-with": "XMLHttpRequest",
+      "x-forgestudio-client": "ForgeStudio-Test",
     };
 
     const attackerHeaders = {
       "Content-Type": "application/json",
       Cookie: `forge_session=${attackerToken}`,
+      "x-requested-with": "XMLHttpRequest",
+      "x-forgestudio-client": "ForgeStudio-Test",
     };
 
     const uniqueMarker1 = `MARKER_V1_${Date.now()}`;

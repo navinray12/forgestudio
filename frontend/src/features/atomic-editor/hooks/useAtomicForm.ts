@@ -26,7 +26,9 @@ export function useAtomicForm() {
   }, [activeForm]);
 
   useEffect(() => {
-    fetchForms();
+    queueMicrotask(() => {
+      fetchForms();
+    });
   }, [fetchForms]);
 
   const filteredForms = useMemo(() => {

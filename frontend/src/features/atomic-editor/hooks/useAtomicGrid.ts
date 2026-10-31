@@ -27,7 +27,9 @@ export function useAtomicGrid() {
   }, [activeGrid]);
 
   useEffect(() => {
-    fetchGrids();
+    queueMicrotask(() => {
+      fetchGrids();
+    });
   }, [fetchGrids]);
 
   const filteredGrids = useMemo(() => {

@@ -93,25 +93,6 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
     ? websiteId.trim()
     : undefined;
 
-  useEffect(() => {
-    if (isOpen) {
-      fetchMediaAssets();
-    }
-  }, [isOpen, websiteId, mimeTypeFilter]);
-
-  useEffect(() => {
-    if (selectedAsset) {
-      setAltTextInput(selectedAsset.altText || "");
-      setAltError(null);
-      setAltSuccess(false);
-      setDeleteWarning(null);
-      setOptError(null);
-      setOptResult(null);
-      setWebpError(null);
-      setWebpResult(null);
-    }
-  }, [selectedAsset]);
-
   const fetchMediaAssets = async () => {
     setLoading(true);
     setFetchError(null);
@@ -154,6 +135,29 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (isOpen) {
+      queueMicrotask(() => {
+        fetchMediaAssets();
+      });
+    }
+  }, [isOpen, websiteId, mimeTypeFilter]);
+
+  useEffect(() => {
+    if (selectedAsset) {
+      queueMicrotask(() => {
+        setAltTextInput(selectedAsset.altText || "");
+        setAltError(null);
+        setAltSuccess(false);
+        setDeleteWarning(null);
+        setOptError(null);
+        setOptResult(null);
+        setWebpError(null);
+        setWebpResult(null);
+      });
+    }
+  }, [selectedAsset]);
 
   const handleFileUpload = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -419,6 +423,9 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
       onClick={onClose}
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="media-library-modal-title"
         style={{
           width: "100%",
           maxWidth: "1100px",
@@ -445,7 +452,7 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-            <h2 style={{ margin: 0, fontSize: "1.25rem", fontWeight: 600 }}>
+            <h2 id="media-library-modal-title" style={{ margin: 0, fontSize: "1.25rem", fontWeight: 600 }}>
               📁 Media Library
             </h2>
             <div
@@ -493,6 +500,7 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
           <button
             type="button"
             onClick={onClose}
+            aria-label="Close media library"
             style={{
               background: "transparent",
               border: "none",

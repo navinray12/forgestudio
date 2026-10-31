@@ -16,11 +16,6 @@ export default function CustomEntryEditor() {
     // Model Definitions (Fields)
     const [fields, setFields] = useState<any[]>([]);
 
-    useEffect(() => {
-        if (!cptId) return;
-        fetchFields();
-    }, [cptId]);
-
     const fetchFields = async () => {
         try {
             const res = await fetch(`${apiUrl}/api/cpt/types/${cptId}/fields`, {
@@ -34,6 +29,13 @@ export default function CustomEntryEditor() {
             console.error(e);
         }
     };
+
+    useEffect(() => {
+        if (!cptId) return;
+        queueMicrotask(() => {
+            fetchFields();
+        });
+    }, [cptId]);
 
     const handleSave = async (e: any) => {
         e.preventDefault();

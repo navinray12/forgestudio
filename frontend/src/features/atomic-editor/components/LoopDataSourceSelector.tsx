@@ -43,8 +43,12 @@ export const LoopDataSourceSelector: React.FC<LoopDataSourceSelectorProps> = ({
     if (loop.dataSourceType !== "cpt" || !websiteId) return;
 
     let isMounted = true;
-    setLoadingCpts(true);
-    setCptError(null);
+    queueMicrotask(() => {
+      if (isMounted) {
+        setLoadingCpts(true);
+        setCptError(null);
+      }
+    });
 
     fetch(`/api/cpt/websites/${websiteId}/types`, {
       headers: { "Content-Type": "application/json" },
@@ -78,7 +82,9 @@ export const LoopDataSourceSelector: React.FC<LoopDataSourceSelectorProps> = ({
   // Fetch count of entries when selected CPT changes
   useEffect(() => {
     if (loop.dataSourceType !== "cpt" || !loop.cptId) {
-      setEntryCount(null);
+      queueMicrotask(() => {
+        setEntryCount(null);
+      });
       return;
     }
 

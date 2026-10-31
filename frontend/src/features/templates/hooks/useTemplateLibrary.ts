@@ -34,7 +34,9 @@ export function useTemplateLibrary({ apiUrl }: UseTemplateLibraryParams) {
   }, [apiUrl]);
 
   useEffect(() => {
-    loadTemplates();
+    queueMicrotask(() => {
+      loadTemplates();
+    });
   }, [loadTemplates]);
 
   // Local case-insensitive search, category, and favorite filtering

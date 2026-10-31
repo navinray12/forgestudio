@@ -39,12 +39,6 @@ export default function NotesPanel({ isOpen, onClose, websiteId, apiUrl, selecte
     // Filters
     const [filter, setFilter] = useState<"ALL" | "OPEN" | "RESOLVED" | "ELEMENT">("ALL");
 
-    useEffect(() => {
-        if (isOpen) {
-            fetchNotes();
-        }
-    }, [isOpen, websiteId]);
-
     const fetchNotes = async () => {
         setLoading(true);
         try {
@@ -59,6 +53,14 @@ export default function NotesPanel({ isOpen, onClose, websiteId, apiUrl, selecte
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        if (isOpen) {
+            queueMicrotask(() => {
+                fetchNotes();
+            });
+        }
+    }, [isOpen, websiteId]);
 
     const handleAddNote = async () => {
         if (!newNoteContent.trim()) return;
@@ -154,13 +156,22 @@ export default function NotesPanel({ isOpen, onClose, websiteId, apiUrl, selecte
     if (!isOpen) return null;
 
     return (
-        <div className="absolute right-0 top-0 bottom-0 w-80 bg-white border-l border-slate-200 shadow-2xl flex flex-col z-50 animate-in slide-in-from-right-8 fade-in">
+        <div
+            role="region"
+            aria-label="Collaboration Notes Panel"
+            className="absolute right-0 top-0 bottom-0 w-80 bg-white border-l border-slate-200 shadow-2xl flex flex-col z-50 animate-in slide-in-from-right-8 fade-in"
+        >
             {/* Header */}
             <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                 <h2 className="text-sm font-bold text-slate-800 flex items-center gap-2">
                     <span>💬</span> Collaboration Notes
                 </h2>
-                <button onClick={onClose} className="text-slate-400 hover:bg-slate-200 rounded p-1">
+                <button
+                    type="button"
+                    onClick={onClose}
+                    aria-label="Close collaboration notes"
+                    className="text-slate-400 hover:bg-slate-200 rounded p-1 cursor-pointer"
+                >
                     ✕
                 </button>
             </div>
@@ -176,6 +187,7 @@ export default function NotesPanel({ isOpen, onClose, websiteId, apiUrl, selecte
             {/* Note Composer */}
             <div className="p-4 border-b border-slate-100 bg-slate-50 flex flex-col gap-3">
                 <textarea
+                    aria-label="Add a design note"
                     value={newNoteContent}
                     onChange={(e) => setNewNoteContent(e.target.value)}
                     placeholder={filter === "ELEMENT" && selectedElementId ? `Add note for ${getElementName(selectedElementId)}...` : "Add a project note..."}

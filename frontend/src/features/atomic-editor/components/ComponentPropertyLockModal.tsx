@@ -20,7 +20,9 @@ export const ComponentPropertyLockModal: React.FC<ComponentPropertyLockModalProp
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
 
   useEffect(() => {
-    setSelectedKeys(initialAllowedKeys);
+    queueMicrotask(() => {
+      setSelectedKeys(initialAllowedKeys);
+    });
   }, [initialAllowedKeys, isOpen]);
 
   if (!isOpen || !component) return null;

@@ -31,12 +31,14 @@ export const ImportTemplateDialog: React.FC<ImportTemplateDialogProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      setSelectedFile(null);
-      setValidationError(null);
-      setValidatedPayload(null);
-      setPreviewSummary(null);
-      setIsImporting(false);
-      setIsDragOver(false);
+      queueMicrotask(() => {
+        setSelectedFile(null);
+        setValidationError(null);
+        setValidatedPayload(null);
+        setPreviewSummary(null);
+        setIsImporting(false);
+        setIsDragOver(false);
+      });
     }
   }, [isOpen]);
 

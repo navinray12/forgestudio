@@ -28,15 +28,6 @@ export const TransferTemplateDialog: React.FC<TransferTemplateDialogProps> = ({
   const [isTransferring, setIsTransferring] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (isOpen) {
-      setSelectedWebsiteId("");
-      setError(null);
-      setIsTransferring(false);
-      fetchUserWebsites();
-    }
-  }, [isOpen]);
-
   const fetchUserWebsites = async () => {
     try {
       setLoadingWebsites(true);
@@ -59,6 +50,17 @@ export const TransferTemplateDialog: React.FC<TransferTemplateDialogProps> = ({
       setLoadingWebsites(false);
     }
   };
+
+  useEffect(() => {
+    if (isOpen) {
+      queueMicrotask(() => {
+        setSelectedWebsiteId("");
+        setError(null);
+        setIsTransferring(false);
+        fetchUserWebsites();
+      });
+    }
+  }, [isOpen]);
 
   if (!isOpen || !template) return null;
 

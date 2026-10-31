@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import { prisma } from "../../config/prisma.js";
 import { canUserAccessResource } from "../permission.service.js";
-import { assertSafeUrl } from "../../utils/ssrf.guard.js";
+import { assertSafeUrl, safeFetch } from "../../utils/ssrf.guard.js";
 import {
   publishToWordPress,
   verifyWordPressConnection,
@@ -261,11 +261,11 @@ export class WordPressPublisher implements DestinationPublisher {
         return await customWpRequester(targetUrl, { ...reqOpts, timeout: timeoutMs });
       }
 
-      const res = await fetch(targetUrl, {
+      const res = await safeFetch(targetUrl, {
         method: reqOpts.method,
         headers: reqOpts.headers,
         body: reqOpts.body,
-        signal: AbortSignal.timeout(timeoutMs),
+        timeoutMs,
       });
 
       return {

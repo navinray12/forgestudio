@@ -42,9 +42,6 @@ export default function PerformancePanel() {
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
 
-    useEffect(() => { fetchWebsites(); }, []);
-    useEffect(() => { if (selectedSite) fetchSettings(); }, [selectedSite]);
-
     const fetchWebsites = async () => {
         try {
             const res = await fetch(`${apiUrl}/api/websites`, { credentials: "include" });
@@ -68,6 +65,9 @@ export default function PerformancePanel() {
         } catch { /* use defaults */ }
         finally { setLoading(false); }
     };
+
+    useEffect(() => { queueMicrotask(() => { fetchWebsites(); }); }, []);
+    useEffect(() => { if (selectedSite) queueMicrotask(() => { fetchSettings(); }); }, [selectedSite]);
 
     const toggle = (key: keyof PerformanceSettings) => {
         setSettings(prev => ({ ...prev, [key]: !prev[key] }));

@@ -26,10 +26,6 @@ export default function DeveloperApiSettings() {
   const [error, setError] = useState<string | null>(null);
   const [snippetTab, setSnippetTab] = useState<"curl" | "sdk" | "fetch">("curl");
 
-  useEffect(() => {
-    fetchKeys();
-  }, []);
-
   const fetchKeys = async () => {
     try {
       setLoading(true);
@@ -50,6 +46,12 @@ export default function DeveloperApiSettings() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      fetchKeys();
+    });
+  }, []);
 
   const toggleScope = (scopeId: string) => {
     setSelectedScopes((prev) =>

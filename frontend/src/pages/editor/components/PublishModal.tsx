@@ -406,21 +406,6 @@ export const PublishModal: React.FC<PublishModalProps> = ({
     }
   };
 
-  useEffect(() => {
-    if (isOpen && websiteId) {
-      loadDeployments();
-      loadWordPressStatus();
-      loadWpPagePublishStatus();
-      loadWpRollbackTargets();
-      loadWpJobs();
-      loadSftpConfig();
-      loadHtmlPreview();
-      if (approvalWorkflowEnabled) {
-        loadApprovalStatus();
-      }
-    }
-  }, [isOpen, websiteId, publishingFormat, approvalWorkflowEnabled]);
-
   const loadSftpConfig = async () => {
     if (!websiteId) return;
     try {
@@ -432,7 +417,9 @@ export const PublishModal: React.FC<PublishModalProps> = ({
         setSftpRemotePath(data.config.remotePath || "/var/www/html");
         setSftpVerified(data.config.status === "CONNECTED");
       }
-    } catch (e) {}
+    } catch {
+      /* ignore optional sftp config fetch failure */
+    }
   };
 
   const handleTestSftp = async () => {
@@ -648,29 +635,6 @@ export const PublishModal: React.FC<PublishModalProps> = ({
     }
   };
 
-  // F-498 Auto-polling for active background job status
-  useEffect(() => {
-    if (!isOpen || !websiteId || !activeWpJob) return;
-    if (activeWpJob.status !== "QUEUED" && activeWpJob.status !== "RUNNING") return;
-
-    const interval = setInterval(async () => {
-      try {
-        const updated = await publishingService.getWordPressPublishJobStatus(websiteId, activeWpJob.id);
-        if (updated) {
-          setActiveWpJob(updated);
-          if (updated.status === "COMPLETED" || updated.status === "FAILED" || updated.status === "CANCELLED") {
-            await loadWpJobs();
-            await loadWpPagePublishStatus();
-            await loadWpRollbackTargets();
-          }
-        }
-      } catch (e) {}
-    }, 2000);
-
-    return () => clearInterval(interval);
-  }, [isOpen, websiteId, activeWpJob?.id, activeWpJob?.status]);
-
-
   const loadWpPagePublishStatus = async (pageId?: string) => {
     if (!websiteId || isLoadingWpPublishStatus) return;
     setIsLoadingWpPublishStatus(true);
@@ -696,6 +660,47 @@ export const PublishModal: React.FC<PublishModalProps> = ({
       setIsLoadingRollbackTargets(false);
     }
   };
+
+  useEffect(() => {
+    if (isOpen && websiteId) {
+      queueMicrotask(() => {
+        loadDeployments();
+        loadWordPressStatus();
+        loadWpPagePublishStatus();
+        loadWpRollbackTargets();
+        loadWpJobs();
+        loadSftpConfig();
+        loadHtmlPreview();
+        if (approvalWorkflowEnabled) {
+          loadApprovalStatus();
+        }
+      });
+    }
+  }, [isOpen, websiteId, publishingFormat, approvalWorkflowEnabled]);
+
+  // F-498 Auto-polling for active background job status
+  useEffect(() => {
+    if (!isOpen || !websiteId || !activeWpJob) return;
+    if (activeWpJob.status !== "QUEUED" && activeWpJob.status !== "RUNNING") return;
+
+    const interval = setInterval(async () => {
+      try {
+        const updated = await publishingService.getWordPressPublishJobStatus(websiteId, activeWpJob.id);
+        if (updated) {
+          setActiveWpJob(updated);
+          if (updated.status === "COMPLETED" || updated.status === "FAILED" || updated.status === "CANCELLED") {
+            await loadWpJobs();
+            await loadWpPagePublishStatus();
+            await loadWpRollbackTargets();
+          }
+        }
+      } catch {
+        /* ignore polling error to preserve interval */
+      }
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [isOpen, websiteId, activeWpJob?.id, activeWpJob?.status]);
 
   const handleExecuteRollback = async () => {
     if (!websiteId || !selectedRollbackTarget || isRollingBackWpPage) return;
@@ -861,7 +866,9 @@ export const PublishModal: React.FC<PublishModalProps> = ({
           try {
             const cached = localStorage.getItem(`forgestudio_editor_${websiteId}`);
             if (cached) snapshot = JSON.parse(cached);
-          } catch (_) {}
+          } catch (_) {
+            /* ignore malformed local snapshot cache */
+          }
         }
 
         // Validate canonical snapshot is present and non-empty
@@ -1098,7 +1105,12 @@ export const PublishModal: React.FC<PublishModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4 animate-fadeIn">
-      <div className="w-full max-w-2xl rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl overflow-hidden flex flex-col">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="publish-modal-title"
+        className="w-full max-w-2xl rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl overflow-hidden flex flex-col"
+      >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-800 px-6 py-4 bg-slate-950/60">
           <div className="flex items-center gap-3">
@@ -1106,7 +1118,7 @@ export const PublishModal: React.FC<PublishModalProps> = ({
               🚀
             </div>
             <div>
-              <h2 className="text-base font-extrabold text-white">Publish & Deployment</h2>
+              <h2 id="publish-modal-title" className="text-base font-extrabold text-white">Publish & Deployment</h2>
               <p className="text-xs text-slate-400">
                 Manage website versions, preview live status, and configure hosting.
               </p>
@@ -1115,6 +1127,7 @@ export const PublishModal: React.FC<PublishModalProps> = ({
           <button
             type="button"
             onClick={onClose}
+            aria-label="Close publish dialog"
             className="text-slate-400 hover:text-white text-lg font-bold p-1 rounded-lg hover:bg-slate-800 transition cursor-pointer"
           >
             ✕

@@ -6,6 +6,7 @@ import {
   processFormSubmission,
   getWebsiteSubmissions,
   deleteWebsiteSubmission,
+  recordWebhookDelivery,
 } from "../services/form/form.service.js";
 import { isSafeUrl } from "../utils/ssrf.validator.js";
 import { listJobs } from "../services/jobs/jobRunner.js";
@@ -237,6 +238,43 @@ async function runMilestoneHTests() {
     await deleteWebsiteSubmission(testWebsite.id, submissionId, testUser.id);
     const afterDelete = await getWebsiteSubmissions(testWebsite.id, testUser.id);
     assert(afterDelete.length === 0, "deleteWebsiteSubmission properly removes lead from database");
+
+    // 10. Regression Test: Deleted website during asynchronous webhook delivery / retry
+    const dummyDeletedSiteId = "00000000-0000-0000-0000-000000000000";
+    const deletedSiteDelivery = await recordWebhookDelivery({
+      websiteId: dummyDeletedSiteId,
+      eventId: "00000000-0000-0000-0000-000000000001",
+      endpointUrl: "https://example.com/webhook",
+      event: "form.submitted",
+      status: "FAILED",
+      httpStatus: 408,
+      requestPayload: { test: true },
+      errorMessage: "Request timed out after 8000ms",
+      attemptCount: 1,
+    });
+    assert(
+      deletedSiteDelivery === null,
+      "recordWebhookDelivery safely returns null on deleted website FK violation without unhandled errors"
+    );
+
+    // Verify that unrelated database errors are NOT swallowed
+    let unrelatedErrorCaught = false;
+    try {
+      await recordWebhookDelivery({
+        websiteId: "invalid-uuid-syntax",
+        eventId: "invalid-uuid",
+        endpointUrl: "https://example.com/webhook",
+        event: "form.submitted",
+        status: "FAILED",
+        requestPayload: {},
+      });
+    } catch (unrelatedErr) {
+      unrelatedErrorCaught = true;
+    }
+    assert(
+      unrelatedErrorCaught === true,
+      "recordWebhookDelivery does not silently swallow unrelated database errors"
+    );
 
   } catch (err) {
     console.error("Unexpected error during Phase 8 test suite:", err);

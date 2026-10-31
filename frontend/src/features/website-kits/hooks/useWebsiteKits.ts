@@ -31,7 +31,9 @@ export function useWebsiteKits({ apiUrl }: UseWebsiteKitsParams) {
   }, [apiUrl]);
 
   useEffect(() => {
-    fetchKits();
+    queueMicrotask(() => {
+      fetchKits();
+    });
   }, [fetchKits]);
 
   const filteredKits = useMemo(() => {

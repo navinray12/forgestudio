@@ -90,11 +90,6 @@ export const RoleManagerModal: React.FC<RoleManagerModalProps> = ({ websiteId, w
     // Permissions UI
     const [selectedMember, setSelectedMember] = useState<string | null>(null);
 
-    useEffect(() => {
-        fetchData();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [view]);
-
     const fetchData = async () => {
         setLoading(true);
         try {
@@ -129,6 +124,13 @@ export const RoleManagerModal: React.FC<RoleManagerModalProps> = ({ websiteId, w
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        queueMicrotask(() => {
+            fetchData();
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [view]);
 
     const executeRoleChange = async () => {
         if (!confirmRole) return;
@@ -240,21 +242,28 @@ export const RoleManagerModal: React.FC<RoleManagerModalProps> = ({ websiteId, w
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm animate-fade-in">
-            <div className="w-full max-w-4xl rounded-2xl bg-white p-0 shadow-2xl flex flex-col h-[85vh] max-h-[800px] overflow-hidden">
+            <div
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="role-manager-title"
+                className="w-full max-w-4xl rounded-2xl bg-white p-0 shadow-2xl flex flex-col h-[85vh] max-h-[800px] overflow-hidden"
+            >
                 <div className="flex justify-between items-center p-6 border-b border-slate-100 bg-white">
                     <div>
-                        <h2 className="text-xl font-bold text-slate-900">Manage Access</h2>
+                        <h2 id="role-manager-title" className="text-xl font-bold text-slate-900">Manage Access</h2>
                         <p className="text-xs text-slate-500 font-mono mt-1">{websiteName}</p>
                     </div>
 
                     <div className="flex bg-slate-100 p-1 rounded-xl">
                         <button
+                            type="button"
                             onClick={() => setView("MEMBERS")}
                             className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-colors ${view === "MEMBERS" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50"}`}
                         >
                             Members
                         </button>
                         <button
+                            type="button"
                             onClick={() => setView("PERMISSIONS")}
                             className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-colors ${view === "PERMISSIONS" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50"}`}
                         >
@@ -262,7 +271,14 @@ export const RoleManagerModal: React.FC<RoleManagerModalProps> = ({ websiteId, w
                         </button>
                     </div>
 
-                    <button onClick={onClose} className="text-slate-400 hover:text-slate-600 font-bold text-2xl flex items-center justify-center w-8 h-8 rounded-full hover:bg-slate-100 transition-colors">&times;</button>
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        aria-label="Close role manager"
+                        className="text-slate-400 hover:text-slate-600 font-bold text-2xl flex items-center justify-center w-8 h-8 rounded-full hover:bg-slate-100 transition-colors cursor-pointer"
+                    >
+                        &times;
+                    </button>
                 </div>
 
                 {error && (

@@ -26,7 +26,9 @@ export function useReusableComponents() {
   }, []);
 
   useEffect(() => {
-    fetchComponents();
+    queueMicrotask(() => {
+      fetchComponents();
+    });
   }, [fetchComponents]);
 
   const filteredComponents = useMemo(() => {

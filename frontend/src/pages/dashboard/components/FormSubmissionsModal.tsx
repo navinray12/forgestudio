@@ -510,10 +510,12 @@ export const FormSubmissionsModal: React.FC<FormSubmissionsModalProps> = ({
 
   useEffect(() => {
     if (websiteId && (isEmbedded || isOpen)) {
-      fetchSubmissions();
-      fetchNotificationSettings();
-      fetchWebhookSettings();
-      fetchWebhookDeliveries();
+      queueMicrotask(() => {
+        fetchSubmissions();
+        fetchNotificationSettings();
+        fetchWebhookSettings();
+        fetchWebhookDeliveries();
+      });
     }
   }, [websiteId, page, dateFilter, isOpen]);
 
@@ -1731,14 +1733,19 @@ export const FormSubmissionsModal: React.FC<FormSubmissionsModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
-      <div className="w-full max-w-5xl bg-slate-950 border border-slate-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="dashboard-form-submissions-title"
+        className="w-full max-w-5xl bg-slate-950 border border-slate-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+      >
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/60">
           <div className="flex items-center gap-2.5">
             <span className="p-2 rounded-xl bg-blue-500/10 text-blue-400">
               <FileText className="w-5 h-5" />
             </span>
             <div>
-              <h3 className="text-base font-bold text-white">Form Submissions & Leads</h3>
+              <h3 id="dashboard-form-submissions-title" className="text-base font-bold text-white">Form Submissions & Leads</h3>
               <p className="text-xs text-slate-400">{websiteName}</p>
             </div>
           </div>
@@ -1746,6 +1753,7 @@ export const FormSubmissionsModal: React.FC<FormSubmissionsModalProps> = ({
             <button
               type="button"
               onClick={onClose}
+              aria-label="Close submissions modal"
               className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
             >
               <X className="w-5 h-5" />

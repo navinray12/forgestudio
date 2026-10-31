@@ -53,21 +53,27 @@ export const IconPickerModal: React.FC<IconPickerModalProps> = ({
 
   // Reset display limit when query or category changes
   useEffect(() => {
-    setDisplayLimit(120);
+    queueMicrotask(() => {
+      setDisplayLimit(120);
+    });
   }, [searchQuery, selectedCategory]);
 
   // Save favorites to LocalStorage
   useEffect(() => {
     try {
       localStorage.setItem(FAVORITE_STORAGE_KEY, JSON.stringify(favorites));
-    } catch {}
+    } catch {
+      /* ignore storage write error in restricted context */
+    }
   }, [favorites]);
 
   // Save recents to LocalStorage
   useEffect(() => {
     try {
       localStorage.setItem(RECENT_STORAGE_KEY, JSON.stringify(recents));
-    } catch {}
+    } catch {
+      /* ignore storage write error in restricted context */
+    }
   }, [recents]);
 
   const toggleFavorite = (iconId: string, e: React.MouseEvent) => {
@@ -107,6 +113,9 @@ export const IconPickerModal: React.FC<IconPickerModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="icon-picker-modal-title"
         className="relative flex h-[85vh] max-h-[700px] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl transition-all"
         onClick={(e) => e.stopPropagation()}
       >
@@ -117,7 +126,7 @@ export const IconPickerModal: React.FC<IconPickerModalProps> = ({
               <span className="text-base font-bold">🎨</span>
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-800">Advanced Icon Library</h2>
+              <h2 id="icon-picker-modal-title" className="text-base font-bold text-slate-800">Advanced Icon Library</h2>
               <p className="text-xs font-medium text-slate-500">
                 Browse & customize over 1,400+ production vector icons or enter a custom SVG
               </p>
@@ -166,6 +175,7 @@ export const IconPickerModal: React.FC<IconPickerModalProps> = ({
             <button
               type="button"
               onClick={onClose}
+              aria-label="Close icon picker"
               className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-200 hover:text-slate-700 transition cursor-pointer"
             >
               ✕

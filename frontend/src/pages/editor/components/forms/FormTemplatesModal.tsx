@@ -20,6 +20,9 @@ export default function FormTemplatesModal({
       className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-md p-4 animate-in fade-in"
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="form-templates-modal-title"
         onClick={(e) => e.stopPropagation()}
         className="w-full max-w-3xl rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[85vh]"
       >
@@ -30,13 +33,15 @@ export default function FormTemplatesModal({
               📋
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-800">Form Templates Library</h2>
+              <h2 id="form-templates-modal-title" className="text-base font-bold text-slate-800">Form Templates Library</h2>
               <p className="text-xs text-slate-500">Choose a conversion-optimized form layout to insert</p>
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition"
+            aria-label="Close templates modal"
+            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition cursor-pointer"
           >
             ✕
           </button>

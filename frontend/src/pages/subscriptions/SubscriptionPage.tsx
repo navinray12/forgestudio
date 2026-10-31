@@ -132,32 +132,32 @@ function SubscriptionPage() {
   const [upgradingSlug, setUpgradingSlug] = useState<string | null>(null);
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
   const [canceling, setCanceling] = useState(false);
-  const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
-
-  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
-
-  useEffect(() => {
-    // Check for payment return status in URL
+  const [initialStatus] = useState(() => {
+    if (typeof window === "undefined") return { error: "", success: "" };
     const params = new URLSearchParams(window.location.search);
     const status = params.get("status");
     if (status === "cancelled") {
-      setError("Checkout was cancelled. Your current subscription was not changed.");
-      window.history.replaceState({}, document.title, window.location.pathname);
-    } else if (status === "success") {
-      setSuccessMessage(
-        "Payment submitted! Your subscription will activate as soon as the payment confirmation is verified."
-      );
-      window.history.replaceState({}, document.title, window.location.pathname);
+      return {
+        error: "Checkout was cancelled. Your current subscription was not changed.",
+        success: "",
+      };
     }
-    fetchSubscriptionData();
-  }, []);
+    if (status === "success") {
+      return {
+        error: "",
+        success: "Payment submitted! Your subscription will activate as soon as the payment confirmation is verified.",
+      };
+    }
+    return { error: "", success: "" };
+  });
+
+  const [error, setError] = useState(initialStatus.error);
+  const [successMessage, setSuccessMessage] = useState(initialStatus.success);
+
+  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
   const fetchSubscriptionData = async () => {
     try {
-      setLoading(true);
-      setError("");
-
       // 1. Fetch all plans
       const plansRes = await fetch(`${apiUrl}/api/v1/subscriptions/plans`, {
         credentials: "include",
@@ -200,6 +200,19 @@ function SubscriptionPage() {
     }
   };
 
+  useEffect(() => {
+    // Check for payment return status in URL
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get("status");
+    if (status === "cancelled" || status === "success") {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+    const loadData = async () => {
+      await fetchSubscriptionData();
+    };
+    loadData();
+  }, []);
+
   const handleCancelSubscription = async () => {
     try {
       setCanceling(true);
@@ -218,6 +231,7 @@ function SubscriptionPage() {
 
       setSuccessMessage(data.message || "Subscription cancelled successfully.");
       setCancelModalOpen(false);
+      setLoading(true);
       fetchSubscriptionData();
     } catch (err: any) {
       setError(err.message || "Error cancelling subscription.");
@@ -285,7 +299,7 @@ function SubscriptionPage() {
 
         if (data?.data?.checkoutUrl) {
           setSuccessMessage("Redirecting to secure payment checkout...");
-          window.location.href = data.data.checkoutUrl;
+          window.location.assign(data.data.checkoutUrl);
         } else {
           throw new Error("Payment service did not return a valid checkout URL.");
         }

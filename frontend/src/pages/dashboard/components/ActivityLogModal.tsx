@@ -68,7 +68,9 @@ export const ActivityLogModal: React.FC<ActivityLogModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      fetchLogs();
+      queueMicrotask(() => {
+        fetchLogs();
+      });
     }
   }, [isOpen, websiteId, actionFilter]);
 
@@ -97,7 +99,12 @@ export const ActivityLogModal: React.FC<ActivityLogModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 animate-in fade-in duration-150">
-      <div className="relative w-full max-w-4xl max-h-[85vh] flex flex-col rounded-2xl border border-slate-800 bg-slate-900 text-slate-100 shadow-2xl overflow-hidden font-sans">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="activity-log-title"
+        className="relative w-full max-w-4xl max-h-[85vh] flex flex-col rounded-2xl border border-slate-800 bg-slate-900 text-slate-100 shadow-2xl overflow-hidden font-sans"
+      >
         
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-slate-800 px-6 py-4 bg-slate-950/60">
@@ -106,7 +113,7 @@ export const ActivityLogModal: React.FC<ActivityLogModalProps> = ({
               <Activity className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white tracking-tight">
+              <h2 id="activity-log-title" className="text-base font-bold text-white tracking-tight">
                 {websiteName ? `Activity Log: ${websiteName}` : "Platform Activity Log"}
               </h2>
               <p className="text-xs text-slate-400">
@@ -117,16 +124,20 @@ export const ActivityLogModal: React.FC<ActivityLogModalProps> = ({
 
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={fetchLogs}
               disabled={loading}
-              className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition disabled:opacity-50"
+              className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition disabled:opacity-50 cursor-pointer"
+              aria-label="Refresh logs"
               title="Refresh logs"
             >
               <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
             </button>
             <button
+              type="button"
               onClick={onClose}
-              className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition"
+              aria-label="Close activity log"
+              className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition cursor-pointer"
               title="Close"
             >
               <X className="w-4 h-4" />

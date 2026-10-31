@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import {
   Monitor, Smartphone, Tablet, Undo, Redo, Save, Eye, Settings, Plus, Trash2, Copy,
   ChevronDown, ChevronRight, Layers, Type, Image as ImageIcon, Box, Grid,
@@ -89,7 +89,10 @@ export const SlidesWidgetRenderer = ({
 
   useEffect(() => {
     if (el.slidesActiveIndex !== undefined && el.slidesActiveIndex >= 0 && el.slidesActiveIndex < items.length) {
-      setCurrentIdx(el.slidesActiveIndex);
+      const activeIdx = el.slidesActiveIndex;
+      queueMicrotask(() => {
+        setCurrentIdx(activeIdx);
+      });
     }
   }, [el.slidesActiveIndex, items.length]);
 
@@ -323,7 +326,7 @@ export const FormWidgetRenderer = ({
     const strTargetVal = targetVal !== undefined && targetVal !== null ? String(targetVal) : "";
     const ruleValue = value !== undefined && value !== null ? String(value) : "";
 
-    let conditionMet = false;
+    let conditionMet: boolean;
     switch (operator) {
       case "equals":
         conditionMet = strTargetVal === ruleValue;
@@ -350,11 +353,15 @@ export const FormWidgetRenderer = ({
     return true;
   };
 
-  const currentStepFields = isMultiStep
-    ? fields.filter((f) => (f.stepId ? f.stepId === activeStep.id : currentStepIndex === 0))
-    : fields;
+  const currentStepFields = useMemo(() => {
+    return isMultiStep
+      ? fields.filter((f) => (f.stepId ? f.stepId === activeStep.id : currentStepIndex === 0))
+      : fields;
+  }, [isMultiStep, fields, activeStep.id, currentStepIndex]);
 
-  const visibleFields = currentStepFields.filter((f) => isFieldVisible(f, formData));
+  const visibleFields = useMemo(() => {
+    return currentStepFields.filter((f) => isFieldVisible(f, formData));
+  }, [currentStepFields, formData]);
 
   const handleFieldChange = (fieldId: string, value: any) => {
     setFormData((prev) => ({ ...prev, [fieldId]: value }));
@@ -418,7 +425,7 @@ export const FormWidgetRenderer = ({
 
     // 5. URL Validation
     if (field.type === "url") {
-      let isValidUrl = false;
+      let isValidUrl: boolean;
       try {
         const parsed = new URL(strVal);
         isValidUrl = (parsed.protocol === "http:" || parsed.protocol === "https:") && parsed.hostname.includes(".");
@@ -1877,8 +1884,10 @@ export const AnimatedHeadlineWidgetRenderer = ({
     if (!isDeleting && displayText === currentFullWord) {
       timer = setTimeout(() => setIsDeleting(true), speed * 0.6);
     } else if (isDeleting && displayText === "") {
-      setIsDeleting(false);
-      setCurrentIndex((prev) => (prev + 1) % words.length);
+      timer = setTimeout(() => {
+        setIsDeleting(false);
+        setCurrentIndex((prev) => (prev + 1) % words.length);
+      }, 50);
     } else {
       const typeSpeed = isDeleting ? 40 : 80;
       timer = setTimeout(() => {
@@ -3863,18 +3872,6 @@ export const LoopCarouselWidgetRenderer = ({
   const [dragOffset, setDragOffset] = useState<number>(0);
   const [isMouseDown, setIsMouseDown] = useState(false);
 
-  if (items.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 p-8 text-center bg-slate-50/60 w-full">
-        <span className="text-2xl mb-1">♾️</span>
-        <p className="text-xs font-bold text-slate-700">No Carousel Items Found</p>
-        <p className="text-[11px] text-slate-400 mt-0.5">
-          Select a Custom Post Type with published entries or add custom cards in the inspector.
-        </p>
-      </div>
-    );
-  }
-
   const maxIndex = Math.max(0, items.length - slidesPerView);
 
   const handleNext = () => {
@@ -3928,6 +3925,18 @@ export const LoopCarouselWidgetRenderer = ({
     }, autoplaySpeed);
     return () => clearInterval(timer);
   }, [autoplay, isHovered, isMouseDown, maxIndex, autoplaySpeed, loop, transition]);
+
+  if (items.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 p-8 text-center bg-slate-50/60 w-full">
+        <span className="text-2xl mb-1">♾️</span>
+        <p className="text-xs font-bold text-slate-700">No Carousel Items Found</p>
+        <p className="text-[11px] text-slate-400 mt-0.5">
+          Select a Custom Post Type with published entries or add custom cards in the inspector.
+        </p>
+      </div>
+    );
+  }
 
   const continuousItems = transition === "continuous" ? [...items, ...items, ...items] : items;
 
@@ -4176,6 +4185,8 @@ export const LoopCarouselWidgetRenderer = ({
   );
 };
 
+const DEFAULT_TOC_LEVELS: ("h1" | "h2" | "h3" | "h4" | "h5" | "h6")[] = ["h1", "h2", "h3", "h4", "h5", "h6"];
+
 export const TocWidgetRenderer = ({
   el,
   elements,
@@ -4192,7 +4203,7 @@ export const TocWidgetRenderer = ({
 
   const title = el.tocTitle !== undefined ? el.tocTitle : "Table of Contents";
   const showTitle = el.tocShowTitle !== false;
-  const includedLevels = el.tocIncludedLevels || (["h1", "h2", "h3", "h4", "h5", "h6"] as ("h1" | "h2" | "h3" | "h4" | "h5" | "h6")[]);
+  const includedLevels = el.tocIncludedLevels || DEFAULT_TOC_LEVELS;
   const indentPerLevel = el.tocIndentPerLevel ?? 14;
   const itemGap = el.tocItemGap ?? 6;
   const markerStyle = el.tocMarkerStyle || "bullet";
@@ -4234,7 +4245,9 @@ export const TocWidgetRenderer = ({
     return list;
   };
 
-  const headings = collectHeadings(elements).filter((h) => includedLevels.includes(h.level));
+  const headings = useMemo(() => {
+    return collectHeadings(elements).filter((h) => includedLevels.includes(h.level));
+  }, [elements, includedLevels]);
 
   useEffect(() => {
     if (headings.length === 0) return;
@@ -4473,7 +4486,9 @@ export const CountdownWidgetRenderer = ({
   const [timeLeft, setTimeLeft] = useState(() => calculateTimeLeft(targetDateStr));
 
   useEffect(() => {
-    setTimeLeft(calculateTimeLeft(targetDateStr));
+    queueMicrotask(() => {
+      setTimeLeft(calculateTimeLeft(targetDateStr));
+    });
     const timer = setInterval(() => {
       setTimeLeft(calculateTimeLeft(targetDateStr));
     }, 1000);
@@ -5000,7 +5015,9 @@ export const ReviewsWidgetRenderer = ({
   const [avatarInputType, setAvatarInputType] = useState<"url" | "file">("url");
 
   useEffect(() => {
-    setLocalItems(el.reviewItems && el.reviewItems.length > 0 ? el.reviewItems : []);
+    queueMicrotask(() => {
+      setLocalItems(el.reviewItems && el.reviewItems.length > 0 ? el.reviewItems : []);
+    });
   }, [el.reviewItems]);
 
   const reviews = localItems;
@@ -5577,7 +5594,9 @@ export const PayPalButtonWidgetRenderer = ({
       if (popupWindow && !popupWindow.closed) {
         try {
           popupWindow.close();
-        } catch (_) {}
+        } catch (_) {
+          /* ignore cross-origin window close failure */
+        }
       }
 
       if (captureRes.ok && captureData.success) {
@@ -5886,7 +5905,9 @@ export const ImageCarouselWidgetRenderer = ({
   // Keep index in safe range when items or slidesPerView change
   useEffect(() => {
     if (currentIndex > maxIndex) {
-      setCurrentIndex(maxIndex);
+      queueMicrotask(() => {
+        setCurrentIndex(maxIndex);
+      });
     }
   }, [maxIndex, currentIndex]);
 
@@ -6229,7 +6250,7 @@ export const CodeHighlightWidgetRenderer = ({
 
   const [copied, setCopied] = useState(false);
 
-  const lines = code.split("\n");
+  const lines = useMemo(() => code.split("\n"), [code]);
 
   const alignClass =
     alignment === "center" ? "justify-center" : alignment === "right" ? "justify-end" : "justify-start";
@@ -7082,11 +7103,17 @@ export const AudioPlaylistWidgetRenderer = ({
   mergedStyles?: ElementStyles;
   onUpdateTracks?: (newTracks: any[]) => void;
 }) => {
-  const tracks = el.audioPlaylistTracks && el.audioPlaylistTracks.length > 0 ? el.audioPlaylistTracks : [
+  const defaultTracks = [
     { id: "tr-1", title: "01. Ambient Solar Echoes", artist: "ForgeStudio Soundscapes", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", duration: "06:12" },
     { id: "tr-2", title: "02. Deep Focus Flow", artist: "Acoustic Frequency Labs", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", duration: "07:05" },
     { id: "tr-3", title: "03. Midnight Synthesizer", artist: "Cybernetic Wave", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3", duration: "05:48" },
   ];
+  const [customTracks, setCustomTracks] = useState<any[]>([]);
+  const baseTracks = el.audioPlaylistTracks && el.audioPlaylistTracks.length > 0 ? el.audioPlaylistTracks : defaultTracks;
+  const tracks = customTracks.length > 0
+    ? [...baseTracks, ...customTracks.filter((ct) => !baseTracks.some((bt: any) => bt.id === ct.id))]
+    : baseTracks;
+
   const [activeTrackIndex, setActiveTrackIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -7135,10 +7162,10 @@ export const AudioPlaylistWidgetRenderer = ({
     const updated = [...tracks, newTrack];
     if (onUpdateTracks) {
       onUpdateTracks(updated);
-    } else if (el) {
-      el.audioPlaylistTracks = updated;
+    } else {
+      setCustomTracks((prev) => [...prev, newTrack]);
     }
-    setActiveTrackIndex(updated.length - 1);
+    setActiveTrackIndex(tracks.length);
     setIsPlaying(true);
     setShowAddUrlInput(false);
     setCustomTrackTitle("");
@@ -7973,7 +8000,7 @@ export const ShareButtonsWidgetRenderer = ({
 
     if (actionResult.isEmailAction) {
       e.preventDefault();
-      window.location.href = actionResult.shareUrl;
+      window.location.assign(actionResult.shareUrl);
       return;
     }
 
@@ -8006,7 +8033,19 @@ export const ShareButtonsWidgetRenderer = ({
     }
   };
 
-  const currentResolvedUrl = resolveShareDestinationUrl(el, undefined, pages, activePageId);
+  const currentResolvedUrl = useMemo(
+    () => resolveShareDestinationUrl(el, undefined, pages, activePageId),
+    [el, pages, activePageId]
+  );
+
+  const resolvedNetworks = useMemo(
+    () =>
+      networks.map((net) => ({
+        net,
+        actionResult: resolveShareAction(el, net, pages, activePageId),
+      })),
+    [networks, el, pages, activePageId]
+  );
 
   return (
     <div style={{ width: "100%", boxSizing: "border-box" }} className={`w-full flex justify-${getFlexJustify(align) === "flex-end" ? "end" : getFlexJustify(align) === "center" ? "center" : getFlexJustify(align) === "space-between" ? "between" : "start"} relative select-none`}>
@@ -8036,7 +8075,7 @@ export const ShareButtonsWidgetRenderer = ({
               alignItems: layout === "vertical" ? (align === "center" ? "center" : align === "right" || align === "flex-end" ? "flex-end" : "flex-start") : "center",
             }}
           >
-            {networks.map((net) => {
+            {resolvedNetworks.map(({ net, actionResult }) => {
               const brand = NETWORK_BRAND_COLORS[net.network] || { bg: "#475569", text: "#ffffff", hoverBg: "#334155" };
 
               let btnBg = brand.bg;
@@ -8064,8 +8103,6 @@ export const ShareButtonsWidgetRenderer = ({
                   ? "Visit Link"
                   : net.network.charAt(0).toUpperCase() + net.network.slice(1);
               const displayLabel = isCopied ? "Copied!" : net.label || defaultNetLabel;
-
-              const actionResult = resolveShareAction(el, net, pages, activePageId);
 
               return (
                 <a
@@ -8151,9 +8188,6 @@ export const WcProductImagesWidgetRenderer: React.FC<{ el: EditorElement; getMer
     const file = e.target.files?.[0];
     if (file) {
       const url = URL.createObjectURL(file);
-      el.src = url;
-      el.productImage = url;
-      el.content = url;
       setActiveImg(url);
     }
   };
@@ -9396,9 +9430,6 @@ export const ImportAssetWidgetRenderer = ({
       const url = URL.createObjectURL(file);
       setAssetUrl(url);
       setAssetName(file.name);
-      el.src = url;
-      el.href = url;
-      el.content = file.name;
 
       if (file.type.startsWith("image/")) {
         setAssetType("image");
@@ -9523,7 +9554,9 @@ export const FavoriteWidgetsWidgetRenderer = ({
     try {
       const saved = localStorage.getItem("forgestudio_favorite_widgets");
       if (saved) return JSON.parse(saved);
-    } catch {}
+    } catch {
+      /* ignore favorite widgets parse failure */
+    }
     return ["heading", "text", "button", "image"];
   });
 
@@ -9536,7 +9569,9 @@ export const FavoriteWidgetsWidgetRenderer = ({
           .filter(([_id, c]: any) => c.isFavorite)
           .map(([id, c]: any) => ({ id, name: c.name }));
       }
-    } catch {}
+    } catch {
+      /* ignore favorite components parse failure */
+    }
     return [];
   });
 
@@ -9554,7 +9589,9 @@ export const FavoriteWidgetsWidgetRenderer = ({
               .map(([id, c]: any) => ({ id, name: c.name }))
           );
         }
-      } catch {}
+      } catch {
+        /* ignore storage event parse failure */
+      }
     };
     window.addEventListener("storage", handleStorage);
     return () => window.removeEventListener("storage", handleStorage);
@@ -9891,7 +9928,9 @@ export const LoopGridWidgetRenderer: React.FC<LoopGridWidgetRendererProps> = ({
     if (typeof window !== "undefined") {
       const match = window.location.pathname.match(/\/(category|tag)\/([^/?#]+)/i);
       if (match && match[2]) {
-        setActiveFilterSlug(match[2].toLowerCase());
+        queueMicrotask(() => {
+          setActiveFilterSlug(match[2].toLowerCase());
+        });
       }
     }
 

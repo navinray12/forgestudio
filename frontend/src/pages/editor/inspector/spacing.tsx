@@ -1,21 +1,150 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import type { EditorElement, ElementStyles, DeviceMode, ElementState } from "../types";
 import { getControlStyleValue, hasStyleOverride, hasHoverStyleOverride, parseSpacingUnit, isControlStyleConfigured } from "../utils";
 
-const ScrubbableNumberInput: React.FC<{
-  value: string;
+export interface ScrubbableNumberInputProps {
+  value: string | number;
   onChange: (val: string) => void;
-  placeholder?: string;
   min?: number;
-}> = ({ value, onChange, placeholder }) => (
-  <input
-    type="text"
-    value={value}
-    onChange={(e) => onChange(e.target.value)}
-    placeholder={placeholder}
-    className="w-full text-center rounded border border-slate-200 bg-slate-50 py-1 text-xs font-mono font-medium text-slate-700 outline-none focus:border-blue-500 focus:bg-white"
-  />
-);
+  max?: number;
+  step?: number;
+  placeholder?: string;
+  className?: string;
+}
+
+export const ScrubbableNumberInput: React.FC<ScrubbableNumberInputProps> = ({
+  value,
+  onChange,
+  min,
+  max,
+  step = 1,
+  placeholder = "0",
+  className = "w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-center text-xs font-medium text-slate-800 outline-none focus:border-blue-500 focus:bg-white focus:ring-1 focus:ring-blue-500",
+}) => {
+  const [isScrubbing, setIsScrubbing] = useState(false);
+  const [scrubValue, setScrubValue] = useState<string | null>(null);
+
+  const startXRef = useRef(0);
+  const startValRef = useRef(0);
+  const latestValRef = useRef<string>(String(value ?? ""));
+  const lastCommittedValRef = useRef<string>(String(value ?? ""));
+  const rafIdRef = useRef<number | null>(null);
+
+  const onChangeRef = useRef(onChange);
+  const minRef = useRef(min);
+  const maxRef = useRef(max);
+  const stepRef = useRef(step);
+
+  useEffect(() => {
+    onChangeRef.current = onChange;
+    minRef.current = min;
+    maxRef.current = max;
+    stepRef.current = step;
+  });
+
+  const displayValue = isScrubbing && scrubValue !== null ? scrubValue : value;
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+
+    const initialVal = typeof value === "number" ? value : parseFloat(String(value)) || 0;
+    startXRef.current = e.clientX;
+    startValRef.current = initialVal;
+    latestValRef.current = String(initialVal);
+    lastCommittedValRef.current = String(initialVal);
+    setScrubValue(String(initialVal));
+    setIsScrubbing(true);
+  };
+
+  // Window drag listener effect with automatic cleanup
+  useEffect(() => {
+    if (!isScrubbing) return;
+
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      const deltaX = moveEvent.clientX - startXRef.current;
+      let multiplier = stepRef.current;
+      if (moveEvent.shiftKey) multiplier = stepRef.current * 10;
+      if (moveEvent.altKey || moveEvent.ctrlKey) multiplier = stepRef.current * 0.1;
+
+      let newVal = startValRef.current + deltaX * multiplier;
+      if (minRef.current !== undefined) newVal = Math.max(minRef.current, newVal);
+      if (maxRef.current !== undefined) newVal = Math.min(maxRef.current, newVal);
+
+      const roundedVal = stepRef.current < 1 ? Math.round(newVal * 10) / 10 : Math.round(newVal);
+      const formatted = String(roundedVal);
+      latestValRef.current = formatted;
+
+      if (rafIdRef.current === null) {
+        rafIdRef.current = requestAnimationFrame(() => {
+          rafIdRef.current = null;
+          const valToCommit = latestValRef.current;
+          setScrubValue(valToCommit);
+          if (valToCommit !== lastCommittedValRef.current) {
+            lastCommittedValRef.current = valToCommit;
+            onChangeRef.current(valToCommit);
+          }
+        });
+      }
+    };
+
+    const onMouseUp = () => {
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
+      }
+      setIsScrubbing(false);
+      setScrubValue(null);
+
+      const finalVal = latestValRef.current;
+      if (finalVal !== lastCommittedValRef.current) {
+        lastCommittedValRef.current = finalVal;
+        onChangeRef.current(finalVal);
+      }
+    };
+
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+
+    return () => {
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
+      }
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+    };
+  }, [isScrubbing]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    latestValRef.current = val;
+    lastCommittedValRef.current = val;
+    onChange(val);
+  };
+
+  return (
+    <div className="relative flex items-center w-full group">
+      <input
+        type="number"
+        value={displayValue}
+        onChange={handleInputChange}
+        placeholder={placeholder}
+        min={min}
+        max={max}
+        step={step}
+        className={`${className} ${isScrubbing ? "border-blue-500 ring-1 ring-blue-500 bg-blue-50/50" : ""}`}
+      />
+      <div
+        onMouseDown={handleMouseDown}
+        title="Drag horizontally to scrub value (Shift for 10x, Alt for 0.1x)"
+        className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center justify-center cursor-ew-resize px-0.5 text-[9px] font-bold text-slate-400 hover:text-blue-600 transition select-none"
+      >
+        ↔
+      </div>
+    </div>
+  );
+};
 
 interface SpacingControlProps {
   title: string;

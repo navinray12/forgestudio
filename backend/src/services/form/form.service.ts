@@ -852,12 +852,19 @@ export async function processFormSubmission(payload: FormSubmitPayload) {
               outcome.httpStatus === 408);
 
           if (!outcome.success && isRetryable) {
+            // Guard: If deliveryRecord could not be created because website was deleted, skip enqueuing retry
+            if (!deliveryRecord) {
+              console.warn(
+                `[Form Webhook] Skipping retry enqueue: delivery record was not created (website ${websiteId} may have been deleted).`
+              );
+              return;
+            }
             console.warn(`[Form Webhook] Endpoint returned retryable failure (${outcome.errorMessage}), enqueuing WEBHOOK_RETRY`);
             try {
               await enqueueJob(
                 "WEBHOOK_RETRY",
                 {
-                  deliveryId: deliveryRecord?.id,
+                  deliveryId: deliveryRecord.id,
                   websiteId,
                   url: target.endpointUrl,
                   event: "form.submitted",
@@ -1735,9 +1742,25 @@ export async function recordWebhookDelivery(data: {
       RETURNING id, "websiteId", "eventId", "endpointUrl", "event", "status", "httpStatus", "errorMessage", "attemptCount", "createdAt"
     `;
     return rows[0];
-  } catch (err) {
+  } catch (err: any) {
+    const isForeignKeyViolation =
+      err?.code === "P2003" ||
+      err?.code === "23503" ||
+      err?.meta?.code === "23503" ||
+      err?.meta?.driverAdapterError?.name === "ForeignKeyConstraintViolation" ||
+      String(err?.message || "").includes("violates foreign key constraint") ||
+      String(err?.message || "").includes("form_webhook_deliveries_websiteId_fkey");
+
+    if (isForeignKeyViolation) {
+      console.warn(
+        `[Webhook Delivery] Website ${data.websiteId} was deleted before webhook delivery could be recorded. Foreign key violation handled safely.`
+      );
+      return null;
+    }
+
+    // Do not silently swallow unrelated database errors
     console.error("[Webhook Delivery] Failed to record delivery outcome:", err);
-    return null;
+    throw err;
   }
 }
 
