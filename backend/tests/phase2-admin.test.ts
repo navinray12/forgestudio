@@ -517,7 +517,7 @@ export async function runPhase2AdminTestSuite() {
 }
 
 // Self-run when invoked directly
-if (import.meta.url === `file:///${process.argv[1].replace(/\\/g, "/")}`) {
+if (process.argv[1]?.includes("phase2-admin.test") || import.meta.url.includes("phase2-admin.test")) {
   runPhase2AdminTestSuite()
     .then(({ failedCount }) => {
       process.exit(failedCount > 0 ? 1 : 0);

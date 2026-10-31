@@ -32,8 +32,8 @@
 ---
 
 ## 2. Uncommitted Changes Preserved
-- `.github/workflows/ci.yml`: Use IPv4 127.0.0.1 for CI PostgreSQL service to prevent ::1 ECONNREFUSED, update health check to `pg_isready -U postgres`, and execute `prisma migrate deploy || prisma db push --accept-data-loss`.
-- `backend/prisma.config.ts`: Update fallback connection string to use 127.0.0.1.
+- `.github/workflows/ci.yml`: Add `Build Frontend Assets for Browser E2E` step so `frontend/dist` is available for Playwright tests, break out regression test phases into discrete steps for granular visibility.
+- `backend/tests/phase2-admin.test.ts`: Cross-platform self-run check.
 - `docs/planning/PHASE16_17_RECOVERY_CHECKPOINT.md`: Checkpoint tracker.
 
 ---
@@ -45,15 +45,16 @@
 - **Frontend ESLint:** `npm run lint` -> **PASS (0 errors, 433 non-fatal warnings)**
 - **Backend Production Audit:** `npm audit --omit=dev --audit-level=critical` -> **PASS (0 critical)**
 - **Frontend Production Audit:** `npm audit --omit=dev --audit-level=critical` -> **PASS (0 critical)**
-- **GitHub Actions Run 41197279884:**
+- **GitHub Actions Run 41199728320:**
   - Security & Vulnerability Scan: **SUCCESS**
   - Lint & Compile Verification: **SUCCESS**
-  - Automated Regression & Browser E2E Gate: **Failed on PostgreSQL host resolution (fixing with 127.0.0.1 & migrations)**
+  - Apply Prisma Migrations: **SUCCESS**
+  - Execute Phase 17 Design System & Parity Tests: **SUCCESS (24/24 PASSED in CI)**
 
 ---
 
 ## 4. Remaining Tasks & External Blockers
-- **Remaining Task:** Commit and push `.github/workflows/ci.yml`, `backend/prisma.config.ts`, and checkpoint to `origin/new-backup-devnew`.
+- **Remaining Task:** Commit and push `.github/workflows/ci.yml`, `backend/tests/phase2-admin.test.ts`, and checkpoint to `origin/new-backup-devnew`.
 - **Remaining Task:** Verify subsequent GitHub Actions workflow run conclusion.
 - **External Blocker:** Staging environment cloud infrastructure deployment credentials remain unprovisioned. Production Release Status marked **NO-GO** until staging deployment authorization is provided.
 

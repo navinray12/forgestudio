@@ -113,6 +113,10 @@ jobs:
         run: |
           cd backend && npx playwright install --with-deps chromium
 
+      - name: Build Frontend Assets for Browser E2E
+        run: |
+          cd frontend && npm run build
+
       - name: Apply Prisma Migrations to Disposable Test Database
         env:
           DATABASE_URL: "postgresql://postgres:password@127.0.0.1:5432/forgestudio_disposable_fresh?schema=public"
@@ -126,17 +130,37 @@ jobs:
         run: |
           cd backend && npx tsx tests/phase17-design-system.test.ts
 
-      - name: Execute Core Regression Suites (Phases 2-14)
+      - name: Execute Phase 2 Admin Verification
         run: |
-          cd backend
-          npx tsx tests/phase2-admin.test.ts
-          npx tsx tests/phase3-auth-rbac.test.ts
-          npx tsx tests/phase4-page-lifecycle.test.ts
-          npx tsx tests/phase5-editor-stability.test.ts
-          npx tsx tests/phase6-widget-parity.test.ts
-          npx tsx tests/phase7-theme-cms.test.ts
-          npx tsx tests/phase13-developer-api.test.ts
-          npx tsx tests/phase14-background-jobs.test.ts
+          cd backend && npx tsx tests/phase2-admin.test.ts
+
+      - name: Execute Phase 3 Auth & RBAC Verification
+        run: |
+          cd backend && npx tsx tests/phase3-auth-rbac.test.ts
+
+      - name: Execute Phase 4 Page Lifecycle & Browser E2E
+        run: |
+          cd backend && npx tsx tests/phase4-page-lifecycle.test.ts
+
+      - name: Execute Phase 5 Editor Stability Verification
+        run: |
+          cd backend && npx tsx tests/phase5-editor-stability.test.ts
+
+      - name: Execute Phase 6 Widget Parity Verification
+        run: |
+          cd backend && npx tsx tests/phase6-widget-parity.test.ts
+
+      - name: Execute Phase 7 Theme & CMS Verification
+        run: |
+          cd backend && npx tsx tests/phase7-theme-cms.test.ts
+
+      - name: Execute Phase 13 Developer API Verification
+        run: |
+          cd backend && npx tsx tests/phase13-developer-api.test.ts
+
+      - name: Execute Phase 14 Background Jobs Verification
+        run: |
+          cd backend && npx tsx tests/phase14-background-jobs.test.ts
 
   security-scan:
     name: Security & Vulnerability Scan
