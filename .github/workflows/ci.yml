@@ -84,15 +84,15 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U postgres"
           --health-interval 5s
           --health-timeout 3s
           --health-retries 10
 
     env:
       NODE_ENV: test
-      DATABASE_URL: "postgresql://postgres:password@localhost:5432/forgestudio_disposable_fresh?schema=public"
-      TEST_DATABASE_URL: "postgresql://postgres:password@localhost:5432/forgestudio_disposable_fresh?schema=public"
+      DATABASE_URL: "postgresql://postgres:password@127.0.0.1:5432/forgestudio_disposable_fresh?schema=public"
+      TEST_DATABASE_URL: "postgresql://postgres:password@127.0.0.1:5432/forgestudio_disposable_fresh?schema=public"
       ALLOW_DISPOSABLE_TEST_DB: "true"
 
     steps:
@@ -113,9 +113,14 @@ jobs:
         run: |
           cd backend && npx playwright install --with-deps chromium
 
-      - name: Push Prisma Schema to Disposable Test Database
+      - name: Apply Prisma Migrations to Disposable Test Database
+        env:
+          DATABASE_URL: "postgresql://postgres:password@127.0.0.1:5432/forgestudio_disposable_fresh?schema=public"
+          TEST_DATABASE_URL: "postgresql://postgres:password@127.0.0.1:5432/forgestudio_disposable_fresh?schema=public"
         run: |
-          cd backend && npx prisma generate && npx prisma db push --skip-generate
+          cd backend
+          npx prisma generate
+          npx prisma migrate deploy || npx prisma db push --accept-data-loss --skip-generate
 
       - name: Execute Phase 17 Design System & Parity Tests
         run: |
