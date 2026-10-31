@@ -137,6 +137,13 @@ function calculateAssignedCount(className: string, elements?: any[]): number {
   return count;
 }
 
+const getMigrationKey = (websiteId: string) => `forgestudio_migrated_legacy_classes_${websiteId}`;
+
+export interface FetchClassesResponse {
+  classes: AtomicClass[];
+  version: number;
+}
+
 /**
  * Fetch classes authoritatively from backend website design system API,
  * calculating real active element reference counts.
@@ -145,7 +152,7 @@ export async function fetchClasses(
   websiteId?: string,
   apiUrl?: string,
   elements?: any[]
-): Promise<AtomicClass[]> {
+): Promise<FetchClassesResponse> {
   const base = getBaseUrl(apiUrl);
 
   if (websiteId) {
@@ -158,7 +165,8 @@ export async function fetchClasses(
 
       if (res.ok) {
         const data = await res.json();
-        if (Array.isArray(data?.classes) && data.classes.length > 0) {
+        // Priority 1: Treat empty array from server as authoritative
+        if (Array.isArray(data?.classes)) {
           const mapped: AtomicClass[] = data.classes.map((c: any, idx: number) => {
             const classKey = String(c.className || c.key || `fs-class-${idx + 1}`);
             return {
@@ -178,11 +186,15 @@ export async function fetchClasses(
             };
           });
 
+          const serverVersion = typeof data.version === "number" ? data.version : 1;
+
           try {
             localStorage.setItem(getStorageKey(websiteId), JSON.stringify(mapped));
+            localStorage.setItem(`${getStorageKey(websiteId)}_version`, String(serverVersion));
+            localStorage.setItem(getMigrationKey(websiteId), "true");
           } catch {}
 
-          return mapped;
+          return { classes: mapped, version: serverVersion };
         }
       }
     } catch (e) {
@@ -192,26 +204,39 @@ export async function fetchClasses(
     // Check website-scoped local cache
     try {
       const siteCache = localStorage.getItem(getStorageKey(websiteId));
-      if (siteCache) {
+      if (siteCache !== null) {
         const parsed = JSON.parse(siteCache);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed.map((c: AtomicClass) => ({
-            ...c,
-            assignedCount: calculateAssignedCount(c.className || c.key, elements),
-          }));
+        if (Array.isArray(parsed)) {
+          const cachedVersion = parseInt(localStorage.getItem(`${getStorageKey(websiteId)}_version`) || "1", 10);
+          return {
+            classes: parsed.map((c: AtomicClass) => ({
+              ...c,
+              assignedCount: calculateAssignedCount(c.className || c.key, elements),
+            })),
+            version: isNaN(cachedVersion) ? 1 : cachedVersion,
+          };
         }
       }
     } catch {}
 
-    // Safe migration from legacy global localStorage
+    // Priority 1: Safe one-time website-scoped migration only
     try {
-      const legacyRaw = localStorage.getItem(LEGACY_STORAGE_KEY);
-      if (legacyRaw) {
-        const legacyClasses = JSON.parse(legacyRaw);
-        if (Array.isArray(legacyClasses) && legacyClasses.length > 0) {
-          console.info(`Migrating ${legacyClasses.length} legacy classes to website ${websiteId}`);
-          await saveClasses(legacyClasses, websiteId, undefined, apiUrl);
-          return legacyClasses;
+      const alreadyMigrated = localStorage.getItem(getMigrationKey(websiteId)) === "true";
+      if (!alreadyMigrated) {
+        localStorage.setItem(getMigrationKey(websiteId), "true");
+        const legacyRaw = localStorage.getItem(LEGACY_STORAGE_KEY);
+        if (legacyRaw) {
+          const legacyClasses = JSON.parse(legacyRaw);
+          if (Array.isArray(legacyClasses) && legacyClasses.length > 0) {
+            console.info(`One-time migration of ${legacyClasses.length} legacy classes to website ${websiteId}`);
+            return {
+              classes: legacyClasses.map((c: AtomicClass) => ({
+                ...c,
+                assignedCount: calculateAssignedCount(c.className || c.key, elements),
+              })),
+              version: 1,
+            };
+          }
         }
       }
     } catch (e) {
@@ -219,24 +244,14 @@ export async function fetchClasses(
     }
   }
 
-  // Fallback to legacy or defaults
-  try {
-    const raw = localStorage.getItem(LEGACY_STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed.map((c: AtomicClass) => ({
-          ...c,
-          assignedCount: calculateAssignedCount(c.className || c.key, elements),
-        }));
-      }
-    }
-  } catch {}
-
-  return DEFAULT_CLASSES.map((c) => ({
-    ...c,
-    assignedCount: calculateAssignedCount(c.className || c.key, elements),
-  }));
+  // Fallback to defaults
+  return {
+    classes: DEFAULT_CLASSES.map((c) => ({
+      ...c,
+      assignedCount: calculateAssignedCount(c.className || c.key, elements),
+    })),
+    version: 1,
+  };
 }
 
 /**
@@ -249,14 +264,11 @@ export async function saveClasses(
   expectedVersion?: number,
   apiUrl?: string
 ): Promise<{ success: boolean; version?: number }> {
-  // Always update local website-scoped cache
-  try {
-    localStorage.setItem(getStorageKey(websiteId), JSON.stringify(classes));
-  } catch (e) {
-    console.error("Failed to persist classes to storage", e);
-  }
-
   if (websiteId) {
+    if (typeof expectedVersion !== "number" || expectedVersion < 1) {
+      throw new Error("expectedVersion is required to save classes and prevent concurrent overwrite.");
+    }
+
     const base = getBaseUrl(apiUrl);
     const backendClasses = classes.map((c, index) => ({
       id: c.id || `cls-${index}`,
@@ -270,28 +282,11 @@ export async function saveClasses(
       updatedAt: new Date().toISOString(),
     }));
 
-    // Fetch existing variables to preserve them during class update
-    let existingVars: any[] = [];
-    try {
-      const currentRes = await fetch(`${base}/api/websites/${websiteId}/design-system`, {
-        method: "GET",
-        headers: getAuthHeaders(),
-        credentials: "include",
-      });
-      if (currentRes.ok) {
-        const currentData = await currentRes.json();
-        if (Array.isArray(currentData.variables)) {
-          existingVars = currentData.variables;
-        }
-      }
-    } catch {}
-
     const res = await fetch(`${base}/api/websites/${websiteId}/design-system`, {
       method: "PUT",
       headers: getAuthHeaders(),
       credentials: "include",
       body: JSON.stringify({
-        variables: existingVars,
         classes: backendClasses,
         expectedVersion,
       }),
@@ -305,9 +300,19 @@ export async function saveClasses(
       throw new Error(data?.message || "Failed to update website design system classes");
     }
 
+    // Only persist locally AFTER server confirms save
+    try {
+      localStorage.setItem(getStorageKey(websiteId), JSON.stringify(classes));
+      if (typeof data.version === "number") {
+        localStorage.setItem(`${getStorageKey(websiteId)}_version`, String(data.version));
+      }
+    } catch (e) {
+      console.error("Failed to persist classes to storage", e);
+    }
+
     return { success: true, version: data.version };
   }
 
-  return { success: true };
+  return { success: true, version: 1 };
 }
 

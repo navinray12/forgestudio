@@ -48,6 +48,8 @@ jobs:
           cd frontend && npm ci --if-present || npm install
 
       - name: Generate Prisma Client
+        env:
+          DATABASE_URL: "postgresql://postgres:ci_dummy_password@localhost:5432/forgestudio_ci_disposable?schema=public"
         run: |
           cd backend && npx prisma generate
 
@@ -65,7 +67,7 @@ jobs:
 
       - name: Lint Frontend
         run: |
-          cd frontend && npm run lint || true
+          cd frontend && npm run lint
 
   test-and-regression:
     name: Automated Regression & Browser E2E Gate
@@ -104,8 +106,8 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          cd backend && npm install
-          cd ../frontend && npm install
+          cd backend && npm ci --if-present || npm install
+          cd ../frontend && npm ci --if-present || npm install
 
       - name: Install Playwright Browsers
         run: |
@@ -122,14 +124,14 @@ jobs:
       - name: Execute Core Regression Suites (Phases 2-14)
         run: |
           cd backend
-          npx tsx tests/phase2-admin.test.ts || true
-          npx tsx tests/phase3-auth-rbac.test.ts || true
-          npx tsx tests/phase4-page-lifecycle.test.ts || true
-          npx tsx tests/phase5-editor-stability.test.ts || true
-          npx tsx tests/phase6-widget-parity.test.ts || true
-          npx tsx tests/phase7-theme-cms.test.ts || true
-          npx tsx tests/phase13-developer-api.test.ts || true
-          npx tsx tests/phase14-background-jobs.test.ts || true
+          npx tsx tests/phase2-admin.test.ts
+          npx tsx tests/phase3-auth-rbac.test.ts
+          npx tsx tests/phase4-page-lifecycle.test.ts
+          npx tsx tests/phase5-editor-stability.test.ts
+          npx tsx tests/phase6-widget-parity.test.ts
+          npx tsx tests/phase7-theme-cms.test.ts
+          npx tsx tests/phase13-developer-api.test.ts
+          npx tsx tests/phase14-background-jobs.test.ts
 
   security-scan:
     name: Security & Vulnerability Scan
@@ -140,11 +142,11 @@ jobs:
 
       - name: Run Backend npm audit (Production)
         run: |
-          cd backend && npm audit --omit=dev --audit-level=critical || true
+          cd backend && npm audit --omit=dev --audit-level=critical
 
       - name: Run Frontend npm audit (Production)
         run: |
-          cd frontend && npm audit --omit=dev --audit-level=critical || true
+          cd frontend && npm audit --omit=dev --audit-level=critical
 
   production-release-gate:
     name: Production Release Acceptance Gate
@@ -152,6 +154,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Evaluate Release Readiness
+        env:
+          STAGING_DEPLOY_AUTHORIZED: ${{ vars.STAGING_DEPLOY_AUTHORIZED || 'false' }}
         run: |
           echo "======================================================="
           echo " FORGESTUDIO PRODUCTION RELEASE ACCEPTANCE CRITERIA    "
@@ -163,6 +167,13 @@ jobs:
           echo "✓ Real Playwright Browser E2E: PASSED"
           echo "✓ Tri-Renderer Parity: PASSED"
           echo "✓ Multi-Tenant Isolation & RBAC: PASSED"
+          echo "✓ Security Audit (Backend & Frontend): PASSED"
           echo "======================================================="
-          echo " RELEASE GATE ASSESSMENT: GO"
-          echo "======================================================="
+          if [ "$STAGING_DEPLOY_AUTHORIZED" = "true" ]; then
+            echo " RELEASE GATE ASSESSMENT: GO"
+            echo "======================================================="
+          else
+            echo " STAGING DEPLOYMENT STATUS: BLOCKED (NO CLOUD CREDENTIALS)"
+            echo " RELEASE GATE ASSESSMENT: NO-GO (PENDING STAGING DEPLOYMENT APPROVAL)"
+            echo "======================================================="
+          fi

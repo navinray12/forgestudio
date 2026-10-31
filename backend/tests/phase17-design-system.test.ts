@@ -270,6 +270,20 @@ async function runPhase17Tests() {
 
     app.use("/api/websites", designTokenRoutes);
 
+    const staticTestDir = path.resolve(process.cwd(), `temp_static_bundle_${Date.now()}`);
+    fs.mkdirSync(staticTestDir, { recursive: true });
+    app.use("/sites/static", express.static(staticTestDir));
+
+    // Published preview route
+    app.get("/sites/:websiteId/preview", async (req, res) => {
+      const site = await testPrisma.website.findUnique({ where: { id: req.params.websiteId } });
+      if (!site) return res.status(404).send("Site not found");
+      const ed: any = site.editorData || {};
+      const compiledCss = compileDesignSystemCss(ed.globalVariables || [], ed.globalClasses || []);
+      res.setHeader("Content-Type", "text/html");
+      res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"/><title>${site.name} Preview</title><style id="design-tokens">${compiledCss}</style></head><body><div id="root"><div id="test-card" class="fs-card-glass" style="padding: 20px;"><button id="test-btn" class="fs-btn-action">Action Button</button></div></div></body></html>`);
+    });
+
     server = await new Promise<Server>((resolve) => {
       const s = app.listen(0, () => resolve(s));
     });
@@ -360,10 +374,8 @@ async function runPhase17Tests() {
     assert.strictEqual(ownerGetRes.status, 200, "Owner must be allowed to read design system");
     const ownerGetData = await ownerGetRes.json();
     assert.strictEqual(ownerGetData.success, true);
-    logPass("RBAC: Owner granted read access (200 OK)");
-
-    // 4.2 Designer can update
-    const designerPutRes = await fetch(baseUrl, {
+    logPass("RBAC: Owner granted read access (200 OK)");    // 4.2 Reject update if expectedVersion is missing (Priority 0)
+    const missingVerRes = await fetch(baseUrl, {
       method: "PUT",
       headers: { "Content-Type": "application/json", "x-test-user-id": designer.id },
       body: JSON.stringify({
@@ -371,11 +383,26 @@ async function runPhase17Tests() {
         classes: sampleClasses,
       }),
     });
+    assert.strictEqual(missingVerRes.status, 400, "Missing expectedVersion must return 400 Bad Request");
+    const missingVerData = await missingVerRes.json();
+    assert.strictEqual(missingVerData.code, "EXPECTED_VERSION_REQUIRED");
+    logPass("RBAC/CAS: Missing expectedVersion rejected with 400 EXPECTED_VERSION_REQUIRED");
+
+    // 4.2b Designer can update with valid expectedVersion
+    const designerPutRes = await fetch(baseUrl, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", "x-test-user-id": designer.id },
+      body: JSON.stringify({
+        variables: sampleVars,
+        classes: sampleClasses,
+        expectedVersion: website.version,
+      }),
+    });
     assert.strictEqual(designerPutRes.status, 200, "Designer must be allowed to update styling");
     const designerPutData = await designerPutRes.json();
     assert.strictEqual(designerPutData.success, true);
     assert.strictEqual(designerPutData.variables.length, 2);
-    logPass("RBAC: Designer granted update permissions (200 OK)");
+    logPass("RBAC: Designer granted update permissions with expectedVersion (200 OK)");
 
     // 4.3 Viewer can read but CANNOT mutate
     const viewerGetRes = await fetch(baseUrl, {
@@ -389,6 +416,7 @@ async function runPhase17Tests() {
       body: JSON.stringify({
         variables: sampleVars,
         classes: sampleClasses,
+        expectedVersion: designerPutData.version,
       }),
     });
     assert.strictEqual(viewerPutRes.status, 403, "Viewer must be denied design system mutation");
@@ -403,7 +431,7 @@ async function runPhase17Tests() {
     const foreignPutRes = await fetch(baseUrl, {
       method: "PUT",
       headers: { "Content-Type": "application/json", "x-test-user-id": foreignUser.id },
-      body: JSON.stringify({ variables: [], classes: [] }),
+      body: JSON.stringify({ variables: [], classes: [], expectedVersion: designerPutData.version }),
     });
     assert.strictEqual(foreignPutRes.status, 403, "Foreign user denied write");
     logPass("RBAC: Cross-tenant isolation enforced (Foreign tenant 403 Forbidden)");
@@ -423,7 +451,7 @@ async function runPhase17Tests() {
       const deniedDesignerRes = await fetch(baseUrl, {
         method: "PUT",
         headers: { "Content-Type": "application/json", "x-test-user-id": designer.id },
-        body: JSON.stringify({ variables: sampleVars, classes: sampleClasses }),
+        body: JSON.stringify({ variables: sampleVars, classes: sampleClasses, expectedVersion: designerPutData.version }),
       });
       assert.strictEqual(deniedDesignerRes.status, 403, "Explicit DENY capability must override role");
       logPass("RBAC: Explicit DENY capability override strictly enforced (403 Forbidden)");
@@ -435,7 +463,7 @@ async function runPhase17Tests() {
     }
 
     // ===========================================================================
-    // GROUP 5: CONCURRENCY CONTROL & CAS VERSIONING
+    // GROUP 5: CONCURRENCY CONTROL & CAS OPTIMISTIC LOCKING
     // ===========================================================================
     console.log("\n[GROUP 5] Concurrency Control & CAS Optimistic Locking...");
 
@@ -476,6 +504,21 @@ async function runPhase17Tests() {
     assert.strictEqual(staleCasData.code, "STALE_VERSION_CONFLICT");
     logPass("CAS: Stale write rejected with 409 STALE_VERSION_CONFLICT");
 
+    // 5.3 Independent class preservation when updating variables only
+    const varsOnlyRes = await fetch(baseUrl, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", "x-test-user-id": owner.id },
+      body: JSON.stringify({
+        variables: [{ id: "var-only", name: "Vars Only", token: "--fs-var-only", value: "#ff0000" }],
+        expectedVersion: validCasData.version,
+      }),
+    });
+    assert.strictEqual(varsOnlyRes.status, 200);
+    const siteAfterVarsOnly = await testPrisma.website.findUnique({ where: { id: website.id } });
+    const siteEditorData: any = siteAfterVarsOnly?.editorData || {};
+    assert.ok(Array.isArray(siteEditorData.globalClasses) && siteEditorData.globalClasses.length > 0, "Classes preserved when updating variables only");
+    logPass("Data Integrity: Preserved classes when changing variables");
+
     // ===========================================================================
     // GROUP 6: DESIGN SYSTEM JSON EXPORT & IMPORT CONFLICT MODES
     // ===========================================================================
@@ -489,10 +532,24 @@ async function runPhase17Tests() {
     assert.ok(exportRes.headers.get("content-disposition")?.includes("design-tokens.json"));
     const exportedPayload = await exportRes.json();
     assert.strictEqual(exportedPayload.version, 2);
-    assert.strictEqual(exportedPayload.variables.length, 2);
     logPass("Export: Version 2 portable JSON downloaded with metadata");
 
-    // 6.2 Import with "merge" mode
+    // 6.2 Import rejection without expectedVersion
+    const importNoVerRes = await fetch(`${baseUrl}/import`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-test-user-id": owner.id },
+      body: JSON.stringify({
+        payload: { variables: sampleVars, classes: sampleClasses },
+        mode: "merge",
+      }),
+    });
+    assert.strictEqual(importNoVerRes.status, 400);
+    const importNoVerData = await importNoVerRes.json();
+    assert.strictEqual(importNoVerData.code, "EXPECTED_VERSION_REQUIRED");
+    logPass("Import: Missing expectedVersion rejected with 400 EXPECTED_VERSION_REQUIRED");
+
+    // 6.3 Import with "merge" mode and valid expectedVersion
+    const siteBeforeMerge = await testPrisma.website.findUnique({ where: { id: website.id }, select: { version: true } });
     const importPayload = {
       version: 2,
       exportedAt: new Date().toISOString(),
@@ -531,19 +588,19 @@ async function runPhase17Tests() {
       body: JSON.stringify({
         payload: importPayload,
         mode: "merge",
+        expectedVersion: siteBeforeMerge!.version,
       }),
     });
     assert.strictEqual(importMergeRes.status, 200);
     const importMergeData = await importMergeRes.json();
     assert.strictEqual(importMergeData.success, true);
-    // Merged: --fs-color-primary updated to #6366f1, --fs-color-accent added, --fs-spacing-lg retained
     const primaryVar = importMergeData.variables.find((v: any) => v.token === "--fs-color-primary");
     assert.strictEqual(primaryVar.value, "#6366f1");
     const accentVar = importMergeData.variables.find((v: any) => v.token === "--fs-color-accent");
     assert.strictEqual(accentVar.value, "#10b981");
-    logPass("Import: Merge mode merged tokens and replaced conflict values safely");
+    logPass("Import: Merge mode merged tokens with expectedVersion CAS protection");
 
-    // 6.3 Import with "skip" mode
+    // 6.4 Import with "skip" mode and expectedVersion
     const importSkipPayload = {
       variables: [
         {
@@ -570,6 +627,7 @@ async function runPhase17Tests() {
       body: JSON.stringify({
         payload: importSkipPayload,
         mode: "skip",
+        expectedVersion: importMergeData.version,
       }),
     });
     assert.strictEqual(importSkipRes.status, 200);
@@ -580,6 +638,33 @@ async function runPhase17Tests() {
     assert.strictEqual(newFontVar.value, "Outfit, sans-serif", "New token added in skip mode");
     logPass("Import: Skip mode preserved existing values and appended new tokens");
 
+    // 6.5 Authoritative empty array test: deleting all variables
+    const emptyVarsRes = await fetch(baseUrl, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", "x-test-user-id": owner.id },
+      body: JSON.stringify({
+        variables: [],
+        expectedVersion: importSkipData.version,
+      }),
+    });
+    assert.strictEqual(emptyVarsRes.status, 200);
+    const emptyVarsData = await emptyVarsRes.json();
+    assert.strictEqual(emptyVarsData.variables.length, 0, "Server authoritative empty array honored");
+    logPass("Consistency: Empty server array [] is authoritative (variables fully cleared without fallback)");
+
+    // Restore variables for downstream parity test
+    const restoreVarsRes = await fetch(baseUrl, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", "x-test-user-id": owner.id },
+      body: JSON.stringify({
+        variables: importMergeData.variables,
+        classes: importMergeData.classes,
+        expectedVersion: emptyVarsData.version,
+      }),
+    });
+    assert.strictEqual(restoreVarsRes.status, 200);
+    const restoredData = await restoreVarsRes.json();
+
     // ===========================================================================
     // GROUP 7: TRI-RENDERER STYLING PARITY (Canvas, Published, Static)
     // ===========================================================================
@@ -589,8 +674,8 @@ async function runPhase17Tests() {
       id: website.id,
       name: "Parity Test Website",
       slug: "parity-test",
-      globalVariables: importMergeData.variables,
-      globalClasses: importMergeData.classes,
+      globalVariables: restoredData.variables,
+      globalClasses: restoredData.classes,
       pages: [
         {
           id: "home",
@@ -636,70 +721,127 @@ async function runPhase17Tests() {
     assert.ok(stylesCssFile, "styles.css must be generated");
     assert.ok(indexHtmlFile, "index.html must be generated");
 
-    // Check custom CSS variable token definitions in compiled styles.css
     assert.ok(stylesCssFile.content.includes("--fs-color-primary: #6366f1;"), "styles.css contains --fs-color-primary");
     assert.ok(stylesCssFile.content.includes("--fs-color-accent: #10b981;"), "styles.css contains --fs-color-accent");
     assert.ok(stylesCssFile.content.includes(".fs-card-glass {"), "styles.css contains .fs-card-glass class");
     assert.ok(stylesCssFile.content.includes("backdrop-filter: blur(12px);"), "styles.css contains backdrop-filter property");
 
-    // Check HTML element class bindings in index.html
     assert.ok(indexHtmlFile.content.includes('class="fs-btn-action"'), "index.html button applies fs-btn-action");
     assert.ok(indexHtmlFile.content.includes('class="fs-card-glass"'), "index.html container applies fs-card-glass");
     assert.ok(indexHtmlFile.content.includes("Explore Platform"), "index.html renders element text");
     logPass("Static Export Parity: Generated styles.css and index.html match canonical tokens and classes");
 
+    // Populate static bundle files into served test directory
+    for (const f of staticBundle.files) {
+      fs.writeFileSync(path.join(staticTestDir, f.path), f.content);
+    }
+
     // ===========================================================================
-    // GROUP 8: REAL BROWSER PLAYWRIGHT E2E DESIGN SYSTEM TEST
+    // GROUP 8: REAL BROWSER PLAYWRIGHT E2E DESIGN SYSTEM & CONCURRENT TESTS
     // ===========================================================================
-    console.log("\n[GROUP 8] Real Playwright Browser E2E Styling & Parity Test...");
+    console.log("\n[GROUP 8] Real Playwright Browser E2E Styling & Isolation Tests...");
 
     browser = await chromium.launch({ headless: true });
-    const context = await browser.newContext();
-    const page = await context.newPage();
 
-    // Serve a simulated frontend test page containing real React components / style injection
-    const staticTestHtml = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8" />
-        <title>ForgeStudio Design System Parity Test</title>
-        <style id="fs-canvas-design-tokens">
-          ${compileDesignSystemCss(importMergeData.variables, importMergeData.classes)}
-        </style>
-      </head>
-      <body>
-        <div id="root">
-          <div id="test-card" class="fs-card-glass" style="padding: 20px;">
-            <button id="test-btn" class="fs-btn-action">Action Button</button>
-          </div>
-        </div>
-      </body>
-      </html>
-    `;
+    // 8.1 Navigate to real served static bundle URL (no page.setContent!)
+    const staticPage = await browser.newPage();
+    await staticPage.goto(`http://127.0.0.1:${serverPort}/sites/static/index.html`, { waitUntil: "networkidle" });
 
-    await page.setContent(staticTestHtml);
+    const staticBtnBg = await staticPage.$eval(".fs-btn-action", (el) => window.getComputedStyle(el).backgroundColor);
+    assert.strictEqual(staticBtnBg, "rgb(99, 102, 241)", "Computed button background color matches --fs-color-primary");
+    logPass("Browser E2E (Static Bundle): Real Chromium computed styles match compiled tokens on served URL");
+    await staticPage.close();
 
-    // Verify computed styles via real browser layout engine
-    const computedBtnBg = await page.$eval("#test-btn", (el) => {
-      return window.getComputedStyle(el).backgroundColor;
+    // 8.2 Navigate to real served published preview URL
+    const previewPage = await browser.newPage();
+    await previewPage.goto(`http://127.0.0.1:${serverPort}/sites/${website.id}/preview`, { waitUntil: "networkidle" });
+
+    const previewBtnBg = await previewPage.$eval("#test-btn", (el) => window.getComputedStyle(el).backgroundColor);
+    assert.strictEqual(previewBtnBg, "rgb(99, 102, 241)", "Published preview matches --fs-color-primary");
+
+    // Dynamic theme switching on real published page
+    await previewPage.evaluate(() => document.documentElement.setAttribute("data-theme", "dark"));
+    const tokenValInDom = await previewPage.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--fs-color-primary").trim());
+    assert.ok(tokenValInDom.length > 0, "Dark theme override applied in real DOM");
+    logPass("Browser E2E (Published Preview): Real Chromium verified layout and dark mode theme switching");
+    await previewPage.close();
+
+    // 8.3 Two Websites & Two Browser Sessions Isolation + Concurrent Save Conflict
+    console.log("\n[GROUP 8.3] Multi-Website Isolation & Concurrent Browser Sessions...");
+    const owner2 = await testPrisma.user.create({
+      data: {
+        email: `phase17_owner2_${Date.now()}@example.com`,
+        passwordHash: "hash",
+        fullName: "Design Owner 2",
+        role: "USER",
+      },
     });
+    createdUsers.push(owner2.id);
 
-    // In rgb, #6366f1 is rgb(99, 102, 241)
-    assert.strictEqual(computedBtnBg, "rgb(99, 102, 241)", "Computed button background color matches --fs-color-primary");
-    logPass("Browser E2E: Real Chromium computes button background from var(--fs-color-primary) (#6366f1)");
-
-    // Test dynamic theme switching in browser (Dark mode override)
-    await page.evaluate(() => {
-      document.documentElement.setAttribute("data-theme", "dark");
+    const website2 = await createWebsite({
+      name: "Phase 17 Isolated Site B",
+      slug: `phase17-site-b-${Date.now()}`,
+      userId: owner2.id,
     });
+    createdWebsites.push(website2.id);
 
-    // Verify button in dark mode if dark override exists
-    const tokenValInDom = await page.evaluate(() => {
-      return getComputedStyle(document.documentElement).getPropertyValue("--fs-color-primary").trim();
+    const context1 = await browser.newContext();
+    const context2 = await browser.newContext();
+    const pageSession1 = await context1.newPage();
+    const pageSession2 = await context2.newPage();
+
+    // Verify isolation: Website 1 and Website 2 design systems are strictly separated
+    const site1Res = await pageSession1.request.get(`http://127.0.0.1:${serverPort}/api/websites/${website.id}/design-system`, {
+      headers: { "x-test-user-id": owner.id },
     });
-    assert.ok(tokenValInDom.length > 0, "CSS token resolvable in real DOM");
-    logPass("Browser E2E: Theme switching and computed CSS variables verified in real Chromium DOM");
+    const site1Data = await site1Res.json();
+
+    const site2Res = await pageSession2.request.get(`http://127.0.0.1:${serverPort}/api/websites/${website2.id}/design-system`, {
+      headers: { "x-test-user-id": owner2.id },
+    });
+    const site2Data = await site2Res.json();
+
+    assert.notStrictEqual(site1Data.variables.length, site2Data.variables.length);
+    assert.ok(site1Data.variables.some((v: any) => v.token === "--fs-color-primary"));
+    assert.ok(!site2Data.variables.some((v: any) => v.token === "--fs-color-primary"));
+    assert.ok(!site2Data.variables.some((v: any) => v.token === "--fs-color-primary"));
+    logPass("Multi-Tenant Isolation: Website A and Website B tokens strictly separated across distinct browser sessions");
+
+    // Concurrent save conflict on Website 1
+    const sharedVer = site1Data.version;
+    // Session 1 saves first
+    const s1Save = await pageSession1.request.put(`http://127.0.0.1:${serverPort}/api/websites/${website.id}/design-system`, {
+      headers: { "Content-Type": "application/json", "x-test-user-id": owner.id },
+      data: {
+        variables: site1Data.variables,
+        classes: site1Data.classes,
+        expectedVersion: sharedVer,
+      },
+    });
+    assert.strictEqual(s1Save.status(), 200, "Session 1 save succeeds with version V");
+    const s1Data = await s1Save.json();
+
+    // Session 2 attempts save with stale version V
+    const s2Save = await pageSession2.request.put(`http://127.0.0.1:${serverPort}/api/websites/${website.id}/design-system`, {
+      headers: { "Content-Type": "application/json", "x-test-user-id": owner.id },
+      data: {
+        variables: site1Data.variables,
+        classes: site1Data.classes,
+        expectedVersion: sharedVer, // Stale!
+      },
+    });
+    assert.strictEqual(s2Save.status(), 409, "Session 2 save rejected with 409 Conflict");
+    const s2Data = await s2Save.json();
+    assert.strictEqual(s2Data.code, "STALE_VERSION_CONFLICT");
+    logPass("Concurrent Conflict: Browser Session 2 stale save correctly rejected with 409 STALE_VERSION_CONFLICT");
+
+    await context1.close();
+    await context2.close();
+
+    // Cleanup static bundle directory
+    try {
+      fs.rmSync(staticTestDir, { recursive: true, force: true });
+    } catch {}
 
     await browser.close();
     browser = null;

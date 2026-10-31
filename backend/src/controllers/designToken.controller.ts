@@ -86,56 +86,56 @@ export async function updateDesignSystem(req: Request, res: Response) {
       return res.status(404).json({ success: false, message: "Website not found" });
     }
 
-    const validatedVars = validateVariables(variables || []);
-    const validatedClasses = validateClasses(classes || []);
-    const compiledCss = compileDesignSystemCss(validatedVars, validatedClasses);
-
-    const currentEditorData: any = website.editorData || {};
-    const updatedEditorData = {
-      ...currentEditorData,
-      globalVariables: validatedVars,
-      globalClasses: validatedClasses,
-    };
-
-    const jsonStr = JSON.stringify(updatedEditorData);
-    let updatedRows: any[];
-
-    // Enforce CAS monotonic versioning if expectedVersion is provided
-    if (expectedVersion !== undefined && expectedVersion !== null) {
-      const expVer = Number(expectedVersion);
-      if (isNaN(expVer) || expVer < 1) {
-        return res.status(400).json({ success: false, message: "Invalid expectedVersion revision" });
-      }
-
-      updatedRows = await prisma.$queryRaw<any[]>`
-        UPDATE websites
-        SET "editorData" = ${jsonStr}::jsonb,
-            "version" = "version" + 1,
-            "updatedAt" = NOW()
-        WHERE id = ${websiteId}::uuid
-          AND "version" = ${expVer}
-        RETURNING id, "version", "updatedAt"
-      `;
-
-      if (!updatedRows || updatedRows.length === 0) {
-        return res.status(409).json({
-          success: false,
-          code: "STALE_VERSION_CONFLICT",
-          message: "This website was modified in another session. Please reload before saving design tokens.",
-        });
-      }
-    } else {
-      updatedRows = await prisma.$queryRaw<any[]>`
-        UPDATE websites
-        SET "editorData" = ${jsonStr}::jsonb,
-            "version" = "version" + 1,
-            "updatedAt" = NOW()
-        WHERE id = ${websiteId}::uuid
-        RETURNING id, "version", "updatedAt"
-      `;
+    if (expectedVersion === undefined || expectedVersion === null) {
+      return res.status(400).json({
+        success: false,
+        code: "EXPECTED_VERSION_REQUIRED",
+        message: "expectedVersion revision is strictly required for design system updates to prevent concurrent save conflicts.",
+      });
     }
 
-    const newVersion = updatedRows?.[0]?.version ?? website.version + 1;
+    const expVer = Number(expectedVersion);
+    if (isNaN(expVer) || expVer < 1) {
+      return res.status(400).json({ success: false, message: "Invalid expectedVersion revision" });
+    }
+
+    const currentEditorData: any = website.editorData || {};
+    const finalVars = variables !== undefined ? validateVariables(variables) : validateVariables(currentEditorData.globalVariables || []);
+    const finalClasses = classes !== undefined ? validateClasses(classes) : validateClasses(currentEditorData.globalClasses || []);
+    const compiledCss = compileDesignSystemCss(finalVars, finalClasses);
+
+    const varsJson = JSON.stringify(finalVars);
+    const classesJson = JSON.stringify(finalClasses);
+
+    const updatedRows = await prisma.$queryRaw<any[]>`
+      UPDATE websites
+      SET "editorData" = jsonb_set(
+            jsonb_set(
+              COALESCE("editorData", '{}'::jsonb),
+              '{globalVariables}',
+              ${varsJson}::jsonb,
+              true
+            ),
+            '{globalClasses}',
+            ${classesJson}::jsonb,
+            true
+          ),
+          "version" = "version" + 1,
+          "updatedAt" = NOW()
+      WHERE id = ${websiteId}::uuid
+        AND "version" = ${expVer}
+      RETURNING id, "version", "updatedAt"
+    `;
+
+    if (!updatedRows || updatedRows.length === 0) {
+      return res.status(409).json({
+        success: false,
+        code: "STALE_VERSION_CONFLICT",
+        message: "This website was modified in another session. Please reload before saving design tokens.",
+      });
+    }
+
+    const newVersion = updatedRows[0].version;
 
     // Record audit log
     try {
@@ -144,7 +144,7 @@ export async function updateDesignSystem(req: Request, res: Response) {
           data: {
             userId: userId || null,
             action: "design_system.update",
-            details: `Updated ${validatedVars.length} variables and ${validatedClasses.length} global classes for website ${website.name} (v${newVersion})`,
+            details: `Updated ${finalVars.length} variables and ${finalClasses.length} global classes for website ${website.name} (v${newVersion})`,
           },
         });
       }
@@ -156,8 +156,8 @@ export async function updateDesignSystem(req: Request, res: Response) {
       success: true,
       message: "Design system updated successfully",
       version: newVersion,
-      variables: validatedVars,
-      classes: validatedClasses,
+      variables: finalVars,
+      classes: finalClasses,
       compiledCss,
     });
   } catch (error: any) {
@@ -271,47 +271,52 @@ export async function importDesignSystemPayload(req: Request, res: Response) {
       ];
     }
 
-    const compiledCss = compileDesignSystemCss(finalVariables, finalClasses);
-    const updatedEditorData = {
-      ...currentEditorData,
-      globalVariables: finalVariables,
-      globalClasses: finalClasses,
-    };
-
-    const jsonStr = JSON.stringify(updatedEditorData);
-    let updatedRows: any[];
-
-    if (expectedVersion !== undefined && expectedVersion !== null) {
-      const expVer = Number(expectedVersion);
-      updatedRows = await prisma.$queryRaw<any[]>`
-        UPDATE websites
-        SET "editorData" = ${jsonStr}::jsonb,
-            "version" = "version" + 1,
-            "updatedAt" = NOW()
-        WHERE id = ${websiteId}::uuid
-          AND "version" = ${expVer}
-        RETURNING id, "version", "updatedAt"
-      `;
-
-      if (!updatedRows || updatedRows.length === 0) {
-        return res.status(409).json({
-          success: false,
-          code: "STALE_VERSION_CONFLICT",
-          message: "Conflict: website was updated elsewhere. Import cancelled.",
-        });
-      }
-    } else {
-      updatedRows = await prisma.$queryRaw<any[]>`
-        UPDATE websites
-        SET "editorData" = ${jsonStr}::jsonb,
-            "version" = "version" + 1,
-            "updatedAt" = NOW()
-        WHERE id = ${websiteId}::uuid
-        RETURNING id, "version", "updatedAt"
-      `;
+    if (expectedVersion === undefined || expectedVersion === null) {
+      return res.status(400).json({
+        success: false,
+        code: "EXPECTED_VERSION_REQUIRED",
+        message: "expectedVersion revision is strictly required for design system imports to prevent concurrent save conflicts.",
+      });
     }
 
-    const newVersion = updatedRows?.[0]?.version ?? website.version + 1;
+    const expVer = Number(expectedVersion);
+    if (isNaN(expVer) || expVer < 1) {
+      return res.status(400).json({ success: false, message: "Invalid expectedVersion revision" });
+    }
+
+    const compiledCss = compileDesignSystemCss(finalVariables, finalClasses);
+    const varsJson = JSON.stringify(finalVariables);
+    const classesJson = JSON.stringify(finalClasses);
+
+    const updatedRows = await prisma.$queryRaw<any[]>`
+      UPDATE websites
+      SET "editorData" = jsonb_set(
+            jsonb_set(
+              COALESCE("editorData", '{}'::jsonb),
+              '{globalVariables}',
+              ${varsJson}::jsonb,
+              true
+            ),
+            '{globalClasses}',
+            ${classesJson}::jsonb,
+            true
+          ),
+          "version" = "version" + 1,
+          "updatedAt" = NOW()
+      WHERE id = ${websiteId}::uuid
+        AND "version" = ${expVer}
+      RETURNING id, "version", "updatedAt"
+    `;
+
+    if (!updatedRows || updatedRows.length === 0) {
+      return res.status(409).json({
+        success: false,
+        code: "STALE_VERSION_CONFLICT",
+        message: "Conflict: website was updated elsewhere. Import cancelled.",
+      });
+    }
+
+    const newVersion = updatedRows[0].version;
 
     return res.status(200).json({
       success: true,

@@ -14,6 +14,7 @@ export function useVariables(explicitWebsiteId?: string) {
   const websiteId = explicitWebsiteId || routeParams.websiteId;
 
   const [variables, setVariables] = useState<AtomicVariable[]>([]);
+  const [serverVersion, setServerVersion] = useState<number>(1);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -27,15 +28,15 @@ export function useVariables(explicitWebsiteId?: string) {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await fetchVariables(websiteId);
-      setVariables(data);
+      const res = await fetchVariables(websiteId);
+      setVariables(res.variables);
+      setServerVersion(res.version);
     } catch (err: any) {
       setError(err?.message || "Unable to load variables.");
     } finally {
       setIsLoading(false);
     }
   }, [websiteId]);
-
 
   useEffect(() => {
     loadVariables();
@@ -92,12 +93,22 @@ export function useVariables(explicitWebsiteId?: string) {
       };
 
       const updatedList = [newVar, ...variables];
-      setVariables(updatedList);
-      await saveVariables(updatedList, websiteId);
-      setIsFormOpen(false);
-      return newVar;
+
+      // Priority 0: Do NOT optimistically update state before server acknowledges save
+      try {
+        const res = await saveVariables(updatedList, websiteId, serverVersion);
+        setVariables(updatedList);
+        if (typeof res.version === "number") {
+          setServerVersion(res.version);
+        }
+        setIsFormOpen(false);
+        return newVar;
+      } catch (err: any) {
+        setError(err?.message || "Failed to save new variable.");
+        throw err;
+      }
     },
-    [variables, websiteId]
+    [variables, websiteId, serverVersion]
   );
 
   const handleUpdateVariable = useCallback(
@@ -139,30 +150,50 @@ export function useVariables(explicitWebsiteId?: string) {
       };
 
       const updatedList = variables.map((v) => (v.id === id ? updatedVar : v));
-      setVariables(updatedList);
-      await saveVariables(updatedList, websiteId);
-      setEditingVariable(null);
-      setIsFormOpen(false);
-      return updatedVar;
+
+      // Priority 0: Do NOT optimistically persist until acknowledged
+      try {
+        const res = await saveVariables(updatedList, websiteId, serverVersion);
+        setVariables(updatedList);
+        if (typeof res.version === "number") {
+          setServerVersion(res.version);
+        }
+        setEditingVariable(null);
+        setIsFormOpen(false);
+        return updatedVar;
+      } catch (err: any) {
+        setError(err?.message || "Failed to update variable.");
+        throw err;
+      }
     },
-    [variables, websiteId]
+    [variables, websiteId, serverVersion]
   );
 
   const handleDeleteVariable = useCallback(
     async (id: string): Promise<void> => {
       setError(null);
       const updatedList = variables.filter((v) => v.id !== id);
-      setVariables(updatedList);
-      await saveVariables(updatedList, websiteId);
-      setDeletingVariable(null);
-    },
-    [variables, websiteId]
-  );
 
+      // Priority 0: Do NOT optimistically persist until acknowledged
+      try {
+        const res = await saveVariables(updatedList, websiteId, serverVersion);
+        setVariables(updatedList);
+        if (typeof res.version === "number") {
+          setServerVersion(res.version);
+        }
+        setDeletingVariable(null);
+      } catch (err: any) {
+        setError(err?.message || "Failed to delete variable.");
+        throw err;
+      }
+    },
+    [variables, websiteId, serverVersion]
+  );
 
   return {
     variables,
     filteredVariables,
+    serverVersion,
     isLoading,
     error,
     searchQuery,

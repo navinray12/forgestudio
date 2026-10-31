@@ -9,6 +9,6 @@ export default defineConfig({
   },
 
   datasource: {
-    url: env("DATABASE_URL"),
+    url: process.env.DATABASE_URL || "postgresql://postgres:ci_dummy_password@localhost:5432/forgestudio_ci_disposable?schema=public",
   },
 });

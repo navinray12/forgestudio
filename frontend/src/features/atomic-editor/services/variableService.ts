@@ -72,6 +72,13 @@ export const DEFAULT_VARIABLES: AtomicVariable[] = [
   },
 ];
 
+const getMigrationKey = (websiteId: string) => `forgestudio_migrated_legacy_vars_${websiteId}`;
+
+export interface FetchVariablesResponse {
+  variables: AtomicVariable[];
+  version: number;
+}
+
 /**
  * Fetch variables authoritatively from backend website design system API,
  * falling back to website-scoped local cache or migrating legacy localStorage.
@@ -79,7 +86,7 @@ export const DEFAULT_VARIABLES: AtomicVariable[] = [
 export async function fetchVariables(
   websiteId?: string,
   apiUrl?: string
-): Promise<AtomicVariable[]> {
+): Promise<FetchVariablesResponse> {
   const base = getBaseUrl(apiUrl);
 
   if (websiteId) {
@@ -92,7 +99,8 @@ export async function fetchVariables(
 
       if (res.ok) {
         const data = await res.json();
-        if (Array.isArray(data?.variables) && data.variables.length > 0) {
+        // Priority 1: Treat empty array from server as authoritative
+        if (Array.isArray(data?.variables)) {
           const mapped: AtomicVariable[] = data.variables.map((v: any, idx: number) => ({
             id: String(v.id || `var-${idx}`),
             name: String(v.name || `Variable ${idx + 1}`),
@@ -108,12 +116,16 @@ export async function fetchVariables(
             updatedAt: v.updatedAt || new Date().toISOString(),
           }));
 
+          const serverVersion = typeof data.version === "number" ? data.version : 1;
+
           // Cache locally under website scope
           try {
             localStorage.setItem(getStorageKey(websiteId), JSON.stringify(mapped));
+            localStorage.setItem(`${getStorageKey(websiteId)}_version`, String(serverVersion));
+            localStorage.setItem(getMigrationKey(websiteId), "true");
           } catch {}
 
-          return mapped;
+          return { variables: mapped, version: serverVersion };
         }
       }
     } catch (e) {
@@ -123,21 +135,27 @@ export async function fetchVariables(
     // Check website-scoped local cache
     try {
       const siteCache = localStorage.getItem(getStorageKey(websiteId));
-      if (siteCache) {
+      if (siteCache !== null) {
         const parsed = JSON.parse(siteCache);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed)) {
+          const cachedVersion = parseInt(localStorage.getItem(`${getStorageKey(websiteId)}_version`) || "1", 10);
+          return { variables: parsed, version: isNaN(cachedVersion) ? 1 : cachedVersion };
+        }
       }
     } catch {}
 
-    // Safe migration from legacy global localStorage
+    // Priority 1: Safe one-time website-scoped migration only
     try {
-      const legacyRaw = localStorage.getItem(LEGACY_STORAGE_KEY);
-      if (legacyRaw) {
-        const legacyVars = JSON.parse(legacyRaw);
-        if (Array.isArray(legacyVars) && legacyVars.length > 0) {
-          console.info(`Migrating ${legacyVars.length} legacy variables to website ${websiteId}`);
-          await saveVariables(legacyVars, websiteId, undefined, apiUrl);
-          return legacyVars;
+      const alreadyMigrated = localStorage.getItem(getMigrationKey(websiteId)) === "true";
+      if (!alreadyMigrated) {
+        localStorage.setItem(getMigrationKey(websiteId), "true");
+        const legacyRaw = localStorage.getItem(LEGACY_STORAGE_KEY);
+        if (legacyRaw) {
+          const legacyVars = JSON.parse(legacyRaw);
+          if (Array.isArray(legacyVars) && legacyVars.length > 0) {
+            console.info(`One-time migration of ${legacyVars.length} legacy variables to website ${websiteId}`);
+            return { variables: legacyVars, version: 1 };
+          }
         }
       }
     } catch (e) {
@@ -145,18 +163,8 @@ export async function fetchVariables(
     }
   }
 
-  // Fallback to legacy or defaults
-  try {
-    const raw = localStorage.getItem(LEGACY_STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
-      }
-    }
-  } catch {}
-
-  return DEFAULT_VARIABLES;
+  // Fallback to defaults
+  return { variables: DEFAULT_VARIABLES, version: 1 };
 }
 
 /**
@@ -169,14 +177,11 @@ export async function saveVariables(
   expectedVersion?: number,
   apiUrl?: string
 ): Promise<{ success: boolean; version?: number }> {
-  // Always update local website-scoped cache
-  try {
-    localStorage.setItem(getStorageKey(websiteId), JSON.stringify(variables));
-  } catch (e) {
-    console.error("Failed to persist variables to local storage", e);
-  }
-
   if (websiteId) {
+    if (typeof expectedVersion !== "number" || expectedVersion < 1) {
+      throw new Error("expectedVersion is required to save variables and prevent concurrent overwrite.");
+    }
+
     const base = getBaseUrl(apiUrl);
     const backendVars = variables.map((v, index) => ({
       id: v.id || `var-${index}`,
@@ -191,29 +196,12 @@ export async function saveVariables(
       updatedAt: new Date().toISOString(),
     }));
 
-    // Fetch existing classes to avoid overwriting them during partial design system save
-    let existingClasses: any[] = [];
-    try {
-      const currentRes = await fetch(`${base}/api/websites/${websiteId}/design-system`, {
-        method: "GET",
-        headers: getAuthHeaders(),
-        credentials: "include",
-      });
-      if (currentRes.ok) {
-        const currentData = await currentRes.json();
-        if (Array.isArray(currentData.classes)) {
-          existingClasses = currentData.classes;
-        }
-      }
-    } catch {}
-
     const res = await fetch(`${base}/api/websites/${websiteId}/design-system`, {
       method: "PUT",
       headers: getAuthHeaders(),
       credentials: "include",
       body: JSON.stringify({
         variables: backendVars,
-        classes: existingClasses,
         expectedVersion,
       }),
     });
@@ -226,9 +214,19 @@ export async function saveVariables(
       throw new Error(data?.message || "Failed to update website design system variables");
     }
 
+    // Only persist locally AFTER server confirms save
+    try {
+      localStorage.setItem(getStorageKey(websiteId), JSON.stringify(variables));
+      if (typeof data.version === "number") {
+        localStorage.setItem(`${getStorageKey(websiteId)}_version`, String(data.version));
+      }
+    } catch (e) {
+      console.error("Failed to persist variables to local storage", e);
+    }
+
     return { success: true, version: data.version };
   }
 
-  return { success: true };
+  return { success: true, version: 1 };
 }
 

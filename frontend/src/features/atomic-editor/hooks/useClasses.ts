@@ -9,6 +9,7 @@ export function useClasses(explicitWebsiteId?: string, elements?: any[]) {
   const websiteId = explicitWebsiteId || routeParams.websiteId;
 
   const [classes, setClasses] = useState<AtomicClass[]>([]);
+  const [serverVersion, setServerVersion] = useState<number>(1);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -23,15 +24,15 @@ export function useClasses(explicitWebsiteId?: string, elements?: any[]) {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await fetchClasses(websiteId, undefined, elements);
-      setClasses(data);
+      const res = await fetchClasses(websiteId, undefined, elements);
+      setClasses(res.classes);
+      setServerVersion(res.version);
     } catch (err: any) {
       setError(err?.message || "Unable to load classes.");
     } finally {
       setIsLoading(false);
     }
   }, [websiteId, elements]);
-
 
   useEffect(() => {
     loadClasses();
@@ -90,12 +91,22 @@ export function useClasses(explicitWebsiteId?: string, elements?: any[]) {
       };
 
       const updatedList = [newClass, ...classes];
-      setClasses(updatedList);
-      await saveClasses(updatedList, websiteId);
-      setIsFormOpen(false);
-      return newClass;
+
+      // Priority 0: Do NOT optimistically update state before server acknowledges save
+      try {
+        const res = await saveClasses(updatedList, websiteId, serverVersion);
+        setClasses(updatedList);
+        if (typeof res.version === "number") {
+          setServerVersion(res.version);
+        }
+        setIsFormOpen(false);
+        return newClass;
+      } catch (err: any) {
+        setError(err?.message || "Failed to save new class.");
+        throw err;
+      }
     },
-    [classes, websiteId]
+    [classes, websiteId, serverVersion]
   );
 
   const handleUpdateClass = useCallback(
@@ -133,30 +144,50 @@ export function useClasses(explicitWebsiteId?: string, elements?: any[]) {
       };
 
       const updatedList = classes.map((c) => (c.id === id ? updatedClass : c));
-      setClasses(updatedList);
-      await saveClasses(updatedList, websiteId);
-      setEditingClass(null);
-      setIsFormOpen(false);
-      return updatedClass;
+
+      // Priority 0: Do NOT optimistically persist until acknowledged
+      try {
+        const res = await saveClasses(updatedList, websiteId, serverVersion);
+        setClasses(updatedList);
+        if (typeof res.version === "number") {
+          setServerVersion(res.version);
+        }
+        setEditingClass(null);
+        setIsFormOpen(false);
+        return updatedClass;
+      } catch (err: any) {
+        setError(err?.message || "Failed to update class.");
+        throw err;
+      }
     },
-    [classes, websiteId]
+    [classes, websiteId, serverVersion]
   );
 
   const handleDeleteClass = useCallback(
     async (id: string): Promise<void> => {
       setError(null);
       const updatedList = classes.filter((c) => c.id !== id);
-      setClasses(updatedList);
-      await saveClasses(updatedList, websiteId);
-      setDeletingClass(null);
-    },
-    [classes, websiteId]
-  );
 
+      // Priority 0: Do NOT optimistically persist until acknowledged
+      try {
+        const res = await saveClasses(updatedList, websiteId, serverVersion);
+        setClasses(updatedList);
+        if (typeof res.version === "number") {
+          setServerVersion(res.version);
+        }
+        setDeletingClass(null);
+      } catch (err: any) {
+        setError(err?.message || "Failed to delete class.");
+        throw err;
+      }
+    },
+    [classes, websiteId, serverVersion]
+  );
 
   return {
     classes,
     filteredClasses,
+    serverVersion,
     isLoading,
     error,
     searchQuery,
