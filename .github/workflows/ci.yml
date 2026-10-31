@@ -124,7 +124,7 @@ jobs:
         run: |
           cd backend
           npx prisma generate
-          npx prisma migrate deploy || npx prisma db push --accept-data-loss --skip-generate
+          npx prisma migrate deploy
 
       - name: Execute Phase 17 Design System & Parity Tests
         run: |
@@ -185,6 +185,9 @@ jobs:
       - name: Evaluate Release Readiness
         env:
           STAGING_DEPLOY_AUTHORIZED: ${{ vars.STAGING_DEPLOY_AUTHORIZED || 'false' }}
+          STAGING_URL: ${{ secrets.STAGING_URL || '' }}
+          STAGING_HEALTH_URL: ${{ secrets.STAGING_HEALTH_URL || '' }}
+          STAGING_ROLLBACK_EVIDENCE: ${{ vars.STAGING_ROLLBACK_EVIDENCE || '' }}
         run: |
           echo "======================================================="
           echo " FORGESTUDIO PRODUCTION RELEASE ACCEPTANCE CRITERIA    "
@@ -198,11 +201,37 @@ jobs:
           echo "✓ Multi-Tenant Isolation & RBAC: PASSED"
           echo "✓ Security Audit (Backend & Frontend): PASSED"
           echo "======================================================="
-          if [ "$STAGING_DEPLOY_AUTHORIZED" = "true" ]; then
-            echo " RELEASE GATE ASSESSMENT: GO"
-            echo "======================================================="
+
+          # Multi-Factor Staging Release Gate Validation
+          STAGING_PASSED=false
+
+          if [ "$STAGING_DEPLOY_AUTHORIZED" != "true" ]; then
+            echo " STAGING DEPLOYMENT STATUS: BLOCKED (DEPLOYMENT NOT AUTHORIZED)"
+            echo " REASON: STAGING_DEPLOY_AUTHORIZED variable is false or unset."
+          elif [ -z "$STAGING_URL" ] || [ -z "$STAGING_HEALTH_URL" ]; then
+            echo " STAGING DEPLOYMENT STATUS: BLOCKED (INFRASTRUCTURE UNPROVISIONED)"
+            echo " REASON: STAGING_DEPLOY_AUTHORIZED is true, but STAGING_URL / STAGING_HEALTH_URL credentials are missing."
+            echo " Setting authorization flag without actual deployed infrastructure cannot bypass release gate."
           else
-            echo " STAGING DEPLOYMENT STATUS: BLOCKED (NO CLOUD CREDENTIALS)"
-            echo " RELEASE GATE ASSESSMENT: NO-GO (PENDING STAGING DEPLOYMENT APPROVAL)"
-            echo "======================================================="
+            echo " Verifying Staging Live Health Endpoint: $STAGING_HEALTH_URL..."
+            if curl -f -s --max-time 10 "$STAGING_HEALTH_URL" > /dev/null; then
+              echo " ✓ Staging Health Check: PASSED"
+              if [ "$STAGING_ROLLBACK_EVIDENCE" = "verified" ]; then
+                echo " ✓ Staging Rollback Verification: PASSED"
+                STAGING_PASSED=true
+              else
+                echo " ✗ Staging Rollback Verification: MISSING / UNVERIFIED"
+              fi
+            else
+              echo " ✗ Staging Live Health Check: FAILED (Endpoint unreachable or non-200)"
+            fi
           fi
+
+          echo "======================================================="
+          if [ "$STAGING_PASSED" = "true" ]; then
+            echo " ALL RELEASE CRITERIA SATISFIED INCLUDING LIVE STAGING"
+            echo " RELEASE GATE ASSESSMENT: GO"
+          else
+            echo " RELEASE GATE ASSESSMENT: NO-GO (PENDING VERIFIED STAGING DEPLOYMENT & HEALTH CHECKS)"
+          fi
+          echo "======================================================="

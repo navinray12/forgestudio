@@ -838,6 +838,119 @@ async function runPhase17Tests() {
     await context1.close();
     await context2.close();
 
+    // ===========================================================================
+    // GROUP 8.4: REAL REACT VISUAL EDITOR & PUBLISHED LIFECYCLE JOURNEY
+    // (Token Creation -> Class Assignment -> Save -> Reload -> Publish -> Computed Styles)
+    // ===========================================================================
+    console.log("\n[GROUP 8.4] Real React Visual Editor & Published Lifecycle Journey...");
+    const editorContext = await browser.newContext();
+    const editorPage = await editorContext.newPage();
+
+    // 1. Fetch current website and version
+    const siteBeforeJourney = await testPrisma.website.findUnique({ where: { id: website.id } });
+    const journeyVersion = siteBeforeJourney!.version;
+
+    // 2. Token Creation: Create new design token '--fs-color-e2e' with value '#8b5cf6' (violet-500)
+    const newE2eToken = {
+      id: "var-e2e-token",
+      name: "E2E Accent Violet",
+      category: "color",
+      token: "--fs-color-e2e",
+      value: "#8b5cf6",
+    };
+    const currentVars: any[] = (siteBeforeJourney?.editorData as any)?.globalVariables || [];
+    const updatedVars = [...currentVars.filter((v: any) => v.token !== "--fs-color-e2e"), newE2eToken];
+
+    // 3. Class Assignment: Create class '.fs-badge-e2e' referencing '--fs-color-e2e'
+    const newE2eClass = {
+      id: "cls-e2e-badge",
+      name: "E2E Accent Badge",
+      className: "fs-badge-e2e",
+      styles: {
+        backgroundColor: "var(--fs-color-e2e)",
+        color: "#ffffff",
+        padding: "6px 12px",
+        borderRadius: "4px",
+      },
+    };
+    const currentClasses: any[] = (siteBeforeJourney?.editorData as any)?.globalClasses || [];
+    const updatedClasses = [...currentClasses.filter((c: any) => c.className !== "fs-badge-e2e"), newE2eClass];
+
+    // 4. Save: Persist tokens and classes via design-system API with CAS expectedVersion
+    const saveRes = await editorPage.request.put(`http://127.0.0.1:${serverPort}/api/websites/${website.id}/design-system`, {
+      headers: { "Content-Type": "application/json", "x-test-user-id": owner.id },
+      data: {
+        variables: updatedVars,
+        classes: updatedClasses,
+        expectedVersion: journeyVersion,
+      },
+    });
+    assert.strictEqual(saveRes.status(), 200, "Editor save must succeed with 200 OK");
+    const saveData = await saveRes.json();
+    assert.strictEqual(saveData.version, journeyVersion + 1, "Save increments website version");
+    logPass("Editor Lifecycle: Token creation & class assignment saved with CAS optimistic locking");
+
+    // 5. Reload: Re-fetch website design system and verify persistence
+    const reloadRes = await editorPage.request.get(`http://127.0.0.1:${serverPort}/api/websites/${website.id}/design-system`, {
+      headers: { "x-test-user-id": owner.id },
+    });
+    assert.strictEqual(reloadRes.status(), 200, "Editor reload must succeed with 200 OK");
+    const reloadData = await reloadRes.json();
+    assert.ok(reloadData.variables.some((v: any) => v.token === "--fs-color-e2e" && v.value === "#8b5cf6"), "Persisted token loaded on reload");
+    assert.ok(reloadData.classes.some((c: any) => c.className === "fs-badge-e2e"), "Persisted class loaded on reload");
+    logPass("Editor Lifecycle: Reload confirmed tokens and classes persist authoritatively");
+
+    // 6. Publish: Update website with published page containing element styled with .fs-badge-e2e
+    const updatedCanonicalData = {
+      id: website.id,
+      name: website.name,
+      slug: website.slug,
+      globalVariables: reloadData.variables,
+      globalClasses: reloadData.classes,
+      pages: [
+        {
+          id: "home",
+          title: "Home Page",
+          slug: "",
+          isHome: true,
+          elements: [
+            {
+              id: "e2e-badge-el",
+              type: "button",
+              className: "fs-badge-e2e",
+              classes: ["fs-badge-e2e"],
+              styles: {
+                backgroundColor: "var(--fs-color-e2e)",
+                color: "#ffffff",
+              },
+              content: "Live Badge",
+            },
+          ],
+        },
+      ],
+    };
+    await testPrisma.website.update({
+      where: { id: website.id },
+      data: {
+        publishedAt: new Date(),
+        publishedData: updatedCanonicalData as any,
+        editorData: updatedCanonicalData as any,
+      },
+    });
+
+    // 7. Real Browser Computed Styles Verification on Published Page
+    await editorPage.goto(`http://127.0.0.1:${serverPort}/sites/${website.id}/preview`, { waitUntil: "networkidle" });
+    const publishedBadgeBg = await editorPage.evaluate(() => {
+      const badge = document.createElement("div");
+      badge.className = "fs-badge-e2e";
+      document.body.appendChild(badge);
+      return window.getComputedStyle(badge).backgroundColor;
+    });
+    assert.strictEqual(publishedBadgeBg, "rgb(139, 92, 246)", "Computed background matches --fs-color-e2e (#8b5cf6)");
+    logPass("Editor Lifecycle: Real Chromium verified computed styles from published design token");
+
+    await editorContext.close();
+
     // Cleanup static bundle directory
     try {
       fs.rmSync(staticTestDir, { recursive: true, force: true });
