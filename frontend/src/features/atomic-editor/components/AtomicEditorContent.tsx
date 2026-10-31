@@ -16,6 +16,8 @@ interface AtomicEditorContentProps {
   error?: string | null;
   onInsertGlobalElement?: (globalElementId: string) => void;
   onInsertComponent?: (componentId: string) => void;
+  websiteId?: string;
+  elements?: any[];
 }
 
 export const AtomicEditorContent: React.FC<AtomicEditorContentProps> = ({
@@ -26,11 +28,13 @@ export const AtomicEditorContent: React.FC<AtomicEditorContentProps> = ({
   error,
   onInsertGlobalElement,
   onInsertComponent,
+  websiteId,
+  elements,
 }) => {
   if (sectionConfig.id === "variables") {
     return (
       <div className="flex flex-col flex-1 p-4 overflow-hidden">
-        <VariablesPanel />
+        <VariablesPanel websiteId={websiteId} />
       </div>
     );
   }
@@ -38,10 +42,11 @@ export const AtomicEditorContent: React.FC<AtomicEditorContentProps> = ({
   if (sectionConfig.id === "classes") {
     return (
       <div className="flex flex-col flex-1 p-4 overflow-hidden">
-        <ClassesPanel />
+        <ClassesPanel websiteId={websiteId} elements={elements} />
       </div>
     );
   }
+
 
   if (sectionConfig.id === "global-elements") {
     return (

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { useParams } from "react-router-dom";
 import type {
   AtomicVariable,
   CreateVariablePayload,
@@ -8,7 +9,10 @@ import type {
 import { fetchVariables, saveVariables } from "../services/variableService";
 import { formatVariableKey, validateVariableValue } from "../utils/variable.utils";
 
-export function useVariables() {
+export function useVariables(explicitWebsiteId?: string) {
+  const routeParams = useParams<{ websiteId?: string }>();
+  const websiteId = explicitWebsiteId || routeParams.websiteId;
+
   const [variables, setVariables] = useState<AtomicVariable[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -23,14 +27,15 @@ export function useVariables() {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await fetchVariables();
+      const data = await fetchVariables(websiteId);
       setVariables(data);
     } catch (err: any) {
-      setError("Unable to load variables.");
+      setError(err?.message || "Unable to load variables.");
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [websiteId]);
+
 
   useEffect(() => {
     loadVariables();
@@ -88,11 +93,11 @@ export function useVariables() {
 
       const updatedList = [newVar, ...variables];
       setVariables(updatedList);
-      await saveVariables(updatedList);
+      await saveVariables(updatedList, websiteId);
       setIsFormOpen(false);
       return newVar;
     },
-    [variables]
+    [variables, websiteId]
   );
 
   const handleUpdateVariable = useCallback(
@@ -135,12 +140,12 @@ export function useVariables() {
 
       const updatedList = variables.map((v) => (v.id === id ? updatedVar : v));
       setVariables(updatedList);
-      await saveVariables(updatedList);
+      await saveVariables(updatedList, websiteId);
       setEditingVariable(null);
       setIsFormOpen(false);
       return updatedVar;
     },
-    [variables]
+    [variables, websiteId]
   );
 
   const handleDeleteVariable = useCallback(
@@ -148,11 +153,12 @@ export function useVariables() {
       setError(null);
       const updatedList = variables.filter((v) => v.id !== id);
       setVariables(updatedList);
-      await saveVariables(updatedList);
+      await saveVariables(updatedList, websiteId);
       setDeletingVariable(null);
     },
-    [variables]
+    [variables, websiteId]
   );
+
 
   return {
     variables,

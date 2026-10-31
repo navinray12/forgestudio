@@ -617,14 +617,28 @@ export function resolveElementStyles(
   const gs = globalSettings?.globalStyles || globalSettings || {};
 
   // 1. Global Classes (F-068) - Apply reusable global class styles if defined
-  if (Array.isArray(el.classes) && globalSettings?.globalClasses) {
-    for (const className of el.classes) {
-      const globalClassObj = globalSettings.globalClasses.find((gc: any) => gc.name === className || gc.id === className);
+  const assignedClassList: string[] = [];
+  if (Array.isArray(el.classes)) {
+    assignedClassList.push(...el.classes.map((c: any) => typeof c === "string" ? c : (c?.className || c?.name || c?.id)));
+  }
+  const rawClassName = (el as any).className;
+  if (rawClassName && typeof rawClassName === "string") {
+    assignedClassList.push(...rawClassName.trim().split(/\s+/));
+  }
+
+
+  if (assignedClassList.length > 0 && globalSettings?.globalClasses) {
+    for (const className of assignedClassList) {
+      if (!className) continue;
+      const globalClassObj = globalSettings.globalClasses.find(
+        (gc: any) => gc.className === className || gc.name === className || gc.id === className
+      );
       if (globalClassObj && globalClassObj.styles) {
         Object.assign(styles, globalClassObj.styles);
       }
     }
   }
+
 
   // 2. Cascading Typography & Color Defaults (F-066, F-070, F-071)
   const color = getVal("color") || (el.type === "heading" ? gs.colors?.heading || gs.colors?.text : gs.colors?.text);

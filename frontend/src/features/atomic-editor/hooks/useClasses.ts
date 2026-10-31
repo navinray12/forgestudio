@@ -1,9 +1,13 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { useParams } from "react-router-dom";
 import type { AtomicClass, CreateClassPayload, UpdateClassPayload } from "../types/classes.types";
 import { fetchClasses, saveClasses } from "../services/classService";
 import { formatClassName, validateClassName } from "../utils/class.utils";
 
-export function useClasses() {
+export function useClasses(explicitWebsiteId?: string, elements?: any[]) {
+  const routeParams = useParams<{ websiteId?: string }>();
+  const websiteId = explicitWebsiteId || routeParams.websiteId;
+
   const [classes, setClasses] = useState<AtomicClass[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -19,14 +23,15 @@ export function useClasses() {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await fetchClasses();
+      const data = await fetchClasses(websiteId, undefined, elements);
       setClasses(data);
     } catch (err: any) {
-      setError("Unable to load classes.");
+      setError(err?.message || "Unable to load classes.");
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [websiteId, elements]);
+
 
   useEffect(() => {
     loadClasses();
@@ -86,11 +91,11 @@ export function useClasses() {
 
       const updatedList = [newClass, ...classes];
       setClasses(updatedList);
-      await saveClasses(updatedList);
+      await saveClasses(updatedList, websiteId);
       setIsFormOpen(false);
       return newClass;
     },
-    [classes]
+    [classes, websiteId]
   );
 
   const handleUpdateClass = useCallback(
@@ -119,6 +124,7 @@ export function useClasses() {
         ...existing,
         name: updatedName,
         key: updatedKey,
+        className: updatedKey,
         isGlobal,
         scope: isGlobal ? "global" : "local",
         styles: payload.styles !== undefined ? payload.styles : existing.styles,
@@ -128,12 +134,12 @@ export function useClasses() {
 
       const updatedList = classes.map((c) => (c.id === id ? updatedClass : c));
       setClasses(updatedList);
-      await saveClasses(updatedList);
+      await saveClasses(updatedList, websiteId);
       setEditingClass(null);
       setIsFormOpen(false);
       return updatedClass;
     },
-    [classes]
+    [classes, websiteId]
   );
 
   const handleDeleteClass = useCallback(
@@ -141,11 +147,12 @@ export function useClasses() {
       setError(null);
       const updatedList = classes.filter((c) => c.id !== id);
       setClasses(updatedList);
-      await saveClasses(updatedList);
+      await saveClasses(updatedList, websiteId);
       setDeletingClass(null);
     },
-    [classes]
+    [classes, websiteId]
   );
+
 
   return {
     classes,

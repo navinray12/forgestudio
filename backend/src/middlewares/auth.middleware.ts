@@ -20,7 +20,14 @@ export async function requireAuth(
   next: NextFunction
 ) {
   try {
-    const token = req.cookies?.[AUTH_COOKIE_NAME];
+    if (res.locals.user || (req as any).user) {
+      return next();
+    }
+
+    let token = req.cookies?.[AUTH_COOKIE_NAME];
+    if (!token && req.headers.authorization && /^Bearer\s+/i.test(req.headers.authorization)) {
+      token = req.headers.authorization.replace(/^Bearer\s+/i, "").trim();
+    }
 
     if (!token) {
       return res.status(401).json({

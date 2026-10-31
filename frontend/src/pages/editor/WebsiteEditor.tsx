@@ -1029,6 +1029,65 @@ export default function WebsiteEditor() {
   const [isClassModalOpen, setIsClassModalOpen] = useState<boolean>(false);
   const [globalVariables, setGlobalVariables] = useState<any[]>([]);
   const [globalClasses, setGlobalClasses] = useState<any[]>([]);
+
+  // F-339 & F-344: Dynamic compile for Design System Tokens (:root, Dark theme) and Global Classes on Canvas
+  const compiledDesignTokensCss = useMemo(() => {
+    let css = "";
+    if (globalVariables && globalVariables.length > 0) {
+      css += "/* --- ForgeStudio Design Tokens (:root) --- */\n:root {\n";
+      for (const v of globalVariables) {
+        if (v && (v.token || v.key)) {
+          const tok = v.token || v.key;
+          const lightVal = v.modes?.light || v.value;
+          if (lightVal) {
+            css += `  ${tok}: ${lightVal};\n`;
+          }
+        }
+      }
+      css += "}\n\n";
+
+      const darkModeVars = globalVariables.filter((v: any) => v && (v.token || v.key) && v.modes?.dark);
+      if (darkModeVars.length > 0) {
+        css += "/* --- ForgeStudio Design Tokens (Dark Theme Overrides) --- */\n[data-theme=\"dark\"], .dark {\n";
+        for (const v of darkModeVars) {
+          const tok = v.token || v.key;
+          css += `  ${tok}: ${v.modes.dark};\n`;
+        }
+        css += "}\n\n";
+
+        css += "@media (prefers-color-scheme: dark) {\n  :root:not([data-theme=\"light\"]) {\n";
+        for (const v of darkModeVars) {
+          const tok = v.token || v.key;
+          css += `    ${tok}: ${v.modes.dark};\n`;
+        }
+        css += "  }\n}\n\n";
+      }
+    }
+    if (globalClasses && globalClasses.length > 0) {
+      css += "/* --- ForgeStudio Global Utility Classes --- */\n";
+      for (const c of globalClasses) {
+        const clsName = c.className || c.key;
+        if (c && clsName && c.styles) {
+          const toCss = (obj: any) =>
+            Object.entries(obj)
+              .map(([k, v]) => `  ${k.replace(/[A-Z]/g, (m) => "-" + m.toLowerCase())}: ${v};`)
+              .join("\n");
+          css += `.${clsName} {\n${toCss(c.styles)}\n}\n`;
+          if (c.pseudoStyles?.hover && Object.keys(c.pseudoStyles.hover).length > 0) {
+            css += `.${clsName}:hover {\n${toCss(c.pseudoStyles.hover)}\n}\n`;
+          }
+          if (c.pseudoStyles?.focus && Object.keys(c.pseudoStyles.focus).length > 0) {
+            css += `.${clsName}:focus {\n${toCss(c.pseudoStyles.focus)}\n}\n`;
+          }
+          if (c.pseudoStyles?.active && Object.keys(c.pseudoStyles.active).length > 0) {
+            css += `.${clsName}:active {\n${toCss(c.pseudoStyles.active)}\n}\n`;
+          }
+        }
+      }
+    }
+    return css;
+  }, [globalVariables, globalClasses]);
+
   const [isAddPageModalOpen, setIsAddPageModalOpen] = useState<boolean>(false);
   const [newPageName, setNewPageName] = useState<string>("");
   const [newPageSlug, setNewPageSlug] = useState<string>("");
@@ -8126,11 +8185,14 @@ export default function WebsiteEditor() {
               </div>
             ) : leftSidebarTab === ("atomic" as any) ? (
               <AtomicEditor
+                websiteId={websiteId}
+                elements={elements}
                 onClose={() => setLeftSidebarTab("elements")}
                 onInsertGlobalElement={handleInsertGlobalElement}
                 onInsertComponent={handleInsertReusableComponent}
               />
             ) : (
+
               <TemplateLibrary
                 apiUrl={apiUrl}
                 onInsertTemplate={handleInsertTemplate}
@@ -8229,8 +8291,8 @@ export default function WebsiteEditor() {
             className={`relative transition-all duration-300 ease-in-out min-h-[750px] h-auto shrink-0 my-2 rounded-2xl border border-slate-200 p-6 sm:p-8 pb-20 box-border overflow-x-hidden ${activeDevice !== "desktop" ? "ring-1 ring-slate-300 shadow-md" : "shadow-sm"
               }`}
           >
-            {/* Global Design Tokens / CSS Variables (Comment 14) */}
-            <style>{`
+            {/* Global Design Tokens / CSS Variables (Comment 14 & Phase 17 Canvas Parity) */}
+            <style id="fs-canvas-design-tokens">{`
               :root {
                 --forge-primary: ${globalSettings?.globalStyles?.primaryColor || "#3b82f6"};
                 --forge-secondary: ${globalSettings?.globalStyles?.secondaryColor || "#64748b"};
@@ -8241,7 +8303,9 @@ export default function WebsiteEditor() {
                 --forge-font-body: ${globalSettings?.globalStyles?.bodyFont || "inherit"};
                 --forge-btn-radius: ${globalSettings?.globalStyles?.buttonBorderRadius || "6px"};
               }
+              ${compiledDesignTokensCss}
             `}</style>
+
 
             {/* Dynamic Website Navigation Header in Preview Mode */}
             {isPreview ? (

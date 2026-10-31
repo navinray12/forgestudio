@@ -98,6 +98,9 @@ export type ProjectRole = typeof CANONICAL_PROJECT_ROLES[number];
 export const PROJECT_ROLE_ALIASES: Record<string, ProjectRole> = {
   PROJECT_OWNER: "OWNER",
   PROJECT_ADMIN: "ADMIN",
+  EDIT: "DESIGNER",
+  EDITOR: "DESIGNER",
+  VIEW: "VIEWER",
   REVIEWER: "VIEWER",
   CLIENT: "VIEWER",
 };
