@@ -731,7 +731,7 @@ export async function runPhase5TestSuite() {
 }
 
 // Direct execution entrypoint
-if (import.meta.url === `file://${process.argv[1]}` || process.argv[1]?.endsWith("phase5-editor-stability.test.ts")) {
+if (process.argv[1]?.includes("phase5-editor-stability.test") || import.meta.url.includes("phase5-editor-stability.test")) {
   runPhase5TestSuite()
     .then(({ passedCount, failedCount }) => {
       process.exit(failedCount > 0 ? 1 : 0);

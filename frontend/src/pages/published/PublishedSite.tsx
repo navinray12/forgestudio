@@ -236,19 +236,20 @@ const normalizeRoutePath = (path: string): string => {
         .toLowerCase();
 };
 
-const findTargetPage = (pagesList: PageConfig[] | undefined, target: string, homePageId?: string): PageConfig | undefined => {
-    if (!target || !pagesList || pagesList.length === 0) return undefined;
-    const cleanTarget = normalizeRoutePath(target);
+const findTargetPage = (pagesList: PageConfig[] | undefined, target?: string, homePageId?: string): PageConfig | undefined => {
+    if (!pagesList || pagesList.length === 0) return undefined;
+    const safeTarget = target || "";
+    const cleanTarget = normalizeRoutePath(safeTarget);
     if (cleanTarget === "") {
         return pagesList.find((p) => p.isHome || (homePageId && p.id === homePageId) || p.slug === "/" || p.id === "home") || pagesList[0];
     }
     return pagesList.find(
         (p) =>
-            p.id === target ||
+            p.id === safeTarget ||
             normalizeRoutePath(p.slug) === cleanTarget ||
             normalizeRoutePath((p as any).pageSettings?.path || "") === cleanTarget ||
             p.name.toLowerCase() === cleanTarget ||
-            p.name.toLowerCase() === target.toLowerCase()
+            p.name.toLowerCase() === safeTarget.toLowerCase()
     );
 };
 
@@ -992,7 +993,7 @@ function PublishedSite() {
                     const cleanSlug = initialSlug ? initialSlug.replace(/^\//, "") : "";
                     const isPostRoute = cleanSlug.startsWith("post/") || cleanSlug.startsWith("blog/");
                     const isTermRoute = cleanSlug.startsWith("category/") || cleanSlug.startsWith("tag/");
-                    const matchedPage = initialSlug ? findTargetPage(pagesList, initialSlug, editorData.homePageId) : undefined;
+                    const matchedPage = findTargetPage(pagesList, initialSlug || "", editorData.homePageId);
 
                     if (matchedPage) {
                         setActivePageId(matchedPage.id || "home");

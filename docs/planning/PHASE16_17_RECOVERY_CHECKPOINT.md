@@ -32,8 +32,9 @@
 ---
 
 ## 2. Uncommitted Changes Preserved
-- `.github/workflows/ci.yml`: Add `Build Frontend Assets for Browser E2E` step so `frontend/dist` is available for Playwright tests, break out regression test phases into discrete steps for granular visibility.
-- `backend/tests/phase2-admin.test.ts`: Cross-platform self-run check.
+- `frontend/src/pages/published/PublishedSite.tsx`: Fix root homepage resolution when `initialSlug` is empty or undefined, enabling direct root `/site/:websiteId/` routing and E2E canvas mounting.
+- `backend/tests/phase5-editor-stability.test.ts`: Cross-platform execution entrypoint.
+- `backend/tests/phase7-theme-cms.test.ts`: Cross-platform execution entrypoint.
 - `docs/planning/PHASE16_17_RECOVERY_CHECKPOINT.md`: Checkpoint tracker.
 
 ---
@@ -45,16 +46,19 @@
 - **Frontend ESLint:** `npm run lint` -> **PASS (0 errors, 433 non-fatal warnings)**
 - **Backend Production Audit:** `npm audit --omit=dev --audit-level=critical` -> **PASS (0 critical)**
 - **Frontend Production Audit:** `npm audit --omit=dev --audit-level=critical` -> **PASS (0 critical)**
-- **GitHub Actions Run 41199728320:**
+- **GitHub Actions Run 41200946482:**
   - Security & Vulnerability Scan: **SUCCESS**
   - Lint & Compile Verification: **SUCCESS**
+  - Build Frontend Assets: **SUCCESS**
   - Apply Prisma Migrations: **SUCCESS**
   - Execute Phase 17 Design System & Parity Tests: **SUCCESS (24/24 PASSED in CI)**
+  - Execute Phase 2 Admin Verification: **SUCCESS**
+  - Execute Phase 3 Auth & RBAC Verification: **SUCCESS**
 
 ---
 
 ## 4. Remaining Tasks & External Blockers
-- **Remaining Task:** Commit and push `.github/workflows/ci.yml`, `backend/tests/phase2-admin.test.ts`, and checkpoint to `origin/new-backup-devnew`.
+- **Remaining Task:** Commit and push `frontend/src/pages/published/PublishedSite.tsx`, `backend/tests/phase5-editor-stability.test.ts`, `backend/tests/phase7-theme-cms.test.ts`, and checkpoint to `origin/new-backup-devnew`.
 - **Remaining Task:** Verify subsequent GitHub Actions workflow run conclusion.
 - **External Blocker:** Staging environment cloud infrastructure deployment credentials remain unprovisioned. Production Release Status marked **NO-GO** until staging deployment authorization is provided.
 

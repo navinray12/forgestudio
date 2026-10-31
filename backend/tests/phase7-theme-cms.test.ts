@@ -523,7 +523,7 @@ export async function runPhase7TestSuite() {
 }
 
 // Auto-run if executed directly
-if (import.meta.url === `file://${process.argv[1]}` || process.argv[1]?.endsWith("phase7-theme-cms.test.ts")) {
+if (process.argv[1]?.includes("phase7-theme-cms.test") || import.meta.url.includes("phase7-theme-cms.test")) {
   runPhase7TestSuite()
     .then((res) => {
       if (res?.failedCount && res.failedCount > 0) process.exit(1);
