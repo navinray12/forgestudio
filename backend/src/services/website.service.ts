@@ -683,11 +683,14 @@ export async function updateWebsiteEditorData(
     ...(currentEditorData.publishing ? { publishing: currentEditorData.publishing } : {}),
   };
 
+  if (performanceSettings !== undefined) {
+    (editorData as any).performanceSettings = performanceSettings;
+  }
+
   try {
     const jsonStr = JSON.stringify(editorData);
     const isPublished = website.status === "PUBLISHED";
     const statusVal = isPublished ? "PUBLISHED" : "DRAFT";
-    const perfStr = performanceSettings !== undefined ? JSON.stringify(performanceSettings) : null;
 
     let updated: any[];
 
@@ -699,30 +702,16 @@ export async function updateWebsiteEditorData(
 
       // MONOTONIC INTEGER VERSION ATOMIC COMPARE-AND-SWAP
       // Explicit version increment: version = version + 1
-      if (perfStr !== null) {
-        updated = await prisma.$queryRaw`
-          UPDATE websites
-          SET "editorData" = ${jsonStr}::jsonb,
-              "performanceSettings" = ${perfStr}::jsonb,
-              status = ${statusVal},
-              "version" = "version" + 1,
-              "updatedAt" = NOW()
-          WHERE id = ${websiteId}::uuid
-            AND "version" = ${expVer}
-          RETURNING id, "userId", name, slug, status, "version", "editorData", "performanceSettings", "createdAt", "updatedAt"
-        `;
-      } else {
-        updated = await prisma.$queryRaw`
-          UPDATE websites
-          SET "editorData" = ${jsonStr}::jsonb,
-              status = ${statusVal},
-              "version" = "version" + 1,
-              "updatedAt" = NOW()
-          WHERE id = ${websiteId}::uuid
-            AND "version" = ${expVer}
-          RETURNING id, "userId", name, slug, status, "version", "editorData", "performanceSettings", "createdAt", "updatedAt"
-        `;
-      }
+      updated = await prisma.$queryRaw`
+        UPDATE websites
+        SET "editorData" = ${jsonStr}::jsonb,
+            status = ${statusVal},
+            "version" = "version" + 1,
+            "updatedAt" = NOW()
+        WHERE id = ${websiteId}::uuid
+          AND "version" = ${expVer}
+        RETURNING id, "userId", name, slug, status, "version", "editorData", "createdAt", "updatedAt"
+      `;
 
       if (!updated || updated.length === 0) {
         const currentDb = await prisma.website.findUnique({
@@ -746,30 +735,16 @@ export async function updateWebsiteEditorData(
 
       // ATOMIC OPTIMISTIC CONCURRENCY CONTROL (Compare-And-Swap on exact timestamp)
       // Zero tolerance: strictly eliminates race conditions between simultaneous saves.
-      if (perfStr !== null) {
-        updated = await prisma.$queryRaw`
-          UPDATE websites
-          SET "editorData" = ${jsonStr}::jsonb,
-              "performanceSettings" = ${perfStr}::jsonb,
-              status = ${statusVal},
-              "version" = "version" + 1,
-              "updatedAt" = NOW()
-          WHERE id = ${websiteId}::uuid
-            AND "updatedAt" = ${expectedDate}
-          RETURNING id, "userId", name, slug, status, "version", "editorData", "performanceSettings", "createdAt", "updatedAt"
-        `;
-      } else {
-        updated = await prisma.$queryRaw`
-          UPDATE websites
-          SET "editorData" = ${jsonStr}::jsonb,
-              status = ${statusVal},
-              "version" = "version" + 1,
-              "updatedAt" = NOW()
-          WHERE id = ${websiteId}::uuid
-            AND "updatedAt" = ${expectedDate}
-          RETURNING id, "userId", name, slug, status, "version", "editorData", "performanceSettings", "createdAt", "updatedAt"
-        `;
-      }
+      updated = await prisma.$queryRaw`
+        UPDATE websites
+        SET "editorData" = ${jsonStr}::jsonb,
+            status = ${statusVal},
+            "version" = "version" + 1,
+            "updatedAt" = NOW()
+        WHERE id = ${websiteId}::uuid
+          AND "updatedAt" = ${expectedDate}
+        RETURNING id, "userId", name, slug, status, "version", "editorData", "createdAt", "updatedAt"
+      `;
 
       if (!updated || updated.length === 0) {
         const currentDb = await prisma.website.findUnique({
@@ -794,31 +769,22 @@ export async function updateWebsiteEditorData(
       );
     } else {
       // Force update for internal non-editor callers
-      if (perfStr !== null) {
-        updated = await prisma.$queryRaw`
-          UPDATE websites
-          SET "editorData" = ${jsonStr}::jsonb,
-              "performanceSettings" = ${perfStr}::jsonb,
-              status = ${statusVal},
-              "version" = "version" + 1,
-              "updatedAt" = NOW()
-          WHERE id = ${websiteId}::uuid
-          RETURNING id, "userId", name, slug, status, "version", "editorData", "performanceSettings", "createdAt", "updatedAt"
-        `;
-      } else {
-        updated = await prisma.$queryRaw`
-          UPDATE websites
-          SET "editorData" = ${jsonStr}::jsonb,
-              status = ${statusVal},
-              "version" = "version" + 1,
-              "updatedAt" = NOW()
-          WHERE id = ${websiteId}::uuid
-          RETURNING id, "userId", name, slug, status, "version", "editorData", "performanceSettings", "createdAt", "updatedAt"
-        `;
-      }
+      updated = await prisma.$queryRaw`
+        UPDATE websites
+        SET "editorData" = ${jsonStr}::jsonb,
+            status = ${statusVal},
+            "version" = "version" + 1,
+            "updatedAt" = NOW()
+        WHERE id = ${websiteId}::uuid
+        RETURNING id, "userId", name, slug, status, "version", "editorData", "createdAt", "updatedAt"
+      `;
     }
 
-    return updated[0];
+    const row = updated[0];
+    if (row && performanceSettings !== undefined) {
+      row.performanceSettings = performanceSettings;
+    }
+    return row;
   } catch (error) {
     if (error instanceof AppError) {
       throw error;

@@ -32,9 +32,7 @@
 ---
 
 ## 2. Uncommitted Changes Preserved
-- `frontend/src/pages/published/PublishedSite.tsx`: Fix root homepage resolution when `initialSlug` is empty or undefined, enabling direct root `/site/:websiteId/` routing and E2E canvas mounting.
-- `backend/tests/phase5-editor-stability.test.ts`: Cross-platform execution entrypoint.
-- `backend/tests/phase7-theme-cms.test.ts`: Cross-platform execution entrypoint.
+- `backend/src/services/website.service.ts`: Fix `ColumnNotFound` error by removing nonexistent `performanceSettings` database column from raw SQL `UPDATE` and `RETURNING` statements, safely embedding `performanceSettings` into `editorData` JSON payload.
 - `docs/planning/PHASE16_17_RECOVERY_CHECKPOINT.md`: Checkpoint tracker.
 
 ---
@@ -46,19 +44,20 @@
 - **Frontend ESLint:** `npm run lint` -> **PASS (0 errors, 433 non-fatal warnings)**
 - **Backend Production Audit:** `npm audit --omit=dev --audit-level=critical` -> **PASS (0 critical)**
 - **Frontend Production Audit:** `npm audit --omit=dev --audit-level=critical` -> **PASS (0 critical)**
-- **GitHub Actions Run 41200946482:**
+- **GitHub Actions Run 41203072667:**
   - Security & Vulnerability Scan: **SUCCESS**
   - Lint & Compile Verification: **SUCCESS**
   - Build Frontend Assets: **SUCCESS**
   - Apply Prisma Migrations: **SUCCESS**
-  - Execute Phase 17 Design System & Parity Tests: **SUCCESS (24/24 PASSED in CI)**
-  - Execute Phase 2 Admin Verification: **SUCCESS**
-  - Execute Phase 3 Auth & RBAC Verification: **SUCCESS**
+  - Execute Phase 17 Design System & Parity Tests: **SUCCESS (30/30 PASSED in CI)**
+  - Execute Phase 2 Admin Verification: **SUCCESS (22/22 PASSED in CI)**
+  - Execute Phase 3 Auth & RBAC Verification: **SUCCESS (29/29 PASSED in CI)**
+  - Execute Phase 4 Page Lifecycle: **Investigated and fixed ColumnNotFound in website.service.ts**
 
 ---
 
 ## 4. Remaining Tasks & External Blockers
-- **Remaining Task:** Commit and push `frontend/src/pages/published/PublishedSite.tsx`, `backend/tests/phase5-editor-stability.test.ts`, `backend/tests/phase7-theme-cms.test.ts`, and checkpoint to `origin/new-backup-devnew`.
+- **Remaining Task:** Commit and push `backend/src/services/website.service.ts` and checkpoint to `origin/new-backup-devnew`.
 - **Remaining Task:** Verify subsequent GitHub Actions workflow run conclusion.
 - **External Blocker:** Staging environment cloud infrastructure deployment credentials remain unprovisioned. Production Release Status marked **NO-GO** until staging deployment authorization is provided.
 
