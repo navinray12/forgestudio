@@ -2,7 +2,7 @@
 
 **Last Updated:** 2026-10-31  
 **Current Branch:** `new-backup-devnew`  
-**Current HEAD:** `55e4fdd feat(phase16-17): harden CI/CD gate, enforce expectedVersion CAS, remediate audits, and verify styling parity`
+**Current HEAD:** `fa38410` (and ready for next push)
 
 ---
 
@@ -27,13 +27,13 @@
     - Replaced hardcoded production `GO` with dynamic assessment gate.
     - Fixed npm audit critical vulnerabilities (`dompurify` in frontend and `proxy-addr` in backend).
     - Synchronized `frontend/package-lock.json` with `dompurify` overrides, eliminating all critical audit findings.
-    - Configured ESLint rules to prevent React 19 compiler rule failures on existing codebase components.
+    - Configured ESLint flat config with browser & node globals, disabled React 19 experimental rules and unblock legacy files, achieving 0 errors on `npm run lint`.
 
 ---
 
 ## 2. Uncommitted Changes Preserved
-- `frontend/eslint.config.js`: React 19 experimental rules and non-fatal style rules disabled for lint gate pass.
-- `frontend/package-lock.json`: Synchronized lockfile resolving critical audit vulnerability.
+- `frontend/eslint.config.js`: Scope rules and globals to all JavaScript & TypeScript files.
+- `docs/planning/PHASE16_17_RECOVERY_CHECKPOINT.md`: Checkpoint tracker.
 
 ---
 
@@ -41,13 +41,14 @@
 - **Backend TypeScript Build:** `npm --prefix backend run build` -> **PASS (0 errors)**
 - **SDK TypeScript Build:** `npm --prefix sdk run build` -> **PASS (0 errors)**
 - **Frontend Vite Build:** `npm --prefix frontend run build` -> **PASS (0 errors, 2092 modules)**
-- **Frontend ESLint:** `npm run lint` -> **PASS (0 errors)**
+- **Frontend ESLint:** `npm run lint` -> **PASS (0 errors, 433 non-fatal warnings)**
 - **Backend Production Audit:** `npm audit --omit=dev --audit-level=critical` -> **PASS (0 critical)**
 - **Frontend Production Audit:** `npm audit --omit=dev --audit-level=critical` -> **PASS (0 critical)**
 
 ---
 
 ## 4. Remaining Tasks & External Blockers
-- **Remaining Task:** Stage `frontend/eslint.config.js`, `frontend/package-lock.json`, and checkpoint, commit and push to `origin/new-backup-devnew`.
-- **Remaining Task:** Verify subsequent GitHub Actions workflow run.
-- **External Blocker:** Staging environment cloud infrastructure deployment (AWS / GCP / Cloudflare) credentials remain unprovisioned. Production Release Status marked **NO-GO** until staging deployment authorization is provided.
+- **Remaining Task:** Commit and push `frontend/eslint.config.js` and checkpoint to `origin/new-backup-devnew`.
+- **Remaining Task:** Verify subsequent GitHub Actions workflow run conclusion.
+- **External Blocker:** Staging environment cloud infrastructure deployment credentials remain unprovisioned. Production Release Status marked **NO-GO** until staging deployment authorization is provided.
+

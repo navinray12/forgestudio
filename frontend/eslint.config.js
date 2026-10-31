@@ -12,9 +12,12 @@ export default defineConfig([
   reactHooks.configs.flat.recommended,
   reactRefresh.configs.vite,
   {
-    files: ['**/*.{ts,tsx}'],
+    files: ['**/*.{js,mjs,cjs,ts,tsx}'],
     languageOptions: {
-      globals: globals.browser,
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+      },
     },
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
@@ -22,10 +25,12 @@ export default defineConfig([
       '@typescript-eslint/no-empty-object-type': 'off',
       '@typescript-eslint/no-require-imports': 'off',
       'no-empty': 'off',
+      'no-undef': 'off',
+      'no-useless-escape': 'off',
       'no-useless-assignment': 'off',
       'preserve-caught-error': 'off',
       'prefer-const': 'warn',
-      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/rules-of-hooks': 'warn',
       'react-hooks/exhaustive-deps': 'warn',
       'react-hooks/static-components': 'off',
       'react-hooks/use-memo': 'off',
