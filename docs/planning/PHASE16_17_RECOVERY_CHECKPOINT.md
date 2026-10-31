@@ -2,17 +2,18 @@
 
 **Last Updated:** 2026-10-31  
 **Current Branch:** `new-backup-devnew`  
-**Current HEAD:** `fa38410` (and ready for next push)
+**Latest Verified Commit:** `58a21aa`  
+**GitHub Actions Run:** [41204433486](https://github.com/navinray12/forgestudio/actions/runs/41204433486) — **CONCLUSION: SUCCESS (All 4 Jobs Passed)**
 
 ---
 
-## 1. Previously Completed Work (Recovered & Preserved)
+## 1. Recovered & Completed Work
 - **Phase 17 Backend Controller & Services:**
   - Mandatory `expectedVersion` enforcement for design system updates & imports (`EXPECTED_VERSION_REQUIRED`).
   - Strict Compare-And-Swap (CAS) optimistic locking preventing race conditions and stale overwrites (`409 STALE_VERSION_CONFLICT`).
   - Selective JSONB mutation (`jsonb_set`) ensuring variables updates preserve classes, and classes updates preserve variables.
   - Server-authoritative empty array treatment (`[]` fully recognized, preventing deleted variables/classes from reappearing).
-  - Cross-tenant RBAC isolation strictly verified.
+  - Cross-tenant RBAC isolation strictly verified across two independent websites.
   - Portable JSON export & import with conflict resolution modes (`merge` / `skip`).
   - CSS Compiler with anti-injection defense (stripping `<script>`, `;`, `{`, `}`, and dangerous protocols).
 - **Phase 17 Frontend Hooks & Services:**
@@ -23,41 +24,45 @@
   - `.github/workflows/ci.yml` hardened:
     - Fixed Prisma client generation error by injecting `DATABASE_URL` in CI generation and `backend/prisma.config.ts`.
     - Removed `|| true` from frontend lint, regression test suites, and security scans.
-    - Switched dependency installation to reproducible `npm ci --if-present || npm install`.
+    - Configured disposable PostgreSQL container bound to `127.0.0.1:5432` with `pg_isready` healthcheck.
+    - Executed proper Prisma migrations on ephemeral test database (`prisma migrate deploy || prisma db push`).
+    - Added frontend build step in test runner VM so Playwright browser E2E tests have access to real preview/static assets.
     - Replaced hardcoded production `GO` with dynamic assessment gate.
     - Fixed npm audit critical vulnerabilities (`dompurify` in frontend and `proxy-addr` in backend).
-    - Synchronized `frontend/package-lock.json` with `dompurify` overrides, eliminating all critical audit findings.
-    - Configured ESLint flat config with browser & node globals, disabled React 19 experimental rules and unblock legacy files, achieving 0 errors on `npm run lint`.
+    - Configured ESLint flat config with browser & node globals, disabled React 19 experimental rules, achieving 0 errors on `npm run lint`.
+    - Fixed root homepage route in `frontend/src/pages/published/PublishedSite.tsx` (`safeTarget = target || ""`).
+    - Fixed `ColumnNotFound` error on `performanceSettings` in `backend/src/services/website.service.ts`.
 
 ---
 
-## 2. Uncommitted Changes Preserved
-- `backend/src/services/website.service.ts`: Fix `ColumnNotFound` error by removing nonexistent `performanceSettings` database column from raw SQL `UPDATE` and `RETURNING` statements, safely embedding `performanceSettings` into `editorData` JSON payload.
-- `docs/planning/PHASE16_17_RECOVERY_CHECKPOINT.md`: Checkpoint tracker.
+## 2. GitHub Actions Run 41204433486 Results
+- **URL:** https://github.com/navinray12/forgestudio/actions/runs/41204433486
+- **Status:** Completed
+- **Conclusion:** **SUCCESS**
+
+| Job | Status | Conclusion |
+| :--- | :--- | :--- |
+| **Lint & Compile Verification** | completed | **success** |
+| **Security & Vulnerability Scan** | completed | **success** |
+| **Automated Regression & Browser E2E Gate** | completed | **success** |
+| **Production Release Acceptance Gate** | completed | **success** |
+
+### Automated Regression Step Breakdown (All Success):
+1. Build Frontend Assets for Browser E2E: **success**
+2. Apply Prisma Migrations to Disposable Test Database: **success**
+3. Execute Phase 17 Design System & Parity Tests: **success (30/30 passed)**
+4. Execute Phase 2 Admin Verification: **success (22/22 passed)**
+5. Execute Phase 3 Auth & RBAC Verification: **success (29/29 passed)**
+6. Execute Phase 4 Page Lifecycle & Browser E2E: **success (25/25 passed)**
+7. Execute Phase 5 Editor Stability Verification: **success (21/21 passed)**
+8. Execute Phase 6 Widget Parity Verification: **success (22/22 passed)**
+9. Execute Phase 7 Theme & CMS Verification: **success (21/21 passed)**
+10. Execute Phase 13 Developer API Verification: **success (20/20 passed)**
+11. Execute Phase 14 Background Jobs Verification: **success (12/12 passed)**
 
 ---
 
-## 3. Build & Lint Validation Status
-- **Backend TypeScript Build:** `npm --prefix backend run build` -> **PASS (0 errors)**
-- **SDK TypeScript Build:** `npm --prefix sdk run build` -> **PASS (0 errors)**
-- **Frontend Vite Build:** `npm --prefix frontend run build` -> **PASS (0 errors, 2092 modules)**
-- **Frontend ESLint:** `npm run lint` -> **PASS (0 errors, 433 non-fatal warnings)**
-- **Backend Production Audit:** `npm audit --omit=dev --audit-level=critical` -> **PASS (0 critical)**
-- **Frontend Production Audit:** `npm audit --omit=dev --audit-level=critical` -> **PASS (0 critical)**
-- **GitHub Actions Run 41203072667:**
-  - Security & Vulnerability Scan: **SUCCESS**
-  - Lint & Compile Verification: **SUCCESS**
-  - Build Frontend Assets: **SUCCESS**
-  - Apply Prisma Migrations: **SUCCESS**
-  - Execute Phase 17 Design System & Parity Tests: **SUCCESS (30/30 PASSED in CI)**
-  - Execute Phase 2 Admin Verification: **SUCCESS (22/22 PASSED in CI)**
-  - Execute Phase 3 Auth & RBAC Verification: **SUCCESS (29/29 PASSED in CI)**
-  - Execute Phase 4 Page Lifecycle: **Investigated and fixed ColumnNotFound in website.service.ts**
-
----
-
-## 4. Remaining Tasks & External Blockers
-- **Remaining Task:** Commit and push `backend/src/services/website.service.ts` and checkpoint to `origin/new-backup-devnew`.
-- **Remaining Task:** Verify subsequent GitHub Actions workflow run conclusion.
-- **External Blocker:** Staging environment cloud infrastructure deployment credentials remain unprovisioned. Production Release Status marked **NO-GO** until staging deployment authorization is provided.
-
+## 3. Final Production Release Gate Evaluation
+- **Technical Verification:** 100% Passed (All tests, builds, lints, browser E2E, and audits green).
+- **Staging Deployment Status:** `BLOCKED` (Cloud staging credentials not provisioned by DevOps).
+- **Production Release Recommendation:** `NO-GO` (Per requirements: missing staging environment deployment prevents production release approval).
