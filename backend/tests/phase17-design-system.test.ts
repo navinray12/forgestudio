@@ -932,8 +932,7 @@ async function runPhase17Tests() {
     await testPrisma.website.update({
       where: { id: website.id },
       data: {
-        publishedAt: new Date(),
-        publishedData: updatedCanonicalData as any,
+        status: "PUBLISHED",
         editorData: updatedCanonicalData as any,
       },
     });
