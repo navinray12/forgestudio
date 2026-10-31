@@ -759,11 +759,12 @@ async function runPhase13DeveloperApiTests() {
     assert.strictEqual(newKeyAfterRotate.status, 200, "New rotated secret immediately succeeds");
     logPass("8.5. UI Key Rotation: Dialog confirmed, old secret revoked (401), new secret authenticated (200)");
 
-    // Revoke Key via UI
-    const revokeBtn = page.locator("button:has-text('Revoke Key')").first();
+    // Revoke Key via UI (target active non-disabled button)
+    const revokeBtn = page.locator("button:has-text('Revoke Key'):not([disabled])").first();
     await revokeBtn.click();
 
-    // Wait for Revoked badge in UI
+    // Wait for Revocation mutation and UI update
+    await page.waitForTimeout(1000);
     await page.waitForSelector("span:has-text('Revoked')", { timeout: 10000 });
     logPass("8.6. UI Key Revocation: Status badge updated to REVOKED");
 
