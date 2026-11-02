@@ -130,7 +130,7 @@ export async function getUserWebsites(userId: string, workspaceId?: string | nul
   } catch (error) {
     if (error instanceof AppError) throw error;
     console.error("Error fetching user websites:", error);
-    return [];
+    throw new AppError("Failed to fetch user websites due to a database error", 500, "WEBSITES_FETCH_FAILED");
   }
 }
 

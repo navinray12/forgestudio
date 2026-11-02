@@ -949,7 +949,7 @@ function PublishedSite() {
 
                     if (matchedPage) {
                         setActivePageId(matchedPage.id || "home");
-                        setElements(matchedPage.elements?.length ? matchedPage.elements : (editorData.elements || []));
+                        setElements(Array.isArray(matchedPage.elements) ? matchedPage.elements : []);
                     } else if (isPostRoute && loadedSiteParts?.single?.elements?.length && (loadedSiteParts.single.isEnabled ?? true)) {
                         // F-237: Single Post Template Fallback
                         setActivePageId("single-post-template");
@@ -962,19 +962,20 @@ function PublishedSite() {
                         // F-256: Fallback to archive page or home page with loop feed
                         const archivePage = pagesList.find((p) => p.slug === "/archive" || p.slug === "archive" || p.slug === "/blog" || p.slug === "blog") || pagesList.find((p: any) => p.isHome || p.slug === "/") || pagesList[0];
                         setActivePageId(archivePage?.id || "home");
-                        setElements(archivePage?.elements?.length ? archivePage.elements : (editorData.elements || []));
+                        setElements(archivePage && Array.isArray(archivePage.elements) ? archivePage.elements : []);
                     } else if (initialSlug && loadedSiteParts?.notFound404?.elements?.length && (loadedSiteParts.notFound404.isEnabled ?? true)) {
                         // F-239: 404 Template Fallback for unmatched route
                         setActivePageId("404-template");
                         setElements(loadedSiteParts.notFound404.elements);
                     } else if (initialSlug && !isPostRoute && !isTermRoute) {
                         setErrorMessage("The requested page cannot be found or does not exist.");
+                        setElements([]);
                     } else {
                         const activePage = pagesList.find((p: any) => p.isHome || (editorData.homePageId && p.id === editorData.homePageId) || p.slug === "/") || pagesList[0];
-                        setActivePageId(activePage.id || "home");
-                        setElements(activePage.elements?.length ? activePage.elements : (editorData.elements || []));
+                        setActivePageId(activePage?.id || "home");
+                        setElements(activePage && Array.isArray(activePage.elements) ? activePage.elements : []);
                     }
-                } else if (editorData?.elements && editorData.elements.length > 0) {
+                } else if (editorData?.elements && Array.isArray(editorData.elements)) {
                     const defaultPage = { id: "home", name: "Home", slug: "/", customCss: "", elements: editorData.elements };
                     setPages([defaultPage]);
                     setActivePageId("home");
@@ -1092,12 +1093,23 @@ function PublishedSite() {
 
             if (matched && matched.id !== activePageId) {
                 setActivePageId(matched.id);
-                setElements(matched.elements || []);
+                setErrorMessage("");
+                setElements(Array.isArray(matched.elements) ? matched.elements : []);
             } else if (!matched && targetSlug && (targetSlug.startsWith("category/") || targetSlug.startsWith("tag/"))) {
                 const archivePage = pages.find((p) => p.slug === "/archive" || p.slug === "archive" || p.slug === "/blog" || p.slug === "blog") || pages.find((p: any) => p.isHome || p.slug === "/") || pages[0];
                 if (archivePage && archivePage.id !== activePageId) {
                     setActivePageId(archivePage.id);
-                    setElements(archivePage.elements || []);
+                    setErrorMessage("");
+                    setElements(Array.isArray(archivePage.elements) ? archivePage.elements : []);
+                }
+            } else if (!matched && targetSlug && !targetSlug.startsWith("post/") && !targetSlug.startsWith("blog/")) {
+                if (sitePartsState?.notFound404?.elements?.length && (sitePartsState.notFound404.isEnabled ?? true)) {
+                    setActivePageId("404-template");
+                    setErrorMessage("");
+                    setElements(sitePartsState.notFound404.elements);
+                } else {
+                    setErrorMessage("The requested page cannot be found or does not exist.");
+                    setElements([]);
                 }
             }
         };
