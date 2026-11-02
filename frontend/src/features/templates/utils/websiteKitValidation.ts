@@ -20,6 +20,7 @@ export interface WebsiteKitValidationResult {
       [key: string]: any;
     }>;
     templates: any[];
+    homePageId?: string;
     globalSettings?: Record<string, any>;
     globalStyles?: Record<string, any>;
     siteSettings?: Record<string, any>;
@@ -99,12 +100,21 @@ export function validateAndSanitizeWebsiteKitFile(fileContent: string): WebsiteK
     const safeElements = sanitizeAndRegenerateElementIds(rawElements);
     totalElementsCount += safeElements.length;
 
+    const pageTitle = page.title || page.name || `Page ${index + 1}`;
+    const pageSlug = page.slug || (page.path ? page.path.replace(/^\//, "") : (index === 0 ? "" : pageTitle.toLowerCase().replace(/\s+/g, "-")));
+    const pagePath = page.path || `/${pageSlug}`;
+
     return {
+      ...page,
       id: page.id || `page-${index + 1}`,
-      title: page.title || `Page ${index + 1}`,
-      path: page.path || `/${index === 0 ? "" : page.title?.toLowerCase().replace(/\s+/g, "-")}`,
+      title: pageTitle,
+      name: page.name || pageTitle,
+      path: pagePath,
+      slug: pageSlug,
+      isHome: typeof page.isHome === "boolean" ? page.isHome : (page.pageSettings?.isHome === true ? true : undefined),
+      customCss: typeof page.customCss === "string" ? page.customCss : undefined,
       elements: safeElements,
-      pageSettings: page.pageSettings || {},
+      pageSettings: page.pageSettings && typeof page.pageSettings === "object" ? page.pageSettings : {},
     };
   });
 
@@ -118,6 +128,7 @@ export function validateAndSanitizeWebsiteKitFile(fileContent: string): WebsiteK
       },
       pages: sanitizedPages,
       templates: Array.isArray(parsed.templates) ? parsed.templates : [],
+      homePageId: parsed.homePageId || parsed.website?.homePageId,
       globalSettings: parsed.globalSettings || parsed.website?.globalSettings,
       globalStyles: parsed.globalStyles || parsed.website?.globalStyles,
       siteSettings: parsed.siteSettings || parsed.website?.settings,
@@ -194,15 +205,29 @@ export function buildCanonicalEditorDataFromKit(
     return slug.toLowerCase().replace(/\/+/g, "/");
   };
 
-  // Identify home page: explicit isHome, path === "/", slug === "/", name === "home", or index 0
-  let homeIndex = rawPages.findIndex(
-    (p: any) => p.isHome === true || p.pageSettings?.isHome === true || p.path === "/" || p.slug === "/"
-  );
+  // Identify home page:
+  // 1. Check if kitData.homePageId explicitly matches a page ID
+  let homeIndex = -1;
+  if (kitData.homePageId) {
+    homeIndex = rawPages.findIndex((p: any) => p.id === kitData.homePageId);
+  }
+  // 2. Check if a page has explicit isHome === true or pageSettings?.isHome === true
+  if (homeIndex === -1) {
+    homeIndex = rawPages.findIndex(
+      (p: any) => p.isHome === true || p.pageSettings?.isHome === true
+    );
+  }
+  // 3. Check if path === "/" or slug === "/"
+  if (homeIndex === -1) {
+    homeIndex = rawPages.findIndex((p: any) => p.path === "/" || p.slug === "/");
+  }
+  // 4. Check if title/name is "home" (case-insensitive)
   if (homeIndex === -1) {
     homeIndex = rawPages.findIndex(
       (p: any) => (p.title || p.name || "").trim().toLowerCase() === "home"
     );
   }
+  // 5. Fallback to index 0
   if (homeIndex === -1) {
     homeIndex = 0;
   }
