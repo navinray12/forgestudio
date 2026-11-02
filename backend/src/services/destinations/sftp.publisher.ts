@@ -169,23 +169,176 @@ export class SftpPublisher implements DestinationPublisher {
         verified: false,
         statusCode: 404,
         latencyMs: Date.now() - start,
-        error: "SFTP connection configuration not found",
+        error: "SFTP connection configuration not found or active for this website",
+        details: {
+          destinationType: "SFTP",
+          verificationType: "REMOTE_FILE_VERIFICATION",
+        },
       };
     }
 
-    // Verify host and port reachability
-    const isValid = Boolean(config.host && config.username && config.remotePath);
-    return {
-      verified: isValid,
-      statusCode: isValid ? 200 : 400,
-      latencyMs: Date.now() - start,
-      details: {
-        host: config.host,
-        port: config.port,
-        remotePath: config.remotePath,
-        status: isValid ? "CONFIG_VERIFIED" : "CONFIG_INVALID",
-      },
+    if (!config.host || !config.username || !config.remotePath) {
+      return {
+        verified: false,
+        statusCode: 400,
+        latencyMs: Date.now() - start,
+        error: "SFTP connection configuration is missing host, username, or remotePath",
+        details: {
+          destinationType: "SFTP",
+          host: config.host,
+          username: config.username,
+          verificationType: "REMOTE_FILE_VERIFICATION",
+        },
+      };
+    }
+
+    const remotePath = (config.remotePath || "/var/www/html").trim().replace(/\/+$/, "");
+    const expectedVersion = options.version ?? options.snapshot?.version;
+
+    // Instantiate real SFTP client or test transport
+    const client: ISftpTransportClient =
+      options.sftpClient ||
+      (customSftpFactory ? await customSftpFactory() : new SftpClient());
+
+    const connectConfig: any = {
+      host: config.host.trim(),
+      port: config.port || 22,
+      username: config.username.trim(),
+      readyTimeout: options.timeout || 15000,
     };
+
+    if (options.password) connectConfig.password = options.password;
+    if (options.privateKey) connectConfig.privateKey = options.privateKey;
+    if (process.env.SFTP_PASSWORD && !connectConfig.password) connectConfig.password = process.env.SFTP_PASSWORD;
+    if (process.env.SFTP_PRIVATE_KEY && !connectConfig.privateKey) connectConfig.privateKey = process.env.SFTP_PRIVATE_KEY;
+
+    try {
+      await client.connect(connectConfig);
+
+      let remoteListing: any[] = [];
+      try {
+        remoteListing = await client.list(remotePath);
+      } catch (listErr: any) {
+        return {
+          verified: false,
+          statusCode: 404,
+          latencyMs: Date.now() - start,
+          error: `Failed to list remote destination path ${remotePath}: ${listErr?.message || String(listErr)}`,
+          details: {
+            destinationType: "SFTP",
+            remotePath,
+            verificationType: "REMOTE_FILE_VERIFICATION",
+          },
+        };
+      }
+
+      if (!Array.isArray(remoteListing) || remoteListing.length === 0) {
+        return {
+          verified: false,
+          statusCode: 404,
+          latencyMs: Date.now() - start,
+          error: `Remote directory ${remotePath} is empty or missing expected deployment files`,
+          details: {
+            destinationType: "SFTP",
+            remotePath,
+            verificationType: "REMOTE_FILE_VERIFICATION",
+          },
+        };
+      }
+
+      // Check essential entry-point: index.html
+      const indexEntry = remoteListing.find((item) => item.name === "index.html");
+      if (!indexEntry) {
+        return {
+          verified: false,
+          statusCode: 404,
+          latencyMs: Date.now() - start,
+          error: `Remote entry-point file index.html is missing in ${remotePath}`,
+          details: {
+            destinationType: "SFTP",
+            remotePath,
+            remoteFiles: remoteListing.map((i) => i.name),
+            verificationType: "REMOTE_FILE_VERIFICATION",
+          },
+        };
+      }
+
+      if (indexEntry.size !== undefined && indexEntry.size <= 0) {
+        return {
+          verified: false,
+          statusCode: 422,
+          latencyMs: Date.now() - start,
+          error: `Remote index.html exists but is empty (0 bytes) in ${remotePath}`,
+          details: {
+            destinationType: "SFTP",
+            remotePath,
+            indexSize: indexEntry.size,
+            verificationType: "REMOTE_FILE_VERIFICATION",
+          },
+        };
+      }
+
+      // If expected files list provided, check presence and non-zero size
+      const expectedFiles: string[] = options.expectedFiles || options.files || [];
+      const missingFiles: string[] = [];
+      for (const ef of expectedFiles) {
+        const baseName = ef.replace(/^.*[\\\/]/, "");
+        const match = remoteListing.find((item) => item.name === baseName || item.name === ef);
+        if (!match || (match.size !== undefined && match.size <= 0)) {
+          missingFiles.push(ef);
+        }
+      }
+
+      if (missingFiles.length > 0) {
+        return {
+          verified: false,
+          statusCode: 422,
+          latencyMs: Date.now() - start,
+          error: `Remote destination is missing expected files or has incomplete files: ${missingFiles.join(", ")}`,
+          details: {
+            destinationType: "SFTP",
+            remotePath,
+            missingFiles,
+            verificationType: "REMOTE_FILE_VERIFICATION",
+          },
+        };
+      }
+
+      return {
+        verified: true,
+        statusCode: 200,
+        latencyMs: Date.now() - start,
+        details: {
+          destinationType: "SFTP",
+          expectedVersion,
+          actualResource: `${config.username}@${config.host}:${remotePath}`,
+          remotePath,
+          indexVerified: true,
+          remoteFilesCount: remoteListing.length,
+          verificationType: "REMOTE_FILE_VERIFICATION",
+        },
+      };
+    } catch (err: any) {
+      const sanitizedErr = (err?.message || String(err))
+        .replace(connectConfig.password || "___", "[REDACTED]")
+        .replace(connectConfig.privateKey || "___", "[REDACTED]");
+      return {
+        verified: false,
+        statusCode: 502,
+        latencyMs: Date.now() - start,
+        error: `SFTP remote verification connection failed: ${sanitizedErr}`,
+        details: {
+          destinationType: "SFTP",
+          host: config.host,
+          port: config.port,
+          verificationType: "REMOTE_FILE_VERIFICATION",
+        },
+      };
+    } finally {
+      try {
+        await client.end();
+      } catch (_) {}
+    }
   }
 
   async rollback(

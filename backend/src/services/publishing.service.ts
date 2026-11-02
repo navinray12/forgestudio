@@ -1,3 +1,4 @@
+import { constructAbsolutePublicUrl } from "../utils/publicUrl.js";
 import { createHash } from "crypto";
 import { prisma } from "../config/prisma.js";
 import { AppError } from "../utils/app-error.js";
@@ -55,6 +56,7 @@ export interface PublishResult {
   destinationType: string;
   publishedAt: string;
   liveUrl: string;
+  absolutePublicUrl?: string;
   sourceRevisionId?: string;
   filesTransferred?: number;
   warnings?: ValidationIssue[];
@@ -481,54 +483,117 @@ export async function publishWebsite(
     await updateDeploymentStatus(deployment.id, "PROCESSING");
     delete (candidateSnapshot as any).publishedData;
 
-    // 7. State Machine: DEPLOYING (Execute destination deployment without premature DB writes) - Issue 20
+    // 7. State Machine: DEPLOYING (Execute destination deployment with strict result validation) - Issue 20 & 21
     await updateDeploymentStatus(deployment.id, "DEPLOYING");
     let destinationRef = `/site/${websiteId}`;
     let destinationMetadata: Record<string, any> = {};
     let filesTransferred: number | undefined = undefined;
 
+    let publishResult: any;
     if (destinationType === "INTERNAL") {
-      destinationRef = `/site/${websiteId}`;
-    } else if (destinationType === "WORDPRESS") {
-      const wpResult = await publishToWordPress(websiteId, userId, deployment.id, candidateSnapshot);
-      destinationRef = wpResult.primaryPageUrl || wpResult.siteUrl;
-      filesTransferred = wpResult.syncedPagesCount;
-      destinationMetadata = {
-        siteUrl: wpResult.siteUrl,
-        primaryPageUrl: wpResult.primaryPageUrl,
-        syncedPagesCount: wpResult.syncedPagesCount,
-        syncedMediaCount: wpResult.syncedMediaCount,
+      publishResult = {
+        success: true,
+        destinationType: "INTERNAL",
+        destinationRef: `/site/${websiteId}`,
+        metadata: {
+          version: nextVersion,
+          deploymentId: deployment.id,
+          productionUrl: `/site/${websiteId}`,
+        },
       };
+    } else if (destinationType === "WORDPRESS") {
+      const wpPublisher = destinationRegistry.getPublisher("WORDPRESS");
+      publishResult = await wpPublisher.publish(websiteId, deployment.id, candidateSnapshot, { userId, ...options });
     } else if (destinationType === "SFTP") {
       const sftpPublisher = destinationRegistry.getPublisher("SFTP");
-      const sftpResult = await sftpPublisher.publish(websiteId, deployment.id, candidateSnapshot, { userId, ...options });
-      destinationRef = sftpResult.destinationRef || `sftp://${websiteId}`;
-      filesTransferred = sftpResult.filesTransferred;
-      destinationMetadata = sftpResult.metadata || {};
+      publishResult = await sftpPublisher.publish(websiteId, deployment.id, candidateSnapshot, { userId, ...options });
     } else if (destinationType === "STATIC") {
       const staticPublisher = destinationRegistry.getPublisher("STATIC");
-      const staticResult = await staticPublisher.publish(websiteId, deployment.id, candidateSnapshot, { userId, ...options });
-      destinationRef = staticResult.destinationRef || `/exports/${websiteId}/v${nextVersion}`;
-      filesTransferred = staticResult.filesTransferred;
-      destinationMetadata = staticResult.metadata || {};
+      publishResult = await staticPublisher.publish(websiteId, deployment.id, candidateSnapshot, { userId, ...options });
+    } else {
+      throw new AppError(`Unsupported destination type: ${destinationType}`, 400, "UNSUPPORTED_DESTINATION");
     }
 
-    // 8. State Machine: VERIFYING (Verify destination readiness & candidate snapshot integrity)
-    await updateDeploymentStatus(deployment.id, "VERIFYING");
-
-    const hasValidSnapshot =
-      candidateSnapshot &&
-      typeof candidateSnapshot === "object" &&
-      !Array.isArray(candidateSnapshot) &&
-      (Array.isArray(candidateSnapshot.pages) || Array.isArray(candidateSnapshot.elements)) &&
-      Boolean(destinationRef);
-
-    if (!hasValidSnapshot) {
-      await updateDeploymentStatus(deployment.id, "VERIFICATION_FAILED", {
-        error: { code: "DESTINATION_VERIFICATION_FAILED", message: "Live snapshot mismatch or invalid payload" },
+    // STRICT DESTINATION RESULT VALIDATION (Issue 21)
+    if (!publishResult || typeof publishResult !== "object" || Array.isArray(publishResult)) {
+      deployment = await updateDeploymentStatus(deployment.id, "DEPLOY_FAILED", {
+        error: { code: "DESTINATION_RESULT_INVALID", message: `Destination publisher for ${destinationType} returned no result or malformed output` },
+        completedAt: new Date(),
       });
       throw new AppError(
-        "Deployment verification failed: published snapshot could not be verified on destination.",
+        `Destination publishing failed: publisher for ${destinationType} returned invalid output.`,
+        502,
+        "DESTINATION_RESULT_INVALID"
+      );
+    }
+
+    if (publishResult.destinationType !== destinationType) {
+      deployment = await updateDeploymentStatus(deployment.id, "DEPLOY_FAILED", {
+        error: { code: "DESTINATION_TYPE_MISMATCH", message: `Expected destination type ${destinationType}, but got ${publishResult.destinationType}` },
+        completedAt: new Date(),
+      });
+      throw new AppError(
+        `Destination publishing failed: destination type mismatch. Expected ${destinationType}, got ${publishResult.destinationType}.`,
+        502,
+        "DESTINATION_TYPE_MISMATCH"
+      );
+    }
+
+    if (!publishResult.success) {
+      const errMsg = publishResult.error?.message || (typeof publishResult.error === "string" ? publishResult.error : `Destination publishing rejected by ${destinationType}`);
+      deployment = await updateDeploymentStatus(deployment.id, "DEPLOY_FAILED", {
+        error: { code: "DESTINATION_PUBLISH_REJECTED", message: errMsg, details: publishResult.error },
+        completedAt: new Date(),
+      });
+      throw new AppError(
+        `Destination deployment failed: ${errMsg}`,
+        502,
+        "DESTINATION_PUBLISH_FAILED"
+      );
+    }
+
+    if (!publishResult.destinationRef || typeof publishResult.destinationRef !== "string" || !publishResult.destinationRef.trim()) {
+      deployment = await updateDeploymentStatus(deployment.id, "DEPLOY_FAILED", {
+        error: { code: "DESTINATION_REF_MISSING", message: "Publisher reported success but provided no destination reference" },
+        completedAt: new Date(),
+      });
+      throw new AppError(
+        "Destination deployment failed: missing destination reference.",
+        502,
+        "DESTINATION_REF_MISSING"
+      );
+    }
+
+    destinationRef = publishResult.destinationRef.trim();
+    destinationMetadata = publishResult.metadata || {};
+    filesTransferred = publishResult.filesTransferred;
+
+    // 8. State Machine: VERIFYING (Verify actual destination content) - Issue 22
+    await updateDeploymentStatus(deployment.id, "VERIFYING");
+
+    const publisher = destinationRegistry.getPublisher(destinationType);
+    const verifyResult = await publisher.verify(websiteId, deployment.id, {
+      ...options,
+      version: nextVersion,
+      snapshot: candidateSnapshot,
+      files: destinationMetadata.exportedFiles,
+      pageMappings: destinationMetadata.pageMappings,
+      stage: destinationType === "INTERNAL" ? "PRE_COMMIT" : undefined,
+    });
+
+    if (!verifyResult || !verifyResult.verified) {
+      const verifyErrMsg = verifyResult?.error || "Destination verification failed";
+      const failureStatus = destinationType !== "INTERNAL" ? "RECONCILIATION_REQUIRED" : "VERIFICATION_FAILED";
+      deployment = await updateDeploymentStatus(deployment.id, failureStatus, {
+        error: {
+          code: "DESTINATION_VERIFICATION_FAILED",
+          message: verifyErrMsg,
+          details: verifyResult?.details,
+        },
+        completedAt: new Date(),
+      });
+      throw new AppError(
+        `Deployment verification failed: ${verifyErrMsg}`,
         500,
         "VERIFICATION_FAILED"
       );
@@ -672,6 +737,7 @@ export async function publishWebsite(
               filesTransferred,
               warnings: validation.warnings,
               releaseId: newRelease.releaseId,
+              absolutePublicUrl: constructAbsolutePublicUrl(destinationType, destinationRef, websiteId, liveSite.slug),
             },
           },
         });
@@ -705,6 +771,30 @@ export async function publishWebsite(
       throw finalizationErr;
     }
 
+    // 10c. Post-Commit Anonymous Public Delivery Verification (INTERNAL only) - Issue 22
+    if (destinationType === "INTERNAL") {
+      const internalPublisher = destinationRegistry.getPublisher("INTERNAL");
+      const deliveryVerify = await internalPublisher.verify(websiteId, deployment.id, {
+        version: nextVersion,
+        snapshot: candidateSnapshot,
+      });
+
+      if (!deliveryVerify.verified) {
+        deployment = await updateDeploymentStatus(deployment.id, "RECONCILIATION_REQUIRED", {
+          error: {
+            code: "PUBLIC_DELIVERY_VERIFICATION_FAILED",
+            message: deliveryVerify.error || "Public website delivery verification failed post-commit",
+            details: deliveryVerify.details,
+          },
+        });
+        throw new AppError(
+          `Public delivery verification failed: ${deliveryVerify.error || "Website is not publicly accessible"}`,
+          500,
+          "RECONCILIATION_REQUIRED"
+        );
+      }
+    }
+
     // 11. Record Audit Log
     try {
       if (db?.auditLog?.create) {
@@ -735,6 +825,7 @@ export async function publishWebsite(
       destinationType,
       publishedAt: now,
       liveUrl: destinationRef,
+      absolutePublicUrl: constructAbsolutePublicUrl(destinationType, destinationRef, websiteId, website.slug) || undefined,
       sourceRevisionId: publishRevision?.id,
       filesTransferred,
       warnings: validation.warnings,

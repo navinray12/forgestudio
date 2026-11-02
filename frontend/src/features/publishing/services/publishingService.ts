@@ -9,6 +9,7 @@ export interface PublishApiResponse {
   destinationType: string;
   publishedAt: string;
   liveUrl: string;
+  absolutePublicUrl?: string;
   sourceRevisionId?: string;
   warnings?: Array<{ field: string; message: string; severity: "ERROR" | "WARNING" }>;
 }

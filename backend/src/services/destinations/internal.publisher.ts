@@ -1,4 +1,5 @@
 import { prisma } from "../../config/prisma.js";
+import { getPublicWebsiteById } from "../website.service.js";
 import type {
   DestinationPublisher,
   PublishDestinationResult,
@@ -15,7 +16,7 @@ export class InternalPublisher implements DestinationPublisher {
     websiteId: string,
     deploymentId: string,
     snapshot: any,
-    options: any = {}
+    _options: any = {}
   ): Promise<PublishDestinationResult> {
     const website = await db.website.findUnique({ where: { id: websiteId } });
     if (!website) {
@@ -26,36 +27,12 @@ export class InternalPublisher implements DestinationPublisher {
       };
     }
 
-    const currentEditorData =
-      typeof website.editorData === "string"
-        ? JSON.parse(website.editorData)
-        : website.editorData || {};
-
-    const updatedEditorData = {
-      ...currentEditorData,
-      publishedData: snapshot,
-      publishing: {
-        status: "PUBLISHED",
-        publishedAt: new Date().toISOString(),
-        version: snapshot.version,
-      },
-    };
-
-    await db.website.update({
-      where: { id: websiteId },
-      data: {
-        editorData: updatedEditorData,
-        status: "PUBLISHED",
-        updatedAt: new Date(),
-      },
-    });
-
     return {
       success: true,
       destinationType: "INTERNAL",
       destinationRef: `/site/${websiteId}`,
       metadata: {
-        version: snapshot.version,
+        version: snapshot?.version,
         deploymentId,
         productionUrl: `/site/${websiteId}`,
       },
@@ -64,45 +41,132 @@ export class InternalPublisher implements DestinationPublisher {
 
   async verify(
     websiteId: string,
-    _deploymentId: string,
-    _options: any = {}
+    deploymentId: string,
+    options: any = {}
   ): Promise<VerifyDestinationResult> {
     const start = Date.now();
-    const website = await db.website.findUnique({ where: { id: websiteId } });
-    const latencyMs = Date.now() - start;
 
-    if (!website || website.status !== "PUBLISHED") {
+    // Stage 1: Pre-commit snapshot integrity verification
+    if (options.stage === "PRE_COMMIT") {
+      const snap = options.snapshot;
+      const isValid =
+        snap &&
+        typeof snap === "object" &&
+        !Array.isArray(snap) &&
+        (Array.isArray(snap.pages) || Array.isArray(snap.elements));
+
       return {
-        verified: false,
-        statusCode: 404,
-        latencyMs,
-        error: "Website is not marked PUBLISHED in database",
+        verified: Boolean(isValid),
+        statusCode: isValid ? 200 : 422,
+        latencyMs: Date.now() - start,
+        error: isValid ? undefined : "Candidate snapshot is structurally invalid before release",
+        details: {
+          destinationType: "INTERNAL",
+          stage: "PRE_COMMIT",
+          verificationType: "CANDIDATE_SNAPSHOT_INTEGRITY",
+        },
       };
     }
 
-    const rawData =
-      typeof website.editorData === "string"
-        ? JSON.parse(website.editorData)
-        : website.editorData;
+    // Stage 2: Anonymous Public HTTP Delivery Verification (Issue 22)
+    // Strictly requires NO authenticated user session; exercises the public resolver directly!
+    try {
+      const resolver =
+        typeof options.publicWebsiteResolver === "function"
+          ? options.publicWebsiteResolver
+          : getPublicWebsiteById;
+      const publicSite = await resolver(websiteId);
+      const latencyMs = Date.now() - start;
 
-    if (!rawData?.publishedData) {
+      if (!publicSite || publicSite.status !== "PUBLISHED") {
+        return {
+          verified: false,
+          statusCode: 404,
+          latencyMs,
+          error: "Public website is unavailable or not in PUBLISHED state",
+          details: {
+            destinationType: "INTERNAL",
+            websiteId,
+            verificationType: "PUBLIC_HTTP_ANONYMOUS_DELIVERY",
+          },
+        };
+      }
+
+      // Validate public site belongs to requested website
+      if (publicSite.id !== websiteId && publicSite.slug !== websiteId) {
+        return {
+          verified: false,
+          statusCode: 422,
+          latencyMs,
+          error: `Public delivery mismatch: requested website '${websiteId}', but received '${publicSite.id}'`,
+          details: {
+            destinationType: "INTERNAL",
+            websiteId,
+            returnedId: publicSite.id,
+            verificationType: "PUBLIC_HTTP_ANONYMOUS_DELIVERY",
+          },
+        };
+      }
+
+      // Validate published version matches expected version
+      const expectedVersion = options.version ?? options.snapshot?.version;
+      const publicPublishing = publicSite.editorData?.publishing;
+      const publicVersion = publicPublishing?.version ?? (publicPublishing as any)?.publishedVersion ?? (publicSite.editorData as any)?.version;
+
+      if (expectedVersion !== undefined && publicVersion !== undefined && publicVersion !== expectedVersion) {
+        return {
+          verified: false,
+          statusCode: 422,
+          latencyMs,
+          error: `Public snapshot version mismatch: expected v${expectedVersion}, but public site serves v${publicVersion}`,
+          details: {
+            destinationType: "INTERNAL",
+            expectedVersion,
+            publicVersion,
+            verificationType: "PUBLIC_HTTP_ANONYMOUS_DELIVERY",
+          },
+        };
+      }
+
+      // Ensure unpublished draft data is not returned
+      if (options.draftMarker && JSON.stringify(publicSite.editorData).includes(options.draftMarker)) {
+        return {
+          verified: false,
+          statusCode: 422,
+          latencyMs,
+          error: "Public response contains unpublished draft content (draft isolation violation)",
+          details: {
+            destinationType: "INTERNAL",
+            verificationType: "PUBLIC_HTTP_ANONYMOUS_DELIVERY",
+          },
+        };
+      }
+
+      return {
+        verified: true,
+        statusCode: 200,
+        latencyMs,
+        details: {
+          destinationType: "INTERNAL",
+          expectedVersion,
+          actualResource: `/site/${websiteId}`,
+          publicDeliveryVerified: true,
+          verificationType: "PUBLIC_HTTP_ANONYMOUS_DELIVERY",
+        },
+      };
+    } catch (err: any) {
       return {
         verified: false,
-        statusCode: 500,
-        latencyMs,
-        error: "publishedData snapshot missing in database",
+        statusCode: err.statusCode || 404,
+        latencyMs: Date.now() - start,
+        error: `Anonymous public website delivery failed: ${err?.message || "Website unavailable"}`,
+        details: {
+          destinationType: "INTERNAL",
+          websiteId,
+          verificationType: "PUBLIC_HTTP_ANONYMOUS_DELIVERY",
+        },
       };
     }
-
-    return {
-      verified: true,
-      statusCode: 200,
-      latencyMs,
-      details: {
-        status: website.status,
-        publishedVersion: rawData.publishedData.version,
-      },
-    };
   }
 
   async rollback(

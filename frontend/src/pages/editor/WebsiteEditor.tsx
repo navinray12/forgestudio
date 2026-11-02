@@ -2374,6 +2374,7 @@ export default function WebsiteEditor() {
       version: result.version,
       publishedAt: result.publishedAt,
       deploymentId: result.deploymentId,
+      absolutePublicUrl: (result as any).absolutePublicUrl,
     };
     setPublishing(updatedPub);
 

@@ -1867,6 +1867,7 @@ export interface PublishingState {
   publishedBy?: string;
   version?: number;
   deploymentId?: string;
+  absolutePublicUrl?: string;
 }
 
 export interface DeploymentRecord {

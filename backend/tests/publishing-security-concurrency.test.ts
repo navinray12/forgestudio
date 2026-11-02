@@ -539,6 +539,7 @@ async function runPublishingSecuritySuite() {
 
   await runCase("12. Issue 20: Concurrent draft save while publish in progress is preserved after publish succeeds", async () => {
     const origFindUnique = prisma.website.findUnique;
+    const origFindFirst = prisma.website.findFirst;
     const origUpdateMany = prisma.website.updateMany;
     const origTransaction = prisma.$transaction;
     const origDeployment = (prisma as any).deployment;
@@ -559,6 +560,17 @@ async function runPublishingSecuritySuite() {
         version: liveDbVersion,
         editorData: liveEditorData,
         updatedAt: new Date(),
+      });
+
+      (prisma.website.findFirst as any) = async () => ({
+        id: testSiteId,
+        userId: testUserId,
+        name: "Concurrency Site",
+        slug: "concurrency-site",
+        status: "PUBLISHED",
+        version: liveDbVersion,
+        editorData: liveEditorData,
+        customCodeSnippets: [],
       });
 
       (prisma as any).deployment = {
@@ -618,6 +630,7 @@ async function runPublishingSecuritySuite() {
       );
     } finally {
       prisma.website.findUnique = origFindUnique;
+      prisma.website.findFirst = origFindFirst;
       prisma.website.updateMany = origUpdateMany;
       prisma.$transaction = origTransaction;
       (prisma as any).deployment = origDeployment;
@@ -630,6 +643,7 @@ async function runPublishingSecuritySuite() {
 
   await runCase("13. Issue 23: Release record / DB failure prevents PUBLISHED deployment status (internal -> DEPLOY_FAILED)", async () => {
     const origFindUnique = prisma.website.findUnique;
+    const origFindFirst = prisma.website.findFirst;
     const origTransaction = prisma.$transaction;
     const origUpdateMany = prisma.website.updateMany;
     const origDeployment = (prisma as any).deployment;
@@ -690,6 +704,7 @@ async function runPublishingSecuritySuite() {
       );
     } finally {
       prisma.website.findUnique = origFindUnique;
+      prisma.website.findFirst = origFindFirst;
       prisma.$transaction = origTransaction;
       prisma.website.updateMany = origUpdateMany;
       (prisma as any).deployment = origDeployment;
@@ -698,6 +713,7 @@ async function runPublishingSecuritySuite() {
 
   await runCase("14. Issue 23: External deploy success + DB release failure transitions deployment to RECONCILIATION_REQUIRED", async () => {
     const origFindUnique = prisma.website.findUnique;
+    const origFindFirst = prisma.website.findFirst;
     const origTransaction = prisma.$transaction;
     const origUpdateMany = prisma.website.updateMany;
     const origDeployment = (prisma as any).deployment;
@@ -758,6 +774,7 @@ async function runPublishingSecuritySuite() {
       );
     } finally {
       prisma.website.findUnique = origFindUnique;
+      prisma.website.findFirst = origFindFirst;
       prisma.$transaction = origTransaction;
       prisma.website.updateMany = origUpdateMany;
       (prisma as any).deployment = origDeployment;
@@ -766,6 +783,7 @@ async function runPublishingSecuritySuite() {
 
   await runCase("15. Issue 23: Full happy path publish returns matching releaseId and deploymentId", async () => {
     const origFindUnique = prisma.website.findUnique;
+    const origFindFirst = prisma.website.findFirst;
     const origTransaction = prisma.$transaction;
     const origUpdateMany = prisma.website.updateMany;
     const origDeployment = (prisma as any).deployment;
@@ -787,6 +805,17 @@ async function runPublishingSecuritySuite() {
         version: currentVersion,
         editorData: recordedEditorData,
         updatedAt: new Date(),
+      });
+
+      (prisma.website.findFirst as any) = async () => ({
+        id: testSiteId,
+        userId: testUserId,
+        name: "Happy Site",
+        slug: "happy-site",
+        status: "PUBLISHED",
+        version: currentVersion,
+        editorData: recordedEditorData,
+        customCodeSnippets: [],
       });
 
       (prisma as any).deployment = {
@@ -830,6 +859,7 @@ async function runPublishingSecuritySuite() {
       assert.strictEqual(recordedEditorData.releases[0].isActive, true);
     } finally {
       prisma.website.findUnique = origFindUnique;
+      prisma.website.findFirst = origFindFirst;
       prisma.$transaction = origTransaction;
       prisma.website.updateMany = origUpdateMany;
       (prisma as any).deployment = origDeployment;
