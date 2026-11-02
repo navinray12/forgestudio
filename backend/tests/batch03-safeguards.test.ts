@@ -9,6 +9,10 @@ import { getUserWebsites } from "../src/services/website.service.js";
 import { getWebsitesHandler } from "../src/controllers/website.controller.js";
 import { AppError } from "../src/utils/app-error.js";
 import { prisma } from "../src/config/database.js";
+import {
+  WorkspaceWebsiteCache,
+  getWorkspaceScopeKey,
+} from "../../frontend/src/pages/dashboard/utils/workspaceWebsiteCache.js";
 
 dotenv.config();
 
@@ -436,56 +440,207 @@ async function runBatch03TestSuite() {
     }
   });
 
-  await runCase("18. Issue 09: Frontend fetchWebsites error contract handles HTTP 500 and network failure", () => {
-    // Simulation of UserDashboard.tsx fetchWebsites state machine
-    let websiteFetchError: string | null = null;
-    let websites: any[] = [{ id: "existing-site-1", name: "Site 1" }];
+  // =========================================================================
+  // ISSUE 07: CONTENT INTEGRITY & NON-MISLEADING ACTIONS
+  // =========================================================================
 
-    function handleFetchFailure(errorMsg: string) {
-      websiteFetchError = errorMsg;
-      // Safeguard: websites list preserved on refresh failure
+  await runCase("18. Issue 07: Contact and signup submission buttons do not perform fake submissions or misleading navigation", () => {
+    function findElementById(elements: any[], id: string): any {
+      for (const el of elements) {
+        if (el.id === id) return el;
+        if (Array.isArray(el.children)) {
+          const found = findElementById(el.children, id);
+          if (found) return found;
+        }
+      }
+      return null;
     }
 
-    function handleFetchSuccess(newWebsites: any[]) {
-      websiteFetchError = null;
-      websites = newWebsites;
-    }
+    // 1. Kit 1 (Business Starter) Contact Form Button
+    const kitA = WEBSITE_KITS.find((k) => k.id === "kit-business-starter");
+    assert.ok(kitA, "Kit A must exist");
+    const kitAContact = kitA.pages.find((p) => p.slug === "contact");
+    assert.ok(kitAContact, "Kit A contact page must exist");
+    const bizBtn = findElementById(kitAContact.elements, "biz-form-btn");
+    assert.ok(bizBtn, "biz-form-btn must exist");
+    assert.ok(!bizBtn.content.includes("Submit Message"), "biz-form-btn must not promise misleading message submission");
+    assert.ok(bizBtn.content.toLowerCase().includes("demo") || bizBtn.content.toLowerCase().includes("editor"), "biz-form-btn must indicate demo / editor configuration");
 
-    // 1. Simulate 500 failure
-    handleFetchFailure("Failed to load websites: Database unavailable");
-    assert.ok(websiteFetchError, "Fetch error must be set on failure");
-    assert.strictEqual(websites.length, 1, "Cached websites must NOT be wiped out on transient failure");
+    // 2. Kit 2 (Creative Agency) Project Brief Form Button
+    const kitB = WEBSITE_KITS.find((k) => k.id === "kit-creative-agency");
+    assert.ok(kitB, "Kit B must exist");
+    const kitBContact = kitB.pages.find((p) => p.slug === "contact");
+    assert.ok(kitBContact, "Kit B contact page must exist");
+    const agencyBtn = findElementById(kitBContact.elements, "agency-f-btn");
+    assert.ok(agencyBtn, "agency-f-btn must exist");
+    assert.ok(!agencyBtn.content.includes("Submit Project Brief"), "agency-f-btn must not promise misleading brief submission");
+    assert.ok(agencyBtn.content.toLowerCase().includes("demo") || agencyBtn.content.toLowerCase().includes("editor"), "agency-f-btn must indicate demo / editor configuration");
 
-    // 2. Simulate Retry success
-    handleFetchSuccess([]);
-    assert.strictEqual(websiteFetchError, null, "Error must be cleared on successful retry");
-    assert.strictEqual(websites.length, 0, "Genuine empty list must be set on successful empty response");
+    // 3. Kit 3 (SaaS Launch) Signup Button
+    const kitC = WEBSITE_KITS.find((k) => k.id === "kit-saas-launch");
+    assert.ok(kitC, "Kit C must exist");
+    const kitCSignup = kitC.pages.find((p) => p.slug === "signup");
+    assert.ok(kitCSignup, "Kit C signup page must exist");
+    const saasBtn = findElementById(kitCSignup.elements, "saas-f-submit-btn");
+    assert.ok(saasBtn, "saas-f-submit-btn must exist");
+    assert.ok(!saasBtn.content.includes("Create Free Account"), "saas-f-submit-btn must not promise fake account creation");
+    assert.notStrictEqual(saasBtn.href, "/home", "saas-f-submit-btn must NOT misleadingly navigate to /home");
+    assert.notStrictEqual(saasBtn.pageId, "page-saas-home", "saas-f-submit-btn must NOT redirect to page-saas-home");
+
+    // 4. Kit 4 (Designer Portfolio) Direct Message Button
+    const kitD = WEBSITE_KITS.find((k) => k.id === "kit-designer-portfolio");
+    assert.ok(kitD, "Kit D must exist");
+    const kitDContact = kitD.pages.find((p) => p.slug === "contact");
+    assert.ok(kitDContact, "Kit D contact page must exist");
+    const folioBtn = findElementById(kitDContact.elements, "folio-mb-btn");
+    assert.ok(folioBtn, "folio-mb-btn must exist");
+    assert.ok(!folioBtn.content.includes("Send Direct Message"), "folio-mb-btn must not promise misleading direct messaging");
+    assert.ok(folioBtn.content.toLowerCase().includes("demo") || folioBtn.content.toLowerCase().includes("editor"), "folio-mb-btn must indicate demo / editor configuration");
   });
 
-  await runCase("19. Issue 09: Frontend workspace race condition protection with activeFetchIdRef", () => {
+  await runCase("19. Issue 07: Unverified metrics, guarantees, claims and demonstration sections are explicitly labeled", () => {
+    function findElementById(elements: any[], id: string): any {
+      for (const el of elements) {
+        if (el.id === id) return el;
+        if (Array.isArray(el.children)) {
+          const found = findElementById(el.children, id);
+          if (found) return found;
+        }
+      }
+      return null;
+    }
+
+    // Verify demonstration labels on contact and signup sections
+    const kitA = WEBSITE_KITS.find((k) => k.id === "kit-business-starter")!;
+    const bizContact = kitA.pages.find((p) => p.slug === "contact")!;
+    const bizH = findElementById(bizContact.elements, "biz-form-h");
+    assert.ok(bizH.content.includes("Demonstration"), "Business starter contact form header must label demonstration");
+
+    const kitB = WEBSITE_KITS.find((k) => k.id === "kit-creative-agency")!;
+    const agencyContact = kitB.pages.find((p) => p.slug === "contact")!;
+    const agencyH = findElementById(agencyContact.elements, "agency-form-h");
+    assert.ok(agencyH.content.includes("Demonstration"), "Agency brief form header must label demonstration");
+    const agencyHours = findElementById(agencyContact.elements, "agency-hours");
+    assert.ok(agencyHours.content.includes("Illustrative"), "Agency response guarantee must be labeled illustrative");
+
+    const agencyCases = kitB.pages.find((p) => p.slug === "case-studies")!;
+    const cs1Tag = findElementById(agencyCases.elements, "agency-cs-1-tag");
+    assert.ok(cs1Tag.content.includes("ILLUSTRATIVE"), "Case study 1 tag must be labeled illustrative");
+
+    const kitC = WEBSITE_KITS.find((k) => k.id === "kit-saas-launch")!;
+    const saasSignup = kitC.pages.find((p) => p.slug === "signup")!;
+    const saasGuarantee = findElementById(saasSignup.elements, "saas-f-guarantee");
+    assert.ok(saasGuarantee.content.includes("Illustrative"), "SaaS security/cancellation guarantee must be labeled illustrative");
+
+    const saasPricing = kitC.pages.find((p) => p.slug === "pricing")!;
+    const saasPeDesc = findElementById(saasPricing.elements, "saas-pe-desc");
+    assert.ok(saasPeDesc.content.includes("Illustrative"), "SaaS uptime SLA claim must be labeled illustrative");
+
+    const kitD = WEBSITE_KITS.find((k) => k.id === "kit-designer-portfolio")!;
+    const folioContact = kitD.pages.find((p) => p.slug === "contact")!;
+    const folioAvail = findElementById(folioContact.elements, "folio-ci-avail");
+    assert.ok(folioAvail.content.includes("Illustrative"), "Portfolio availability claim must be labeled illustrative");
+  });
+
+  // =========================================================================
+  // ISSUE 09: WORKSPACE-SCOPED DASHBOARD CACHE & ERROR ISOLATION (PRODUCTION HELPER)
+  // =========================================================================
+
+  await runCase("20. Issue 09: Workspace cache isolates Workspace A websites when Workspace B fetch fails", () => {
+    const cache = new WorkspaceWebsiteCache();
+    const scopeA = getWorkspaceScopeKey("workspace-A");
+    const scopeB = getWorkspaceScopeKey("workspace-B");
+
+    // 1. Workspace A loads 2 websites successfully
+    const wsAWebsites = [
+      { id: "site-a1", name: "Workspace A - Store" },
+      { id: "site-a2", name: "Workspace A - Blog" },
+    ];
+    const resA = cache.resolveFetchResult(scopeA, true, wsAWebsites);
+    assert.strictEqual(resA.websites.length, 2);
+    assert.strictEqual(resA.error, null);
+
+    // 2. User switches to Workspace B. Initial state must be empty array, NOT Workspace A
+    const initialB = cache.resolveForScope(scopeB);
+    assert.strictEqual(initialB.websites.length, 0, "Workspace B must NOT inherit Workspace A's cards");
+    assert.strictEqual(initialB.hasCachedData, false);
+
+    // 3. Workspace B fetch fails (e.g. 403 Forbidden or 500)
+    const resB = cache.resolveFetchResult(scopeB, false, undefined, "You do not have permission to access websites in this workspace.");
+    assert.strictEqual(resB.websites.length, 0, "Failed Workspace B fetch must NOT render Workspace A's cards as B's websites");
+    assert.strictEqual(resB.error, "You do not have permission to access websites in this workspace.");
+    assert.strictEqual(resB.isPreservingScopeCache, false, "Must not claim cache preservation when scope has no cached data");
+
+    // 4. Verify Workspace A remains cached and unaffected
+    const cacheA = cache.get(scopeA);
+    assert.strictEqual(cacheA?.length, 2, "Workspace A cache must remain intact");
+  });
+
+  await runCase("21. Issue 09: Workspace cache preserves cached cards ONLY for the same workspace scope", () => {
+    const cache = new WorkspaceWebsiteCache();
+    const scopeB = getWorkspaceScopeKey("workspace-B");
+
+    // 1. Workspace B previously had 1 website loaded
+    const wsBWebsites = [{ id: "site-b1", name: "Workspace B Portal" }];
+    cache.resolveFetchResult(scopeB, true, wsBWebsites);
+
+    // 2. User navigates away and returns to Workspace B
+    const initialB = cache.resolveForScope(scopeB);
+    assert.strictEqual(initialB.websites.length, 1);
+    assert.strictEqual(initialB.hasCachedData, true);
+
+    // 3. Workspace B refresh fails (network error)
+    const refreshFail = cache.resolveFetchResult(scopeB, false, undefined, "Unable to reach the server.");
+    assert.strictEqual(refreshFail.websites.length, 1, "Must preserve Workspace B's own cached cards on transient failure");
+    assert.strictEqual(refreshFail.websites[0].id, "site-b1");
+    assert.strictEqual(refreshFail.error, "Unable to reach the server.");
+    assert.strictEqual(refreshFail.isPreservingScopeCache, true, "Must flag that cache for THIS scope is preserved");
+
+    // 4. Retry succeeds with updated list
+    const retrySuccess = cache.resolveFetchResult(scopeB, true, []);
+    assert.strictEqual(retrySuccess.websites.length, 0, "Successful retry with genuine empty list updates state");
+    assert.strictEqual(retrySuccess.error, null);
+    assert.strictEqual(retrySuccess.isPreservingScopeCache, false);
+  });
+
+  await runCase("22. Issue 09: Stale requests cannot replace current workspace data", () => {
+    const scopeA = getWorkspaceScopeKey("workspace-A");
+    const scopeB = getWorkspaceScopeKey("workspace-B");
+
     let activeFetchId = 0;
-    let displayedWorkspaceId = "workspace-A";
-    let displayedWebsites: any[] = [];
+    let activeScope = scopeA;
 
-    // User is on workspace-A, fetch starts
-    const fetchIdA = ++activeFetchId;
+    // Fetch 1 starts for Workspace A
+    const fetchId1 = ++activeFetchId;
+    const fetchScope1 = scopeA;
 
-    // User switches to workspace-B before fetch A completes
-    displayedWorkspaceId = "workspace-B";
-    const fetchIdB = ++activeFetchId;
+    // User immediately switches to Workspace B: Fetch 2 starts
+    const fetchId2 = ++activeFetchId;
+    const fetchScope2 = scopeB;
+    activeScope = scopeB;
 
-    // Fetch B returns first
-    if (fetchIdB === activeFetchId) {
-      displayedWebsites = [{ id: "site-b", name: "Workspace B Site" }];
-    }
+    // Request 1 returns late after active scope has moved to Workspace B
+    const isStale1 = !WorkspaceWebsiteCache.isRequestFresh(fetchId1, activeFetchId, fetchScope1, activeScope);
+    assert.strictEqual(isStale1, true, "Late response from Workspace A must be recognized as stale and ignored");
 
-    // Fetch A finally returns late
-    if (fetchIdA === activeFetchId) {
-      // Stale response! Should not execute
-      displayedWebsites = [{ id: "site-a", name: "Workspace A Site" }];
-    }
+    // Request 2 returns for Workspace B
+    const isFresh2 = WorkspaceWebsiteCache.isRequestFresh(fetchId2, activeFetchId, fetchScope2, activeScope);
+    assert.strictEqual(isFresh2, true, "Matching response for current Workspace B must be accepted");
+  });
 
-    assert.strictEqual(displayedWebsites[0]?.id, "site-b", "Stale workspace response must be discarded");
+  await runCase("23. Issue 09: Website deletion scopes strictly to the active workspace cache", () => {
+    const cache = new WorkspaceWebsiteCache();
+    const scopeA = getWorkspaceScopeKey("workspace-A");
+    const scopeB = getWorkspaceScopeKey("workspace-B");
+
+    cache.set(scopeA, [{ id: "site-1", name: "A-1" }, { id: "site-2", name: "A-2" }]);
+    cache.set(scopeB, [{ id: "site-3", name: "B-1" }]);
+
+    // Delete site-1 in scope A
+    cache.remove(scopeA, "site-1");
+    assert.strictEqual(cache.get(scopeA)?.length, 1);
+    assert.strictEqual(cache.get(scopeA)?.[0].id, "site-2");
+    assert.strictEqual(cache.get(scopeB)?.length, 1, "Scope B must remain untouched when deleting in Scope A");
   });
 
   // Summary

@@ -21,6 +21,7 @@ import LicensingPanel from "./components/LicensingPanel";
 import UsageTelemetryWidget from "./components/UsageTelemetryWidget";
 import WhiteLabelPanel from "./components/WhiteLabelPanel";
 import SubscriptionBillingPanel from "./components/SubscriptionBillingPanel";
+import { WorkspaceWebsiteCache, getWorkspaceScopeKey } from "./utils/workspaceWebsiteCache";
 
 interface Website {
   id: string;
@@ -108,7 +109,9 @@ function UserDashboard() {
   const [websites, setWebsites] = useState<Website[]>([]);
   const [wLoading, setWLoading] = useState(true);
   const [websiteFetchError, setWebsiteFetchError] = useState<string | null>(null);
+  const workspaceCacheRef = useRef<WorkspaceWebsiteCache<Website>>(new WorkspaceWebsiteCache<Website>());
   const activeFetchIdRef = useRef(0);
+  const activeScopeRef = useRef<string>(getWorkspaceScopeKey(null));
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [websiteName, setWebsiteName] = useState("");
   const [creating, setCreating] = useState(false);
@@ -324,45 +327,71 @@ function UserDashboard() {
   };
 
   const fetchWebsites = async (wsId?: string | null) => {
+    const targetWs = wsId !== undefined ? wsId : currentWorkspaceId;
+    const targetScopeKey = getWorkspaceScopeKey(targetWs);
+    activeScopeRef.current = targetScopeKey;
     const fetchId = ++activeFetchIdRef.current;
+
+    // Immediately isolate scope: only show cached websites for THIS workspace, never other workspaces
+    const initial = workspaceCacheRef.current.resolveForScope(targetScopeKey);
+    setWebsites(initial.websites);
     setWLoading(true);
     setWebsiteFetchError(null);
+
     try {
-      const targetWs = wsId !== undefined ? wsId : currentWorkspaceId;
       const url = targetWs ? `${apiUrl}/api/websites?workspaceId=${targetWs}` : `${apiUrl}/api/websites`;
       const res = await fetch(url, { credentials: "include" });
       const data = await res.json().catch(() => null);
 
-      // Stale workspace response protection: ignore if workspace changed during request
-      if (fetchId !== activeFetchIdRef.current) return;
+      // Stale workspace response protection: ignore if fetchId or workspace scope changed
+      if (!WorkspaceWebsiteCache.isRequestFresh(fetchId, activeFetchIdRef.current, targetScopeKey, activeScopeRef.current)) {
+        return;
+      }
 
       if (!res.ok) {
         const errMsg =
           res.status === 403
             ? "You do not have permission to access websites in this workspace."
             : data?.error?.message || data?.message || `Failed to load websites (HTTP ${res.status}).`;
-        setWebsiteFetchError(errMsg);
+        const result = workspaceCacheRef.current.resolveFetchResult(targetScopeKey, false, undefined, errMsg);
+        setWebsites(result.websites);
+        setWebsiteFetchError(result.error);
         return;
       }
 
       if (!data || !Array.isArray(data.websites)) {
-        setWebsiteFetchError("Invalid response received from server.");
+        const result = workspaceCacheRef.current.resolveFetchResult(targetScopeKey, false, undefined, "Invalid response received from server.");
+        setWebsites(result.websites);
+        setWebsiteFetchError(result.error);
         return;
       }
 
-      setWebsites(data.websites);
+      const result = workspaceCacheRef.current.resolveFetchResult(targetScopeKey, true, data.websites);
+      setWebsites(result.websites);
       setWebsiteFetchError(null);
     } catch {
-      if (fetchId !== activeFetchIdRef.current) return;
-      setWebsiteFetchError("Unable to reach the server. Please check your network connection and retry.");
+      if (!WorkspaceWebsiteCache.isRequestFresh(fetchId, activeFetchIdRef.current, targetScopeKey, activeScopeRef.current)) {
+        return;
+      }
+      const result = workspaceCacheRef.current.resolveFetchResult(
+        targetScopeKey,
+        false,
+        undefined,
+        "Unable to reach the server. Please check your network connection and retry."
+      );
+      setWebsites(result.websites);
+      setWebsiteFetchError(result.error);
     } finally {
-      if (fetchId === activeFetchIdRef.current) {
+      if (WorkspaceWebsiteCache.isRequestFresh(fetchId, activeFetchIdRef.current, targetScopeKey, activeScopeRef.current)) {
         setWLoading(false);
       }
     }
   };
 
-  useEffect(() => { fetchWebsites(currentWorkspaceId); }, [currentWorkspaceId]);
+  useEffect(() => {
+    setSelectedSiteIds([]);
+    fetchWebsites(currentWorkspaceId);
+  }, [currentWorkspaceId]);
 
   const handleLogout = async () => { await logout(); navigate("/login", { replace: true }); };
 
@@ -387,7 +416,12 @@ function UserDashboard() {
     try {
       setDeleting(true);
       const res = await fetch(`${apiUrl}/api/websites/${deleteTargetId}`, { method: "DELETE", credentials: "include" });
-      if (res.ok) { setWebsites(p => p.filter(w => w.id !== deleteTargetId)); setDeleteTargetId(null); }
+      if (res.ok) {
+        const activeScope = activeScopeRef.current;
+        workspaceCacheRef.current.remove(activeScope, deleteTargetId);
+        setWebsites(p => p.filter(w => w.id !== deleteTargetId));
+        setDeleteTargetId(null);
+      }
       else alert("Failed to delete website.");
     } catch { alert("Error deleting website."); }
     finally { setDeleting(false); }

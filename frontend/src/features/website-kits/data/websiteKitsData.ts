@@ -451,7 +451,7 @@ export const WEBSITE_KITS: WebsiteKit[] = [
               {
                 id: "biz-contact-desc",
                 type: "text",
-                content: "We're here to answer your technical questions, explore collaboration, and provide actionable roadmaps.",
+                content: "Demonstration Contact Page: Replace sample contact details and connect form actions to your mailer in the editor.",
                 styles: { color: "#94a3b8", fontSize: "16px", maxWidth: "600px" },
               },
             ],
@@ -499,7 +499,7 @@ export const WEBSITE_KITS: WebsiteKit[] = [
                   {
                     id: "biz-info-hours",
                     type: "text",
-                    content: "🕒 Business Hours: Mon – Fri, 8:00 AM – 6:00 PM PST",
+                    content: "🕒 Business Hours: Mon – Fri, 8:00 AM – 6:00 PM PST (Illustrative Schedule)",
                     styles: { color: "#64748b", fontSize: "13px" },
                   },
                 ],
@@ -519,7 +519,7 @@ export const WEBSITE_KITS: WebsiteKit[] = [
                   {
                     id: "biz-form-h",
                     type: "heading",
-                    content: "Send Us a Message",
+                    content: "Send Us a Message (Demonstration Template)",
                     styles: { color: "#0f172a", fontSize: "20px", fontWeight: "700" },
                   },
                   {
@@ -543,7 +543,7 @@ export const WEBSITE_KITS: WebsiteKit[] = [
                   {
                     id: "biz-form-btn",
                     type: "button",
-                    content: "Submit Message →",
+                    content: "Demo Form — Configure Action in Editor",
                     href: "#",
                     pageId: "page-contact",
                     styles: { backgroundColor: "#2563eb", color: "#ffffff", padding: "12px", borderRadius: "10px", textAlign: "center" },
@@ -808,13 +808,13 @@ export const WEBSITE_KITS: WebsiteKit[] = [
               {
                 id: "agency-cases-title",
                 type: "heading",
-                content: "In-Depth Design Case Studies",
+                content: "Design Case Studies (Illustrative Demonstration)",
                 styles: { color: "#ffffff", fontSize: "36px", fontWeight: "900" },
               },
               {
                 id: "agency-cases-sub",
                 type: "text",
-                content: "Step-by-step breakdowns of our user research, iterative prototyping, and technical delivery.",
+                content: "Illustrative sample: Step-by-step breakdowns of user research, iterative prototyping, and technical delivery (Sample demonstration copy).",
                 styles: { color: "#c4b5fd", fontSize: "16px", maxWidth: "600px" },
               },
             ],
@@ -843,7 +843,7 @@ export const WEBSITE_KITS: WebsiteKit[] = [
                   {
                     id: "agency-cs-1-tag",
                     type: "text",
-                    content: "CASE STUDY 01",
+                    content: "ILLUSTRATIVE CASE STUDY 01",
                     styles: { color: "#a855f7", fontSize: "12px", fontWeight: "800", letterSpacing: "1px" },
                   },
                   {
@@ -855,7 +855,7 @@ export const WEBSITE_KITS: WebsiteKit[] = [
                   {
                     id: "agency-cs-1-body",
                     type: "text",
-                    content: "Challenge: The legacy storefront suffered from complex navigation and 4-second page load times on mobile devices.\n\nStrategy: We re-architected the customer journey into modular micro-components, reduced bundle overhead, and implemented instant pre-fetching for product pages.\n\nKey Takeaways: Clean visual hierarchy combined with performant rendering drove immediate engagement improvements.",
+                    content: "Illustrative Challenge: The legacy storefront suffered from complex navigation and 4-second page load times on mobile devices.\n\nStrategy: Re-architected customer journey into modular micro-components and reduced bundle overhead.\n\nKey Takeaways: Clean visual hierarchy combined with performant rendering drove engagement improvements (Illustrative sample metrics).",
                     styles: { color: "#cbd5e1", fontSize: "14px", lineHeight: "1.7" },
                   },
                 ],
@@ -875,7 +875,7 @@ export const WEBSITE_KITS: WebsiteKit[] = [
                   {
                     id: "agency-cs-2-tag",
                     type: "text",
-                    content: "CASE STUDY 02",
+                    content: "ILLUSTRATIVE CASE STUDY 02",
                     styles: { color: "#a855f7", fontSize: "12px", fontWeight: "800", letterSpacing: "1px" },
                   },
                   {
@@ -887,7 +887,7 @@ export const WEBSITE_KITS: WebsiteKit[] = [
                   {
                     id: "agency-cs-2-body",
                     type: "text",
-                    content: "Challenge: Maintaining brand consistency across iOS, Android, and web with 30+ distributed product teams.\n\nStrategy: Established a single source of truth for semantic design tokens, automated Figma-to-code pipelines, and strict WCAG accessibility guidelines.",
+                    content: "Illustrative Challenge: Maintaining brand consistency across iOS, Android, and web with 30+ distributed product teams.\n\nStrategy: Established a single source of truth for semantic design tokens, automated Figma-to-code pipelines, and strict WCAG accessibility guidelines (Illustrative sample).",
                     styles: { color: "#cbd5e1", fontSize: "14px", lineHeight: "1.7" },
                   },
                 ],
@@ -953,7 +953,7 @@ export const WEBSITE_KITS: WebsiteKit[] = [
               {
                 id: "agency-contact-sub",
                 type: "text",
-                content: "We collaborate with ambitious founders and established global brands. Share your project requirements with our directors.",
+                content: "Demonstration Studio Inquiries: Connect this form to your CRM or agency intake pipeline in the editor.",
                 styles: { color: "#c4b5fd", fontSize: "16px", maxWidth: "600px" },
               },
             ],
@@ -1001,7 +1001,7 @@ export const WEBSITE_KITS: WebsiteKit[] = [
                   {
                     id: "agency-hours",
                     type: "text",
-                    content: "⚡ Rapid Response: Inquiries reviewed within 1 business day.",
+                    content: "⚡ Illustrative Response Time: Sample copy — inquiries reviewed within 1 business day.",
                     styles: { color: "#a855f7", fontSize: "13px", fontWeight: "600" },
                   },
                 ],
@@ -1021,7 +1021,7 @@ export const WEBSITE_KITS: WebsiteKit[] = [
                   {
                     id: "agency-form-h",
                     type: "heading",
-                    content: "Project Brief Form",
+                    content: "Project Brief Form (Demonstration Template)",
                     styles: { color: "#ffffff", fontSize: "20px", fontWeight: "700" },
                   },
                   {
@@ -1045,7 +1045,7 @@ export const WEBSITE_KITS: WebsiteKit[] = [
                   {
                     id: "agency-f-btn",
                     type: "button",
-                    content: "Submit Project Brief ✨",
+                    content: "Demo Brief — Configure Action in Editor",
                     href: "#",
                     pageId: "page-agency-contact",
                     styles: { backgroundColor: "#7c3aed", color: "#ffffff", padding: "14px", borderRadius: "12px", textAlign: "center" },
@@ -1455,7 +1455,7 @@ export const WEBSITE_KITS: WebsiteKit[] = [
                   {
                     id: "saas-pe-desc",
                     type: "text",
-                    content: "✓ Unlimited active projects\n✓ Dedicated infrastructure\n✓ 99.99% uptime SLA\n✓ 24/7 dedicated support team",
+                    content: "✓ Unlimited active projects\n✓ Dedicated infrastructure\n✓ 99.99% uptime SLA (Illustrative sample tier)\n✓ 24/7 dedicated support team",
                     styles: { color: "#64748b", fontSize: "13px", lineHeight: "2" },
                   },
                   {
@@ -1494,13 +1494,13 @@ export const WEBSITE_KITS: WebsiteKit[] = [
               {
                 id: "saas-su-title",
                 type: "heading",
-                content: "Begin Your 14-Day Free Trial",
+                content: "Begin Your 14-Day Free Trial (Demonstration Template)",
                 styles: { color: "#ffffff", fontSize: "34px", fontWeight: "800" },
               },
               {
                 id: "saas-su-sub",
                 type: "text",
-                content: "Get instant access to developer tooling, observability, and deployments. No credit card required.",
+                content: "Illustrative signup template: Get instant access to developer tooling, observability, and deployments. Connect to your auth provider in the editor.",
                 styles: { color: "#e0f2fe", fontSize: "15px", maxWidth: "550px" },
               },
             ],
@@ -1537,15 +1537,15 @@ export const WEBSITE_KITS: WebsiteKit[] = [
               {
                 id: "saas-f-submit-btn",
                 type: "button",
-                content: "Create Free Account →",
-                href: "/home",
-                pageId: "page-saas-home",
+                content: "Demo Signup — Connect Auth in Editor",
+                href: "#",
+                pageId: "page-saas-signup",
                 styles: { backgroundColor: "#0284c7", color: "#ffffff", padding: "14px", borderRadius: "10px", textAlign: "center", fontWeight: "700" },
               },
               {
                 id: "saas-f-guarantee",
                 type: "text",
-                content: "🔒 256-bit SSL Encryption • Instant Setup • Cancel Anytime",
+                content: "🔒 Illustrative Content: 256-bit SSL Encryption • Instant Setup • Cancel Anytime (Sample demonstration copy — configure real platform guarantees in editor)",
                 styles: { color: "#64748b", fontSize: "12px", textAlign: "center", marginTop: "8px" },
               },
             ],
@@ -1782,7 +1782,7 @@ export const WEBSITE_KITS: WebsiteKit[] = [
               {
                 id: "folio-contact-sub",
                 type: "text",
-                content: "Open for select design leadership roles, advisory consultations, and bespoke design commissions.",
+                content: "Demonstration Contact Page: Replace sample contact details and connect direct message actions in the editor.",
                 styles: { color: "#a1a1aa", fontSize: "16px", maxWidth: "580px" },
               },
             ],
@@ -1825,7 +1825,7 @@ export const WEBSITE_KITS: WebsiteKit[] = [
                   {
                     id: "folio-ci-avail",
                     type: "text",
-                    content: "🟢 Currently accepting Q1 & Q2 advisory engagements",
+                    content: "🟢 Illustrative Status: Currently accepting Q1 & Q2 advisory engagements (Sample availability copy)",
                     styles: { color: "#16a34a", fontSize: "13px", fontWeight: "600" },
                   },
                 ],
@@ -1845,7 +1845,7 @@ export const WEBSITE_KITS: WebsiteKit[] = [
                   {
                     id: "folio-mb-title",
                     type: "heading",
-                    content: "Send Direct Message",
+                    content: "Send Direct Message (Demonstration Template)",
                     styles: { color: "#18181b", fontSize: "18px", fontWeight: "700" },
                   },
                   {
@@ -1869,7 +1869,7 @@ export const WEBSITE_KITS: WebsiteKit[] = [
                   {
                     id: "folio-mb-btn",
                     type: "button",
-                    content: "Send Direct Message ✨",
+                    content: "Demo Message — Configure Action in Editor",
                     href: "#",
                     pageId: "page-folio-contact",
                     styles: { backgroundColor: "#e11d48", color: "#ffffff", padding: "12px", borderRadius: "8px", textAlign: "center" },
