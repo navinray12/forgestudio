@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import type { WebsiteKit, WebsiteKitCategory } from "../types/websiteKit.types";
-import { getWebsiteKits, applyWebsiteKit } from "../services/websiteKitService";
+import { getWebsiteKits, applyWebsiteKit, type ApplyKitResult } from "../services/websiteKitService";
 
 interface UseWebsiteKitsParams {
   apiUrl: string;
+  websiteId?: string;
 }
 
-export function useWebsiteKits({ apiUrl }: UseWebsiteKitsParams) {
+export function useWebsiteKits({ apiUrl, websiteId }: UseWebsiteKitsParams) {
   const [kits, setKits] = useState<WebsiteKit[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isApplying, setIsApplying] = useState<boolean>(false);
@@ -58,11 +59,11 @@ export function useWebsiteKits({ apiUrl }: UseWebsiteKitsParams) {
   }, [kits, searchQuery, selectedCategory]);
 
   const handleApplyKit = useCallback(
-    async (kit: WebsiteKit) => {
+    async (kit: WebsiteKit): Promise<ApplyKitResult> => {
       setIsApplying(true);
       setError(null);
       try {
-        const result = await applyWebsiteKit(apiUrl, kit);
+        const result = await applyWebsiteKit(apiUrl, kit, websiteId);
         setConfirmKit(null);
         setPreviewKit(null);
         return result;
@@ -73,7 +74,7 @@ export function useWebsiteKits({ apiUrl }: UseWebsiteKitsParams) {
         setIsApplying(false);
       }
     },
-    [apiUrl]
+    [apiUrl, websiteId]
   );
 
   return {
@@ -82,6 +83,7 @@ export function useWebsiteKits({ apiUrl }: UseWebsiteKitsParams) {
     isLoading,
     isApplying,
     error,
+    clearError: () => setError(null),
     searchQuery,
     setSearchQuery,
     selectedCategory,

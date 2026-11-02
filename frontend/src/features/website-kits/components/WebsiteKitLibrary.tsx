@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useParams } from "react-router-dom";
 import type { WebsiteKit, WebsiteKitCategory } from "../types/websiteKit.types";
 import { useWebsiteKits } from "../hooks/useWebsiteKits";
 import { WebsiteKitPreviewModal } from "./WebsiteKitPreviewModal";
@@ -6,6 +7,7 @@ import { ApplyWebsiteKitConfirmModal } from "./ApplyWebsiteKitConfirmModal";
 
 interface WebsiteKitLibraryProps {
   apiUrl: string;
+  websiteId?: string;
   onKitApplied?: (message: string) => void;
 }
 
@@ -13,14 +15,19 @@ const CATEGORIES: WebsiteKitCategory[] = ["All", "Business", "Portfolio", "SaaS"
 
 export const WebsiteKitLibrary: React.FC<WebsiteKitLibraryProps> = ({
   apiUrl,
+  websiteId: propWebsiteId,
   onKitApplied,
 }) => {
+  const { websiteId: routeWebsiteId } = useParams<{ websiteId?: string }>();
+  const activeWebsiteId = propWebsiteId || routeWebsiteId;
+
   const {
     kits,
     filteredKits,
     isLoading,
     isApplying,
     error,
+    clearError,
     searchQuery,
     setSearchQuery,
     selectedCategory,
@@ -30,7 +37,7 @@ export const WebsiteKitLibrary: React.FC<WebsiteKitLibraryProps> = ({
     confirmKit,
     setConfirmKit,
     applyKit,
-  } = useWebsiteKits({ apiUrl });
+  } = useWebsiteKits({ apiUrl, websiteId: activeWebsiteId });
 
   const [appliedToast, setAppliedToast] = useState<string | null>(null);
 
@@ -43,8 +50,8 @@ export const WebsiteKitLibrary: React.FC<WebsiteKitLibraryProps> = ({
         onKitApplied(msg);
       }
       setTimeout(() => setAppliedToast(null), 4000);
-    } catch (e) {
-      // Error handled by hook
+    } catch {
+      // Error handled by hook and displayed visibly in confirm modal and library
     }
   };
 
@@ -57,6 +64,11 @@ export const WebsiteKitLibrary: React.FC<WebsiteKitLibraryProps> = ({
             <span>📦</span>
             <span>WEBSITE KITS</span>
           </h3>
+          {activeWebsiteId && (
+            <span className="text-[10px] font-mono text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+              Site: {activeWebsiteId.substring(0, 8)}...
+            </span>
+          )}
         </div>
 
         {/* Search Bar */}
@@ -121,9 +133,16 @@ export const WebsiteKitLibrary: React.FC<WebsiteKitLibraryProps> = ({
       )}
 
       {/* Error State */}
-      {error && !isLoading && (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700">
-          {error}
+      {error && !isLoading && !confirmKit && (
+        <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700 flex items-center justify-between">
+          <span>{error}</span>
+          <button
+            type="button"
+            onClick={clearError}
+            className="text-xs font-bold text-red-800 hover:underline cursor-pointer ml-2"
+          >
+            Dismiss
+          </button>
         </div>
       )}
 
@@ -203,7 +222,10 @@ export const WebsiteKitLibrary: React.FC<WebsiteKitLibraryProps> = ({
 
                 <button
                   type="button"
-                  onClick={() => setConfirmKit(kit)}
+                  onClick={() => {
+                    clearError();
+                    setConfirmKit(kit);
+                  }}
                   className="flex-1 flex items-center justify-center rounded-lg border border-purple-600 bg-purple-600 px-2 py-1.5 text-xs font-bold text-white shadow-2xs hover:bg-purple-700 transition active:scale-95 cursor-pointer"
                   aria-label={`Use ${kit.name}`}
                 >
@@ -221,6 +243,7 @@ export const WebsiteKitLibrary: React.FC<WebsiteKitLibraryProps> = ({
         kit={previewKit}
         onClose={() => setPreviewKit(null)}
         onSelectUse={(kit) => {
+          clearError();
           setPreviewKit(null);
           setConfirmKit(kit);
         }}
@@ -231,7 +254,12 @@ export const WebsiteKitLibrary: React.FC<WebsiteKitLibraryProps> = ({
         isOpen={Boolean(confirmKit)}
         kit={confirmKit}
         isApplying={isApplying}
-        onClose={() => setConfirmKit(null)}
+        websiteId={activeWebsiteId}
+        errorMessage={error}
+        onClose={() => {
+          clearError();
+          setConfirmKit(null);
+        }}
         onConfirmApply={handleConfirmApplyKit}
       />
     </div>

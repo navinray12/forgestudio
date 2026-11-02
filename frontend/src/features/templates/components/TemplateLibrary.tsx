@@ -18,14 +18,18 @@ import { saveAsTemplate } from "../services/templateService";
 
 interface TemplateLibraryProps {
   apiUrl: string;
+  websiteId?: string;
   onInsertTemplate: (template: Template) => void;
   onOpenSaveTemplate?: () => void;
+  onKitApplied?: (message: string) => void;
 }
 
 export const TemplateLibrary: React.FC<TemplateLibraryProps> = ({
   apiUrl,
+  websiteId,
   onInsertTemplate,
   onOpenSaveTemplate,
+  onKitApplied,
 }) => {
   const {
     templates,
@@ -240,9 +244,13 @@ export const TemplateLibrary: React.FC<TemplateLibraryProps> = ({
         {selectedCategory === "WEBSITE_KIT" && (
           <WebsiteKitLibrary
             apiUrl={apiUrl}
-            onKitApplied={() => {
+            websiteId={websiteId}
+            onKitApplied={(msg) => {
               // Trigger template refetch if needed
               refetchTemplates();
+              if (onKitApplied) {
+                onKitApplied(msg);
+              }
             }}
           />
         )}

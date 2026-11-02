@@ -8166,8 +8166,13 @@ export default function WebsiteEditor() {
 
               <TemplateLibrary
                 apiUrl={apiUrl}
+                websiteId={websiteId}
                 onInsertTemplate={handleInsertTemplate}
                 onOpenSaveTemplate={openSaveTemplateDialog}
+                onKitApplied={(msg) => {
+                  setSaveMessage(msg);
+                  window.location.reload();
+                }}
               />
             )}
 

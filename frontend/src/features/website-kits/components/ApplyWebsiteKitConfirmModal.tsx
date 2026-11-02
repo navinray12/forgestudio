@@ -5,18 +5,29 @@ interface ApplyWebsiteKitConfirmModalProps {
   isOpen: boolean;
   kit: WebsiteKit | null;
   isApplying: boolean;
+  websiteId?: string;
+  errorMessage?: string | null;
   onClose: () => void;
-  onConfirmApply: (kit: WebsiteKit) => void;
+  onConfirmApply: (kit: WebsiteKit) => void | Promise<void>;
 }
 
 export const ApplyWebsiteKitConfirmModal: React.FC<ApplyWebsiteKitConfirmModalProps> = ({
   isOpen,
   kit,
   isApplying,
+  websiteId,
+  errorMessage,
   onClose,
   onConfirmApply,
 }) => {
   if (!isOpen || !kit) return null;
+
+  const hasTargetWebsite = Boolean(websiteId && websiteId.trim());
+
+  const handleConfirm = () => {
+    if (isApplying || !hasTargetWebsite) return;
+    onConfirmApply(kit);
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs animate-in fade-in duration-150">
@@ -42,11 +53,25 @@ export const ApplyWebsiteKitConfirmModal: React.FC<ApplyWebsiteKitConfirmModalPr
             <span>✨ Included Content:</span>
           </div>
           <ul className="text-[11px] list-disc list-inside space-y-0.5 opacity-90">
-            <li>{kit.pageCount} Complete Pages ({kit.pages.map((p) => p.title).join(", ")})</li>
+            <li>{kit.pageCount} Pages ({kit.pages.map((p) => p.title).join(", ")})</li>
             <li>Global Theme Styles & Typography</li>
             <li>Header & Footer Layout Components</li>
           </ul>
         </div>
+
+        {/* No Target Website Warning */}
+        {!hasTargetWebsite && (
+          <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-900/60 dark:bg-amber-950/40 p-3 text-xs text-amber-800 dark:text-amber-300 font-medium">
+            ⚠️ No active target website is selected. Please open a website in ForgeStudio Editor before applying a kit.
+          </div>
+        )}
+
+        {/* Error Alert */}
+        {errorMessage && (
+          <div className="rounded-xl border border-rose-200 bg-rose-50 dark:border-rose-900/60 dark:bg-rose-950/40 p-3 text-xs text-rose-700 dark:text-rose-300 font-medium">
+            ⚠️ {errorMessage}
+          </div>
+        )}
 
         {/* Action Buttons */}
         <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
@@ -60,8 +85,8 @@ export const ApplyWebsiteKitConfirmModal: React.FC<ApplyWebsiteKitConfirmModalPr
           </button>
           <button
             type="button"
-            onClick={() => onConfirmApply(kit)}
-            disabled={isApplying}
+            onClick={handleConfirm}
+            disabled={isApplying || !hasTargetWebsite}
             className="rounded-xl bg-purple-600 px-5 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-purple-700 transition disabled:opacity-50 flex items-center gap-2 cursor-pointer"
           >
             {isApplying ? (
