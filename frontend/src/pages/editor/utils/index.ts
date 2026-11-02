@@ -1004,13 +1004,16 @@ function toKebabCase(prop: string): string {
  */
 function sanitizeCssValue(value: string): string {
   if (typeof value !== "string") return "";
-  return value
-    .replace(/[\u0000-\u001F\u007F]/g, "")
-    .replace(/[;{}]/g, "")
-    .replace(/<\/style/gi, "")
-    .replace(/expression\s*\(/gi, "")
-    .replace(/javascript\s*:/gi, "")
-    .trim();
+  return (
+    value
+      // eslint-disable-next-line no-control-regex
+      .replace(/[\u0000-\u001F\u007F]/g, "")
+      .replace(/[;{}]/g, "")
+      .replace(/<\/style/gi, "")
+      .replace(/expression\s*\(/gi, "")
+      .replace(/javascript\s*:/gi, "")
+      .trim()
+  );
 }
 
 /**
