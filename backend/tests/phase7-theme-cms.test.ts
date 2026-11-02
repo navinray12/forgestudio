@@ -351,7 +351,7 @@ export async function runPhase7TestSuite() {
     const headerRuleDefault = await themeBuilderService.createThemeRule(websiteA.id, owner.id, {
       locationType: "HEADER",
       templateId: "tmpl-header-default",
-      conditions: [{ type: "include:all" }],
+      conditions: [{ type: "entire_site" }],
     });
 
     // Rule 2: About page specific header (template "tmpl-header-about", priority 90)
@@ -415,7 +415,7 @@ export async function runPhase7TestSuite() {
       post: {
         title: entry1.title,
         status: entry1.status,
-        data: entry1.data,
+        data: (entry1.data as Record<string, any>) || {},
       },
     };
 

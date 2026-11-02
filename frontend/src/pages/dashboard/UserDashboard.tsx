@@ -14,6 +14,7 @@ import CustomPostTypesPanel from "./components/CustomPostTypesPanel";
 import PerformancePanel from "./components/PerformancePanel";
 import { exportWebsiteKitAsJson } from "../../features/templates/utils/websiteKitExport";
 import { ImportWebsiteKitDialog } from "../../features/templates/components/ImportWebsiteKitDialog";
+import { buildCanonicalEditorDataFromKit } from "../../features/templates/utils/websiteKitValidation";
 import { ManagedSiteModal } from "./components/ManagedSiteModal";
 import { ActivityLogModal } from "./components/ActivityLogModal";
 import LicensingPanel from "./components/LicensingPanel";
@@ -231,42 +232,84 @@ function UserDashboard() {
       pageSettings: Record<string, any>;
     }>;
     templates: any[];
+    [key: string]: any;
   }) => {
     try {
-      const siteName = kitData.website?.name || "Imported Kit Website";
-      const mainPage = kitData.pages?.[0] || { elements: [], pageSettings: {} };
+      const siteName = kitData.website?.name?.trim() || "Imported Kit Website";
 
+      // 1. Create base website
       const res = await fetch(`${apiUrl}/api/websites`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ name: siteName }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => null);
 
-      if (!res.ok || !data.website?.id) {
-        alert(data?.message || "Failed to create website from kit.");
-        return;
+      if (!res.ok || !data?.website?.id) {
+        const errorMsg = data?.message || data?.error?.message || "Failed to create website from kit.";
+        alert(errorMsg);
+        throw new Error(errorMsg);
       }
 
       const newSiteId = data.website.id;
-      await fetch(`${apiUrl}/api/websites/${newSiteId}`, {
+
+      // 2. Issue 01: Retrieve persisted version for expectedVersion requirement
+      let expectedVersion: number | undefined =
+        typeof data.website?.version === "number" ? data.website.version : undefined;
+
+      if (expectedVersion === undefined) {
+        const getRes = await fetch(`${apiUrl}/api/websites/${newSiteId}`, {
+          credentials: "include",
+        });
+        const getData = await getRes.json().catch(() => null);
+        if (getRes.ok && typeof getData?.website?.version === "number") {
+          expectedVersion = getData.website.version;
+        } else {
+          const versionErr = "Unable to retrieve initial website version for saving kit.";
+          alert(versionErr);
+          throw new Error(versionErr);
+        }
+      }
+
+      // 3. Issue 02: Convert all pages to canonical editorData format preserving homePageId and nested widgets
+      const canonicalEditorData = buildCanonicalEditorDataFromKit(kitData, siteName);
+
+      // 4. Issue 01: Pass expectedVersion in save PUT request
+      const saveRes = await fetch(`${apiUrl}/api/websites/${newSiteId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          editorData: {
-            elements: mainPage.elements || [],
-            pageSettings: mainPage.pageSettings || { title: siteName },
-          },
+          expectedVersion,
+          editorData: canonicalEditorData,
         }),
       });
 
+      const saveData = await saveRes.json().catch(() => null);
+
+      // 5. Issue 03: Validate response and website ID; never navigate on failure
+      if (!saveRes.ok) {
+        const errorMsg =
+          saveData?.message ||
+          saveData?.error?.message ||
+          `Failed to save imported website kit (HTTP ${saveRes.status}).`;
+        alert(errorMsg);
+        throw new Error(errorMsg);
+      }
+
+      if (!saveData?.website?.id || saveData.website.id !== newSiteId) {
+        const mismatchMsg = "Website kit import failed: server returned an unexpected website ID.";
+        alert(mismatchMsg);
+        throw new Error(mismatchMsg);
+      }
+
+      // 6. Navigation ONLY on verified success
       setIsImportKitOpen(false);
       navigate(`/editor/${newSiteId}`);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to import website kit on dashboard:", err);
-      alert("Error importing website kit.");
+      throw err;
     }
   };
 

@@ -273,7 +273,7 @@ async function runPhase13DeveloperApiTests() {
     // 1.8 Transactional Rotation Failure Injection Test
     let injectionErrorCaught = false;
     try {
-      await rotateApiKey(tenantAOwner.id, genResWriteOnly.apiKey.id, { simulateTxFailure: true });
+      await rotateApiKey(tenantAOwner.id, genResWriteOnly.apiKey.id, undefined, true);
     } catch {
       injectionErrorCaught = true;
     }

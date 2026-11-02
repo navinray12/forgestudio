@@ -14,7 +14,8 @@ interface ImportWebsiteKitDialogProps {
       pageSettings: Record<string, any>;
     }>;
     templates: any[];
-  }) => void;
+    [key: string]: any;
+  }) => void | Promise<void>;
 }
 
 export const ImportWebsiteKitDialog: React.FC<ImportWebsiteKitDialogProps> = ({
@@ -115,12 +116,13 @@ export const ImportWebsiteKitDialog: React.FC<ImportWebsiteKitDialogProps> = ({
     }
   };
 
-  const handleConfirmImport = () => {
+  const handleConfirmImport = async () => {
     if (!validatedKit || isImporting) return;
 
     setIsImporting(true);
+    setValidationError(null);
     try {
-      onImportKit(validatedKit);
+      await onImportKit(validatedKit);
       onClose();
     } catch (err: any) {
       setValidationError(err?.message || "Unable to import Website Kit.");
