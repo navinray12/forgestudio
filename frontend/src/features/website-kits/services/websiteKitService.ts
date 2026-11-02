@@ -9,29 +9,17 @@ export interface ApplyKitResult {
   editorData?: any;
 }
 
+export interface ApplyWebsiteKitOptions {
+  confirmOverwrite?: boolean;
+  hasUnsavedChanges?: boolean;
+  isAutosaving?: boolean;
+}
+
 /**
- * Retrieves all available Website Kits (local curated collection)
+ * Retrieves all available Website Kits from the local curated catalog.
+ * Avoids unnecessary network calls to unmounted backend routes while preserving signature.
  */
-export async function getWebsiteKits(apiUrl?: string): Promise<WebsiteKit[]> {
-  if (apiUrl) {
-    try {
-      const res = await fetch(`${apiUrl}/api/website-kits`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-      });
-
-      if (res.ok) {
-        const data = await res.json().catch(() => ({}));
-        if (data?.kits && Array.isArray(data.kits) && data.kits.length > 0) {
-          return [...WEBSITE_KITS, ...data.kits];
-        }
-      }
-    } catch {
-      // Gracefully fall back to local curated website kits on network/route failure
-    }
-  }
-
+export async function getWebsiteKits(_apiUrl?: string): Promise<WebsiteKit[]> {
   return WEBSITE_KITS;
 }
 
@@ -44,20 +32,29 @@ export async function getWebsiteKits(apiUrl?: string): Promise<WebsiteKit[]> {
 export async function applyWebsiteKit(
   apiUrl: string,
   kit: WebsiteKit,
-  targetWebsiteId?: string
+  targetWebsiteId?: string,
+  options?: ApplyWebsiteKitOptions
 ): Promise<ApplyKitResult> {
-  // 1. Target Website Validation
+  // 1. Guard against unsaved editor state or active autosave
+  if (options?.isAutosaving) {
+    throw new Error("Cannot apply Website Kit: An autosave operation is currently in progress. Please wait for it to complete.");
+  }
+  if (options?.hasUnsavedChanges) {
+    throw new Error("Cannot apply Website Kit: You have unsaved editor changes. Please save or resolve your changes before applying a kit.");
+  }
+
+  // 2. Target Website Validation
   const trimmedSiteId = (targetWebsiteId || "").trim();
   if (!trimmedSiteId) {
     throw new Error("Unable to apply Website Kit: No target website selected or active.");
   }
 
-  // 2. Kit Structure Validation
+  // 3. Kit Structure Validation
   if (!kit || typeof kit !== "object" || !Array.isArray(kit.pages) || kit.pages.length === 0) {
     throw new Error("Invalid Website Kit structure: Kit must contain at least one valid page.");
   }
 
-  // 3. Read current website state and revision from backend
+  // 4. Read current website state and revision from backend
   let currentWebsite: any = null;
   try {
     const getRes = await fetch(`${apiUrl}/api/websites/${trimmedSiteId}`, {
@@ -90,9 +87,38 @@ export async function applyWebsiteKit(
     throw new Error("Website fetch failed: Server returned an invalid website record.");
   }
 
-  const expectedVersion = typeof currentWebsite.version === "number" ? currentWebsite.version : 1;
+  // Validate that returned ID matches expected ID
+  if (currentWebsite.id !== trimmedSiteId) {
+    throw new Error(`Website fetch failed: Server returned mismatched website ID "${currentWebsite.id}".`);
+  }
 
-  // 4. Adapt Kit Pages and Styles into Canonical Editor Data Schema
+  // Fix 3: Strict positive integer revision validation (no guessing or fallback to 1)
+  if (
+    typeof currentWebsite.version !== "number" ||
+    !Number.isInteger(currentWebsite.version) ||
+    currentWebsite.version < 1
+  ) {
+    throw new Error(
+      `Target website revision is invalid or missing (version: ${currentWebsite.version}). Kit was not applied.`
+    );
+  }
+  const expectedVersion = currentWebsite.version;
+
+  // Fix 1: Inspect existing website content and prevent silent destructive overwrite
+  const existingPages = currentWebsite.editorData?.pages;
+  const existingElements = currentWebsite.editorData?.elements;
+  const siteHasExistingContent =
+    (Array.isArray(existingPages) &&
+      existingPages.some((p: any) => Array.isArray(p.elements) && p.elements.length > 0)) ||
+    (Array.isArray(existingElements) && existingElements.length > 0);
+
+  if (siteHasExistingContent && !options?.confirmOverwrite) {
+    throw new Error(
+      "Target website contains existing content. Explicit confirmation is required before replacing website pages and layout."
+    );
+  }
+
+  // 5. Adapt Kit Pages and Styles into Canonical Editor Data Schema
   const kitPayload = {
     website: {
       name: currentWebsite.name || kit.name,
@@ -129,7 +155,18 @@ export async function applyWebsiteKit(
     currentWebsite.name || kit.name
   );
 
-  // 5. Persist to Backend using Existing Protected PUT /api/websites/:id
+  // Preserve published release snapshots, deployment, breakpoints, and siteParts if present
+  if (currentWebsite.editorData?.publishing) {
+    canonicalEditorData.publishing = JSON.parse(JSON.stringify(currentWebsite.editorData.publishing));
+  }
+  if (currentWebsite.editorData?.deployment) {
+    canonicalEditorData.deployment = JSON.parse(JSON.stringify(currentWebsite.editorData.deployment));
+  }
+  if (currentWebsite.editorData?.breakpoints) {
+    canonicalEditorData.breakpoints = JSON.parse(JSON.stringify(currentWebsite.editorData.breakpoints));
+  }
+
+  // 6. Persist to Backend using Existing Protected PUT /api/websites/:id
   let saveRes: Response;
   try {
     saveRes = await fetch(`${apiUrl}/api/websites/${trimmedSiteId}`, {
@@ -145,7 +182,7 @@ export async function applyWebsiteKit(
     throw new Error(`Network failure during kit save: ${netErr?.message || "Connection refused"}. Your website was not modified.`);
   }
 
-  // 6. Strict Verification of Response
+  // 7. Strict Verification of Response
   if (!saveRes.ok) {
     const errorJson = await saveRes.json().catch(() => ({}));
     if (saveRes.status === 409) {
@@ -177,7 +214,7 @@ export async function applyWebsiteKit(
     throw new Error(`Website update verification failed: Server returned mismatched website ID "${saveJson.website.id}".`);
   }
 
-  // 7. Update Local Storage Cache if in browser environment
+  // 8. Update Local Storage Cache if in browser environment
   if (typeof window !== "undefined" && typeof window.localStorage !== "undefined") {
     try {
       window.localStorage.setItem(`forgestudio_editor_${trimmedSiteId}`, JSON.stringify(canonicalEditorData));

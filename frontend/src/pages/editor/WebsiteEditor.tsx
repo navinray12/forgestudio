@@ -8169,9 +8169,65 @@ export default function WebsiteEditor() {
                 websiteId={websiteId}
                 onInsertTemplate={handleInsertTemplate}
                 onOpenSaveTemplate={openSaveTemplateDialog}
-                onKitApplied={(msg) => {
+                hasUnsavedChanges={autosaveStatus === "unsaved" || autosaveStatus === "saving"}
+                autosaveStatus={autosaveStatus}
+                hasExistingContent={
+                  (Array.isArray(elements) && elements.length > 0) ||
+                  (Array.isArray(pages) && pages.some((p: any) => Array.isArray(p.elements) && p.elements.length > 0))
+                }
+                onKitApplied={(msg, result) => {
                   setSaveMessage(msg);
-                  window.location.reload();
+                  if (result?.editorData && result?.website) {
+                    const updatedSite = result.website;
+                    const updatedEditorData = result.editorData;
+
+                    // Synchronize website metadata and persisted revision
+                    setWebsite((prev: any) => prev ? {
+                      ...prev,
+                      version: updatedSite.version ?? prev.version,
+                      updatedAt: updatedSite.updatedAt ?? prev.updatedAt,
+                      editorData: updatedEditorData,
+                    } : updatedSite);
+
+                    // Synchronize canonical pages and canvas elements
+                    if (Array.isArray(updatedEditorData.pages) && updatedEditorData.pages.length > 0) {
+                      const updatedPages: PageConfig[] = updatedEditorData.pages.map((p: any, idx: number) => ({
+                        id: p.id || `page_${idx + 1}`,
+                        name: p.name || p.title || (idx === 0 ? "Home" : `Page ${idx + 1}`),
+                        slug: p.slug || p.path || (idx === 0 ? "/" : `/${(p.name || p.title || `page-${idx + 1}`).toLowerCase().replace(/\s+/g, "-")}`),
+                        elements: Array.isArray(p.elements) ? p.elements : [],
+                        pageSettings: p.pageSettings || { title: p.name || p.title || "Page", path: p.slug || p.path || "/" },
+                        customCss: p.customCss || "",
+                        isHome: Boolean(p.isHome || p.slug === "/" || p.path === "/" || idx === 0),
+                      }));
+                      setPages(updatedPages);
+
+                      const homePage = updatedPages.find((p) => p.isHome || p.slug === "/" || p.id === updatedEditorData.homePageId) || updatedPages[0];
+                      setActivePageId(homePage.id);
+                      setActivePreviewPageId(homePage.id);
+                      setElements(JSON.parse(JSON.stringify(homePage.elements || [])));
+                      if (homePage.pageSettings) {
+                        setPageSettings((prev) => ({ ...prev, ...homePage.pageSettings }));
+                      }
+
+                      // Synchronize autosave baseline to avoid stale overwrite
+                      updateAutosaveBaseline(
+                        homePage.elements || [],
+                        homePage.pageSettings,
+                        updatedPages,
+                        homePage.id,
+                        updatedEditorData.siteParts,
+                        updatedEditorData.globalSettings,
+                        updatedEditorData.globalStyles
+                      );
+                    }
+
+                    if (updatedEditorData.globalSettings) {
+                      setGlobalSettings(updatedEditorData.globalSettings);
+                    }
+                  } else {
+                    window.location.reload();
+                  }
                 }}
               />
             )}

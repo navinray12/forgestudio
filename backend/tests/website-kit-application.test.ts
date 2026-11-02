@@ -500,6 +500,272 @@ async function runWebsiteKitApplicationTestSuite() {
   });
 
   // -------------------------------------------------------------
+  // TEST 16a: Fix 1 — Existing website with content blocks unconfirmed destructive overwrite
+  // -------------------------------------------------------------
+  await runCase("16a. Fix 1: Target website with existing content blocks unconfirmed apply (No PUT executed)", async () => {
+    const siteId = "site-with-existing-content";
+    let putAttempted = false;
+
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = (async (url: string | URL | Request, init?: RequestInit) => {
+      const urlStr = url.toString();
+      if (urlStr.includes(`/api/websites/${siteId}`) && (!init || init.method === "GET")) {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            website: {
+              id: siteId,
+              name: "Existing Site With Design",
+              version: 2,
+              editorData: {
+                pages: [
+                  {
+                    id: "p1",
+                    title: "Home",
+                    elements: [{ id: "el1", type: "text", content: "Original User Content" }],
+                  },
+                ],
+              },
+            },
+          }),
+        } as Response;
+      }
+      if (urlStr.includes(`/api/websites/${siteId}`) && init?.method === "PUT") {
+        putAttempted = true;
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({ success: true, website: { id: siteId, version: 3 } }),
+        } as Response;
+      }
+      return { ok: false, status: 404, json: async () => ({}) } as Response;
+    }) as any;
+
+    try {
+      await assert.rejects(
+        async () => applyWebsiteKit("http://mock.local", testKit, siteId),
+        /Target website contains existing content\. Explicit confirmation is required/
+      );
+      assert.strictEqual(putAttempted, false, "PUT must not be attempted without explicit overwrite confirmation");
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  // -------------------------------------------------------------
+  // TEST 16b: Fix 1 — Explicit overwrite confirmation permits replacement of existing content
+  // -------------------------------------------------------------
+  await runCase("16b. Fix 1: Explicit overwrite confirmation allows replacing existing content", async () => {
+    const siteId = "site-confirm-overwrite";
+    let putAttempted = false;
+    let putPayload: any = null;
+
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = (async (url: string | URL | Request, init?: RequestInit) => {
+      const urlStr = url.toString();
+      if (urlStr.includes(`/api/websites/${siteId}`) && (!init || init.method === "GET")) {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            website: {
+              id: siteId,
+              name: "Existing Site",
+              version: 4,
+              editorData: {
+                pages: [
+                  { id: "p1", elements: [{ id: "el1", type: "heading" }] },
+                ],
+                publishing: { isPublished: true, publishedUrl: "https://mysite.com" },
+              },
+            },
+          }),
+        } as Response;
+      }
+      if (urlStr.includes(`/api/websites/${siteId}`) && init?.method === "PUT") {
+        putAttempted = true;
+        putPayload = JSON.parse(init.body as string);
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            success: true,
+            website: { id: siteId, version: 5 },
+          }),
+        } as Response;
+      }
+      return { ok: false, status: 404, json: async () => ({}) } as Response;
+    }) as any;
+
+    try {
+      const result = await applyWebsiteKit("http://mock.local", testKit, siteId, {
+        confirmOverwrite: true,
+      });
+      assert.strictEqual(putAttempted, true, "PUT was executed with explicit confirmation");
+      assert.strictEqual(putPayload.expectedVersion, 4, "Version 4 passed in CAS");
+      assert.ok(putPayload.editorData.publishing, "Preserved existing publication data");
+      assert.strictEqual(result.success, true, "Operation succeeded");
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  // -------------------------------------------------------------
+  // TEST 16c: Fix 2 — Unsaved editor changes block kit application before network requests
+  // -------------------------------------------------------------
+  await runCase("16c. Fix 2: Unsaved editor changes block kit application before network requests", async () => {
+    let networkCalled = false;
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = (async () => {
+      networkCalled = true;
+      return { ok: true, status: 200, json: async () => ({}) } as Response;
+    }) as any;
+
+    try {
+      await assert.rejects(
+        async () =>
+          applyWebsiteKit("http://mock.local", testKit, "site-unsaved", {
+            hasUnsavedChanges: true,
+          }),
+        /You have unsaved editor changes/
+      );
+      assert.strictEqual(networkCalled, false, "No network request allowed when unsaved changes exist");
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  // -------------------------------------------------------------
+  // TEST 16d: Fix 2 — Active autosave blocks kit application to prevent race conditions
+  // -------------------------------------------------------------
+  await runCase("16d. Fix 2: Active autosave blocks kit application to prevent race conditions", async () => {
+    let networkCalled = false;
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = (async () => {
+      networkCalled = true;
+      return { ok: true, status: 200, json: async () => ({}) } as Response;
+    }) as any;
+
+    try {
+      await assert.rejects(
+        async () =>
+          applyWebsiteKit("http://mock.local", testKit, "site-autosaving", {
+            isAutosaving: true,
+          }),
+        /An autosave operation is currently in progress/
+      );
+      assert.strictEqual(networkCalled, false, "No network request allowed during active autosave");
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  // -------------------------------------------------------------
+  // TEST 16e: Fix 3 — Missing revision stops operation without PUT (no defaulting to 1)
+  // -------------------------------------------------------------
+  await runCase("16e. Fix 3: Missing revision in target website rejects without PUT (no fallback to 1)", async () => {
+    const siteId = "site-no-version";
+    let putCalled = false;
+
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = (async (url: string | URL | Request, init?: RequestInit) => {
+      const urlStr = url.toString();
+      if (urlStr.includes(`/api/websites/${siteId}`) && (!init || init.method === "GET")) {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            website: { id: siteId, name: "Site Without Version" }, // version is missing (undefined)
+          }),
+        } as Response;
+      }
+      if (init?.method === "PUT") {
+        putCalled = true;
+        return { ok: true, status: 200, json: async () => ({ success: true }) } as Response;
+      }
+      return { ok: false, status: 404, json: async () => ({}) } as Response;
+    }) as any;
+
+    try {
+      await assert.rejects(
+        async () => applyWebsiteKit("http://mock.local", testKit, siteId),
+        /Target website revision is invalid or missing/
+      );
+      assert.strictEqual(putCalled, false, "PUT must NOT be dispatched when revision is missing");
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  // -------------------------------------------------------------
+  // TEST 16f: Fix 3 — Non-positive / invalid revision stops operation without PUT
+  // -------------------------------------------------------------
+  await runCase("16f. Fix 3: Invalid revision (string or <= 0) rejects without PUT", async () => {
+    const invalidVersions = [0, -2, 1.5, "2", null];
+
+    for (const badVer of invalidVersions) {
+      const siteId = `site-bad-version-${String(badVer)}`;
+      let putCalled = false;
+
+      const originalFetch = globalThis.fetch;
+      globalThis.fetch = (async (url: string | URL | Request, init?: RequestInit) => {
+        const urlStr = url.toString();
+        if (urlStr.includes(`/api/websites/${siteId}`) && (!init || init.method === "GET")) {
+          return {
+            ok: true,
+            status: 200,
+            json: async () => ({
+              website: { id: siteId, name: "Site", version: badVer },
+            }),
+          } as Response;
+        }
+        if (init?.method === "PUT") {
+          putCalled = true;
+          return { ok: true, status: 200, json: async () => ({ success: true }) } as Response;
+        }
+        return { ok: false, status: 404, json: async () => ({}) } as Response;
+      }) as any;
+
+      try {
+        await assert.rejects(
+          async () => applyWebsiteKit("http://mock.local", testKit, siteId),
+          /Target website revision is invalid or missing/
+        );
+        assert.strictEqual(putCalled, false, `PUT must not be called for invalid version: ${badVer}`);
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+    }
+  });
+
+  // -------------------------------------------------------------
+  // TEST 16g: Fix 4 — Catalog retrieval does not invoke /api/website-kits and functions offline
+  // -------------------------------------------------------------
+  await runCase("16g. Fix 4: Catalog loads from curated local source without calling /api/website-kits", async () => {
+    let apiEndpointCalled = false;
+
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = (async (url: string | URL | Request) => {
+      const urlStr = url.toString();
+      if (urlStr.includes("/api/website-kits")) {
+        apiEndpointCalled = true;
+        throw new Error("Endpoint /api/website-kits must not be requested");
+      }
+      return { ok: false, status: 404, json: async () => ({}) } as Response;
+    }) as any;
+
+    try {
+      const kits = await getWebsiteKits("http://some-backend-url.local");
+      assert.strictEqual(apiEndpointCalled, false, "Did not request /api/website-kits");
+      assert.ok(Array.isArray(kits), "Returned kits array");
+      assert.strictEqual(kits.length, WEBSITE_KITS.length, "Matches curated catalog kit count");
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  // -------------------------------------------------------------
   // TEST 17: REAL DATABASE INTEGRATION (create user -> create website -> apply kit -> reload & verify)
   // -------------------------------------------------------------
   await runCase("17. Real PostgreSQL DB Integration: Apply kit to persisted website and verify reload", async () => {

@@ -5,10 +5,15 @@ import { useWebsiteKits } from "../hooks/useWebsiteKits";
 import { WebsiteKitPreviewModal } from "./WebsiteKitPreviewModal";
 import { ApplyWebsiteKitConfirmModal } from "./ApplyWebsiteKitConfirmModal";
 
+import type { ApplyKitResult } from "../services/websiteKitService";
+
 interface WebsiteKitLibraryProps {
   apiUrl: string;
   websiteId?: string;
-  onKitApplied?: (message: string) => void;
+  onKitApplied?: (message: string, result?: ApplyKitResult) => void;
+  hasUnsavedChanges?: boolean;
+  autosaveStatus?: string;
+  hasExistingContent?: boolean;
 }
 
 const CATEGORIES: WebsiteKitCategory[] = ["All", "Business", "Portfolio", "SaaS", "Agency"];
@@ -17,6 +22,9 @@ export const WebsiteKitLibrary: React.FC<WebsiteKitLibraryProps> = ({
   apiUrl,
   websiteId: propWebsiteId,
   onKitApplied,
+  hasUnsavedChanges = false,
+  autosaveStatus,
+  hasExistingContent = false,
 }) => {
   const { websiteId: routeWebsiteId } = useParams<{ websiteId?: string }>();
   const activeWebsiteId = propWebsiteId || routeWebsiteId;
@@ -41,13 +49,17 @@ export const WebsiteKitLibrary: React.FC<WebsiteKitLibraryProps> = ({
 
   const [appliedToast, setAppliedToast] = useState<string | null>(null);
 
-  const handleConfirmApplyKit = async (kit: WebsiteKit) => {
+  const handleConfirmApplyKit = async (kit: WebsiteKit, options?: { confirmOverwrite?: boolean }) => {
     try {
-      const res = await applyKit(kit);
+      const res = await applyKit(kit, {
+        confirmOverwrite: options?.confirmOverwrite,
+        hasUnsavedChanges,
+        isAutosaving: autosaveStatus === "saving",
+      });
       const msg = res.message || "Website Kit applied successfully.";
       setAppliedToast(msg);
       if (onKitApplied) {
-        onKitApplied(msg);
+        onKitApplied(msg, res);
       }
       setTimeout(() => setAppliedToast(null), 4000);
     } catch {
@@ -256,6 +268,9 @@ export const WebsiteKitLibrary: React.FC<WebsiteKitLibraryProps> = ({
         isApplying={isApplying}
         websiteId={activeWebsiteId}
         errorMessage={error}
+        hasUnsavedChanges={hasUnsavedChanges}
+        isAutosaving={autosaveStatus === "saving"}
+        hasExistingContent={hasExistingContent}
         onClose={() => {
           clearError();
           setConfirmKit(null);

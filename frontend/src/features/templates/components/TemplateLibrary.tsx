@@ -21,7 +21,10 @@ interface TemplateLibraryProps {
   websiteId?: string;
   onInsertTemplate: (template: Template) => void;
   onOpenSaveTemplate?: () => void;
-  onKitApplied?: (message: string) => void;
+  onKitApplied?: (message: string, result?: any) => void;
+  hasUnsavedChanges?: boolean;
+  autosaveStatus?: string;
+  hasExistingContent?: boolean;
 }
 
 export const TemplateLibrary: React.FC<TemplateLibraryProps> = ({
@@ -30,6 +33,9 @@ export const TemplateLibrary: React.FC<TemplateLibraryProps> = ({
   onInsertTemplate,
   onOpenSaveTemplate,
   onKitApplied,
+  hasUnsavedChanges = false,
+  autosaveStatus,
+  hasExistingContent = false,
 }) => {
   const {
     templates,
@@ -245,11 +251,14 @@ export const TemplateLibrary: React.FC<TemplateLibraryProps> = ({
           <WebsiteKitLibrary
             apiUrl={apiUrl}
             websiteId={websiteId}
-            onKitApplied={(msg) => {
+            hasUnsavedChanges={hasUnsavedChanges}
+            autosaveStatus={autosaveStatus}
+            hasExistingContent={hasExistingContent}
+            onKitApplied={(msg, result) => {
               // Trigger template refetch if needed
               refetchTemplates();
               if (onKitApplied) {
-                onKitApplied(msg);
+                onKitApplied(msg, result);
               }
             }}
           />
