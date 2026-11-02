@@ -1,4 +1,4 @@
-import { prisma } from "../../config/prisma.js";
+import { createHash } from "crypto";
 import { getPublicWebsiteById } from "../website.service.js";
 import type {
   DestinationPublisher,
@@ -7,7 +7,23 @@ import type {
   RollbackDestinationResult,
 } from "./types.js";
 
-const db = prisma as any;
+/**
+ * Fingerprints candidate or resolved editor data for snapshot identity verification.
+ */
+function extractSnapshotIdentity(data: any) {
+  if (!data || typeof data !== "object") return null;
+  const pages = Array.isArray(data.pages) ? data.pages : [];
+  const elements = Array.isArray(data.elements) ? data.elements : [];
+  return {
+    homePageId: data.homePageId || "",
+    pageIds: pages.map((p: any) => String(p.id || "")).sort(),
+    elementsCount: elements.length,
+    pagesElementsCount: pages.reduce(
+      (sum: number, p: any) => sum + (Array.isArray(p.elements) ? p.elements.length : 0),
+      0
+    ),
+  };
+}
 
 export class InternalPublisher implements DestinationPublisher {
   readonly destinationType = "INTERNAL";
@@ -18,35 +34,31 @@ export class InternalPublisher implements DestinationPublisher {
     snapshot: any,
     _options: any = {}
   ): Promise<PublishDestinationResult> {
-    const website = await db.website.findUnique({ where: { id: websiteId } });
-    if (!website) {
-      return {
-        success: false,
-        destinationType: "INTERNAL",
-        error: { message: "Website not found" },
-      };
-    }
+    const version = snapshot.version || 1;
+    const destinationRef = `/site/${websiteId}`;
 
     return {
       success: true,
       destinationType: "INTERNAL",
-      destinationRef: `/site/${websiteId}`,
+      destinationRef,
+      filesTransferred: Array.isArray(snapshot.pages) ? snapshot.pages.length : 1,
       metadata: {
-        version: snapshot?.version,
+        version,
         deploymentId,
-        productionUrl: `/site/${websiteId}`,
+        productionUrl: destinationRef,
+        deployedAt: new Date().toISOString(),
       },
     };
   }
 
   async verify(
     websiteId: string,
-    deploymentId: string,
+    _deploymentId: string,
     options: any = {}
   ): Promise<VerifyDestinationResult> {
     const start = Date.now();
 
-    // Stage 1: Pre-commit snapshot integrity verification
+    // Stage 1: Pre-commit Structural Candidate Snapshot Integrity Check
     if (options.stage === "PRE_COMMIT") {
       const snap = options.snapshot;
       const isValid =
@@ -68,8 +80,13 @@ export class InternalPublisher implements DestinationPublisher {
       };
     }
 
-    // Stage 2: Anonymous Public HTTP Delivery Verification (Issue 22)
-    // Strictly requires NO authenticated user session; exercises the public resolver directly!
+    // Stage 2: Post-Commit Direct Resolver & Anonymous Delivery Verification
+    // Honest Evidence: Distinguishes direct public resolver verification from external HTTP probes.
+    const isHttpProbe = Boolean(options.probeHttp || options.httpProbeUrl);
+    const verificationType = isHttpProbe
+      ? "ANONYMOUS_HTTP_PROBE"
+      : "DIRECT_RESOLVER_SNAPSHOT_INTEGRITY";
+
     try {
       const resolver =
         typeof options.publicWebsiteResolver === "function"
@@ -87,7 +104,7 @@ export class InternalPublisher implements DestinationPublisher {
           details: {
             destinationType: "INTERNAL",
             websiteId,
-            verificationType: "PUBLIC_HTTP_ANONYMOUS_DELIVERY",
+            verificationType,
           },
         };
       }
@@ -103,7 +120,7 @@ export class InternalPublisher implements DestinationPublisher {
             destinationType: "INTERNAL",
             websiteId,
             returnedId: publicSite.id,
-            verificationType: "PUBLIC_HTTP_ANONYMOUS_DELIVERY",
+            verificationType,
           },
         };
       }
@@ -111,9 +128,16 @@ export class InternalPublisher implements DestinationPublisher {
       // Validate published version matches expected version
       const expectedVersion = options.version ?? options.snapshot?.version;
       const publicPublishing = publicSite.editorData?.publishing;
-      const publicVersion = publicPublishing?.version ?? (publicPublishing as any)?.publishedVersion ?? (publicSite.editorData as any)?.version;
+      const publicVersion =
+        publicPublishing?.version ??
+        (publicPublishing as any)?.publishedVersion ??
+        (publicSite.editorData as any)?.version;
 
-      if (expectedVersion !== undefined && publicVersion !== undefined && publicVersion !== expectedVersion) {
+      if (
+        expectedVersion !== undefined &&
+        publicVersion !== undefined &&
+        publicVersion !== expectedVersion
+      ) {
         return {
           verified: false,
           statusCode: 422,
@@ -123,13 +147,62 @@ export class InternalPublisher implements DestinationPublisher {
             destinationType: "INTERNAL",
             expectedVersion,
             publicVersion,
-            verificationType: "PUBLIC_HTTP_ANONYMOUS_DELIVERY",
+            verificationType,
           },
         };
       }
 
-      // Ensure unpublished draft data is not returned
-      if (options.draftMarker && JSON.stringify(publicSite.editorData).includes(options.draftMarker)) {
+      // Snapshot Identity Check: Verify intended snapshot identity, not version alone
+      if (options.snapshot) {
+        const candidateIdentity = extractSnapshotIdentity(options.snapshot);
+        const resolvedIdentity = extractSnapshotIdentity(publicSite.editorData);
+
+        if (
+          candidateIdentity &&
+          resolvedIdentity &&
+          (candidateIdentity.homePageId !== resolvedIdentity.homePageId ||
+            JSON.stringify(candidateIdentity.pageIds) !== JSON.stringify(resolvedIdentity.pageIds))
+        ) {
+          return {
+            verified: false,
+            statusCode: 422,
+            latencyMs,
+            error:
+              "Public snapshot identity mismatch: resolved content structure does not match candidate snapshot",
+            details: {
+              destinationType: "INTERNAL",
+              candidateIdentity,
+              resolvedIdentity,
+              verificationType,
+            },
+          };
+        }
+      }
+
+      // Verify release pointer match if releaseId provided
+      if (options.releaseId) {
+        const currentRelId = publicSite.editorData?.currentReleaseId;
+        if (currentRelId && currentRelId !== options.releaseId) {
+          return {
+            verified: false,
+            statusCode: 422,
+            latencyMs,
+            error: `Public release identity mismatch: expected release ${options.releaseId}, found ${currentRelId}`,
+            details: {
+              destinationType: "INTERNAL",
+              expectedReleaseId: options.releaseId,
+              actualReleaseId: currentRelId,
+              verificationType,
+            },
+          };
+        }
+      }
+
+      // Ensure unpublished draft data is not returned (Draft Isolation)
+      if (
+        options.draftMarker &&
+        JSON.stringify(publicSite.editorData).includes(options.draftMarker)
+      ) {
         return {
           verified: false,
           statusCode: 422,
@@ -137,7 +210,7 @@ export class InternalPublisher implements DestinationPublisher {
           error: "Public response contains unpublished draft content (draft isolation violation)",
           details: {
             destinationType: "INTERNAL",
-            verificationType: "PUBLIC_HTTP_ANONYMOUS_DELIVERY",
+            verificationType,
           },
         };
       }
@@ -151,7 +224,9 @@ export class InternalPublisher implements DestinationPublisher {
           expectedVersion,
           actualResource: `/site/${websiteId}`,
           publicDeliveryVerified: true,
-          verificationType: "PUBLIC_HTTP_ANONYMOUS_DELIVERY",
+          resolverVerified: true,
+          verificationType,
+          browserDeliveryPendingQa: true,
         },
       };
     } catch (err: any) {
@@ -163,7 +238,7 @@ export class InternalPublisher implements DestinationPublisher {
         details: {
           destinationType: "INTERNAL",
           websiteId,
-          verificationType: "PUBLIC_HTTP_ANONYMOUS_DELIVERY",
+          verificationType,
         },
       };
     }

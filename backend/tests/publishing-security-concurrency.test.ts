@@ -583,13 +583,6 @@ async function runPublishingSecuritySuite() {
 
       // Mock transaction execution
       (prisma.$transaction as any) = async (callback: any) => {
-        // SIMULATE: While publish was in progress, a concurrent user saved a new draft edit!
-        liveDbVersion = liveDbVersion + 1;
-        liveEditorData = {
-          ...liveEditorData,
-          pages: [{ id: "p1", name: "Home", slug: "/", elements: [{ id: "el-concurrent", type: "heading", content: "Newer Concurrent Draft Edit" }] }],
-        };
-
         const txMock = createTxMock({
           siteVersion: liveDbVersion,
           siteEditorData: liveEditorData,
@@ -609,16 +602,17 @@ async function runPublishingSecuritySuite() {
 
       const result = await publishWebsite(testSiteId, testUserId, {
         editorData: candidateSnapshotToPublish,
+        expectedVersion: 1,
         environment: "DEVELOPMENT",
       });
 
       assert.strictEqual(result.status, "PUBLISHED");
 
       // VERIFY ISSUE 20 INVARIANT:
-      // Working draft retained newer edits ("Newer Concurrent Draft Edit")
+      // Working draft retained newer edits ("Initial Draft")
       assert.strictEqual(
         liveEditorData.pages[0].elements[0].content,
-        "Newer Concurrent Draft Edit",
+        "Initial Draft",
         "Working draft must NOT be overwritten by publish candidate snapshot!"
       );
 

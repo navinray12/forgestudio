@@ -7,6 +7,7 @@
 /**
  * Resolves the trusted public origin for public website links.
  * Strictly avoids untrusted request Host headers and avoids localhost in production.
+ * In production, strictly requires HTTPS.
  */
 export function getTrustedPublicOrigin(): string | null {
   const envOrigin =
@@ -36,6 +37,10 @@ export function getTrustedPublicOrigin(): string | null {
 
     if (process.env.NODE_ENV === "production" && isLocal) {
       return null; // Disallow localhost in production
+    }
+
+    if (process.env.NODE_ENV === "production" && parsed.protocol !== "https:") {
+      return null; // Production public links strictly require HTTPS
     }
 
     return parsed.origin;

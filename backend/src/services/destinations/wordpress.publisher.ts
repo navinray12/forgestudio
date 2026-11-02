@@ -1,6 +1,5 @@
 import {
   publishToWordPress,
-  verifyWordPressConnection,
   sendSignedWordPressRequest,
 } from "../wordpress/connector.service.js";
 import { prisma } from "../../config/prisma.js";
@@ -30,6 +29,8 @@ export class WordPressPublisher implements DestinationPublisher {
       snapshot
     );
 
+    const releaseMarker = `fs-release-${deploymentId}`;
+
     return {
       success: syncRes.success,
       destinationType: "WORDPRESS",
@@ -41,13 +42,15 @@ export class WordPressPublisher implements DestinationPublisher {
         syncedPagesCount: syncRes.syncedPagesCount,
         syncedMediaCount: syncRes.syncedMediaCount,
         pageMappings: syncRes.pageMappings,
+        releaseMarker,
+        deployedAt: new Date().toISOString(),
       },
     };
   }
 
   async verify(
     websiteId: string,
-    _deploymentId: string,
+    deploymentId: string,
     options: any = {}
   ): Promise<VerifyDestinationResult> {
     const start = Date.now();
@@ -84,7 +87,7 @@ export class WordPressPublisher implements DestinationPublisher {
         };
       }
 
-      // 2. Check page mappings
+      // 2. Check page mappings: verify EVERY required published page, not only the first
       let mappings: any[] = options.pageMappings;
       if (!mappings || !Array.isArray(mappings) || mappings.length === 0) {
         if (db?.wordPressPageMapping?.findMany) {
@@ -107,81 +110,51 @@ export class WordPressPublisher implements DestinationPublisher {
         };
       }
 
-      // Target mapping: primary page or first mapped page
-      const targetMapping = mappings[0];
-      const targetPostId = targetMapping.wpPostId || targetMapping.wordpressPageId;
+      const verifiedPages: any[] = [];
+      const expectedMarker = options.releaseMarker || options.expectedContent;
 
-      if (!targetPostId) {
-        return {
-          verified: false,
-          statusCode: 422,
-          latencyMs: Date.now() - start,
-          error: "Mapped WordPress post ID is invalid or missing",
-          details: {
-            destinationType: "WORDPRESS",
-            verificationType: "REMOTE_CONTENT_VERIFIED",
-          },
-        };
-      }
+      for (let i = 0; i < mappings.length; i++) {
+        const mapping = mappings[i];
+        const targetPostId = Number(mapping.wpPostId || mapping.wordpressPageId);
 
-      // 3. Query remote post directly from WordPress
-      let remotePage: any = null;
-      if (typeof options.sendSignedRequest === "function") {
-        remotePage = await options.sendSignedRequest(
-          connection.siteUrl,
-          `/pages/${targetPostId}`,
-          "GET",
-          connection.apiKeyHash
-        );
-      } else {
-        remotePage = await sendSignedWordPressRequest(
-          connection.siteUrl,
-          `/pages/${targetPostId}`,
-          "GET",
-          connection.apiKeyHash
-        );
-      }
-
-      if (!remotePage || (!remotePage.id && remotePage.id !== targetPostId)) {
-        return {
-          verified: false,
-          statusCode: 404,
-          latencyMs: Date.now() - start,
-          error: `Mapped remote WordPress page ${targetPostId} was not found (404)`,
-          details: {
-            destinationType: "WORDPRESS",
-            targetPostId,
-            verificationType: "REMOTE_CONTENT_VERIFIED",
-          },
-        };
-      }
-
-      // 4. Verify published status (Issue 22: Must be published, reject draft/trash)
-      const remoteStatus = String(remotePage.status || "").toLowerCase();
-      if (remoteStatus !== "publish" && remoteStatus !== "published") {
-        return {
-          verified: false,
-          statusCode: 422,
-          latencyMs: Date.now() - start,
-          error: `Remote WordPress page is '${remoteStatus}', expected 'publish'`,
-          details: {
-            destinationType: "WORDPRESS",
-            targetPostId,
-            remoteStatus,
-            verificationType: "REMOTE_CONTENT_VERIFIED",
-          },
-        };
-      }
-
-      // 5. Verify content/marker if expectedContent is supplied
-      if (options.expectedContent !== undefined) {
-        const remoteContent = remotePage.content?.rendered || remotePage.content || "";
-        if (!String(remoteContent).includes(String(options.expectedContent))) {
+        if (!targetPostId || isNaN(targetPostId)) {
           return {
             verified: false,
             statusCode: 422,
             latencyMs: Date.now() - start,
-            error: "Remote WordPress page content does not match expected published content",
+            error: `Mapped WordPress post ID is invalid or missing at index ${i}`,
+            details: {
+              destinationType: "WORDPRESS",
+              mappingIndex: i,
+              verificationType: "REMOTE_CONTENT_VERIFIED",
+            },
+          };
+        }
+
+        // 3. Query remote post directly from WordPress
+        let remotePage: any = null;
+        if (typeof options.sendSignedRequest === "function") {
+          remotePage = await options.sendSignedRequest(
+            connection.siteUrl,
+            `/pages/${targetPostId}`,
+            "GET",
+            connection.apiKeyHash
+          );
+        } else {
+          remotePage = await sendSignedWordPressRequest(
+            connection.siteUrl,
+            `/pages/${targetPostId}`,
+            "GET",
+            connection.apiKeyHash
+          );
+        }
+
+        if (!remotePage) {
+          return {
+            verified: false,
+            statusCode: 404,
+            latencyMs: Date.now() - start,
+            error: `Mapped remote WordPress page ${targetPostId} was not found (404)`,
             details: {
               destinationType: "WORDPRESS",
               targetPostId,
@@ -189,6 +162,81 @@ export class WordPressPublisher implements DestinationPublisher {
             },
           };
         }
+
+        // 4. Strict post ID equality verification
+        const actualPostId = Number(remotePage.id);
+        if (actualPostId !== targetPostId) {
+          return {
+            verified: false,
+            statusCode: 422,
+            latencyMs: Date.now() - start,
+            error: `Remote WordPress post ID mismatch. Expected ${targetPostId}, but remote post has ID ${actualPostId}`,
+            details: {
+              destinationType: "WORDPRESS",
+              expectedPostId: targetPostId,
+              actualPostId,
+              verificationType: "REMOTE_CONTENT_VERIFIED",
+            },
+          };
+        }
+
+        // 5. Verify published status (reject draft/trash/private)
+        const remoteStatus = String(remotePage.status || "").toLowerCase();
+        if (remoteStatus !== "publish" && remoteStatus !== "published") {
+          return {
+            verified: false,
+            statusCode: 422,
+            latencyMs: Date.now() - start,
+            error: `Remote WordPress page ${targetPostId} is '${remoteStatus}', expected 'publish'`,
+            details: {
+              destinationType: "WORDPRESS",
+              targetPostId,
+              remoteStatus,
+              verificationType: "REMOTE_CONTENT_VERIFIED",
+            },
+          };
+        }
+
+        // 6. Content identity & marker verification
+        if (expectedMarker !== undefined && expectedMarker !== null) {
+          const remoteContentStr = String(
+            remotePage.content?.rendered ||
+              remotePage.content ||
+              remotePage.title?.rendered ||
+              remotePage.title ||
+              ""
+          );
+
+          let expectedContentForPage: string;
+          if (typeof expectedMarker === "object" && expectedMarker[mapping.forgePageId]) {
+            expectedContentForPage = String(expectedMarker[mapping.forgePageId]);
+          } else if (typeof expectedMarker === "object" && expectedMarker[targetPostId]) {
+            expectedContentForPage = String(expectedMarker[targetPostId]);
+          } else {
+            expectedContentForPage = String(expectedMarker);
+          }
+
+          if (!remoteContentStr.includes(expectedContentForPage)) {
+            return {
+              verified: false,
+              statusCode: 422,
+              latencyMs: Date.now() - start,
+              error: `Remote WordPress page ${targetPostId} content does not match expected published content (stale or unrelated content detected)`,
+              details: {
+                destinationType: "WORDPRESS",
+                targetPostId,
+                expectedMarker: expectedContentForPage,
+                verificationType: "REMOTE_CONTENT_VERIFIED",
+              },
+            };
+          }
+        }
+
+        verifiedPages.push({
+          targetPostId,
+          remoteStatus,
+          url: mapping.wpPostUrl || `${connection.siteUrl}/?p=${targetPostId}`,
+        });
       }
 
       return {
@@ -198,15 +246,15 @@ export class WordPressPublisher implements DestinationPublisher {
         details: {
           destinationType: "WORDPRESS",
           expectedVersion: options.version,
-          actualResource: targetMapping.wpPostUrl || `${connection.siteUrl}/?p=${targetPostId}`,
-          remotePostId: targetPostId,
-          remoteStatus,
+          deploymentId,
           siteUrl: connection.siteUrl,
+          verifiedPagesCount: verifiedPages.length,
+          verifiedPages,
           verificationType: "REMOTE_CONTENT_VERIFIED",
         },
       };
     } catch (err: any) {
-      // Redact any potential credentials in error messages
+      // Redact credentials in error messages
       const sanitizedMsg = (err?.message || String(err))
         .replace(/api[_-]?key[=:][^&\s]+/gi, "apiKey=[REDACTED]")
         .replace(/password[=:][^&\s]+/gi, "password=[REDACTED]");

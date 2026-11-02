@@ -28,6 +28,15 @@ export function setSftpClientFactory(factory: SftpClientFactory | null) {
   customSftpFactory = factory;
 }
 
+function normalizeRelativePath(filePath: string, rootRemotePath: string): string {
+  const normRoot = rootRemotePath.replace(/\/+$/, "");
+  let rel = filePath.replace(/\\/g, "/");
+  if (rel.startsWith(normRoot)) {
+    rel = rel.substring(normRoot.length);
+  }
+  return rel.replace(/^\/+/, "");
+}
+
 export class SftpPublisher implements DestinationPublisher {
   readonly destinationType = "SFTP";
 
@@ -67,7 +76,8 @@ export class SftpPublisher implements DestinationPublisher {
     const bundle = compileCanonicalToStaticBundle(websiteId, version, snapshot);
 
     // 4. Instantiate production SFTP client or test transport
-    const client: ISftpTransportClient = options.sftpClient ||
+    const client: ISftpTransportClient =
+      options.sftpClient ||
       (customSftpFactory ? await customSftpFactory() : new SftpClient());
 
     const connectConfig: any = {
@@ -112,7 +122,6 @@ export class SftpPublisher implements DestinationPublisher {
         actualBytes += file.size;
       }
     } catch (err: any) {
-      // In non-production test mode where mock adapter or simulated mode is passed
       if (options.mockTransport === true || process.env.NODE_ENV === "test_mock") {
         actualFilesCount = bundle.files.length;
         actualBytes = bundle.totalBytes;
@@ -134,6 +143,7 @@ export class SftpPublisher implements DestinationPublisher {
 
     const destinationRef = `sftp://${config.username}@${config.host}:${remotePath}`;
 
+    // Return manifest and files aligned with publisher/pipeline contract
     return {
       success: true,
       destinationType: "SFTP",
@@ -149,6 +159,11 @@ export class SftpPublisher implements DestinationPublisher {
         totalBytes: actualBytes,
         pageCount: bundle.pageCount,
         files: transferredFileList,
+        exportedFiles: transferredFileList,
+        manifest: bundle.files.map((f: any) => ({
+          path: f.path,
+          size: f.size,
+        })),
         deployedAt: new Date().toISOString(),
       },
     };
@@ -215,24 +230,24 @@ export class SftpPublisher implements DestinationPublisher {
     try {
       await client.connect(connectConfig);
 
-      let remoteListing: any[] = [];
-      try {
-        remoteListing = await client.list(remotePath);
-      } catch (listErr: any) {
-        return {
-          verified: false,
-          statusCode: 404,
-          latencyMs: Date.now() - start,
-          error: `Failed to list remote destination path ${remotePath}: ${listErr?.message || String(listErr)}`,
-          details: {
-            destinationType: "SFTP",
-            remotePath,
-            verificationType: "REMOTE_FILE_VERIFICATION",
-          },
-        };
-      }
+      // Cache directory listings to verify nested folders efficiently
+      const dirCache = new Map<string, any[]>();
+      const listDirectory = async (dirPath: string): Promise<any[]> => {
+        const normDir = dirPath.replace(/\/+$/, "");
+        if (dirCache.has(normDir)) return dirCache.get(normDir)!;
+        try {
+          const list = await client.list(normDir);
+          const safeList = Array.isArray(list) ? list : [];
+          dirCache.set(normDir, safeList);
+          return safeList;
+        } catch {
+          dirCache.set(normDir, []);
+          return [];
+        }
+      };
 
-      if (!Array.isArray(remoteListing) || remoteListing.length === 0) {
+      const rootListing = await listDirectory(remotePath);
+      if (!Array.isArray(rootListing) || rootListing.length === 0) {
         return {
           verified: false,
           statusCode: 404,
@@ -246,8 +261,8 @@ export class SftpPublisher implements DestinationPublisher {
         };
       }
 
-      // Check essential entry-point: index.html
-      const indexEntry = remoteListing.find((item) => item.name === "index.html");
+      // Check essential entry-point: index.html in root
+      const indexEntry = rootListing.find((item) => item.name === "index.html");
       if (!indexEntry) {
         return {
           verified: false,
@@ -257,7 +272,7 @@ export class SftpPublisher implements DestinationPublisher {
           details: {
             destinationType: "SFTP",
             remotePath,
-            remoteFiles: remoteListing.map((i) => i.name),
+            remoteFiles: rootListing.map((i) => i.name),
             verificationType: "REMOTE_FILE_VERIFICATION",
           },
         };
@@ -278,27 +293,101 @@ export class SftpPublisher implements DestinationPublisher {
         };
       }
 
-      // If expected files list provided, check presence and non-zero size
-      const expectedFiles: string[] = options.expectedFiles || options.files || [];
+      // Resolve full expected files / manifest (including nested assets)
+      let expectedItems: Array<{ path: string; size?: number }> = [];
+      if (Array.isArray(options.manifest) && options.manifest.length > 0) {
+        expectedItems = options.manifest;
+      } else if (Array.isArray(options.files) && options.files.length > 0) {
+        expectedItems = options.files.map((f: any) =>
+          typeof f === "string" ? { path: f } : f
+        );
+      } else if (Array.isArray(options.expectedFiles) && options.expectedFiles.length > 0) {
+        expectedItems = options.expectedFiles.map((f: any) =>
+          typeof f === "string" ? { path: f } : f
+        );
+      } else if (options.snapshot) {
+        const bundle = compileCanonicalToStaticBundle(websiteId, expectedVersion || 1, options.snapshot);
+        expectedItems = bundle.files.map((f: any) => ({ path: f.path, size: f.size }));
+      } else {
+        // At minimum, index.html is expected
+        expectedItems = [{ path: "index.html" }];
+      }
+
+      // Invariant: Never report verified merely because index.html exists if more files were expected
       const missingFiles: string[] = [];
-      for (const ef of expectedFiles) {
-        const baseName = ef.replace(/^.*[\\\/]/, "");
-        const match = remoteListing.find((item) => item.name === baseName || item.name === ef);
-        if (!match || (match.size !== undefined && match.size <= 0)) {
-          missingFiles.push(ef);
+      const emptyFiles: string[] = [];
+      const corruptFiles: string[] = [];
+      let verifiedFileCount = 0;
+
+      for (const item of expectedItems) {
+        const relPath = normalizeRelativePath(item.path, remotePath);
+        if (!relPath) continue;
+
+        const lastSlash = relPath.lastIndexOf("/");
+        const subDir = lastSlash !== -1 ? relPath.substring(0, lastSlash) : "";
+        const targetDir = subDir ? `${remotePath}/${subDir}`.replace(/\/+/g, "/") : remotePath;
+        const fileName = lastSlash !== -1 ? relPath.substring(lastSlash + 1) : relPath;
+
+        const dirListing = await listDirectory(targetDir);
+        const match = dirListing.find((e) => e.name === fileName);
+
+        if (!match) {
+          missingFiles.push(relPath);
+        } else if (match.size !== undefined && match.size <= 0) {
+          emptyFiles.push(relPath);
+        } else if (
+          item.size !== undefined &&
+          match.size !== undefined &&
+          match.size !== item.size
+        ) {
+          corruptFiles.push(
+            `${relPath} (expected ${item.size} bytes, got ${match.size} bytes)`
+          );
+        } else {
+          verifiedFileCount++;
         }
       }
 
       if (missingFiles.length > 0) {
         return {
           verified: false,
-          statusCode: 422,
+          statusCode: 404,
           latencyMs: Date.now() - start,
-          error: `Remote destination is missing expected files or has incomplete files: ${missingFiles.join(", ")}`,
+          error: `Remote SFTP destination is missing expected files: ${missingFiles.join(", ")}`,
           details: {
             destinationType: "SFTP",
             remotePath,
             missingFiles,
+            verificationType: "REMOTE_FILE_VERIFICATION",
+          },
+        };
+      }
+
+      if (emptyFiles.length > 0) {
+        return {
+          verified: false,
+          statusCode: 422,
+          latencyMs: Date.now() - start,
+          error: `Remote SFTP destination contains empty (0-byte) files: ${emptyFiles.join(", ")}`,
+          details: {
+            destinationType: "SFTP",
+            remotePath,
+            emptyFiles,
+            verificationType: "REMOTE_FILE_VERIFICATION",
+          },
+        };
+      }
+
+      if (corruptFiles.length > 0) {
+        return {
+          verified: false,
+          statusCode: 422,
+          latencyMs: Date.now() - start,
+          error: `Remote SFTP destination contains corrupted or truncated files: ${corruptFiles.join(", ")}`,
+          details: {
+            destinationType: "SFTP",
+            remotePath,
+            corruptFiles,
             verificationType: "REMOTE_FILE_VERIFICATION",
           },
         };
@@ -314,7 +403,8 @@ export class SftpPublisher implements DestinationPublisher {
           actualResource: `${config.username}@${config.host}:${remotePath}`,
           remotePath,
           indexVerified: true,
-          remoteFilesCount: remoteListing.length,
+          remoteFilesCount: rootListing.length,
+          verifiedFileCount,
           verificationType: "REMOTE_FILE_VERIFICATION",
         },
       };

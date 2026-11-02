@@ -2346,10 +2346,12 @@ export default function WebsiteEditor() {
       pageSettings,
     };
 
+    const currentVersion = website?.version;
     const payload = {
       editorData: workingDraftSnapshot,
       environment: "PRODUCTION" as const,
       destinationType: destType,
+      expectedVersion: typeof currentVersion === "number" && currentVersion >= 1 ? currentVersion : undefined,
     };
 
     try {
@@ -2363,8 +2365,12 @@ export default function WebsiteEditor() {
       throw new Error("Publishing failed on server.");
     }
 
-    if ((result as any).updatedAt) {
-      setWebsite((prev) => prev ? { ...prev, updatedAt: (result as any).updatedAt } : prev);
+    if ((result as any).updatedAt || (result as any).siteVersion !== undefined) {
+      setWebsite((prev) => prev ? {
+        ...prev,
+        updatedAt: (result as any).updatedAt || prev.updatedAt,
+        version: (result as any).siteVersion !== undefined ? (result as any).siteVersion : prev.version,
+      } : prev);
     }
 
     const updatedPub: PublishingState = {

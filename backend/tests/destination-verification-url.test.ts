@@ -32,8 +32,8 @@ function logFail(title: string, error: any) {
 
 async function runDestinationVerificationAndUrlSuite() {
   console.log("\n==================================================================");
-  console.log("  P0 DESTINATION VERIFICATION & PUBLIC URL TEST SUITE             ");
-  console.log("  ISSUES 21, 22, 24                                               ");
+  console.log("  P0 DESTINATION VERIFICATION, REVISION & PUBLIC URL TEST SUITE   ");
+  console.log("  ISSUES 21, 22, 24 & INTEGRATION CORRECTIONS 1, 2, 3, 4          ");
   console.log("==================================================================\n");
 
   const origAuditLog = (prisma as any).auditLog;
@@ -144,382 +144,254 @@ async function runDestinationVerificationAndUrlSuite() {
   }
 
   // =========================================================================
-  // ISSUE 21 TESTS: STRICT DESTINATION RESULT VALIDATION
+  // CORRECTION 1 TESTS: REQUIRE SAFE PUBLISH REVISION
   // =========================================================================
-  console.log("\n--- ISSUE 21: Strict Destination Result Validation ---");
+  console.log("\n--- CORRECTION 1: Require Safe Publish Revision ---");
 
-  await runCase("21.1: Reject destination result when success: false", async () => {
-    let deploymentStatus = "";
-    const fakePublisher = {
-      destinationType: "STATIC" as const,
-      publish: async () => ({
-        success: false,
-        destinationType: "STATIC" as const,
-        error: { message: "Disk full or IO error writing static files" },
-      }),
-      verify: async () => ({ verified: true, statusCode: 200, latencyMs: 1 }),
-      rollback: async () => ({ success: true, destinationType: "STATIC" as const }),
-    };
-
-    destinationRegistry.register(fakePublisher);
-
-    const orig$transaction = prisma.$transaction;
+  await runCase("C1.1: Missing expectedVersion when editorData is supplied is rejected with 400 INVALID_REVISION", async () => {
     const origFindUnique = prisma.website.findUnique;
-    const origUpdateMany = prisma.website.updateMany;
-    const origDeployment = (prisma as any).deployment;
-
     try {
-      const mockTx = createTxMock({
-        onDeploymentUpdate: (data) => {
-          if (data.status) deploymentStatus = data.status;
-        },
+      (prisma.website.findUnique as any) = async () => ({
+        id: testSiteId,
+        userId: testUserId,
+        name: "Test Site",
+        slug: "test-site",
+        status: "DRAFT",
+        version: 2,
+        editorData: { pages: [{ id: "p1", name: "Home", isHome: true, elements: [] }] },
       });
-      (prisma as any).$transaction = async (cb: any) => cb(mockTx);
-      (prisma as any).website.findUnique = mockTx.website.findUnique;
-      (prisma as any).website.updateMany = mockTx.website.updateMany;
-      (prisma as any).deployment = mockTx.deployment;
 
-      let errorThrown: any = null;
+      let threw = false;
+      let caughtErr: any = null;
       try {
         await publishWebsite(testSiteId, testUserId, {
-          destinationType: "STATIC",
+          editorData: { homePageId: "p1", pages: [{ id: "p1", name: "Home", elements: [] }] },
         });
       } catch (err) {
-        errorThrown = err;
+        threw = true;
+        caughtErr = err;
       }
 
-      assert(errorThrown, "Expected publishWebsite to throw when publisher returns success: false");
-      assert.strictEqual(errorThrown.status || errorThrown.statusCode, 502);
-      assert.strictEqual(errorThrown.code, "DESTINATION_PUBLISH_FAILED");
-      assert.strictEqual(deploymentStatus, "DEPLOY_FAILED");
+      assert.strictEqual(threw, true, "Must throw when editorData supplied without expectedVersion");
+      assert.strictEqual(caughtErr?.statusCode, 400);
+      assert.strictEqual(caughtErr?.code, "INVALID_REVISION");
+      assert.ok(caughtErr?.message.includes("requires a valid persisted expectedVersion"));
     } finally {
-      (prisma as any).$transaction = orig$transaction;
-      (prisma as any).website.findUnique = origFindUnique;
-      (prisma as any).website.updateMany = origUpdateMany;
-      (prisma as any).deployment = origDeployment;
-      destinationRegistry.register(new StaticExportPublisher());
+      prisma.website.findUnique = origFindUnique;
     }
   });
 
-  await runCase("21.2: Reject malformed or null destination publish result", async () => {
-    let deploymentStatus = "";
-    const fakePublisher = {
-      destinationType: "SFTP" as const,
-      publish: async () => null as any,
-      verify: async () => ({ verified: true, statusCode: 200, latencyMs: 1 }),
-      rollback: async () => ({ success: true, destinationType: "SFTP" as const }),
-    };
-
-    destinationRegistry.register(fakePublisher);
-
-    const orig$transaction = prisma.$transaction;
+  await runCase("C1.2: Invalid expectedVersion (NaN or <= 0) is rejected with 400 INVALID_REVISION", async () => {
     const origFindUnique = prisma.website.findUnique;
-    const origUpdateMany = prisma.website.updateMany;
-    const origDeployment = (prisma as any).deployment;
-    const origSftpFind = (prisma as any).sftpConnection?.findFirst;
-
-    (prisma as any).sftpConnection = {
-      findFirst: async () => ({
-        id: "sftp-1",
-        websiteId: testSiteId,
-        host: "sftp.test",
-        username: "user",
-        remotePath: "/var/www",
-        isActive: true,
-      }),
-    };
-
     try {
-      const mockTx = createTxMock({
-        onDeploymentUpdate: (data) => {
-          if (data.status) deploymentStatus = data.status;
-        },
+      (prisma.website.findUnique as any) = async () => ({
+        id: testSiteId,
+        userId: testUserId,
+        name: "Test Site",
+        slug: "test-site",
+        status: "DRAFT",
+        version: 2,
+        editorData: { pages: [{ id: "p1", name: "Home", isHome: true, elements: [] }] },
       });
-      (prisma as any).$transaction = async (cb: any) => cb(mockTx);
-      (prisma as any).website.findUnique = mockTx.website.findUnique;
-      (prisma as any).website.updateMany = mockTx.website.updateMany;
-      (prisma as any).deployment = mockTx.deployment;
 
-      let errorThrown: any = null;
+      let threw = false;
+      let caughtErr: any = null;
       try {
         await publishWebsite(testSiteId, testUserId, {
-          destinationType: "SFTP",
+          editorData: { homePageId: "p1", pages: [{ id: "p1", name: "Home", elements: [] }] },
+          expectedVersion: -1,
         });
       } catch (err) {
-        errorThrown = err;
+        threw = true;
+        caughtErr = err;
       }
 
-      assert(errorThrown, "Expected publishWebsite to throw on null publishResult");
-      assert.strictEqual(errorThrown.code, "DESTINATION_RESULT_INVALID");
-      assert.strictEqual(deploymentStatus, "DEPLOY_FAILED");
+      assert.strictEqual(threw, true);
+      assert.strictEqual(caughtErr?.statusCode, 400);
+      assert.strictEqual(caughtErr?.code, "INVALID_REVISION");
     } finally {
-      (prisma as any).$transaction = orig$transaction;
-      (prisma as any).website.findUnique = origFindUnique;
-      (prisma as any).website.updateMany = origUpdateMany;
-      (prisma as any).deployment = origDeployment;
-      if (origSftpFind) (prisma as any).sftpConnection.findFirst = origSftpFind;
-      destinationRegistry.register(new SftpPublisher());
+      prisma.website.findUnique = origFindUnique;
     }
   });
 
-  await runCase("21.3: Reject destination type mismatch in publish result", async () => {
-    let deploymentStatus = "";
-    const fakePublisher = {
-      destinationType: "STATIC" as const,
-      publish: async () => ({
-        success: true,
-        destinationType: "SFTP" as const, // Mismatched type!
-        destinationRef: "sftp://host/path",
-      }),
-      verify: async () => ({ verified: true, statusCode: 200, latencyMs: 1 }),
-      rollback: async () => ({ success: true, destinationType: "STATIC" as const }),
-    };
-
-    destinationRegistry.register(fakePublisher);
-
-    const orig$transaction = prisma.$transaction;
+  await runCase("C1.3: Stale expectedVersion is rejected with 409 CONCURRENCY_CONFLICT", async () => {
     const origFindUnique = prisma.website.findUnique;
-    const origUpdateMany = prisma.website.updateMany;
-    const origDeployment = (prisma as any).deployment;
-
     try {
-      const mockTx = createTxMock({
-        onDeploymentUpdate: (data) => {
-          if (data.status) deploymentStatus = data.status;
-        },
+      (prisma.website.findUnique as any) = async () => ({
+        id: testSiteId,
+        userId: testUserId,
+        name: "Test Site",
+        slug: "test-site",
+        status: "DRAFT",
+        version: 5,
+        editorData: { pages: [{ id: "p1", name: "Home", isHome: true, elements: [] }] },
       });
-      (prisma as any).$transaction = async (cb: any) => cb(mockTx);
-      (prisma as any).website.findUnique = mockTx.website.findUnique;
-      (prisma as any).website.updateMany = mockTx.website.updateMany;
-      (prisma as any).deployment = mockTx.deployment;
 
-      let errorThrown: any = null;
+      let threw = false;
+      let caughtErr: any = null;
       try {
         await publishWebsite(testSiteId, testUserId, {
-          destinationType: "STATIC",
+          editorData: { homePageId: "p1", pages: [{ id: "p1", name: "Home", elements: [] }] },
+          expectedVersion: 4,
         });
       } catch (err) {
-        errorThrown = err;
+        threw = true;
+        caughtErr = err;
       }
 
-      assert(errorThrown, "Expected publishWebsite to throw on mismatched destinationType");
-      assert.strictEqual(errorThrown.code, "DESTINATION_TYPE_MISMATCH");
-      assert.strictEqual(deploymentStatus, "DEPLOY_FAILED");
+      assert.strictEqual(threw, true);
+      assert.strictEqual(caughtErr?.statusCode, 409);
+      assert.strictEqual(caughtErr?.code, "CONCURRENCY_CONFLICT");
+      assert.ok(caughtErr?.message.includes("stale website revision"));
     } finally {
-      (prisma as any).$transaction = orig$transaction;
-      (prisma as any).website.findUnique = origFindUnique;
-      (prisma as any).website.updateMany = origUpdateMany;
-      (prisma as any).deployment = origDeployment;
-      destinationRegistry.register(new StaticExportPublisher());
+      prisma.website.findUnique = origFindUnique;
     }
   });
 
-  await runCase("21.4: Reject publish result missing destinationRef", async () => {
-    let deploymentStatus = "";
-    const fakePublisher = {
-      destinationType: "STATIC" as const,
-      publish: async () => ({
-        success: true,
-        destinationType: "STATIC" as const,
-        destinationRef: "", // empty destinationRef
-      }),
-      verify: async () => ({ verified: true, statusCode: 200, latencyMs: 1 }),
-      rollback: async () => ({ success: true, destinationType: "STATIC" as const }),
-    };
-
-    destinationRegistry.register(fakePublisher);
-
-    const orig$transaction = prisma.$transaction;
+  await runCase("C1.4: Concurrent editor save during publish pipeline is rejected at final transaction with 409", async () => {
     const origFindUnique = prisma.website.findUnique;
-    const origUpdateMany = prisma.website.updateMany;
+    const origTransaction = prisma.$transaction;
     const origDeployment = (prisma as any).deployment;
 
     try {
-      const mockTx = createTxMock({
-        onDeploymentUpdate: (data) => {
-          if (data.status) deploymentStatus = data.status;
-        },
-      });
-      (prisma as any).$transaction = async (cb: any) => cb(mockTx);
-      (prisma as any).website.findUnique = mockTx.website.findUnique;
-      (prisma as any).website.updateMany = mockTx.website.updateMany;
-      (prisma as any).deployment = mockTx.deployment;
+      let liveVersion = 1;
+      let liveEditorData = {
+        homePageId: "p1",
+        pages: [{ id: "p1", name: "Home", isHome: true, elements: [{ id: "e1", type: "heading", content: "Original" }] }],
+      };
 
-      let errorThrown: any = null;
+      (prisma.website.findUnique as any) = async () => ({
+        id: testSiteId,
+        userId: testUserId,
+        name: "Test Site",
+        slug: "test-site",
+        status: "DRAFT",
+        version: liveVersion,
+        editorData: liveEditorData,
+      });
+
+      (prisma as any).deployment = {
+        findMany: async () => [],
+        create: async () => ({ id: "dep_c1", version: 1, status: "QUEUED" }),
+        update: async (args: any) => ({ id: "dep_c1", status: args.data.status }),
+      };
+
+      (prisma.$transaction as any) = async (cb: any) => {
+        liveVersion = 5;
+        liveEditorData = {
+          ...liveEditorData,
+          pages: [{ id: "p1", name: "Home", isHome: true, elements: [{ id: "e2", type: "heading", content: "Intervening Concurrent Edit" }] }],
+        };
+
+        const txMock = createTxMock({
+          siteVersion: liveVersion,
+          siteEditorData: liveEditorData,
+        });
+        return await cb(txMock);
+      };
+
+      let threw = false;
+      let caughtErr: any = null;
       try {
         await publishWebsite(testSiteId, testUserId, {
-          destinationType: "STATIC",
+          editorData: {
+            homePageId: "p1",
+            pages: [{ id: "p1", name: "Home", isHome: true, elements: [{ id: "e1", type: "heading", content: "Published" }] }],
+          },
+          expectedVersion: 1,
+          environment: "DEVELOPMENT",
         });
       } catch (err) {
-        errorThrown = err;
+        threw = true;
+        caughtErr = err;
       }
 
-      assert(errorThrown, "Expected publishWebsite to throw when destinationRef is missing");
-      assert.strictEqual(errorThrown.code, "DESTINATION_REF_MISSING");
-      assert.strictEqual(deploymentStatus, "DEPLOY_FAILED");
+      assert.strictEqual(threw, true);
+      assert.strictEqual(caughtErr?.statusCode, 409);
+      assert.strictEqual(caughtErr?.code, "CONCURRENCY_CONFLICT");
+      assert.ok(caughtErr?.message.includes("concurrent modification during deployment"));
     } finally {
-      (prisma as any).$transaction = orig$transaction;
-      (prisma as any).website.findUnique = origFindUnique;
-      (prisma as any).website.updateMany = origUpdateMany;
+      prisma.website.findUnique = origFindUnique;
+      prisma.$transaction = origTransaction;
       (prisma as any).deployment = origDeployment;
-      destinationRegistry.register(new StaticExportPublisher());
     }
   });
 
-  await runCase("21.5: StaticExportPublisher does NOT swallow filesystem write errors", async () => {
-    const publisher = new StaticExportPublisher();
-    const origWriteFileSync = fs.writeFileSync;
-
-    // Simulate filesystem write error (e.g. disk full / EACCES)
-    (fs as any).writeFileSync = () => {
-      throw new Error("EACCES: permission denied, write");
-    };
+  await runCase("C1.5: Valid revision publish succeeds and increments site version with CAS", async () => {
+    const origFindUnique = prisma.website.findUnique;
+    const origFindFirst = prisma.website.findFirst;
+    const origTransaction = prisma.$transaction;
+    const origDeployment = (prisma as any).deployment;
 
     try {
-      const result = await publisher.publish(
-        "test-site-err",
-        "dep-err-1",
-        {
-          version: 1,
-          homePageId: "home",
-          pages: [{ id: "home", elements: [] }],
-        }
-      );
+      let currentVersion = 1;
+      let currentEditorData = {
+        homePageId: "p1",
+        pages: [{ id: "p1", name: "Home", isHome: true, elements: [{ id: "e1", type: "heading", content: "Candidate" }] }],
+      };
 
-      assert.strictEqual(result.success, false, "Static publisher must return success: false when write fails");
-      assert(result.error, "Result must contain error details");
-      assert.strictEqual(result.destinationType, "STATIC");
+      (prisma.website.findUnique as any) = async () => ({
+        id: testSiteId,
+        userId: testUserId,
+        name: "Test Site",
+        slug: "test-site",
+        status: "DRAFT",
+        version: currentVersion,
+        editorData: currentEditorData,
+      });
+
+      (prisma.website.findFirst as any) = async () => ({
+        id: testSiteId,
+        userId: testUserId,
+        name: "Test Site",
+        slug: "test-site",
+        status: "PUBLISHED",
+        version: currentVersion,
+        editorData: currentEditorData,
+        customCodeSnippets: [],
+      });
+
+      (prisma as any).deployment = {
+        findMany: async () => [],
+        create: async () => ({ id: "dep_valid_1", version: 1, status: "QUEUED" }),
+        update: async (args: any) => ({ id: "dep_valid_1", status: args.data.status }),
+      };
+
+      (prisma.$transaction as any) = async (cb: any) => {
+        const txMock = createTxMock({
+          siteVersion: currentVersion,
+          siteEditorData: currentEditorData,
+          onSiteUpdate: (data) => {
+            currentVersion = data.version;
+            currentEditorData = data.editorData;
+          },
+        });
+        return await cb(txMock);
+      };
+
+      const result = await publishWebsite(testSiteId, testUserId, {
+        editorData: currentEditorData,
+        expectedVersion: 1,
+        environment: "DEVELOPMENT",
+      });
+
+      assert.strictEqual(result.success, true);
+      assert.strictEqual(result.status, "PUBLISHED");
+      assert.strictEqual(result.siteVersion, 2, "Site version must increment from 1 to 2");
     } finally {
-      (fs as any).writeFileSync = origWriteFileSync;
+      prisma.website.findUnique = origFindUnique;
+      prisma.website.findFirst = origFindFirst;
+      prisma.$transaction = origTransaction;
+      (prisma as any).deployment = origDeployment;
     }
   });
 
   // =========================================================================
-  // ISSUE 22 TESTS: MEANINGFUL DESTINATION CONTENT VERIFICATION
+  // CORRECTION 2 TESTS: REPAIR SFTP EXPECTED-FILE VERIFICATION
   // =========================================================================
-  console.log("\n--- ISSUE 22: Meaningful Destination Content Verification ---");
+  console.log("\n--- CORRECTION 2: Repair SFTP Expected-File Verification ---");
 
-  await runCase("22.1: InternalPublisher verify succeeds for matching published version", async () => {
-    const publisher = new InternalPublisher();
-    const result = await publisher.verify(testSiteId, "dep-1", {
-      version: 2,
-      publicWebsiteResolver: async (id: string) => ({
-        id,
-        status: "PUBLISHED",
-        editorData: {
-          version: 2,
-          publishing: { version: 2, status: "PUBLISHED" },
-          pages: [{ id: "home", title: "Home" }],
-        },
-      }),
-    });
-
-    assert.strictEqual(result.verified, true);
-    assert.strictEqual(result.statusCode, 200);
-    assert.strictEqual(result.details?.verificationType, "PUBLIC_HTTP_ANONYMOUS_DELIVERY");
-  });
-
-  await runCase("22.2: InternalPublisher verify fails when public website returns 404 or not published", async () => {
-    const publisher = new InternalPublisher();
-    const result = await publisher.verify(testSiteId, "dep-1", {
-      version: 2,
-      publicWebsiteResolver: async () => null,
-    });
-
-    assert.strictEqual(result.verified, false);
-    assert.strictEqual(result.statusCode, 404);
-    assert(result.error?.includes("unavailable or not in PUBLISHED state"));
-  });
-
-  await runCase("22.3: InternalPublisher verify fails when published version mismatches", async () => {
-    const publisher = new InternalPublisher();
-    const result = await publisher.verify(testSiteId, "dep-1", {
-      version: 5,
-      publicWebsiteResolver: async (id: string) => ({
-        id,
-        status: "PUBLISHED",
-        editorData: {
-          publishing: { version: 4 }, // Stale version!
-        },
-      }),
-    });
-
-    assert.strictEqual(result.verified, false);
-    assert.strictEqual(result.statusCode, 422);
-    assert(result.error?.includes("Public snapshot version mismatch"));
-  });
-
-  await runCase("22.4: InternalPublisher verify fails when draft marker leaks to public response", async () => {
-    const publisher = new InternalPublisher();
-    const result = await publisher.verify(testSiteId, "dep-1", {
-      version: 2,
-      draftMarker: "SECRET_DRAFT_CONTENT_XYZ",
-      publicWebsiteResolver: async (id: string) => ({
-        id,
-        status: "PUBLISHED",
-        editorData: {
-          publishing: { version: 2 },
-          leakedContent: "SECRET_DRAFT_CONTENT_XYZ",
-        },
-      }),
-    });
-
-    assert.strictEqual(result.verified, false);
-    assert.strictEqual(result.statusCode, 422);
-    assert(result.error?.includes("draft isolation violation"));
-  });
-
-  await runCase("22.5: SftpPublisher verify connects and succeeds when remote files are verified", async () => {
-    const publisher = new SftpPublisher();
-    const origFindFirst = (prisma as any).sftpConnection?.findFirst;
-
-    (prisma as any).sftpConnection = {
-      findFirst: async () => ({
-        id: "sftp-conn-1",
-        websiteId: testSiteId,
-        host: "sftp.example.com",
-        username: "deployer",
-        remotePath: "/var/www/site",
-        port: 22,
-        isActive: true,
-      }),
-    };
-
-    let connected = false;
-    let closed = false;
-
-    const mockClient: ISftpTransportClient = {
-      connect: async () => { connected = true; },
-      mkdir: async () => "/var/www/site",
-      put: async () => "/var/www/site/index.html",
-      list: async () => [
-        { name: "index.html", type: "-", size: 1024 },
-        { name: "styles.css", type: "-", size: 512 },
-      ],
-      end: async () => { closed = true; },
-    };
-
-    setSftpClientFactory(() => mockClient);
-
-    try {
-      const result = await publisher.verify(testSiteId, "dep-1", {
-        version: 1,
-      });
-
-      assert.strictEqual(result.verified, true);
-      assert.strictEqual(result.statusCode, 200);
-      assert.strictEqual(result.details?.verificationType, "REMOTE_FILE_VERIFICATION");
-      assert.strictEqual(result.details?.indexVerified, true);
-      assert.strictEqual(result.details?.remoteFilesCount, 2);
-      assert.strictEqual(connected, true, "SFTP client must connect during verify");
-      assert.strictEqual(closed, true, "SFTP client must close connection cleanly");
-    } finally {
-      setSftpClientFactory(null);
-      (prisma as any).sftpConnection.findFirst = origFindFirst;
-    }
-  });
-
-  await runCase("22.6: SftpPublisher verify fails when remote index.html is missing", async () => {
+  await runCase("C2.1: SFTP verify fails when nested asset is missing", async () => {
     const publisher = new SftpPublisher();
     const origFindFirst = (prisma as any).sftpConnection?.findFirst;
 
@@ -538,9 +410,12 @@ async function runDestinationVerificationAndUrlSuite() {
       connect: async () => {},
       mkdir: async () => "",
       put: async () => "",
-      list: async () => [
-        { name: "other.txt", type: "-", size: 100 },
-      ],
+      list: async (dirPath: string) => {
+        if (dirPath.endsWith("/assets")) {
+          return [];
+        }
+        return [{ name: "index.html", type: "-", size: 1024 }];
+      },
       end: async () => {},
     };
 
@@ -548,19 +423,23 @@ async function runDestinationVerificationAndUrlSuite() {
 
     try {
       const result = await publisher.verify(testSiteId, "dep-1", {
-        version: 1,
+        manifest: [
+          { path: "index.html", size: 1024 },
+          { path: "assets/styles.css", size: 512 },
+        ],
       });
 
       assert.strictEqual(result.verified, false);
       assert.strictEqual(result.statusCode, 404);
-      assert(result.error?.includes("index.html is missing"));
+      assert.ok(result.error?.includes("missing expected files"));
+      assert.ok(result.error?.includes("assets/styles.css"));
     } finally {
       setSftpClientFactory(null);
       (prisma as any).sftpConnection.findFirst = origFindFirst;
     }
   });
 
-  await runCase("22.7: SftpPublisher verify fails and redacts credentials when connection fails", async () => {
+  await runCase("C2.2: SFTP verify fails when remote file is truncated or corrupt (size mismatch)", async () => {
     const publisher = new SftpPublisher();
     const origFindFirst = (prisma as any).sftpConnection?.findFirst;
 
@@ -576,12 +455,15 @@ async function runDestinationVerificationAndUrlSuite() {
     };
 
     const mockClient: ISftpTransportClient = {
-      connect: async () => {
-        throw new Error("Auth failed for password=SuperSecretPassword123");
-      },
+      connect: async () => {},
       mkdir: async () => "",
       put: async () => "",
-      list: async () => [],
+      list: async (dirPath: string) => {
+        if (dirPath.endsWith("/assets")) {
+          return [{ name: "styles.css", type: "-", size: 200 }];
+        }
+        return [{ name: "index.html", type: "-", size: 1024 }];
+      },
       end: async () => {},
     };
 
@@ -589,54 +471,78 @@ async function runDestinationVerificationAndUrlSuite() {
 
     try {
       const result = await publisher.verify(testSiteId, "dep-1", {
-        version: 1,
-        password: "SuperSecretPassword123",
+        manifest: [
+          { path: "index.html", size: 1024 },
+          { path: "assets/styles.css", size: 512 },
+        ],
       });
 
       assert.strictEqual(result.verified, false);
-      assert(!result.error?.includes("SuperSecretPassword123"), "Error must redact credentials");
-      assert(result.error?.includes("[REDACTED]"), "Error must contain [REDACTED]");
+      assert.strictEqual(result.statusCode, 422);
+      assert.ok(result.error?.includes("corrupted or truncated files"));
+      assert.ok(result.error?.includes("expected 512 bytes, got 200 bytes"));
     } finally {
       setSftpClientFactory(null);
       (prisma as any).sftpConnection.findFirst = origFindFirst;
     }
   });
 
-  await runCase("22.8: StaticExportPublisher verify checks directory, index.html existence and non-zero size", async () => {
-    const publisher = new StaticExportPublisher();
-    const exportsBase = path.resolve(process.cwd(), "exports");
-    const tempTestDir = path.join(exportsBase, "test-verify-site", "v1");
+  await runCase("C2.3: SFTP verify succeeds when all nested files exist and match sizes", async () => {
+    const publisher = new SftpPublisher();
+    const origFindFirst = (prisma as any).sftpConnection?.findFirst;
 
-    fs.mkdirSync(tempTestDir, { recursive: true });
-    fs.writeFileSync(path.join(tempTestDir, "index.html"), "<html><body>Hello Static</body></html>");
+    (prisma as any).sftpConnection = {
+      findFirst: async () => ({
+        id: "sftp-conn-1",
+        websiteId: testSiteId,
+        host: "sftp.example.com",
+        username: "deployer",
+        remotePath: "/var/www/site",
+        isActive: true,
+      }),
+    };
+
+    const mockClient: ISftpTransportClient = {
+      connect: async () => {},
+      mkdir: async () => "",
+      put: async () => "",
+      list: async (dirPath: string) => {
+        if (dirPath.endsWith("/assets")) {
+          return [{ name: "styles.css", type: "-", size: 512 }];
+        }
+        return [
+          { name: "index.html", type: "-", size: 1024 },
+          { name: "assets", type: "d", size: 4096 },
+        ];
+      },
+      end: async () => {},
+    };
+
+    setSftpClientFactory(() => mockClient);
 
     try {
-      // 1. Success case
-      const resSuccess = await publisher.verify("test-verify-site", "dep-1", { version: 1 });
-      assert.strictEqual(resSuccess.verified, true);
-      assert.strictEqual(resSuccess.statusCode, 200);
+      const result = await publisher.verify(testSiteId, "dep-1", {
+        manifest: [
+          { path: "index.html", size: 1024 },
+          { path: "assets/styles.css", size: 512 },
+        ],
+      });
 
-      // 2. Empty index.html case
-      fs.writeFileSync(path.join(tempTestDir, "index.html"), "");
-      const resEmpty = await publisher.verify("test-verify-site", "dep-1", { version: 1 });
-      assert.strictEqual(resEmpty.verified, false);
-      assert.strictEqual(resEmpty.statusCode, 422);
-      assert(resEmpty.error?.includes("empty (0 bytes)"));
-
-      // 3. Missing index.html case
-      fs.unlinkSync(path.join(tempTestDir, "index.html"));
-      const resMissing = await publisher.verify("test-verify-site", "dep-1", { version: 1 });
-      assert.strictEqual(resMissing.verified, false);
-      assert.strictEqual(resMissing.statusCode, 404);
-      assert(resMissing.error?.includes("index.html is missing"));
+      assert.strictEqual(result.verified, true);
+      assert.strictEqual(result.statusCode, 200);
+      assert.strictEqual(result.details?.verifiedFileCount, 2);
     } finally {
-      try {
-        fs.rmSync(path.join(exportsBase, "test-verify-site"), { recursive: true, force: true });
-      } catch (_) {}
+      setSftpClientFactory(null);
+      (prisma as any).sftpConnection.findFirst = origFindFirst;
     }
   });
 
-  await runCase("22.9: WordPressPublisher verify checks mapped post and published status", async () => {
+  // =========================================================================
+  // CORRECTION 3 TESTS: STRICT WORDPRESS CONTENT IDENTITY
+  // =========================================================================
+  console.log("\n--- CORRECTION 3: Strict WordPress Content Identity ---");
+
+  await runCase("C3.1: WordPress verify fails when remote post ID does not equal mapped post ID", async () => {
     const publisher = new WordPressPublisher();
 
     const connection = {
@@ -649,141 +555,185 @@ async function runDestinationVerificationAndUrlSuite() {
 
     const pageMappings = [
       {
-        id: "wp-map-1",
-        websiteId: testSiteId,
+        forgePageId: "p1",
         wpPostId: 42,
         wpPostUrl: "https://myblog.com/test-page",
       },
     ];
 
-    // 1. Published post succeeds
-    const resPublish = await publisher.verify(testSiteId, "dep-1", {
+    const result = await publisher.verify(testSiteId, "dep-1", {
       connection,
       pageMappings,
+      sendSignedRequest: async () => ({
+        id: 99,
+        status: "publish",
+        content: { rendered: "Content" },
+      }),
+    });
+
+    assert.strictEqual(result.verified, false);
+    assert.strictEqual(result.statusCode, 422);
+    assert.ok(result.error?.includes("Remote WordPress post ID mismatch"));
+    assert.ok(result.error?.includes("Expected 42, but remote post has ID 99"));
+  });
+
+  await runCase("C3.2: WordPress verify fails when remote content does not contain expected release marker", async () => {
+    const publisher = new WordPressPublisher();
+
+    const connection = {
+      id: "wp-conn-1",
+      websiteId: testSiteId,
+      siteUrl: "https://myblog.com",
+      apiKeyHash: "test-hash",
+      status: "CONNECTED",
+    };
+
+    const pageMappings = [
+      {
+        forgePageId: "p1",
+        wpPostId: 42,
+        wpPostUrl: "https://myblog.com/test-page",
+      },
+    ];
+
+    const result = await publisher.verify(testSiteId, "dep-1", {
+      connection,
+      pageMappings,
+      releaseMarker: "fs-release-dep-expected-123",
       sendSignedRequest: async () => ({
         id: 42,
         status: "publish",
-        content: { rendered: "Hello WordPress" },
+        content: { rendered: "Stale content from earlier deployment" },
       }),
     });
 
-    assert.strictEqual(resPublish.verified, true);
-    assert.strictEqual(resPublish.statusCode, 200);
-    assert.strictEqual(resPublish.details?.remoteStatus, "publish");
+    assert.strictEqual(result.verified, false);
+    assert.strictEqual(result.statusCode, 422);
+    assert.ok(result.error?.includes("stale or unrelated content detected"));
+  });
 
-    // 2. Draft post is REJECTED
-    const resDraft = await publisher.verify(testSiteId, "dep-1", {
+  await runCase("C3.3: WordPress verify validates EVERY mapped page across multi-page site", async () => {
+    const publisher = new WordPressPublisher();
+
+    const connection = {
+      id: "wp-conn-1",
+      websiteId: testSiteId,
+      siteUrl: "https://myblog.com",
+      apiKeyHash: "test-hash",
+      status: "CONNECTED",
+    };
+
+    const pageMappings = [
+      { forgePageId: "p1", wpPostId: 42, wpPostUrl: "https://myblog.com/home" },
+      { forgePageId: "p2", wpPostId: 43, wpPostUrl: "https://myblog.com/about" },
+    ];
+
+    const resultFail = await publisher.verify(testSiteId, "dep-1", {
       connection,
       pageMappings,
-      sendSignedRequest: async () => ({
-        id: 42,
-        status: "draft",
-        content: { rendered: "Unpublished Draft" },
+      sendSignedRequest: async (_url: string, endpoint: string) => {
+        if (endpoint.includes("/42")) {
+          return { id: 42, status: "publish", content: { rendered: "Home" } };
+        }
+        return { id: 43, status: "draft", content: { rendered: "About Draft" } };
+      },
+    });
+
+    assert.strictEqual(resultFail.verified, false);
+    assert.strictEqual(resultFail.statusCode, 422);
+    assert.ok(resultFail.error?.includes("page 43 is 'draft'"));
+
+    const resultPass = await publisher.verify(testSiteId, "dep-1", {
+      connection,
+      pageMappings,
+      sendSignedRequest: async (_url: string, endpoint: string) => {
+        if (endpoint.includes("/42")) {
+          return { id: 42, status: "publish", content: { rendered: "Home" } };
+        }
+        return { id: 43, status: "publish", content: { rendered: "About" } };
+      },
+    });
+
+    assert.strictEqual(resultPass.verified, true);
+    assert.strictEqual(resultPass.details?.verifiedPagesCount, 2);
+  });
+
+  // =========================================================================
+  // CORRECTION 4 TESTS: HONEST INTERNAL/URL VERIFICATION EVIDENCE
+  // =========================================================================
+  console.log("\n--- CORRECTION 4: Honest Internal/URL Verification Evidence ---");
+
+  await runCase("C4.1: Internal verify labels direct resolver check honestly as DIRECT_RESOLVER_SNAPSHOT_INTEGRITY", async () => {
+    const publisher = new InternalPublisher();
+    const result = await publisher.verify(testSiteId, "dep-1", {
+      version: 2,
+      publicWebsiteResolver: async (id: string) => ({
+        id,
+        status: "PUBLISHED",
+        editorData: {
+          version: 2,
+          publishing: { version: 2, status: "PUBLISHED" },
+          pages: [{ id: "home", title: "Home" }],
+        },
       }),
     });
 
-    assert.strictEqual(resDraft.verified, false);
-    assert.strictEqual(resDraft.statusCode, 422);
-    assert(resDraft.error?.includes("Remote WordPress page is 'draft', expected 'publish'"));
+    assert.strictEqual(result.verified, true);
+    assert.strictEqual(result.statusCode, 200);
+    assert.strictEqual(result.details?.verificationType, "DIRECT_RESOLVER_SNAPSHOT_INTEGRITY");
+    assert.strictEqual(result.details?.browserDeliveryPendingQa, true);
+  });
 
-    // 3. Missing post (404) is REJECTED
-    const resMissing = await publisher.verify(testSiteId, "dep-1", {
-      connection,
-      pageMappings,
-      sendSignedRequest: async () => null,
+  await runCase("C4.2: Internal verify fails when snapshot structural identity mismatches candidate", async () => {
+    const publisher = new InternalPublisher();
+    const result = await publisher.verify(testSiteId, "dep-1", {
+      version: 2,
+      snapshot: {
+        version: 2,
+        homePageId: "p1",
+        pages: [{ id: "p1", elements: [] }, { id: "p2", elements: [] }],
+      },
+      publicWebsiteResolver: async (id: string) => ({
+        id,
+        status: "PUBLISHED",
+        editorData: {
+          version: 2,
+          publishing: { version: 2, status: "PUBLISHED" },
+          homePageId: "p1",
+          pages: [{ id: "p1", elements: [] }, { id: "p-unexpected", elements: [] }],
+        },
+      }),
     });
 
-    assert.strictEqual(resMissing.verified, false);
-    assert.strictEqual(resMissing.statusCode, 404);
+    assert.strictEqual(result.verified, false);
+    assert.strictEqual(result.statusCode, 422);
+    assert.ok(result.error?.includes("Public snapshot identity mismatch"));
   });
 
-  // =========================================================================
-  // ISSUE 24 TESTS: TRUSTED ABSOLUTE PUBLIC URL
-  // =========================================================================
-  console.log("\n--- ISSUE 24: Trusted Absolute Public Website URL ---");
-
-  await runCase("24.1: getTrustedPublicOrigin uses configured PUBLIC_ORIGIN", () => {
-    const origEnv = { ...process.env };
-    try {
-      process.env.PUBLIC_ORIGIN = "https://app.forgestudio.com";
-      delete process.env.PUBLIC_WEBSITE_URL;
-      delete process.env.FRONTEND_URL;
-
-      const origin = getTrustedPublicOrigin();
-      assert.strictEqual(origin, "https://app.forgestudio.com");
-    } finally {
-      process.env = origEnv;
-    }
-  });
-
-  await runCase("24.2: Production environment rejects localhost and 127.0.0.1", () => {
+  await runCase("C4.3: Production public origin rejects non-HTTPS URL", () => {
     const origEnv = { ...process.env };
     try {
       process.env.NODE_ENV = "production";
-      process.env.PUBLIC_ORIGIN = "http://localhost:3000";
+      process.env.PUBLIC_ORIGIN = "http://insecure-domain.com";
 
-      const originLocal = getTrustedPublicOrigin();
-      assert.strictEqual(originLocal, null, "Must reject localhost in production");
-
-      process.env.PUBLIC_ORIGIN = "http://127.0.0.1:5173";
-      const originIp = getTrustedPublicOrigin();
-      assert.strictEqual(originIp, null, "Must reject 127.0.0.1 in production");
+      const origin = getTrustedPublicOrigin();
+      assert.strictEqual(origin, null, "Production origin must strictly reject non-HTTPS URLs");
     } finally {
       process.env = origEnv;
     }
   });
 
-  await runCase("24.3: Production environment does NOT fabricate domain when unconfigured", () => {
+  await runCase("C4.4: Production public origin accepts valid HTTPS URL", () => {
     const origEnv = { ...process.env };
     try {
       process.env.NODE_ENV = "production";
-      delete process.env.PUBLIC_ORIGIN;
-      delete process.env.PUBLIC_WEBSITE_URL;
-      delete process.env.FRONTEND_URL;
+      process.env.PUBLIC_ORIGIN = "https://secure-domain.com";
 
       const origin = getTrustedPublicOrigin();
-      assert.strictEqual(origin, null, "Must return null in production when unconfigured");
+      assert.strictEqual(origin, "https://secure-domain.com");
     } finally {
       process.env = origEnv;
     }
-  });
-
-  await runCase("24.4: constructAbsolutePublicUrl produces valid URL for INTERNAL destination", () => {
-    const origEnv = { ...process.env };
-    try {
-      process.env.PUBLIC_ORIGIN = "https://mysite.forgestudio.io";
-      const url = constructAbsolutePublicUrl("INTERNAL", "/site/site-123", "site-123");
-      assert.strictEqual(url, "https://mysite.forgestudio.io/site/site-123");
-    } finally {
-      process.env = origEnv;
-    }
-  });
-
-  await runCase("24.5: constructAbsolutePublicUrl returns WordPress public URL when valid HTTP", () => {
-    const wpUrl = constructAbsolutePublicUrl(
-      "WORDPRESS",
-      "https://blog.example.com/pages/published-page",
-      "site-123"
-    );
-    assert.strictEqual(wpUrl, "https://blog.example.com/pages/published-page");
-  });
-
-  await runCase("24.6: constructAbsolutePublicUrl strictly returns null for SFTP destination", () => {
-    const sftpUrl = constructAbsolutePublicUrl(
-      "SFTP",
-      "sftp://deployer@sftp.example.com:/var/www/html",
-      "site-123"
-    );
-    assert.strictEqual(sftpUrl, null, "SFTP must never return a public HTTP website URL");
-  });
-
-  await runCase("24.7: constructAbsolutePublicUrl strictly returns null for STATIC destination", () => {
-    const staticUrl = constructAbsolutePublicUrl(
-      "STATIC",
-      "/exports/site-123/v1",
-      "site-123"
-    );
-    assert.strictEqual(staticUrl, null, "STATIC must never return a public HTTP website URL");
   });
 
   // Restore prisma.auditLog

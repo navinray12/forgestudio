@@ -45,6 +45,7 @@ export interface PublishOptions {
   destinationType?: "INTERNAL" | "WORDPRESS" | "SFTP" | "STATIC";
   metadata?: Record<string, any>;
   expectedVersion?: number;
+  skipPostCommitVerify?: boolean;
 }
 
 export interface PublishResult {
@@ -52,6 +53,7 @@ export interface PublishResult {
   deploymentId: string;
   status: string;
   version: number;
+  siteVersion?: number;
   environment: string;
   destinationType: string;
   publishedAt: string;
@@ -284,8 +286,21 @@ export async function publishWebsite(
     }
   }
 
-  // 1.2 Monotonic CAS revision validation (Issue 20)
+  // 1.2 Monotonic CAS revision validation (Correction 1)
   const currentDbVersion = Number(website.version ?? 1);
+
+  // Invariant 1: When publishing client-supplied editorData, require a real persisted expectedVersion
+  if (options.editorData !== undefined && options.editorData !== null) {
+    if (options.expectedVersion === undefined || options.expectedVersion === null) {
+      throw new AppError(
+        "Publishing with client-supplied editorData requires a valid persisted expectedVersion.",
+        400,
+        "INVALID_REVISION"
+      );
+    }
+  }
+
+  // Invariant 2: Validate expectedVersion against database version
   if (options.expectedVersion !== undefined && options.expectedVersion !== null) {
     const expVer = Number(options.expectedVersion);
     if (isNaN(expVer) || expVer < 1) {
@@ -300,7 +315,13 @@ export async function publishWebsite(
     }
   }
 
+  // Base revision for final CAS validation
+  const baseVersion =
+    options.expectedVersion !== undefined && options.expectedVersion !== null
+      ? Number(options.expectedVersion)
+      : currentDbVersion;
   let currentWebsiteVersion = currentDbVersion;
+  let backupIncremented = false;
 
   const environment = options.environment || "PRODUCTION";
   const destinationType = options.destinationType || "INTERNAL";
@@ -426,6 +447,7 @@ export async function publishWebsite(
       }
 
       currentWebsiteVersion += 1;
+      backupIncremented = true;
     } catch (backupErr: any) {
       if (backupErr?.status === 409 || backupErr?.statusCode === 409 || backupErr?.code === "CONCURRENCY_CONFLICT") {
         throw backupErr;
@@ -576,8 +598,10 @@ export async function publishWebsite(
       ...options,
       version: nextVersion,
       snapshot: candidateSnapshot,
-      files: destinationMetadata.exportedFiles,
+      files: destinationMetadata.files || destinationMetadata.exportedFiles,
+      manifest: destinationMetadata.manifest,
       pageMappings: destinationMetadata.pageMappings,
+      releaseMarker: destinationMetadata.releaseMarker,
       stage: destinationType === "INTERNAL" ? "PRE_COMMIT" : undefined,
     });
 
@@ -650,6 +674,7 @@ export async function publishWebsite(
     };
 
     let finalWebsiteUpdatedAt: string = now;
+    let finalWebsiteVersion: number = currentDbVersion + 1;
 
     try {
       await prisma.$transaction(async (tx: any) => {
@@ -663,16 +688,14 @@ export async function publishWebsite(
           throw new AppError("Website not found during publication finalization.", 404, "NOT_FOUND");
         }
 
-        // Concurrency check if expectedVersion was specified
-        if (options.expectedVersion !== undefined && options.expectedVersion !== null) {
-          const allowedFinalVersion = environment === "PRODUCTION" ? options.expectedVersion + 1 : options.expectedVersion;
-          if (liveSite.version !== allowedFinalVersion && liveSite.version !== currentWebsiteVersion) {
-            throw new AppError(
-              `Publish conflict: concurrent modification during deployment. Expected version ${allowedFinalVersion}, found ${liveSite.version}.`,
-              409,
-              "CONCURRENCY_CONFLICT"
-            );
-          }
+        // Concurrency check accounting explicitly for pre-publish backup (Correction 1)
+        const expectedFinalVersion = baseVersion + (backupIncremented ? 1 : 0);
+        if (liveSite.version !== expectedFinalVersion) {
+          throw new AppError(
+            `Publish conflict: concurrent modification during deployment. Expected version ${expectedFinalVersion}, found ${liveSite.version}.`,
+            409,
+            "CONCURRENCY_CONFLICT"
+          );
         }
 
         const liveEditorData = typeof liveSite.editorData === "string"
@@ -701,6 +724,7 @@ export async function publishWebsite(
 
         const targetCasVersion = liveSite.version;
         const nextSiteVersion = targetCasVersion + 1;
+        finalWebsiteVersion = nextSiteVersion;
 
         const siteUpdateResult = await tx.website.updateMany({
           where: {
@@ -771,12 +795,14 @@ export async function publishWebsite(
       throw finalizationErr;
     }
 
-    // 10c. Post-Commit Anonymous Public Delivery Verification (INTERNAL only) - Issue 22
-    if (destinationType === "INTERNAL") {
+    // 10c. Post-Commit Anonymous Public Delivery Verification (INTERNAL only) - Issue 22 & Correction 4
+    if (destinationType === "INTERNAL" && options.skipPostCommitVerify !== true) {
       const internalPublisher = destinationRegistry.getPublisher("INTERNAL");
       const deliveryVerify = await internalPublisher.verify(websiteId, deployment.id, {
+        ...options,
         version: nextVersion,
         snapshot: candidateSnapshot,
+        releaseId: newRelease.releaseId,
       });
 
       if (!deliveryVerify.verified) {
@@ -830,6 +856,7 @@ export async function publishWebsite(
       filesTransferred,
       warnings: validation.warnings,
       updatedAt: finalWebsiteUpdatedAt,
+      siteVersion: finalWebsiteVersion,
     };
   } catch (error: any) {
     // If deployment has not entered a terminal failure state yet, mark DEPLOY_FAILED

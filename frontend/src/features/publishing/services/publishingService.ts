@@ -5,6 +5,7 @@ export interface PublishApiResponse {
   deploymentId: string;
   status: DeploymentStatus;
   version: number;
+  siteVersion?: number;
   environment: string;
   destinationType: string;
   publishedAt: string;
@@ -52,8 +53,10 @@ export const publishingService = {
     websiteId: string,
     options: {
       editorData?: any;
+      expectedVersion?: number;
+      version?: number;
       environment?: "PRODUCTION" | "STAGING" | "DEVELOPMENT";
-      destinationType?: "INTERNAL" | "WORDPRESS" | "STATIC";
+      destinationType?: "INTERNAL" | "WORDPRESS" | "STATIC" | "SFTP";
       metadata?: Record<string, any>;
     } = {},
     apiUrl?: string
