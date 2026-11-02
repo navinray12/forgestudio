@@ -171,12 +171,13 @@ export async function updateDesignSystem(req: Request, res: Response) {
 }
 
 /**
- * POST /api/websites/:websiteId/design-system/export
+ * POST or GET /api/websites/:websiteId/design-system/export
  */
 export async function exportDesignSystemPayload(req: Request, res: Response) {
   try {
     const websiteId = String(req.params.websiteId || "");
     const userId = res.locals.user?.id || (req as any).user?.id;
+    const exportType = String(req.query.type || req.body?.type || "all");
 
     const canView = await canUserAccessResource(userId, websiteId, "*", "VIEW");
     if (!canView) {
@@ -193,13 +194,36 @@ export async function exportDesignSystemPayload(req: Request, res: Response) {
     }
 
     const editorData: any = website.editorData || {};
-    const payload = exportDesignSystem(
-      editorData.globalVariables || [],
-      editorData.globalClasses || [],
-      { websiteId: website.id, websiteName: website.name }
-    );
+    const validatedVars = validateVariables(editorData.globalVariables || []);
+    const validatedClasses = validateClasses(editorData.globalClasses || []);
 
-    res.setHeader("Content-Disposition", `attachment; filename="${website.slug || "website"}-design-tokens.json"`);
+    let payload: any;
+    let filenameSuffix = "design-tokens";
+
+    if (exportType === "variables") {
+      payload = {
+        version: 2,
+        exportedAt: new Date().toISOString(),
+        variables: validatedVars,
+      };
+      filenameSuffix = "design-tokens";
+    } else if (exportType === "classes") {
+      payload = {
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        classes: validatedClasses,
+      };
+      filenameSuffix = "global-classes";
+    } else {
+      payload = exportDesignSystem(
+        validatedVars,
+        validatedClasses,
+        { websiteId: website.id, websiteName: website.name, version: 2 }
+      );
+      filenameSuffix = "design-tokens";
+    }
+
+    res.setHeader("Content-Disposition", `attachment; filename="${website.slug || "website"}-${filenameSuffix}.json"`);
     res.setHeader("Content-Type", "application/json");
     return res.status(200).send(JSON.stringify(payload, null, 2));
   } catch (error: any) {
@@ -245,38 +269,48 @@ export async function importDesignSystemPayload(req: Request, res: Response) {
 
     const imported = importDesignSystem(payload);
     const currentEditorData: any = website.editorData || {};
+    const existingVars = validateVariables(currentEditorData.globalVariables || []);
+    const existingClasses = validateClasses(currentEditorData.globalClasses || []);
 
-    let finalVariables = imported.variables;
-    let finalClasses = imported.classes;
+    let finalVariables: any[];
+    let finalClasses: any[];
 
-    if (mode === "merge") {
-      const existingVars = validateVariables(currentEditorData.globalVariables || []);
-      const existingClasses = validateClasses(currentEditorData.globalClasses || []);
-
+    // If variables were in payload, update according to mode; otherwise safely preserve existing variables
+    if (!imported.hasVariables) {
+      finalVariables = existingVars;
+    } else if (mode === "merge") {
       const varMap = new Map<string, any>();
       for (const v of existingVars) varMap.set(v.token, v);
       for (const v of imported.variables) varMap.set(v.token, v);
       finalVariables = Array.from(varMap.values());
+    } else if (mode === "skip") {
+      const existingTokenSet = new Set(existingVars.map((v) => v.token));
+      finalVariables = [
+        ...existingVars,
+        ...imported.variables.filter((v) => !existingTokenSet.has(v.token)),
+      ];
+    } else {
+      // "replace" mode
+      finalVariables = imported.variables;
+    }
 
+    // If classes were in payload, update according to mode; otherwise safely preserve existing classes
+    if (!imported.hasClasses) {
+      finalClasses = existingClasses;
+    } else if (mode === "merge") {
       const clsMap = new Map<string, any>();
       for (const c of existingClasses) clsMap.set(c.className, c);
       for (const c of imported.classes) clsMap.set(c.className, c);
       finalClasses = Array.from(clsMap.values());
     } else if (mode === "skip") {
-      const existingVars = validateVariables(currentEditorData.globalVariables || []);
-      const existingClasses = validateClasses(currentEditorData.globalClasses || []);
-
-      const existingTokenSet = new Set(existingVars.map((v) => v.token));
       const existingClassSet = new Set(existingClasses.map((c) => c.className));
-
-      finalVariables = [
-        ...existingVars,
-        ...imported.variables.filter((v) => !existingTokenSet.has(v.token)),
-      ];
       finalClasses = [
         ...existingClasses,
         ...imported.classes.filter((c) => !existingClassSet.has(c.className)),
       ];
+    } else {
+      // "replace" mode
+      finalClasses = imported.classes;
     }
 
     if (expectedVersion === undefined || expectedVersion === null) {
@@ -326,9 +360,13 @@ export async function importDesignSystemPayload(req: Request, res: Response) {
 
     const newVersion = updatedRows[0].version;
 
+    const parts: string[] = [];
+    if (imported.hasVariables) parts.push(`${imported.variables.length} variables`);
+    if (imported.hasClasses) parts.push(`${imported.classes.length} classes`);
+
     return res.status(200).json({
       success: true,
-      message: `Successfully imported ${imported.variables.length} variables and ${imported.classes.length} classes (${mode} mode)`,
+      message: `Successfully imported ${parts.join(" and ") || "design system"} (${mode} mode)`,
       version: newVersion,
       variables: finalVariables,
       classes: finalClasses,

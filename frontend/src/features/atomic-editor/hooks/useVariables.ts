@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import type {
   AtomicVariable,
@@ -24,23 +24,77 @@ export function useVariables(explicitWebsiteId?: string) {
   const [deletingVariable, setDeletingVariable] = useState<AtomicVariable | null>(null);
   const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
 
+  // Stale request guard to prevent responses from a previously selected website from overwriting new data
+  const activeWebsiteIdRef = useRef<string | undefined>(websiteId);
+  useLayoutEffect(() => {
+    activeWebsiteIdRef.current = websiteId;
+  }, [websiteId]);
+
   const loadVariables = useCallback(async () => {
+    const targetWebsiteId = websiteId;
     setIsLoading(true);
     setError(null);
     try {
-      const res = await fetchVariables(websiteId);
+      const res = await fetchVariables(targetWebsiteId);
+      if (activeWebsiteIdRef.current !== targetWebsiteId) {
+        return; // Ignore response from switched website
+      }
       setVariables(res.variables);
       setServerVersion(res.version);
     } catch (err: any) {
-      setError(err?.message || "Unable to load variables.");
+      if (activeWebsiteIdRef.current === targetWebsiteId) {
+        setError(err?.message || "Unable to load variables.");
+      }
     } finally {
-      setIsLoading(false);
+      if (activeWebsiteIdRef.current === targetWebsiteId) {
+        setIsLoading(false);
+      }
     }
   }, [websiteId]);
 
   useEffect(() => {
-    loadVariables();
+    queueMicrotask(() => {
+      loadVariables();
+    });
   }, [loadVariables]);
+
+  // Synchronize on external design system update (e.g. from VariablesManagerModal, WebsiteEditor, or another tab)
+  useEffect(() => {
+    const handleUpdate = (e: any) => {
+      const detail = e?.detail;
+      if (!detail) return;
+      if (detail.websiteId && websiteId && detail.websiteId !== websiteId) return;
+      if (detail.source === "useVariables") return; // Ignore own event to prevent redundant loops
+
+      if (Array.isArray(detail.variables)) {
+        const mapped: AtomicVariable[] = detail.variables.map((v: any, idx: number) => ({
+          id: String(v.id || `var-${idx}`),
+          name: String(v.name || `Variable ${idx + 1}`),
+          key: String(v.token || v.key || `--fs-custom-${idx + 1}`),
+          token: String(v.token || v.key || `--fs-custom-${idx + 1}`),
+          type: (v.category || v.type || "custom") as any,
+          category: (v.category || v.type || "custom") as any,
+          value: String(v.value || ""),
+          description: v.description,
+          defaultMode: v.defaultMode || "light",
+          modes: v.modes,
+          createdAt: v.createdAt || new Date().toISOString(),
+          updatedAt: v.updatedAt || new Date().toISOString(),
+        }));
+        setVariables(mapped);
+        if (typeof detail.version === "number") {
+          setServerVersion(detail.version);
+        }
+      } else {
+        loadVariables();
+      }
+    };
+
+    window.addEventListener("fs-design-system-updated" as any, handleUpdate);
+    return () => {
+      window.removeEventListener("fs-design-system-updated" as any, handleUpdate);
+    };
+  }, [websiteId, loadVariables]);
 
   const filteredVariables = useMemo(() => {
     return variables.filter((v) => {
@@ -96,7 +150,7 @@ export function useVariables(explicitWebsiteId?: string) {
 
       // Priority 0: Do NOT optimistically update state before server acknowledges save
       try {
-        const res = await saveVariables(updatedList, websiteId, serverVersion);
+        const res = await saveVariables(updatedList, websiteId, serverVersion, undefined, "useVariables");
         setVariables(updatedList);
         if (typeof res.version === "number") {
           setServerVersion(res.version);
@@ -104,11 +158,16 @@ export function useVariables(explicitWebsiteId?: string) {
         setIsFormOpen(false);
         return newVar;
       } catch (err: any) {
-        setError(err?.message || "Failed to save new variable.");
+        if (err?.code === "STALE_VERSION_CONFLICT" || String(err?.message).includes("STALE_VERSION_CONFLICT") || err?.status === 409) {
+          setError("Design system was modified in another session. Reconciling with latest server changes.");
+          await loadVariables();
+        } else {
+          setError(err?.message || "Failed to save new variable.");
+        }
         throw err;
       }
     },
-    [variables, websiteId, serverVersion]
+    [variables, websiteId, serverVersion, loadVariables]
   );
 
   const handleUpdateVariable = useCallback(
@@ -153,7 +212,7 @@ export function useVariables(explicitWebsiteId?: string) {
 
       // Priority 0: Do NOT optimistically persist until acknowledged
       try {
-        const res = await saveVariables(updatedList, websiteId, serverVersion);
+        const res = await saveVariables(updatedList, websiteId, serverVersion, undefined, "useVariables");
         setVariables(updatedList);
         if (typeof res.version === "number") {
           setServerVersion(res.version);
@@ -162,11 +221,16 @@ export function useVariables(explicitWebsiteId?: string) {
         setIsFormOpen(false);
         return updatedVar;
       } catch (err: any) {
-        setError(err?.message || "Failed to update variable.");
+        if (err?.code === "STALE_VERSION_CONFLICT" || String(err?.message).includes("STALE_VERSION_CONFLICT") || err?.status === 409) {
+          setError("Design system was modified in another session. Reconciling with latest server changes.");
+          await loadVariables();
+        } else {
+          setError(err?.message || "Failed to update variable.");
+        }
         throw err;
       }
     },
-    [variables, websiteId, serverVersion]
+    [variables, websiteId, serverVersion, loadVariables]
   );
 
   const handleDeleteVariable = useCallback(
@@ -176,18 +240,23 @@ export function useVariables(explicitWebsiteId?: string) {
 
       // Priority 0: Do NOT optimistically persist until acknowledged
       try {
-        const res = await saveVariables(updatedList, websiteId, serverVersion);
+        const res = await saveVariables(updatedList, websiteId, serverVersion, undefined, "useVariables");
         setVariables(updatedList);
         if (typeof res.version === "number") {
           setServerVersion(res.version);
         }
         setDeletingVariable(null);
       } catch (err: any) {
-        setError(err?.message || "Failed to delete variable.");
+        if (err?.code === "STALE_VERSION_CONFLICT" || String(err?.message).includes("STALE_VERSION_CONFLICT") || err?.status === 409) {
+          setError("Design system was modified in another session. Reconciling with latest server changes.");
+          await loadVariables();
+        } else {
+          setError(err?.message || "Failed to delete variable.");
+        }
         throw err;
       }
     },
-    [variables, websiteId, serverVersion]
+    [variables, websiteId, serverVersion, loadVariables]
   );
 
   return {

@@ -7,7 +7,8 @@ import {
     getMergedLayout,
     resolveMotionAttrs,
     resolveStickyStyles,
-    initMotionRuntime
+    initMotionRuntime,
+    compileDesignSystemCss
 } from "../editor/utils";
 import type { EditorElement, Breakpoint } from "../editor/types";
 import { resolveDynamicTokens, matchesThemeCondition } from "../editor/types";
@@ -905,56 +906,7 @@ function PublishedSite() {
 
     // F-339 & F-344: Compile Design System CSS Variables (:root) and Global Classes
     const compiledDesignTokensCss = useMemo(() => {
-        let css = "";
-        if (globalVariables && globalVariables.length > 0) {
-            css += "/* --- ForgeStudio Design Tokens (:root) --- */\n:root, [data-theme=\"light\"] {\n";
-            for (const v of globalVariables) {
-                if (v && v.token) {
-                    const lightVal = v.modes?.light || v.value;
-                    if (lightVal) {
-                        css += `  ${v.token}: ${lightVal};\n`;
-                    }
-                }
-            }
-            css += "}\n\n";
-
-            // Multi-mode Dark Theme overrides
-            const darkModeVars = globalVariables.filter((v: any) => v && v.token && v.modes?.dark);
-            if (darkModeVars.length > 0) {
-                css += "/* --- ForgeStudio Design Tokens (Dark Theme Overrides) --- */\n[data-theme=\"dark\"], .dark {\n";
-                for (const v of darkModeVars) {
-                    css += `  ${v.token}: ${v.modes.dark};\n`;
-                }
-                css += "}\n\n";
-
-                css += "@media (prefers-color-scheme: dark) {\n  :root:not([data-theme=\"light\"]) {\n";
-                for (const v of darkModeVars) {
-                    css += `    ${v.token}: ${v.modes.dark};\n`;
-                }
-                css += "  }\n}\n\n";
-            }
-        }
-        if (globalClasses && globalClasses.length > 0) {
-            for (const c of globalClasses) {
-                if (c && c.className && c.styles) {
-                    const toCss = (obj: any) =>
-                        Object.entries(obj)
-                            .map(([k, v]) => `  ${k.replace(/[A-Z]/g, (m) => "-" + m.toLowerCase())}: ${v};`)
-                            .join("\n");
-                    css += `.${c.className} {\n${toCss(c.styles)}\n}\n`;
-                    if (c.pseudoStyles?.hover && Object.keys(c.pseudoStyles.hover).length > 0) {
-                        css += `.${c.className}:hover {\n${toCss(c.pseudoStyles.hover)}\n}\n`;
-                    }
-                    if (c.pseudoStyles?.focus && Object.keys(c.pseudoStyles.focus).length > 0) {
-                        css += `.${c.className}:focus {\n${toCss(c.pseudoStyles.focus)}\n}\n`;
-                    }
-                    if (c.pseudoStyles?.active && Object.keys(c.pseudoStyles.active).length > 0) {
-                        css += `.${c.className}:active {\n${toCss(c.pseudoStyles.active)}\n}\n`;
-                    }
-                }
-            }
-        }
-        return css;
+        return compileDesignSystemCss(globalVariables, globalClasses);
     }, [globalVariables, globalClasses]);
 
     // F-356 dynamic font analyzer integration
@@ -1004,7 +956,7 @@ function PublishedSite() {
 
                     if (matchedPage) {
                         setActivePageId(matchedPage.id || "home");
-                        setElements(matchedPage.elements?.length ? matchedPage.elements : (editorData.elements || []));
+                        setElements(Array.isArray(matchedPage.elements) ? matchedPage.elements : []);
                     } else if (isPostRoute && loadedSiteParts?.single?.elements?.length && (loadedSiteParts.single.isEnabled ?? true)) {
                         // F-237: Single Post Template Fallback
                         setActivePageId("single-post-template");
@@ -1017,19 +969,20 @@ function PublishedSite() {
                         // F-256: Fallback to archive page or home page with loop feed
                         const archivePage = pagesList.find((p) => p.slug === "/archive" || p.slug === "archive" || p.slug === "/blog" || p.slug === "blog") || pagesList.find((p: any) => p.isHome || p.slug === "/") || pagesList[0];
                         setActivePageId(archivePage?.id || "home");
-                        setElements(archivePage?.elements?.length ? archivePage.elements : (editorData.elements || []));
+                        setElements(archivePage && Array.isArray(archivePage.elements) ? archivePage.elements : []);
                     } else if (initialSlug && loadedSiteParts?.notFound404?.elements?.length && (loadedSiteParts.notFound404.isEnabled ?? true)) {
                         // F-239: 404 Template Fallback for unmatched route
                         setActivePageId("404-template");
                         setElements(loadedSiteParts.notFound404.elements);
                     } else if (initialSlug && !isPostRoute && !isTermRoute) {
                         setErrorMessage("The requested page cannot be found or does not exist.");
+                        setElements([]);
                     } else {
                         const activePage = pagesList.find((p: any) => p.isHome || (editorData.homePageId && p.id === editorData.homePageId) || p.slug === "/") || pagesList[0];
-                        setActivePageId(activePage.id || "home");
-                        setElements(activePage.elements?.length ? activePage.elements : (editorData.elements || []));
+                        setActivePageId(activePage?.id || "home");
+                        setElements(activePage && Array.isArray(activePage.elements) ? activePage.elements : []);
                     }
-                } else if (editorData?.elements && editorData.elements.length > 0) {
+                } else if (editorData?.elements && Array.isArray(editorData.elements)) {
                     const defaultPage = { id: "home", name: "Home", slug: "/", customCss: "", elements: editorData.elements };
                     setPages([defaultPage]);
                     setActivePageId("home");
@@ -1147,12 +1100,23 @@ function PublishedSite() {
 
             if (matched && matched.id !== activePageId) {
                 setActivePageId(matched.id);
-                setElements(matched.elements || []);
+                setErrorMessage("");
+                setElements(Array.isArray(matched.elements) ? matched.elements : []);
             } else if (!matched && targetSlug && (targetSlug.startsWith("category/") || targetSlug.startsWith("tag/"))) {
                 const archivePage = pages.find((p) => p.slug === "/archive" || p.slug === "archive" || p.slug === "/blog" || p.slug === "blog") || pages.find((p: any) => p.isHome || p.slug === "/") || pages[0];
                 if (archivePage && archivePage.id !== activePageId) {
                     setActivePageId(archivePage.id);
-                    setElements(archivePage.elements || []);
+                    setErrorMessage("");
+                    setElements(Array.isArray(archivePage.elements) ? archivePage.elements : []);
+                }
+            } else if (!matched && targetSlug && !targetSlug.startsWith("post/") && !targetSlug.startsWith("blog/")) {
+                if (sitePartsState?.notFound404?.elements?.length && (sitePartsState.notFound404.isEnabled ?? true)) {
+                    setActivePageId("404-template");
+                    setErrorMessage("");
+                    setElements(sitePartsState.notFound404.elements);
+                } else {
+                    setErrorMessage("The requested page cannot be found or does not exist.");
+                    setElements([]);
                 }
             }
         };

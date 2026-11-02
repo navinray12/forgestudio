@@ -4,7 +4,7 @@ const LEGACY_STORAGE_KEY = "forgestudio_atomic_classes";
 const getStorageKey = (websiteId?: string) =>
   websiteId ? `forgestudio_atomic_classes_${websiteId}` : LEGACY_STORAGE_KEY;
 
-const getBaseUrl = (override?: string) => override || (import.meta.env.VITE_API_URL || "");
+const getBaseUrl = (override?: string) => override || (import.meta.env?.VITE_API_URL || "");
 
 const getAuthHeaders = (): Record<string, string> => {
   const headers: Record<string, string> = { "Content-Type": "application/json" };
@@ -262,7 +262,8 @@ export async function saveClasses(
   classes: AtomicClass[],
   websiteId?: string,
   expectedVersion?: number,
-  apiUrl?: string
+  apiUrl?: string,
+  source: string = "classService"
 ): Promise<{ success: boolean; version?: number }> {
   if (websiteId) {
     if (typeof expectedVersion !== "number" || expectedVersion < 1) {
@@ -295,22 +296,43 @@ export async function saveClasses(
     const data = await res.json();
     if (!res.ok) {
       if (res.status === 409) {
-        throw new Error(data?.message || "STALE_VERSION_CONFLICT: Design system was modified elsewhere.");
+        const conflictErr = new Error(data?.message || "STALE_VERSION_CONFLICT: Design system was modified elsewhere.");
+        (conflictErr as any).code = "STALE_VERSION_CONFLICT";
+        (conflictErr as any).status = 409;
+        throw conflictErr;
       }
       throw new Error(data?.message || "Failed to update website design system classes");
     }
 
+    const serverConfirmedVersion = typeof data.version === "number" ? data.version : expectedVersion + 1;
+
     // Only persist locally AFTER server confirms save
     try {
       localStorage.setItem(getStorageKey(websiteId), JSON.stringify(classes));
-      if (typeof data.version === "number") {
-        localStorage.setItem(`${getStorageKey(websiteId)}_version`, String(data.version));
-      }
+      localStorage.setItem(`${getStorageKey(websiteId)}_version`, String(serverConfirmedVersion));
     } catch (e) {
       console.error("Failed to persist classes to storage", e);
     }
 
-    return { success: true, version: data.version };
+    // Dispatch reactive event for WebsiteEditor & Canvas live synchronization
+    try {
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("fs-design-system-updated", {
+            detail: {
+              websiteId,
+              classes: backendClasses,
+              version: serverConfirmedVersion,
+              source,
+            },
+          })
+        );
+      }
+    } catch (_) {
+      /* ignore event dispatch failure in non-browser context */
+    }
+
+    return { success: true, version: serverConfirmedVersion };
   }
 
   return { success: true, version: 1 };

@@ -132,7 +132,7 @@ export async function getUserWebsites(userId: string, workspaceId?: string | nul
   } catch (error) {
     if (error instanceof AppError) throw error;
     console.error("Error fetching user websites:", error);
-    return [];
+    throw new AppError("Failed to fetch user websites due to a database error", 500, "WEBSITES_FETCH_FAILED");
   }
 }
 
@@ -1549,32 +1549,60 @@ export async function getPublicWebsiteById(websiteId: string): Promise<PublicWeb
     ? JSON.parse(website.editorData)
     : (website.editorData || {});
 
-  // Check authoritative publishing state (Comment 9)
-  const isPublished =
-    website.status === "PUBLISHED" ||
-    rawEditorData?.publishing?.status === "PUBLISHED";
-
-  if (!isPublished) {
+  // ISSUE 17: Authoritative DB status check is the primary visibility gate
+  // Invariant: Publicly available = authoritative published state AND valid committed published snapshot.
+  if (website.status !== "PUBLISHED") {
+    if (rawEditorData?.publishing?.status === "PUBLISHED") {
+      console.warn(`[Authoritative State Inconsistency] Website ${website.id} DB status is ${website.status} but JSON publishing.status is PUBLISHED`);
+    }
     throw new AppError("This website is unavailable.", 404, "NOT_FOUND");
   }
 
-  // Authoritative atomic release resolution: resolve snapshot via currentReleaseId pointer
-  let activeReleaseSnapshot: any = null;
-  if (rawEditorData.currentReleaseId && Array.isArray(rawEditorData.releases)) {
-    const activeRelease = rawEditorData.releases.find((r: any) => r.releaseId === rawEditorData.currentReleaseId);
-    if (activeRelease?.snapshotData) {
-      activeReleaseSnapshot = activeRelease.snapshotData;
+  // ISSUE 16 & 18: Dedicated snapshot resolution - NEVER fall back to raw working editorData!
+  let sourceData: any = null;
+
+  if (rawEditorData.currentReleaseId) {
+    // Release pointer architecture is active
+    if (!Array.isArray(rawEditorData.releases)) {
+      console.warn(`[Corrupt Release Pointer] Website ${website.id} has currentReleaseId ${rawEditorData.currentReleaseId} but missing releases array`);
+      throw new AppError("This website is unavailable.", 404, "NOT_FOUND");
     }
+    const activeRelease = rawEditorData.releases.find((r: any) => r.releaseId === rawEditorData.currentReleaseId);
+    if (!activeRelease || !activeRelease.snapshotData) {
+      console.warn(`[Missing Release Snapshot] Website ${website.id} active release ${rawEditorData.currentReleaseId} not found or missing snapshotData`);
+      throw new AppError("This website is unavailable.", 404, "NOT_FOUND");
+    }
+    sourceData = activeRelease.snapshotData;
+  } else if (rawEditorData.publishedData) {
+    // Defined safe legacy publication without release pointer
+    sourceData = rawEditorData.publishedData;
+  } else {
+    // Missing snapshot: FAIL CLOSED! Never fall back to working draft rawEditorData!
+    console.warn(`[Missing Published Snapshot] Website ${website.id} is marked PUBLISHED but has neither currentReleaseId nor publishedData`);
+    throw new AppError("This website is unavailable.", 404, "NOT_FOUND");
   }
 
-  // Fallback to publishedData or working editorData (Comment 12)
-  let sourceData = activeReleaseSnapshot || rawEditorData.publishedData || rawEditorData;
+  // ISSUE 18: Safe JSON parsing
   if (typeof sourceData === "string") {
     try {
       sourceData = JSON.parse(sourceData);
-    } catch (_e) {
-      sourceData = rawEditorData;
+    } catch (parseErr) {
+      console.warn(`[Corrupt Published JSON] Failed to parse published snapshot for website ${website.id}:`, parseErr);
+      throw new AppError("This website is unavailable.", 404, "NOT_FOUND");
     }
+  }
+
+  // ISSUE 18: Validate type and minimum required published schema
+  if (!sourceData || typeof sourceData !== "object" || Array.isArray(sourceData)) {
+    console.warn(`[Invalid Published Snapshot Type] Snapshot for website ${website.id} is not a valid object`);
+    throw new AppError("This website is unavailable.", 404, "NOT_FOUND");
+  }
+
+  const hasPages = Array.isArray(sourceData.pages) && sourceData.pages.length > 0;
+  const hasLegacyElements = Array.isArray(sourceData.elements);
+  if (!hasPages && !hasLegacyElements) {
+    console.warn(`[Structurally Invalid Snapshot] Snapshot for website ${website.id} lacks pages and elements`);
+    throw new AppError("This website is unavailable.", 404, "NOT_FOUND");
   }
 
   // Build site context for dynamic token resolution

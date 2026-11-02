@@ -682,6 +682,8 @@ export async function getJobMetrics() {
   }
 }
 
+export const getJobStats = getJobMetrics;
+
 /**
  * Start worker loop
  */

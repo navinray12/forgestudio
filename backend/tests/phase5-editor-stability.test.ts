@@ -165,8 +165,6 @@ export async function runPhase5TestSuite() {
   const {
     createWebsite,
     getWebsiteById,
-    updateWebsiteData,
-    validateCanonicalEditorData,
   } = await import("../src/services/website.service.js");
   const { publishWebsite } = await import("../src/services/publishing.service.js");
 
@@ -630,10 +628,11 @@ export async function runPhase5TestSuite() {
         const reqUrl = route.request().url();
         const rewritten = reqUrl.replace(/localhost:\d+\/api/, `localhost:${BACKEND_PORT}/api`);
         try {
+          const postData = route.request().postDataBuffer();
           const fetchRes = await fetch(rewritten, {
             method: route.request().method(),
             headers: route.request().headers(),
-            body: route.request().postDataBuffer() || undefined,
+            body: postData ? new Uint8Array(postData) : undefined,
           });
           const body = Buffer.from(await fetchRes.arrayBuffer());
           const headers: Record<string, string> = {};

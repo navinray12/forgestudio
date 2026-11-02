@@ -44,6 +44,34 @@ export const PublishModal: React.FC<PublishModalProps> = ({
   const [deployments, setDeployments] = useState<DeploymentRecord[]>([]);
   const [loadingDeployments, setLoadingDeployments] = useState(false);
   const [isSubmittingApproval, setIsSubmittingApproval] = useState(false);
+  const [copiedUrl, setCopiedUrl] = useState(false);
+  const [copyError, setCopyError] = useState<string | null>(null);
+
+  const handleCopyPublicUrl = async (urlToCopy: string) => {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(urlToCopy);
+        setCopiedUrl(true);
+        setCopyError(null);
+        setTimeout(() => setCopiedUrl(false), 2000);
+      } else {
+        const textArea = document.createElement("textarea");
+        textArea.value = urlToCopy;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-9999px";
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+        setCopiedUrl(true);
+        setCopyError(null);
+        setTimeout(() => setCopiedUrl(false), 2000);
+      }
+    } catch (err: any) {
+      setCopyError("Failed to copy link. Please copy manually.");
+      setTimeout(() => setCopyError(null), 3000);
+    }
+  };
 
   // WordPress connection state
   const [wpStatus, setWpStatus] = useState<any>(null);
@@ -1122,23 +1150,66 @@ export const PublishModal: React.FC<PublishModalProps> = ({
                     </button>
                   )}
                 </div>
-                {publishing.status === "PUBLISHED" && Boolean(publishing.publishedAt) && Boolean(websiteId) && (
-                  <div className="pt-3 border-t border-emerald-900/40 flex items-center justify-between">
-                    <span className="text-xs text-emerald-300 font-semibold flex items-center gap-1.5">
-                      <span className="h-2 w-2 rounded-full bg-emerald-400"></span>
-                      Published & Live (v{publishing.version || 1})
-                    </span>
-                    <a
-                      href={`/site/${websiteId}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition shadow-sm"
-                    >
-                      <span>Visit Live Site</span>
-                      <span>↗</span>
-                    </a>
-                  </div>
-                )}
+                {publishing.status === "PUBLISHED" && Boolean(publishing.publishedAt) && Boolean(websiteId) && (() => {
+                  const verifiedPublicUrl = publishing.absolutePublicUrl;
+                  return (
+                    <div className="pt-3 border-t border-emerald-900/40 space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-emerald-300 font-semibold flex items-center gap-1.5">
+                          <span className="h-2 w-2 rounded-full bg-emerald-400"></span>
+                          Published & Live (v{publishing.version || 1})
+                        </span>
+                        {verifiedPublicUrl ? (
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => handleCopyPublicUrl(verifiedPublicUrl)}
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 transition cursor-pointer"
+                              title="Copy Public Link"
+                            >
+                              <span>{copiedUrl ? "✓" : "📋"}</span>
+                              <span>{copiedUrl ? "Copied!" : "Copy Link"}</span>
+                            </button>
+                            <a
+                              href={verifiedPublicUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition shadow-sm"
+                            >
+                              <span>Open Live Website</span>
+                              <span>↗</span>
+                            </a>
+                          </div>
+                        ) : (
+                          <a
+                            href={`/site/${websiteId}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition shadow-sm"
+                          >
+                            <span>Open Live Website</span>
+                            <span>↗</span>
+                          </a>
+                        )}
+                      </div>
+
+                      {verifiedPublicUrl ? (
+                        <div className="flex items-center gap-2 bg-slate-900/60 border border-emerald-900/40 rounded-lg px-2.5 py-1.5 text-xs text-slate-300 font-mono break-all select-all">
+                          <span className="text-emerald-400 select-none">🌐</span>
+                          <span className="truncate flex-1">{verifiedPublicUrl}</span>
+                        </div>
+                      ) : (
+                        <div className="text-[11px] text-slate-400 italic bg-slate-900/40 border border-slate-800 rounded-lg px-2.5 py-1.5">
+                          Public domain is not configured for absolute sharing. Relative site path: <code className="text-emerald-400 font-mono">/site/{websiteId}</code>
+                        </div>
+                      )}
+
+                      {copyError && (
+                        <p className="text-[11px] text-amber-400">{copyError}</p>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Deployment History Table */}

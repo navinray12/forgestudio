@@ -198,7 +198,8 @@ import {
   reorderTreeElement,
   resolveMotionAttrs,
   resolveStickyStyles,
-  initMotionRuntime
+  initMotionRuntime,
+  compileDesignSystemCss
 } from "./utils";
 
 import {
@@ -1056,61 +1057,31 @@ export default function WebsiteEditor() {
 
   // F-339 & F-344: Dynamic compile for Design System Tokens (:root, Dark theme) and Global Classes on Canvas
   const compiledDesignTokensCss = useMemo(() => {
-    let css = "";
-    if (globalVariables && globalVariables.length > 0) {
-      css += "/* --- ForgeStudio Design Tokens (:root) --- */\n:root {\n";
-      for (const v of globalVariables) {
-        if (v && (v.token || v.key)) {
-          const tok = v.token || v.key;
-          const lightVal = v.modes?.light || v.value;
-          if (lightVal) {
-            css += `  ${tok}: ${lightVal};\n`;
-          }
-        }
-      }
-      css += "}\n\n";
-
-      const darkModeVars = globalVariables.filter((v: any) => v && (v.token || v.key) && v.modes?.dark);
-      if (darkModeVars.length > 0) {
-        css += "/* --- ForgeStudio Design Tokens (Dark Theme Overrides) --- */\n[data-theme=\"dark\"], .dark {\n";
-        for (const v of darkModeVars) {
-          const tok = v.token || v.key;
-          css += `  ${tok}: ${v.modes.dark};\n`;
-        }
-        css += "}\n\n";
-
-        css += "@media (prefers-color-scheme: dark) {\n  :root:not([data-theme=\"light\"]) {\n";
-        for (const v of darkModeVars) {
-          const tok = v.token || v.key;
-          css += `    ${tok}: ${v.modes.dark};\n`;
-        }
-        css += "  }\n}\n\n";
-      }
-    }
-    if (globalClasses && globalClasses.length > 0) {
-      css += "/* --- ForgeStudio Global Utility Classes --- */\n";
-      for (const c of globalClasses) {
-        const clsName = c.className || c.key;
-        if (c && clsName && c.styles) {
-          const toCss = (obj: any) =>
-            Object.entries(obj)
-              .map(([k, v]) => `  ${k.replace(/[A-Z]/g, (m) => "-" + m.toLowerCase())}: ${v};`)
-              .join("\n");
-          css += `.${clsName} {\n${toCss(c.styles)}\n}\n`;
-          if (c.pseudoStyles?.hover && Object.keys(c.pseudoStyles.hover).length > 0) {
-            css += `.${clsName}:hover {\n${toCss(c.pseudoStyles.hover)}\n}\n`;
-          }
-          if (c.pseudoStyles?.focus && Object.keys(c.pseudoStyles.focus).length > 0) {
-            css += `.${clsName}:focus {\n${toCss(c.pseudoStyles.focus)}\n}\n`;
-          }
-          if (c.pseudoStyles?.active && Object.keys(c.pseudoStyles.active).length > 0) {
-            css += `.${clsName}:active {\n${toCss(c.pseudoStyles.active)}\n}\n`;
-          }
-        }
-      }
-    }
-    return css;
+    return compileDesignSystemCss(globalVariables, globalClasses);
   }, [globalVariables, globalClasses]);
+
+  // Synchronize on external design system updates (e.g. from AtomicEditor, ClassManagerModal, etc.)
+  useEffect(() => {
+    const handleDesignSystemUpdate = (e: any) => {
+      const detail = e?.detail;
+      if (!detail) return;
+      if (detail.websiteId && websiteId && detail.websiteId !== websiteId) return;
+      if (Array.isArray(detail.variables)) {
+        setGlobalVariables(detail.variables);
+      }
+      if (Array.isArray(detail.classes)) {
+        setGlobalClasses(detail.classes);
+      }
+      if (typeof detail.version === "number") {
+        setWebsite((prev: any) => (prev ? { ...prev, version: detail.version } : prev));
+      }
+    };
+
+    window.addEventListener("fs-design-system-updated" as any, handleDesignSystemUpdate);
+    return () => {
+      window.removeEventListener("fs-design-system-updated" as any, handleDesignSystemUpdate);
+    };
+  }, [websiteId]);
 
   const [isAddPageModalOpen, setIsAddPageModalOpen] = useState<boolean>(false);
   const [newPageName, setNewPageName] = useState<string>("");
@@ -2399,10 +2370,12 @@ export default function WebsiteEditor() {
       pageSettings,
     };
 
+    const currentVersion = website?.version;
     const payload = {
       editorData: workingDraftSnapshot,
       environment: "PRODUCTION" as const,
       destinationType: destType,
+      expectedVersion: typeof currentVersion === "number" && currentVersion >= 1 ? currentVersion : undefined,
     };
 
     try {
@@ -2416,8 +2389,12 @@ export default function WebsiteEditor() {
       throw new Error("Publishing failed on server.");
     }
 
-    if ((result as any).updatedAt) {
-      setWebsite((prev) => prev ? { ...prev, updatedAt: (result as any).updatedAt } : prev);
+    if ((result as any).updatedAt || (result as any).siteVersion !== undefined) {
+      setWebsite((prev) => prev ? {
+        ...prev,
+        updatedAt: (result as any).updatedAt || prev.updatedAt,
+        version: (result as any).siteVersion !== undefined ? (result as any).siteVersion : prev.version,
+      } : prev);
     }
 
     const updatedPub: PublishingState = {
@@ -2427,6 +2404,7 @@ export default function WebsiteEditor() {
       version: result.version,
       publishedAt: result.publishedAt,
       deploymentId: result.deploymentId,
+      absolutePublicUrl: (result as any).absolutePublicUrl,
     };
     setPublishing(updatedPub);
 
@@ -8421,8 +8399,69 @@ export default function WebsiteEditor() {
 
               <TemplateLibrary
                 apiUrl={apiUrl}
+                websiteId={websiteId}
                 onInsertTemplate={handleInsertTemplate}
                 onOpenSaveTemplate={openSaveTemplateDialog}
+                hasUnsavedChanges={autosaveStatus === "unsaved" || autosaveStatus === "saving"}
+                autosaveStatus={autosaveStatus}
+                hasExistingContent={
+                  (Array.isArray(elements) && elements.length > 0) ||
+                  (Array.isArray(pages) && pages.some((p: any) => Array.isArray(p.elements) && p.elements.length > 0))
+                }
+                onKitApplied={(msg, result) => {
+                  setSaveMessage(msg);
+                  if (result?.editorData && result?.website) {
+                    const updatedSite = result.website;
+                    const updatedEditorData = result.editorData;
+
+                    // Synchronize website metadata and persisted revision
+                    setWebsite((prev: any) => prev ? {
+                      ...prev,
+                      version: updatedSite.version ?? prev.version,
+                      updatedAt: updatedSite.updatedAt ?? prev.updatedAt,
+                      editorData: updatedEditorData,
+                    } : updatedSite);
+
+                    // Synchronize canonical pages and canvas elements
+                    if (Array.isArray(updatedEditorData.pages) && updatedEditorData.pages.length > 0) {
+                      const updatedPages: PageConfig[] = updatedEditorData.pages.map((p: any, idx: number) => ({
+                        id: p.id || `page_${idx + 1}`,
+                        name: p.name || p.title || (idx === 0 ? "Home" : `Page ${idx + 1}`),
+                        slug: p.slug || p.path || (idx === 0 ? "/" : `/${(p.name || p.title || `page-${idx + 1}`).toLowerCase().replace(/\s+/g, "-")}`),
+                        elements: Array.isArray(p.elements) ? p.elements : [],
+                        pageSettings: p.pageSettings || { title: p.name || p.title || "Page", path: p.slug || p.path || "/" },
+                        customCss: p.customCss || "",
+                        isHome: Boolean(p.isHome || p.slug === "/" || p.path === "/" || idx === 0),
+                      }));
+                      setPages(updatedPages);
+
+                      const homePage = updatedPages.find((p) => p.isHome || p.slug === "/" || p.id === updatedEditorData.homePageId) || updatedPages[0];
+                      setActivePageId(homePage.id);
+                      setActivePreviewPageId(homePage.id);
+                      setElements(JSON.parse(JSON.stringify(homePage.elements || [])));
+                      if (homePage.pageSettings) {
+                        setPageSettings((prev) => ({ ...prev, ...homePage.pageSettings }));
+                      }
+
+                      // Synchronize autosave baseline to avoid stale overwrite
+                      updateAutosaveBaseline(
+                        homePage.elements || [],
+                        homePage.pageSettings,
+                        updatedPages,
+                        homePage.id,
+                        updatedEditorData.siteParts,
+                        updatedEditorData.globalSettings,
+                        updatedEditorData.globalStyles
+                      );
+                    }
+
+                    if (updatedEditorData.globalSettings) {
+                      setGlobalSettings(updatedEditorData.globalSettings);
+                    }
+                  } else {
+                    window.location.reload();
+                  }
+                }}
               />
             )}
 

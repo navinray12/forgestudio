@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { RoleManagerModal } from "./components/RoleManagerModal";
@@ -14,12 +14,14 @@ import CustomPostTypesPanel from "./components/CustomPostTypesPanel";
 import PerformancePanel from "./components/PerformancePanel";
 import { exportWebsiteKitAsJson } from "../../features/templates/utils/websiteKitExport";
 import { ImportWebsiteKitDialog } from "../../features/templates/components/ImportWebsiteKitDialog";
+import { buildCanonicalEditorDataFromKit } from "../../features/templates/utils/websiteKitValidation";
 import { ManagedSiteModal } from "./components/ManagedSiteModal";
 import { ActivityLogModal } from "./components/ActivityLogModal";
 import LicensingPanel from "./components/LicensingPanel";
 import UsageTelemetryWidget from "./components/UsageTelemetryWidget";
 import WhiteLabelPanel from "./components/WhiteLabelPanel";
 import SubscriptionBillingPanel from "./components/SubscriptionBillingPanel";
+import { WorkspaceWebsiteCache, getWorkspaceScopeKey } from "./utils/workspaceWebsiteCache";
 
 interface Website {
   id: string;
@@ -106,6 +108,10 @@ function UserDashboard() {
   const { logout } = useAuth();
   const [websites, setWebsites] = useState<Website[]>([]);
   const [wLoading, setWLoading] = useState(true);
+  const [websiteFetchError, setWebsiteFetchError] = useState<string | null>(null);
+  const workspaceCacheRef = useRef<WorkspaceWebsiteCache<Website>>(new WorkspaceWebsiteCache<Website>());
+  const activeFetchIdRef = useRef(0);
+  const activeScopeRef = useRef<string>(getWorkspaceScopeKey(null));
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [websiteName, setWebsiteName] = useState("");
   const [creating, setCreating] = useState(false);
@@ -231,42 +237,84 @@ function UserDashboard() {
       pageSettings: Record<string, any>;
     }>;
     templates: any[];
+    [key: string]: any;
   }) => {
     try {
-      const siteName = kitData.website?.name || "Imported Kit Website";
-      const mainPage = kitData.pages?.[0] || { elements: [], pageSettings: {} };
+      const siteName = kitData.website?.name?.trim() || "Imported Kit Website";
 
+      // 1. Create base website
       const res = await fetch(`${apiUrl}/api/websites`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ name: siteName }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => null);
 
-      if (!res.ok || !data.website?.id) {
-        alert(data?.message || "Failed to create website from kit.");
-        return;
+      if (!res.ok || !data?.website?.id) {
+        const errorMsg = data?.message || data?.error?.message || "Failed to create website from kit.";
+        alert(errorMsg);
+        throw new Error(errorMsg);
       }
 
       const newSiteId = data.website.id;
-      await fetch(`${apiUrl}/api/websites/${newSiteId}`, {
+
+      // 2. Issue 01: Retrieve persisted version for expectedVersion requirement
+      let expectedVersion: number | undefined =
+        typeof data.website?.version === "number" ? data.website.version : undefined;
+
+      if (expectedVersion === undefined) {
+        const getRes = await fetch(`${apiUrl}/api/websites/${newSiteId}`, {
+          credentials: "include",
+        });
+        const getData = await getRes.json().catch(() => null);
+        if (getRes.ok && typeof getData?.website?.version === "number") {
+          expectedVersion = getData.website.version;
+        } else {
+          const versionErr = "Unable to retrieve initial website version for saving kit.";
+          alert(versionErr);
+          throw new Error(versionErr);
+        }
+      }
+
+      // 3. Issue 02: Convert all pages to canonical editorData format preserving homePageId and nested widgets
+      const canonicalEditorData = buildCanonicalEditorDataFromKit(kitData, siteName);
+
+      // 4. Issue 01: Pass expectedVersion in save PUT request
+      const saveRes = await fetch(`${apiUrl}/api/websites/${newSiteId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          editorData: {
-            elements: mainPage.elements || [],
-            pageSettings: mainPage.pageSettings || { title: siteName },
-          },
+          expectedVersion,
+          editorData: canonicalEditorData,
         }),
       });
 
+      const saveData = await saveRes.json().catch(() => null);
+
+      // 5. Issue 03: Validate response and website ID; never navigate on failure
+      if (!saveRes.ok) {
+        const errorMsg =
+          saveData?.message ||
+          saveData?.error?.message ||
+          `Failed to save imported website kit (HTTP ${saveRes.status}).`;
+        alert(errorMsg);
+        throw new Error(errorMsg);
+      }
+
+      if (!saveData?.website?.id || saveData.website.id !== newSiteId) {
+        const mismatchMsg = "Website kit import failed: server returned an unexpected website ID.";
+        alert(mismatchMsg);
+        throw new Error(mismatchMsg);
+      }
+
+      // 6. Navigation ONLY on verified success
       setIsImportKitOpen(false);
       navigate(`/editor/${newSiteId}`);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to import website kit on dashboard:", err);
-      alert("Error importing website kit.");
+      throw err;
     }
   };
 
@@ -279,18 +327,71 @@ function UserDashboard() {
   };
 
   const fetchWebsites = async (wsId?: string | null) => {
+    const targetWs = wsId !== undefined ? wsId : currentWorkspaceId;
+    const targetScopeKey = getWorkspaceScopeKey(targetWs);
+    activeScopeRef.current = targetScopeKey;
+    const fetchId = ++activeFetchIdRef.current;
+
+    // Immediately isolate scope: only show cached websites for THIS workspace, never other workspaces
+    const initial = workspaceCacheRef.current.resolveForScope(targetScopeKey);
+    setWebsites(initial.websites);
     setWLoading(true);
+    setWebsiteFetchError(null);
+
     try {
-      const targetWs = wsId !== undefined ? wsId : currentWorkspaceId;
       const url = targetWs ? `${apiUrl}/api/websites?workspaceId=${targetWs}` : `${apiUrl}/api/websites`;
       const res = await fetch(url, { credentials: "include" });
-      const data = await res.json();
-      if (res.ok && data.websites) setWebsites(data.websites);
-    } catch { /* no-op */ }
-    finally { setWLoading(false); }
+      const data = await res.json().catch(() => null);
+
+      // Stale workspace response protection: ignore if fetchId or workspace scope changed
+      if (!WorkspaceWebsiteCache.isRequestFresh(fetchId, activeFetchIdRef.current, targetScopeKey, activeScopeRef.current)) {
+        return;
+      }
+
+      if (!res.ok) {
+        const errMsg =
+          res.status === 403
+            ? "You do not have permission to access websites in this workspace."
+            : data?.error?.message || data?.message || `Failed to load websites (HTTP ${res.status}).`;
+        const result = workspaceCacheRef.current.resolveFetchResult(targetScopeKey, false, undefined, errMsg);
+        setWebsites(result.websites);
+        setWebsiteFetchError(result.error);
+        return;
+      }
+
+      if (!data || !Array.isArray(data.websites)) {
+        const result = workspaceCacheRef.current.resolveFetchResult(targetScopeKey, false, undefined, "Invalid response received from server.");
+        setWebsites(result.websites);
+        setWebsiteFetchError(result.error);
+        return;
+      }
+
+      const result = workspaceCacheRef.current.resolveFetchResult(targetScopeKey, true, data.websites);
+      setWebsites(result.websites);
+      setWebsiteFetchError(null);
+    } catch {
+      if (!WorkspaceWebsiteCache.isRequestFresh(fetchId, activeFetchIdRef.current, targetScopeKey, activeScopeRef.current)) {
+        return;
+      }
+      const result = workspaceCacheRef.current.resolveFetchResult(
+        targetScopeKey,
+        false,
+        undefined,
+        "Unable to reach the server. Please check your network connection and retry."
+      );
+      setWebsites(result.websites);
+      setWebsiteFetchError(result.error);
+    } finally {
+      if (WorkspaceWebsiteCache.isRequestFresh(fetchId, activeFetchIdRef.current, targetScopeKey, activeScopeRef.current)) {
+        setWLoading(false);
+      }
+    }
   };
 
-  useEffect(() => { fetchWebsites(currentWorkspaceId); }, [currentWorkspaceId]);
+  useEffect(() => {
+    setSelectedSiteIds([]);
+    fetchWebsites(currentWorkspaceId);
+  }, [currentWorkspaceId]);
 
   const handleLogout = async () => { await logout(); navigate("/login", { replace: true }); };
 
@@ -315,7 +416,12 @@ function UserDashboard() {
     try {
       setDeleting(true);
       const res = await fetch(`${apiUrl}/api/websites/${deleteTargetId}`, { method: "DELETE", credentials: "include" });
-      if (res.ok) { setWebsites(p => p.filter(w => w.id !== deleteTargetId)); setDeleteTargetId(null); }
+      if (res.ok) {
+        const activeScope = activeScopeRef.current;
+        workspaceCacheRef.current.remove(activeScope, deleteTargetId);
+        setWebsites(p => p.filter(w => w.id !== deleteTargetId));
+        setDeleteTargetId(null);
+      }
       else alert("Failed to delete website.");
     } catch { alert("Error deleting website."); }
     finally { setDeleting(false); }
@@ -427,6 +533,25 @@ function UserDashboard() {
             <div className="mt-6">
               {wLoading ? (
                 <div className="flex items-center justify-center text-xs font-semibold text-slate-400 p-12 text-center bg-white rounded-2xl border border-slate-200">Loading your websites…</div>
+              ) : websiteFetchError && websites.length === 0 ? (
+                <div className="flex flex-col items-center justify-center rounded-2xl border border-rose-200 bg-rose-50/70 p-12 text-center space-y-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-rose-100 text-rose-600 text-xl font-bold">
+                    ⚠️
+                  </div>
+                  <h3 className="text-base font-bold text-rose-900">
+                    Failed to load websites
+                  </h3>
+                  <p className="text-xs text-rose-700 max-w-sm">
+                    {websiteFetchError}
+                  </p>
+                  <button
+                    onClick={() => fetchWebsites(currentWorkspaceId)}
+                    className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-rose-600 px-5 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-rose-700 active:scale-95 transition cursor-pointer"
+                  >
+                    <span>🔄</span>
+                    <span>Retry</span>
+                  </button>
+                </div>
               ) : websites.length === 0 ? (
                 <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center">
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600 text-xl font-bold">
@@ -450,7 +575,22 @@ function UserDashboard() {
                   </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="space-y-4">
+                  {websiteFetchError && (
+                    <div className="rounded-xl border border-rose-200 bg-rose-50 p-3.5 text-xs text-rose-800 flex items-center justify-between gap-3 shadow-xs">
+                      <div className="flex items-center gap-2">
+                        <span>⚠️</span>
+                        <span>{websiteFetchError} (Preserving cached websites)</span>
+                      </div>
+                      <button
+                        onClick={() => fetchWebsites(currentWorkspaceId)}
+                        className="rounded-lg bg-rose-600 px-3 py-1 text-xs font-bold text-white hover:bg-rose-700 transition cursor-pointer"
+                      >
+                        Retry
+                      </button>
+                    </div>
+                  )}
+                  <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                   {websites.map((site) => (
                     <div
                       key={site.id}
@@ -548,7 +688,8 @@ function UserDashboard() {
                     </div>
                   ))}
                 </div>
-              )}
+              </div>
+            )}
             </div>
           </div>
         )}

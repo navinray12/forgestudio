@@ -4,7 +4,7 @@ const LEGACY_STORAGE_KEY = "forgestudio_atomic_variables";
 const getStorageKey = (websiteId?: string) =>
   websiteId ? `forgestudio_atomic_variables_${websiteId}` : LEGACY_STORAGE_KEY;
 
-const getBaseUrl = (override?: string) => override || (import.meta.env.VITE_API_URL || "");
+const getBaseUrl = (override?: string) => override || (import.meta.env?.VITE_API_URL || "");
 
 const getAuthHeaders = (): Record<string, string> => {
   const headers: Record<string, string> = { "Content-Type": "application/json" };
@@ -175,7 +175,8 @@ export async function saveVariables(
   variables: AtomicVariable[],
   websiteId?: string,
   expectedVersion?: number,
-  apiUrl?: string
+  apiUrl?: string,
+  source: string = "variableService"
 ): Promise<{ success: boolean; version?: number }> {
   if (websiteId) {
     if (typeof expectedVersion !== "number" || expectedVersion < 1) {
@@ -209,22 +210,43 @@ export async function saveVariables(
     const data = await res.json();
     if (!res.ok) {
       if (res.status === 409) {
-        throw new Error(data?.message || "STALE_VERSION_CONFLICT: Design system was modified elsewhere.");
+        const conflictErr = new Error(data?.message || "STALE_VERSION_CONFLICT: Design system was modified elsewhere.");
+        (conflictErr as any).code = "STALE_VERSION_CONFLICT";
+        (conflictErr as any).status = 409;
+        throw conflictErr;
       }
       throw new Error(data?.message || "Failed to update website design system variables");
     }
 
+    const serverConfirmedVersion = typeof data.version === "number" ? data.version : expectedVersion + 1;
+
     // Only persist locally AFTER server confirms save
     try {
       localStorage.setItem(getStorageKey(websiteId), JSON.stringify(variables));
-      if (typeof data.version === "number") {
-        localStorage.setItem(`${getStorageKey(websiteId)}_version`, String(data.version));
-      }
+      localStorage.setItem(`${getStorageKey(websiteId)}_version`, String(serverConfirmedVersion));
     } catch (e) {
       console.error("Failed to persist variables to local storage", e);
     }
 
-    return { success: true, version: data.version };
+    // Dispatch reactive event for WebsiteEditor & Canvas live synchronization
+    try {
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("fs-design-system-updated", {
+            detail: {
+              websiteId,
+              variables: backendVars,
+              version: serverConfirmedVersion,
+              source,
+            },
+          })
+        );
+      }
+    } catch (_) {
+      /* ignore event dispatch failure in non-browser context */
+    }
+
+    return { success: true, version: serverConfirmedVersion };
   }
 
   return { success: true, version: 1 };
