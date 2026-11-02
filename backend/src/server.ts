@@ -1,9 +1,9 @@
 import "dotenv/config";
 import http from "http";
 import app from "./app.js";
+import { prisma, pgPool, initializeDatabaseBootstrap } from "./config/prisma.js";
 import { startScheduler, stopScheduler } from "./services/scheduleWorker.js";
 import { initPresenceWebSocketServer } from "./services/collaboration/presence.service.js";
-import { prisma, initializeDatabaseBootstrap } from "./config/prisma.js";
 
 const PORT = process.env.PORT || 5000;
 
@@ -30,15 +30,27 @@ async function startServer() {
   }
 }
 
-async function gracefulShutdown(signal: string) {
-  if (isShuttingDown) return;
+/**
+ * Graceful shutdown handling for clean process termination.
+ * Drains in-flight background tasks before closing network and database connections.
+ * Prevents multiple concurrent/duplicate executions via isShuttingDown latch.
+ */
+export async function gracefulShutdown(signal: string): Promise<void> {
+  if (isShuttingDown) {
+    return;
+  }
   isShuttingDown = true;
 
-  console.log(`\n🛑 Received ${signal}. Starting graceful shutdown...`);
+  console.log(`\n🛑 [Process] Received ${signal}. Starting graceful shutdown...`);
 
   try {
     // 1. Stop scheduler and job worker loop, allow in-flight tasks up to 5s to complete
-    await stopScheduler(5000);
+    try {
+      await stopScheduler(5000);
+      console.log("⏱️ Background scheduler and worker stopped.");
+    } catch (schedErr) {
+      console.error("❌ Error stopping scheduler:", schedErr);
+    }
 
     // 2. Close HTTP/WebSocket server
     if (server) {
@@ -50,9 +62,14 @@ async function gracefulShutdown(signal: string) {
       });
     }
 
-    // 3. Cleanly disconnect database connection
-    await prisma.$disconnect();
-    console.log("📦 Database disconnected cleanly.");
+    // 3. Cleanly disconnect database connection and connection pool
+    try {
+      await prisma.$disconnect();
+      await pgPool.end();
+      console.log("📦 Database connections closed cleanly.");
+    } catch (dbErr) {
+      console.error("❌ Error disconnecting database connections:", dbErr);
+    }
 
     console.log("✅ Graceful shutdown completed.");
     process.exit(0);
@@ -62,7 +79,11 @@ async function gracefulShutdown(signal: string) {
   }
 }
 
-process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
-process.on("SIGINT", () => gracefulShutdown("SIGINT"));
+process.on("SIGTERM", () => {
+  void gracefulShutdown("SIGTERM");
+});
+process.on("SIGINT", () => {
+  void gracefulShutdown("SIGINT");
+});
 
 startServer();

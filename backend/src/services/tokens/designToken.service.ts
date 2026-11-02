@@ -83,8 +83,8 @@ const DANGEROUS_CSS_PATTERNS = [
   /@import/i,
 ];
 
-const MAX_TOKENS = 500;
-const MAX_CLASSES = 300;
+const MAX_TOKENS = 1000;
+const MAX_CLASSES = 500;
 const MAX_VALUE_LENGTH = 1000;
 
 /**
@@ -148,7 +148,7 @@ export function sanitizeCssValue(rawValue: string): string {
   }
 
   // Strip closing curly braces, semicolons, and angle brackets to avoid injection
-  return val.replace(/[;{}]/g, " ").replace(/[<>]/g, "").trim();
+  return val.replace(/[;{}]/g, "").replace(/[<>]/g, "").trim();
 }
 
 /**
@@ -246,15 +246,16 @@ export function validateVariables(input: any[]): DesignVariable[] {
 
     let modes: Record<string, string> | undefined = undefined;
     if (item.modes && typeof item.modes === "object") {
-      modes = {};
+      const safeModes: Record<string, string> = Object.create(null);
       for (const [mKey, mVal] of Object.entries(item.modes)) {
         if (FORBIDDEN_PROPERTY_KEYS.has(mKey)) continue;
         const cleanKey = String(mKey).replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 50);
         const cleanVal = sanitizeCssValue(String(mVal || ""));
         if (cleanKey && cleanVal) {
-          modes[cleanKey] = cleanVal;
+          safeModes[cleanKey] = cleanVal;
         }
       }
+      modes = safeModes;
     }
 
     validated.push({
@@ -447,21 +448,26 @@ export function compileDesignSystemCss(variables: DesignVariable[], classes: Glo
 export function exportDesignSystem(
   variables: DesignVariable[],
   classes: GlobalClass[],
-  metadata?: { websiteId?: string; websiteName?: string }
+  metadata?: { websiteId?: string; websiteName?: string; version?: number }
 ): DesignSystemPayload {
   const safeVars = validateVariables(variables);
   const safeClasses = validateClasses(classes);
 
   return {
-    version: 2,
+    version: metadata?.version !== undefined ? metadata.version : (metadata ? 2 : 1),
     exportedAt: new Date().toISOString(),
     variables: safeVars,
     classes: safeClasses,
-    metadata: {
-      ...metadata,
-      totalVariables: safeVars.length,
-      totalClasses: safeClasses.length,
-    },
+    ...(metadata
+      ? {
+          metadata: {
+            websiteId: metadata.websiteId,
+            websiteName: metadata.websiteName,
+            totalVariables: safeVars.length,
+            totalClasses: safeClasses.length,
+          },
+        }
+      : {}),
   };
 }
 
@@ -472,6 +478,9 @@ export function importDesignSystem(jsonInput: string | object): {
   variables: DesignVariable[];
   classes: GlobalClass[];
   compiledCss: string;
+  hasVariables: boolean;
+  hasClasses: boolean;
+  version?: number;
 } {
   let parsed: any;
   if (typeof jsonInput === "string") {
@@ -485,20 +494,58 @@ export function importDesignSystem(jsonInput: string | object): {
   }
 
   if (!parsed || typeof parsed !== "object") {
-    throw new Error("Design system payload must be an object");
+    throw new Error("Design system payload must be an object or array");
   }
 
-  const rawVars = Array.isArray(parsed.variables)
-    ? parsed.variables
-    : Array.isArray(parsed)
-    ? parsed
-    : [];
-  const rawClasses = Array.isArray(parsed.classes) ? parsed.classes : [];
+  // Handle unsupported schema version
+  if (parsed.version !== undefined && (typeof parsed.version !== "number" || parsed.version < 1 || parsed.version > 2)) {
+    throw new Error(`Unsupported schema version: ${parsed.version}. Supported versions are 1 and 2.`);
+  }
 
-  const variables = validateVariables(rawVars);
+  let hasVariables = false;
+  let hasClasses = false;
+  let rawVariables: any[] = [];
+  let rawClasses: any[] = [];
+
+  if (Array.isArray(parsed)) {
+    if (parsed.length === 0) {
+      throw new Error("Empty array supplied to importDesignSystem");
+    }
+    const sample = parsed[0];
+    if (sample && (sample.token || sample.category || sample.type || sample.modes || sample.value !== undefined)) {
+      hasVariables = true;
+      rawVariables = parsed;
+    } else if (sample && (sample.className || sample.styles || sample.pseudoStyles)) {
+      hasClasses = true;
+      rawClasses = parsed;
+    } else {
+      throw new Error("Unrecognized array items in design system payload");
+    }
+  } else {
+    if (Array.isArray(parsed.variables)) {
+      hasVariables = true;
+      rawVariables = parsed.variables;
+    }
+    if (Array.isArray(parsed.classes)) {
+      hasClasses = true;
+      rawClasses = parsed.classes;
+    }
+    if (!hasVariables && !hasClasses) {
+      throw new Error("Invalid format: payload must contain 'variables' or 'classes' array");
+    }
+  }
+
+  const variables = validateVariables(rawVariables);
   const classes = validateClasses(rawClasses);
   const compiledCss = compileDesignSystemCss(variables, classes);
 
-  return { variables, classes, compiledCss };
+  return {
+    variables,
+    classes,
+    compiledCss,
+    hasVariables,
+    hasClasses,
+    version: parsed.version || 1,
+  };
 }
 

@@ -6,7 +6,8 @@ import {
     getMergedLayout,
     resolveMotionAttrs,
     resolveStickyStyles,
-    initMotionRuntime
+    initMotionRuntime,
+    compileDesignSystemCss
 } from "../editor/utils";
 import type { EditorElement, Breakpoint } from "../editor/types";
 import { resolveDynamicTokens, matchesThemeCondition } from "../editor/types";
@@ -898,56 +899,7 @@ function PublishedSite() {
 
     // F-339 & F-344: Compile Design System CSS Variables (:root) and Global Classes
     const compiledDesignTokensCss = useMemo(() => {
-        let css = "";
-        if (globalVariables && globalVariables.length > 0) {
-            css += "/* --- ForgeStudio Design Tokens (:root) --- */\n:root {\n";
-            for (const v of globalVariables) {
-                if (v && v.token) {
-                    const lightVal = v.modes?.light || v.value;
-                    if (lightVal) {
-                        css += `  ${v.token}: ${lightVal};\n`;
-                    }
-                }
-            }
-            css += "}\n\n";
-
-            // Multi-mode Dark Theme overrides
-            const darkModeVars = globalVariables.filter((v: any) => v && v.token && v.modes?.dark);
-            if (darkModeVars.length > 0) {
-                css += "/* --- ForgeStudio Design Tokens (Dark Theme Overrides) --- */\n[data-theme=\"dark\"], .dark {\n";
-                for (const v of darkModeVars) {
-                    css += `  ${v.token}: ${v.modes.dark};\n`;
-                }
-                css += "}\n\n";
-
-                css += "@media (prefers-color-scheme: dark) {\n  :root:not([data-theme=\"light\"]) {\n";
-                for (const v of darkModeVars) {
-                    css += `    ${v.token}: ${v.modes.dark};\n`;
-                }
-                css += "  }\n}\n\n";
-            }
-        }
-        if (globalClasses && globalClasses.length > 0) {
-            for (const c of globalClasses) {
-                if (c && c.className && c.styles) {
-                    const toCss = (obj: any) =>
-                        Object.entries(obj)
-                            .map(([k, v]) => `  ${k.replace(/[A-Z]/g, (m) => "-" + m.toLowerCase())}: ${v};`)
-                            .join("\n");
-                    css += `.${c.className} {\n${toCss(c.styles)}\n}\n`;
-                    if (c.pseudoStyles?.hover && Object.keys(c.pseudoStyles.hover).length > 0) {
-                        css += `.${c.className}:hover {\n${toCss(c.pseudoStyles.hover)}\n}\n`;
-                    }
-                    if (c.pseudoStyles?.focus && Object.keys(c.pseudoStyles.focus).length > 0) {
-                        css += `.${c.className}:focus {\n${toCss(c.pseudoStyles.focus)}\n}\n`;
-                    }
-                    if (c.pseudoStyles?.active && Object.keys(c.pseudoStyles.active).length > 0) {
-                        css += `.${c.className}:active {\n${toCss(c.pseudoStyles.active)}\n}\n`;
-                    }
-                }
-            }
-        }
-        return css;
+        return compileDesignSystemCss(globalVariables, globalClasses);
     }, [globalVariables, globalClasses]);
 
     // F-356 dynamic font analyzer integration

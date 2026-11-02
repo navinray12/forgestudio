@@ -382,3 +382,83 @@ export async function checkWebsiteLimit(userId: string, currentWebsiteCount: num
     };
   }
 }
+
+/**
+ * Processes overdue and expired subscriptions.
+ * Reconciles expired paid periods and grace periods down to the Free plan.
+ * Resets user license site limits strictly to 1 site.
+ * Completely idempotent and safe to run on a repeated schedule.
+ */
+export async function processSubscriptionExpirations(): Promise<{
+  processedCount: number;
+  expiredUserIds: string[];
+}> {
+  try {
+    // Query all non-free subscriptions where currentPeriodEnd <= NOW()
+    const overdueSubs: any[] = await prisma.$queryRaw`
+      SELECT s.id, s."userId", s.status, s."currentPeriodEnd", p.slug as "plan_slug"
+      FROM user_subscriptions s
+      JOIN subscription_plans p ON s."planId" = p.id
+      WHERE s."currentPeriodEnd" IS NOT NULL
+        AND s."currentPeriodEnd" <= NOW()
+        AND LOWER(p.slug) != 'free'
+    `;
+
+    if (!overdueSubs || overdueSubs.length === 0) {
+      return {
+        processedCount: 0,
+        expiredUserIds: [],
+      };
+    }
+
+    let freePlan: any = null;
+    const plans: any[] = await prisma.$queryRaw`
+      SELECT id, slug, "websiteLimit" FROM subscription_plans WHERE LOWER(slug) = 'free' LIMIT 1
+    `;
+    if (plans && plans.length > 0) freePlan = plans[0];
+
+    const expiredUserIds: string[] = [];
+
+    for (const sub of overdueSubs) {
+      await prisma.$transaction(async (tx: any) => {
+        if (freePlan) {
+          await tx.$executeRawUnsafe(
+            `UPDATE user_subscriptions
+             SET "planId" = $1::uuid,
+                 status = 'EXPIRED',
+                 "currentPeriodEnd" = NULL,
+                 "updatedAt" = NOW()
+             WHERE "userId" = $2::uuid`,
+            freePlan.id,
+            sub.userId
+          );
+        } else {
+          await tx.$executeRawUnsafe(
+            `UPDATE user_subscriptions
+             SET status = 'EXPIRED',
+                 "currentPeriodEnd" = NULL,
+                 "updatedAt" = NOW()
+             WHERE "userId" = $1::uuid`,
+            sub.userId
+          );
+        }
+
+        // Synchronize license down to free limits (1 site) atomically within transaction
+        await syncUserLicenseForPlan(sub.userId, "free", 1, true, tx);
+      });
+
+      expiredUserIds.push(sub.userId);
+    }
+
+    return {
+      processedCount: expiredUserIds.length,
+      expiredUserIds,
+    };
+  } catch (error: any) {
+    console.error("[Subscription] Error processing subscription expirations:", error?.message || error);
+    return {
+      processedCount: 0,
+      expiredUserIds: [],
+    };
+  }
+}
