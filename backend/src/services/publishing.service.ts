@@ -43,6 +43,7 @@ export interface PublishOptions {
   environment?: "PRODUCTION" | "STAGING" | "DEVELOPMENT";
   destinationType?: "INTERNAL" | "WORDPRESS" | "SFTP" | "STATIC";
   metadata?: Record<string, any>;
+  expectedVersion?: number;
 }
 
 export interface PublishResult {
@@ -245,6 +246,10 @@ export async function publishWebsite(
 ): Promise<PublishResult> {
   // 1. Authorization check
   const website = await getWebsiteById(websiteId, userId);
+  if (!website) {
+    throw new AppError("Website not found or unavailable", 404, "NOT_FOUND");
+  }
+
   const canPublish = await canUserAccessResource(userId, websiteId, "*", "PUBLISH");
   if (!canPublish) {
     throw new AppError("You do not have permission to publish this website.", 403, "FORBIDDEN");
@@ -276,6 +281,24 @@ export async function publishWebsite(
       }
     }
   }
+
+  // 1.2 Monotonic CAS revision validation (Issue 20)
+  const currentDbVersion = Number(website.version ?? 1);
+  if (options.expectedVersion !== undefined && options.expectedVersion !== null) {
+    const expVer = Number(options.expectedVersion);
+    if (isNaN(expVer) || expVer < 1) {
+      throw new AppError("Invalid expectedVersion revision", 400, "INVALID_REVISION");
+    }
+    if (expVer !== currentDbVersion) {
+      throw new AppError(
+        `Publish conflict: stale website revision. Expected version ${expVer}, but current database version is ${currentDbVersion}.`,
+        409,
+        "CONCURRENCY_CONFLICT"
+      );
+    }
+  }
+
+  let currentWebsiteVersion = currentDbVersion;
 
   const environment = options.environment || "PRODUCTION";
   const destinationType = options.destinationType || "INTERNAL";
@@ -336,22 +359,75 @@ export async function publishWebsite(
 
   const now = new Date().toISOString();
 
-  // Pre-Publish Safety Backup (Automated pre-publish snapshot)
+  // Pre-Publish Safety Backup (Issue 19)
+  // Monotonic CAS on website.version ensures concurrent draft saves cannot be clobbered
   if (environment === "PRODUCTION") {
     try {
       const { createBackupRecord, appendBackup } = await import("./backups/websiteBackup.service.js");
-      const prePublishBackup = createBackupRecord(rawEditorData, {
+      
+      const freshSite = await prisma.website.findUnique({
+        where: { id: websiteId },
+        select: { id: true, version: true, editorData: true },
+      });
+
+      if (!freshSite) {
+        throw new AppError("Website not found during pre-publish backup.", 404, "NOT_FOUND");
+      }
+
+      if (freshSite.version !== currentWebsiteVersion) {
+        throw new AppError(
+          `Pre-publish backup conflict: website was modified concurrently. Expected version ${currentWebsiteVersion}, but found ${freshSite.version}.`,
+          409,
+          "CONCURRENCY_CONFLICT"
+        );
+      }
+
+      const freshEditorData = typeof freshSite.editorData === "string"
+        ? JSON.parse(freshSite.editorData)
+        : (freshSite.editorData || {});
+
+      // Capture pre-publish backup from resolved candidate snapshot or draft data
+      const backupSource = candidateData || freshEditorData;
+      const prePublishBackup = createBackupRecord(backupSource, {
+        websiteId,
         trigger: "pre-publish",
         label: `Pre-Publish Snapshot (v${nextVersion})`,
         notes: `Automated safety snapshot created before deploying version ${nextVersion}`,
       });
-      const currentBackups = Array.isArray(rawEditorData.backups) ? rawEditorData.backups : [];
-      rawEditorData.backups = appendBackup(currentBackups, prePublishBackup);
-      await db.website.update({
-        where: { id: websiteId },
-        data: { editorData: rawEditorData },
+
+      const currentBackups = Array.isArray(freshEditorData.backups) ? freshEditorData.backups : [];
+      const updatedBackups = appendBackup(currentBackups, prePublishBackup);
+
+      const editorDataWithBackup = {
+        ...freshEditorData,
+        backups: updatedBackups,
+      };
+
+      const backupUpdateResult = await prisma.website.updateMany({
+        where: {
+          id: websiteId,
+          version: currentWebsiteVersion,
+        },
+        data: {
+          editorData: editorDataWithBackup,
+          version: currentWebsiteVersion + 1,
+          updatedAt: new Date(),
+        },
       });
-    } catch (backupErr) {
+
+      if (backupUpdateResult.count === 0) {
+        throw new AppError(
+          "Pre-publish backup conflict: concurrent modification detected during safety backup.",
+          409,
+          "CONCURRENCY_CONFLICT"
+        );
+      }
+
+      currentWebsiteVersion += 1;
+    } catch (backupErr: any) {
+      if (backupErr?.status === 409 || backupErr?.statusCode === 409 || backupErr?.code === "CONCURRENCY_CONFLICT") {
+        throw backupErr;
+      }
       console.warn("Pre-publish safety backup warning:", backupErr);
     }
   }
@@ -405,39 +481,15 @@ export async function publishWebsite(
     await updateDeploymentStatus(deployment.id, "PROCESSING");
     delete (candidateSnapshot as any).publishedData;
 
-    // 7. State Machine: DEPLOYING (Execute destination deployment)
+    // 7. State Machine: DEPLOYING (Execute destination deployment without premature DB writes) - Issue 20
     await updateDeploymentStatus(deployment.id, "DEPLOYING");
     let destinationRef = `/site/${websiteId}`;
     let destinationMetadata: Record<string, any> = {};
     let filesTransferred: number | undefined = undefined;
 
     if (destinationType === "INTERNAL") {
-      // Store published snapshot into authoritative publishedData field
-      const updatedEditorData = {
-        ...candidateData,
-        ...candidateSnapshot,
-        publishedData: candidateSnapshot,
-        publishing: publishingMeta,
-      };
-
-      if (db?.website?.update) {
-        await db.website.update({
-          where: { id: websiteId },
-          data: {
-            status: "PUBLISHED",
-            editorData: updatedEditorData,
-          },
-        });
-      } else {
-        const jsonStr = JSON.stringify(updatedEditorData);
-        await prisma.$executeRawUnsafe(
-          `UPDATE websites SET status = 'PUBLISHED', "editorData" = $1::jsonb, "updatedAt" = NOW() WHERE id = $2::uuid`,
-          jsonStr,
-          websiteId
-        );
-      }
+      destinationRef = `/site/${websiteId}`;
     } else if (destinationType === "WORDPRESS") {
-      // Phase 5 WordPress Publishing
       const wpResult = await publishToWordPress(websiteId, userId, deployment.id, candidateSnapshot);
       destinationRef = wpResult.primaryPageUrl || wpResult.siteUrl;
       filesTransferred = wpResult.syncedPagesCount;
@@ -447,110 +499,33 @@ export async function publishWebsite(
         syncedPagesCount: wpResult.syncedPagesCount,
         syncedMediaCount: wpResult.syncedMediaCount,
       };
-
-      // Also persist published snapshot in ForgeStudio for offline / parity reference
-      const updatedEditorData = {
-        ...candidateData,
-        ...candidateSnapshot,
-        publishedData: candidateSnapshot,
-        publishing: publishingMeta,
-      };
-
-      if (db?.website?.update) {
-        await db.website.update({
-          where: { id: websiteId },
-          data: {
-            status: "PUBLISHED",
-            editorData: updatedEditorData,
-          },
-        });
-      } else {
-        const jsonStr = JSON.stringify(updatedEditorData);
-        await prisma.$executeRawUnsafe(
-          `UPDATE websites SET status = 'PUBLISHED', "editorData" = $1::jsonb, "updatedAt" = NOW() WHERE id = $2::uuid`,
-          jsonStr,
-          websiteId
-        );
-      }
     } else if (destinationType === "SFTP") {
       const sftpPublisher = destinationRegistry.getPublisher("SFTP");
       const sftpResult = await sftpPublisher.publish(websiteId, deployment.id, candidateSnapshot, { userId, ...options });
       destinationRef = sftpResult.destinationRef || `sftp://${websiteId}`;
       filesTransferred = sftpResult.filesTransferred;
       destinationMetadata = sftpResult.metadata || {};
-
-      const updatedEditorData = {
-        ...candidateData,
-        ...candidateSnapshot,
-        publishedData: candidateSnapshot,
-        publishing: publishingMeta,
-      };
-
-      if (db?.website?.update) {
-        await db.website.update({
-          where: { id: websiteId },
-          data: {
-            status: "PUBLISHED",
-            editorData: updatedEditorData,
-          },
-        });
-      } else {
-        const jsonStr = JSON.stringify(updatedEditorData);
-        await prisma.$executeRawUnsafe(
-          `UPDATE websites SET status = 'PUBLISHED', "editorData" = $1::jsonb, "updatedAt" = NOW() WHERE id = $2::uuid`,
-          jsonStr,
-          websiteId
-        );
-      }
     } else if (destinationType === "STATIC") {
       const staticPublisher = destinationRegistry.getPublisher("STATIC");
       const staticResult = await staticPublisher.publish(websiteId, deployment.id, candidateSnapshot, { userId, ...options });
       destinationRef = staticResult.destinationRef || `/exports/${websiteId}/v${nextVersion}`;
       filesTransferred = staticResult.filesTransferred;
       destinationMetadata = staticResult.metadata || {};
-
-      const updatedEditorData = {
-        ...candidateData,
-        ...candidateSnapshot,
-        publishedData: candidateSnapshot,
-        publishing: publishingMeta,
-      };
-
-      if (db?.website?.update) {
-        await db.website.update({
-          where: { id: websiteId },
-          data: {
-            status: "PUBLISHED",
-            editorData: updatedEditorData,
-          },
-        });
-      } else {
-        const jsonStr = JSON.stringify(updatedEditorData);
-        await prisma.$executeRawUnsafe(
-          `UPDATE websites SET status = 'PUBLISHED', "editorData" = $1::jsonb, "updatedAt" = NOW() WHERE id = $2::uuid`,
-          jsonStr,
-          websiteId
-        );
-      }
     }
 
-    // 8. State Machine: VERIFYING (Verify destination live payload)
+    // 8. State Machine: VERIFYING (Verify destination readiness & candidate snapshot integrity)
     await updateDeploymentStatus(deployment.id, "VERIFYING");
 
-    const verifiedWebsite = await getWebsiteById(websiteId, userId);
-    const verifiedEditorData = typeof verifiedWebsite.editorData === "string"
-      ? JSON.parse(verifiedWebsite.editorData)
-      : (verifiedWebsite.editorData || {});
+    const hasValidSnapshot =
+      candidateSnapshot &&
+      typeof candidateSnapshot === "object" &&
+      !Array.isArray(candidateSnapshot) &&
+      (Array.isArray(candidateSnapshot.pages) || Array.isArray(candidateSnapshot.elements)) &&
+      Boolean(destinationRef);
 
-    const isVerified =
-      verifiedWebsite.status === "PUBLISHED" &&
-      verifiedEditorData.publishedData &&
-      (verifiedEditorData.publishedData.version === nextVersion ||
-        verifiedEditorData.publishedData.publishing?.version === nextVersion);
-
-    if (!isVerified) {
+    if (!hasValidSnapshot) {
       await updateDeploymentStatus(deployment.id, "VERIFICATION_FAILED", {
-        error: { code: "DESTINATION_VERIFICATION_FAILED", message: "Live snapshot mismatch" },
+        error: { code: "DESTINATION_VERIFICATION_FAILED", message: "Live snapshot mismatch or invalid payload" },
       });
       throw new AppError(
         "Deployment verification failed: published snapshot could not be verified on destination.",
@@ -560,7 +535,7 @@ export async function publishWebsite(
     }
 
     // 9. REVISION LINKAGE: Create durable PUBLISH revision & link to deployment
-    // Invariant: If revision creation/linkage fails, enter RECONCILIATION_REQUIRED state
+    // Invariant: If revision creation/linkage fails, enter RECONCILIATION_REQUIRED state for external destinations
     let publishRevision: any = null;
     try {
       publishRevision = await createRevision(websiteId, userId, {
@@ -570,33 +545,28 @@ export async function publishWebsite(
       });
     } catch (revError: any) {
       console.error("Revision creation failed after destination deployment:", revError);
-      await updateDeploymentStatus(deployment.id, "RECONCILIATION_REQUIRED", {
-        error: {
-          code: "REVISION_LINKAGE_FAILED",
-          message: revError?.message || "Destination deployed successfully but revision creation failed",
-        },
-      });
-      throw new AppError(
-        "Destination deployed successfully, but revision linkage failed. Deployment is flagged for reconciliation.",
-        500,
-        "RECONCILIATION_REQUIRED"
-      );
+      if (destinationType !== "INTERNAL") {
+        deployment = await updateDeploymentStatus(deployment.id, "RECONCILIATION_REQUIRED", {
+          error: {
+            code: "REVISION_LINKAGE_FAILED",
+            message: revError?.message || "Destination deployed successfully but revision creation failed",
+          },
+        });
+        throw new AppError(
+          "Destination deployed successfully, but revision linkage failed. Deployment is flagged for reconciliation.",
+          500,
+          "RECONCILIATION_REQUIRED"
+        );
+      } else {
+        deployment = await updateDeploymentStatus(deployment.id, "DEPLOY_FAILED", {
+          error: { code: "REVISION_LINKAGE_FAILED", message: revError?.message || "Revision creation failed" },
+          completedAt: new Date(),
+        });
+        throw revError;
+      }
     }
 
-    // 10. PUBLISHED: All 4 gates passed! Mark deployment PUBLISHED
-    deployment = await updateDeploymentStatus(deployment.id, "PUBLISHED", {
-      completedAt: new Date(),
-      destinationRef,
-      sourceRevisionId: publishRevision?.id || null,
-      metadata: {
-        ...(options.metadata || {}),
-        ...destinationMetadata,
-        filesTransferred,
-        warnings: validation.warnings,
-      },
-    });
-
-    // 10b. ATOMIC RELEASE RECORDING & POINTER SWAP
+    // 10. ATOMIC RELEASE RECORDING & POINTER SWAP (Issues 20 & 23)
     const releaseId = `rel_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const deployHash = createHash("sha256").update(JSON.stringify(candidateSnapshot)).digest("hex");
     
@@ -614,10 +584,125 @@ export async function publishWebsite(
       version: nextVersion,
     };
 
+    let finalWebsiteUpdatedAt: string = now;
+
     try {
-      await recordWebsiteRelease(websiteId, newRelease);
-    } catch (releaseErr) {
-      console.warn("Release record creation warning:", releaseErr);
+      await prisma.$transaction(async (tx: any) => {
+        // Read fresh website inside transaction
+        const liveSite = await tx.website.findUnique({
+          where: { id: websiteId },
+          select: { id: true, version: true, editorData: true, status: true },
+        });
+
+        if (!liveSite) {
+          throw new AppError("Website not found during publication finalization.", 404, "NOT_FOUND");
+        }
+
+        // Concurrency check if expectedVersion was specified
+        if (options.expectedVersion !== undefined && options.expectedVersion !== null) {
+          const allowedFinalVersion = environment === "PRODUCTION" ? options.expectedVersion + 1 : options.expectedVersion;
+          if (liveSite.version !== allowedFinalVersion && liveSite.version !== currentWebsiteVersion) {
+            throw new AppError(
+              `Publish conflict: concurrent modification during deployment. Expected version ${allowedFinalVersion}, found ${liveSite.version}.`,
+              409,
+              "CONCURRENCY_CONFLICT"
+            );
+          }
+        }
+
+        const liveEditorData = typeof liveSite.editorData === "string"
+          ? JSON.parse(liveSite.editorData)
+          : (liveSite.editorData || {});
+
+        const existingReleases: DeploymentRelease[] = Array.isArray(liveEditorData.releases)
+          ? liveEditorData.releases
+          : [];
+
+        const updatedReleases: DeploymentRelease[] = [
+          newRelease,
+          ...existingReleases.map((r) => ({ ...r, isActive: false })),
+        ].slice(0, 50);
+
+        // DRAFT PRESERVATION (Issue 20):
+        // Retain live working draft (pages, elements, siteParts, popups, etc.) from liveEditorData,
+        // while publishedData, releases, and currentReleaseId point to the candidateSnapshot!
+        const mergedEditorData = {
+          ...liveEditorData,
+          publishedData: candidateSnapshot,
+          publishing: publishingMeta,
+          releases: updatedReleases,
+          currentReleaseId: newRelease.releaseId,
+        };
+
+        const targetCasVersion = liveSite.version;
+        const nextSiteVersion = targetCasVersion + 1;
+
+        const siteUpdateResult = await tx.website.updateMany({
+          where: {
+            id: websiteId,
+            version: targetCasVersion,
+          },
+          data: {
+            status: "PUBLISHED",
+            editorData: mergedEditorData,
+            version: nextSiteVersion,
+            updatedAt: new Date(),
+          },
+        });
+
+        if (siteUpdateResult.count === 0) {
+          throw new AppError(
+            "Publish conflict: concurrent modification detected during publication finalization.",
+            409,
+            "CONCURRENCY_CONFLICT"
+          );
+        }
+
+        // Gated deployment update: ONLY marked PUBLISHED after release persistence succeeds! (Issue 23)
+        deployment = await tx.deployment.update({
+          where: { id: deployment.id },
+          data: {
+            status: "PUBLISHED",
+            completedAt: new Date(),
+            destinationRef,
+            sourceRevisionId: publishRevision?.id || null,
+            metadata: {
+              ...(options.metadata || {}),
+              ...destinationMetadata,
+              filesTransferred,
+              warnings: validation.warnings,
+              releaseId: newRelease.releaseId,
+            },
+          },
+        });
+
+        const refreshed = await tx.website.findUnique({
+          where: { id: websiteId },
+          select: { updatedAt: true },
+        });
+        if (refreshed?.updatedAt) {
+          finalWebsiteUpdatedAt = refreshed.updatedAt.toISOString();
+        }
+      });
+    } catch (finalizationErr: any) {
+      console.error("Publication release finalization failed:", finalizationErr);
+      if (destinationType !== "INTERNAL") {
+        deployment = await updateDeploymentStatus(deployment.id, "RECONCILIATION_REQUIRED", {
+          error: {
+            code: finalizationErr?.code || "RELEASE_FINALIZATION_FAILED",
+            message: finalizationErr?.message || "Destination deployed, but release persistence failed in database.",
+          },
+        });
+      } else {
+        deployment = await updateDeploymentStatus(deployment.id, "DEPLOY_FAILED", {
+          error: {
+            code: finalizationErr?.code || "RELEASE_FINALIZATION_FAILED",
+            message: finalizationErr?.message || "Internal release finalization failed.",
+          },
+          completedAt: new Date(),
+        });
+      }
+      throw finalizationErr;
     }
 
     // 11. Record Audit Log
@@ -640,11 +725,6 @@ export async function publishWebsite(
       }
     } catch (auditErr) {}
 
-    const finalWebsite = await prisma.website.findUnique({
-      where: { id: websiteId },
-      select: { updatedAt: true },
-    });
-
     return {
       success: true,
       deploymentId: deployment.id,
@@ -658,14 +738,15 @@ export async function publishWebsite(
       sourceRevisionId: publishRevision?.id,
       filesTransferred,
       warnings: validation.warnings,
-      updatedAt: finalWebsite?.updatedAt ? finalWebsite.updatedAt.toISOString() : verifiedWebsite.updatedAt,
+      updatedAt: finalWebsiteUpdatedAt,
     };
   } catch (error: any) {
     // If deployment has not entered a terminal failure state yet, mark DEPLOY_FAILED
     if (
       deployment?.status !== "VALIDATION_FAILED" &&
       deployment?.status !== "VERIFICATION_FAILED" &&
-      deployment?.status !== "RECONCILIATION_REQUIRED"
+      deployment?.status !== "RECONCILIATION_REQUIRED" &&
+      deployment?.status !== "PUBLISHED"
     ) {
       try {
         await updateDeploymentStatus(deployment.id, "DEPLOY_FAILED", {
@@ -680,9 +761,6 @@ export async function publishWebsite(
   }
 }
 
-/**
- * Retrieve deployment history for a website (newest first).
- */
 export async function getWebsiteDeployments(websiteId: string, userId: string) {
   // Authorization: VIEW permission required
   await getWebsiteById(websiteId, userId);
@@ -830,10 +908,13 @@ export async function recordWebsiteRelease(websiteId: string, release: Deploymen
     currentReleaseId: release.releaseId,
   };
 
-  await prisma.website.update({
-    where: { id: websiteId },
+  const targetVer = Number(website.version || 1);
+  await prisma.website.updateMany({
+    where: { id: websiteId, version: targetVer },
     data: {
       editorData: updatedEditorData,
+      version: targetVer + 1,
+      updatedAt: new Date(),
     },
   });
 }
@@ -886,12 +967,19 @@ export async function instantRollbackRelease(
     publishedData: targetRelease.snapshotData || ed.publishedData,
   };
 
-  await prisma.website.update({
-    where: { id: websiteId },
+  const targetVer = Number(website.version || 1);
+  const updateResult = await prisma.website.updateMany({
+    where: { id: websiteId, version: targetVer },
     data: {
       editorData: updatedEditorData,
+      version: targetVer + 1,
+      updatedAt: new Date(),
     },
   });
+
+  if (updateResult.count === 0) {
+    throw new AppError("Rollback conflict: website was modified concurrently.", 409, "CONCURRENCY_CONFLICT");
+  }
 
   const executionTimeMs = Date.now() - startTime;
 
