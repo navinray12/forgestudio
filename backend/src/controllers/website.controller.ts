@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
+import { AppError } from "../utils/app-error.js";
 import {
   getUserWebsites,
   getWebsiteById,
@@ -14,13 +15,14 @@ import {
  * Fetch all websites for current authenticated user
  */
 export async function getWebsitesHandler(
-  _req: Request,
+  req: Request,
   res: Response,
   next: NextFunction
 ) {
   try {
     const user = res.locals.user;
-    const websites = await getUserWebsites(user.id);
+    const workspaceId = (req.query?.workspaceId as string) || undefined;
+    const websites = await getUserWebsites(user.id, workspaceId);
 
     return res.status(200).json({
       success: true,
@@ -161,9 +163,24 @@ export async function updateWebsiteHandler(
   try {
     const user = res.locals.user;
     const websiteId = req.params.id as string;
-    const { editorData, performanceSettings } = req.body;
+    const { editorData, performanceSettings, lastKnownUpdatedAt, expectedVersion, version } = req.body;
+    const headerTimestamp = req.headers["if-unmodified-since"];
+    const effectiveTimestamp = lastKnownUpdatedAt || headerTimestamp;
+    const rawVersion = expectedVersion !== undefined && expectedVersion !== null ? expectedVersion : version;
+    const effectiveVersion = rawVersion !== undefined && rawVersion !== null ? Number(rawVersion) : undefined;
 
-    const website = await updateWebsiteEditorData(websiteId, user.id, editorData, performanceSettings);
+    if (effectiveVersion === undefined && !effectiveTimestamp) {
+      throw new AppError("Expected revision (expectedVersion or lastKnownUpdatedAt) is required for editor save", 400, "MISSING_REVISION");
+    }
+
+    const website = await updateWebsiteEditorData(
+      websiteId,
+      user.id,
+      editorData,
+      performanceSettings,
+      effectiveTimestamp,
+      effectiveVersion
+    );
 
     return res.status(200).json({
       success: true,
@@ -302,6 +319,14 @@ export async function setGranularPermissionHandler(req: Request, res: Response, 
     const { setGranularPermission } = await import("../services/permission.service.js");
     const result = await setGranularPermission(req.params.id as string, res.locals.user.id, targetUserId, resourceId, capability, effect);
     return res.status(200).json({ ...result, success: true });
+  } catch (error) { next(error); }
+}
+
+export async function getEffectivePermissionsHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { getEffectivePermissions } = await import("../services/permission.service.js");
+    const result = await getEffectivePermissions(req.params.id as string, res.locals.user.id);
+    return res.status(200).json({ success: true, ...result });
   } catch (error) { next(error); }
 }
 

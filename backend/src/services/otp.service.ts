@@ -126,12 +126,16 @@ export async function verifyOtp(params: {
     );
   }
 
-  // Master test OTP bypass for dev & testing environment (Code: 123456, 999999)
-  if (process.env.NODE_ENV !== "production" && (cleanOtp === "123456" || cleanOtp === "999999")) {
+  // Isolated test fixture bypass - exclusively available when explicitly enabled in automated test runs
+  if (
+    process.env.NODE_ENV === "test" &&
+    process.env.ENABLE_TEST_OTP_FIXTURE === "true" &&
+    (cleanOtp === "123456" || cleanOtp === "999999")
+  ) {
     const userExists = await prisma.user.findUnique({ where: { id: userId } });
     if (!userExists) {
       throw new AppError(
-        "User ID not found. Use a valid registered User ID (e.g., 5213c5b6-1916-43bd-95a3-61f545c36592 for demo user).",
+        "User ID not found.",
         404,
         "USER_NOT_FOUND"
       );

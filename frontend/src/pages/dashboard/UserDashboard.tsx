@@ -278,17 +278,19 @@ function UserDashboard() {
     setSidebarOpen(false);
   };
 
-  const fetchWebsites = async () => {
+  const fetchWebsites = async (wsId?: string | null) => {
     setWLoading(true);
     try {
-      const res = await fetch(`${apiUrl}/api/websites`, { credentials: "include" });
+      const targetWs = wsId !== undefined ? wsId : currentWorkspaceId;
+      const url = targetWs ? `${apiUrl}/api/websites?workspaceId=${targetWs}` : `${apiUrl}/api/websites`;
+      const res = await fetch(url, { credentials: "include" });
       const data = await res.json();
       if (res.ok && data.websites) setWebsites(data.websites);
     } catch { /* no-op */ }
     finally { setWLoading(false); }
   };
 
-  useEffect(() => { fetchWebsites(); }, []);
+  useEffect(() => { fetchWebsites(currentWorkspaceId); }, [currentWorkspaceId]);
 
   const handleLogout = async () => { await logout(); navigate("/login", { replace: true }); };
 

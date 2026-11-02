@@ -131,6 +131,9 @@ exports.Prisma.UserScalarFieldEnum = {
   phoneVerified: 'phoneVerified',
   status: 'status',
   role: 'role',
+  suspensionReason: 'suspensionReason',
+  suspendedAt: 'suspendedAt',
+  suspendedBy: 'suspendedBy',
   lastLoginAt: 'lastLoginAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
@@ -144,6 +147,11 @@ exports.Prisma.WebsiteScalarFieldEnum = {
   slug: 'slug',
   status: 'status',
   archivedAt: 'archivedAt',
+  moderationStatus: 'moderationStatus',
+  moderationReason: 'moderationReason',
+  moderatedAt: 'moderatedAt',
+  moderatedBy: 'moderatedBy',
+  version: 'version',
   editorData: 'editorData',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
@@ -306,6 +314,10 @@ exports.Prisma.AuditLogScalarFieldEnum = {
   targetResource: 'targetResource',
   details: 'details',
   ipAddress: 'ipAddress',
+  actorRole: 'actorRole',
+  result: 'result',
+  reason: 'reason',
+  correlationId: 'correlationId',
   createdAt: 'createdAt'
 };
 
@@ -391,7 +403,9 @@ exports.Prisma.DeveloperApiKeyScalarFieldEnum = {
   userId: 'userId',
   name: 'name',
   tokenHash: 'tokenHash',
+  maskedKey: 'maskedKey',
   scopes: 'scopes',
+  expiresAt: 'expiresAt',
   lastUsedAt: 'lastUsedAt',
   revokedAt: 'revokedAt',
   createdAt: 'createdAt',
@@ -600,8 +614,31 @@ exports.Prisma.BackgroundJobScalarFieldEnum = {
   runAt: 'runAt',
   startedAt: 'startedAt',
   completedAt: 'completedAt',
+  workerId: 'workerId',
+  claimedAt: 'claimedAt',
+  leaseExpiresAt: 'leaseExpiresAt',
+  heartbeatAt: 'heartbeatAt',
+  fencingToken: 'fencingToken',
+  idempotencyKey: 'idempotencyKey',
+  correlationId: 'correlationId',
+  tenantId: 'tenantId',
+  websiteId: 'websiteId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.StudioAssetFolderScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  name: 'name',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.StudioAssetMetadataScalarFieldEnum = {
+  assetId: 'assetId',
+  folderId: 'folderId',
+  category: 'category',
+  deletedAt: 'deletedAt'
 };
 
 exports.Prisma.MediaAssetScalarFieldEnum = {
@@ -869,6 +906,8 @@ exports.Prisma.ModelName = {
   WorkspaceMember: 'WorkspaceMember',
   PublishApprovalRequest: 'PublishApprovalRequest',
   BackgroundJob: 'BackgroundJob',
+  StudioAssetFolder: 'StudioAssetFolder',
+  StudioAssetMetadata: 'StudioAssetMetadata',
   MediaAsset: 'MediaAsset',
   SiteMailerConfig: 'SiteMailerConfig',
   EmailDeliveryLog: 'EmailDeliveryLog',

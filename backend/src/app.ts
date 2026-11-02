@@ -57,12 +57,15 @@ import {
   aiHostingRoutes,
   elementorCloudRoutes,
   exportRoutes,
+  themeBuilderRoutes,
 } from "./routes/index.js";
 
 import apiV1Routes from "./routes/api-v1.routes.js";
 import operationsRoutes from "./routes/operations.routes.js";
 import auditLogRoutes from "./routes/auditLog.routes.js";
 import mediaRoutes from "./routes/media.routes.js";
+import workspaceRoutes from "./routes/workspace.routes.js";
+import organizationRoutes from "./routes/organization.routes.js";
 import { downloadWordPressPluginHandler } from "./controllers/wordpress.controller.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 import healthRoutes from "./routes/health.routes.js";
@@ -76,6 +79,7 @@ const authRateLimiter = rateLimit({
   max: 15,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: () => process.env.NODE_ENV === "test",
   message: {
     success: false,
     error: {
@@ -104,6 +108,7 @@ const app = express();
 
 app.use(
   helmet({
+    contentSecurityPolicy: process.env.NODE_ENV === "test" ? false : undefined,
     crossOriginResourcePolicy: { policy: "cross-origin" },
   })
 );
@@ -112,7 +117,7 @@ app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL,
+    origin: process.env.NODE_ENV === "test" ? true : process.env.FRONTEND_URL,
     credentials: true,
   })
 );
@@ -208,6 +213,10 @@ app.use("/api/v1/websites", experimentRoutes);
 app.use("/api/websites", experimentRoutes);
 app.use("/api/v1/teams", teamRoutes);
 app.use("/api/teams", teamRoutes);
+app.use("/api/v1/workspaces", workspaceRoutes);
+app.use("/api/workspaces", workspaceRoutes);
+app.use("/api/v1/organizations", organizationRoutes);
+app.use("/api/organizations", organizationRoutes);
 
 // Media & Uploads
 app.use("/api/v1/uploads", uploadRoutes);
@@ -227,6 +236,8 @@ app.use("/api/v1/composer", composerRoutes);
 app.use("/api/composer", composerRoutes);
 app.use("/api/v1/cpt", customPostTypeRoutes);
 app.use("/api/cpt", customPostTypeRoutes);
+app.use("/api/v1/theme", themeBuilderRoutes);
+app.use("/api/theme", themeBuilderRoutes);
 app.use("/api/v1/custom-code", customCodeRoutes);
 app.use("/api/custom-code", customCodeRoutes);
 app.use("/api/v1/design-notes", designNotesRoutes);

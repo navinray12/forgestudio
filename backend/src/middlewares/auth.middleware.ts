@@ -20,7 +20,14 @@ export async function requireAuth(
   next: NextFunction
 ) {
   try {
-    const token = req.cookies?.[AUTH_COOKIE_NAME];
+    if (res.locals.user || (req as any).user) {
+      return next();
+    }
+
+    let token = req.cookies?.[AUTH_COOKIE_NAME];
+    if (!token && req.headers.authorization && /^Bearer\s+/i.test(req.headers.authorization)) {
+      token = req.headers.authorization.replace(/^Bearer\s+/i, "").trim();
+    }
 
     if (!token) {
       return res.status(401).json({
@@ -31,40 +38,50 @@ export async function requireAuth(
 
     const tokenHash = hashToken(token);
 
-    let session: any = null;
-    try {
-      session = await prisma.session.findUnique({
-        where: {
-          tokenHash,
-        },
-        include: {
-          user: true,
-        },
-      });
-    } catch (dbErr: any) {
-      if (dbErr?.code === "P2022" || String(dbErr?.message || "").includes("optimizationCredits")) {
-        try {
-          await prisma.$executeRawUnsafe(`ALTER TABLE users ADD COLUMN IF NOT EXISTS "optimizationCredits" INTEGER NOT NULL DEFAULT 250;`);
-          session = await prisma.session.findUnique({
-            where: {
-              tokenHash,
-            },
-            include: {
-              user: true,
-            },
-          });
-        } catch (retryErr) {
-          throw dbErr;
-        }
-      } else {
-        throw dbErr;
-      }
-    }
+    const session = await prisma.session.findUnique({
+      where: {
+        tokenHash,
+      },
+      include: {
+        user: true,
+      },
+    });
 
     if (!session) {
       return res.status(401).json({
         success: false,
         message: "Invalid session",
+      });
+    }
+
+    if (session.user.status === "SUSPENDED") {
+      // Invalidate session immediately upon suspended user attempt
+      await prisma.session.update({
+        where: { id: session.id },
+        data: { revokedAt: new Date() },
+      }).catch(() => {});
+
+      return res.status(403).json({
+        success: false,
+        error: {
+          code: "ACCOUNT_SUSPENDED",
+          message: "Account has been suspended. Please contact support.",
+        },
+      });
+    }
+
+    if (session.user.status === "DELETED") {
+      await prisma.session.update({
+        where: { id: session.id },
+        data: { revokedAt: new Date() },
+      }).catch(() => {});
+
+      return res.status(401).json({
+        success: false,
+        error: {
+          code: "ACCOUNT_DELETED",
+          message: "Account has been deleted.",
+        },
       });
     }
 
@@ -101,8 +118,11 @@ export async function requireAuth(
   }
 }
 
+import { normalizeGlobalRole } from "../services/permission.service.js";
+
 export function requireRole(allowedRoles: string | string[]) {
-  const roles = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];
+  const rawAllowed = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];
+  const normalizedAllowed = rawAllowed.map((r) => normalizeGlobalRole(r));
 
   return (req: Request, res: Response, next: NextFunction) => {
     const user = res.locals.user || (req as any).user;
@@ -114,7 +134,9 @@ export function requireRole(allowedRoles: string | string[]) {
       });
     }
 
-    if (!roles.includes(user.role)) {
+    const userGlobalRole = normalizeGlobalRole(user.role);
+
+    if (!rawAllowed.includes(user.role) && !normalizedAllowed.includes(userGlobalRole)) {
       return res.status(403).json({
         success: false,
         error: {

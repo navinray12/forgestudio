@@ -7,51 +7,11 @@ import { getWebsiteById } from "./website.service.js";
 
 const db = prisma as any;
 
-let tablesInitialized = false;
+let tablesInitialized = true;
 
 export async function initOptimizationTables(): Promise<void> {
-  if (tablesInitialized) return;
-  try {
-    await prisma.$executeRawUnsafe(`
-      DO $$
-      BEGIN
-        IF NOT EXISTS (
-          SELECT 1 FROM information_schema.columns 
-          WHERE table_name='users' AND column_name='optimizationCredits'
-        ) THEN
-          ALTER TABLE users ADD COLUMN "optimizationCredits" INTEGER DEFAULT 250;
-        END IF;
-      END $$;
-
-      CREATE TABLE IF NOT EXISTS media_optimization_assets (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        "websiteId" UUID NOT NULL REFERENCES websites(id) ON DELETE CASCADE,
-        "originalUrl" VARCHAR(1000) NOT NULL,
-        "optimizedUrl" VARCHAR(1000) NOT NULL,
-        "originalBytes" INTEGER NOT NULL,
-        "optimizedBytes" INTEGER NOT NULL,
-        format VARCHAR(50) NOT NULL DEFAULT 'webp',
-        status VARCHAR(50) NOT NULL DEFAULT 'OPTIMIZED',
-        "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW()
-      );
-      CREATE INDEX IF NOT EXISTS idx_media_opt_site_created ON media_optimization_assets("websiteId", "createdAt");
-
-      CREATE TABLE IF NOT EXISTS optimization_credit_ledgers (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        "userId" UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        "websiteId" UUID,
-        "creditsUsed" INTEGER NOT NULL,
-        "actionType" VARCHAR(100) NOT NULL,
-        "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW()
-      );
-      CREATE INDEX IF NOT EXISTS idx_opt_credits_user ON optimization_credit_ledgers("userId", "createdAt");
-    `);
-    tablesInitialized = true;
-  } catch (err) {
-    tablesInitialized = true;
-  }
+  // Database schema and tables are strictly managed via versioned Prisma migrations
+  return;
 }
 
 /**

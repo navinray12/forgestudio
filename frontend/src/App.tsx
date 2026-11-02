@@ -251,6 +251,10 @@ function App() {
             path="/site/:websiteId/:pageSlug"
             element={<PublishedSite />}
           />
+          <Route
+            path="/site/:websiteId/*"
+            element={<PublishedSite />}
+          />
 
           {/* ================= ROOT ================= */}
 

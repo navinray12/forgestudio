@@ -7,12 +7,16 @@ interface AtomicEditorProps {
   onClose?: () => void;
   onInsertGlobalElement?: (globalElementId: string) => void;
   onInsertComponent?: (componentId: string) => void;
+  websiteId?: string;
+  elements?: any[];
 }
 
 export const AtomicEditor: React.FC<AtomicEditorProps> = ({
   onClose,
   onInsertGlobalElement,
   onInsertComponent,
+  websiteId,
+  elements,
 }) => {
   const {
     sections,
@@ -63,7 +67,10 @@ export const AtomicEditor: React.FC<AtomicEditorProps> = ({
         error={error}
         onInsertGlobalElement={onInsertGlobalElement}
         onInsertComponent={onInsertComponent}
+        websiteId={websiteId}
+        elements={elements}
       />
     </div>
   );
+
 };

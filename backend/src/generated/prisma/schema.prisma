@@ -18,6 +18,9 @@ model User {
   phoneVerified                     Boolean                    @default(false)
   status                            UserStatus                 @default(ACTIVE)
   role                              UserRole                   @default(USER)
+  suspensionReason                  String?
+  suspendedAt                       DateTime?
+  suspendedBy                       String?                    @db.Uuid
   lastLoginAt                       DateTime?
   createdAt                         DateTime                   @default(now())
   updatedAt                         DateTime                   @updatedAt
@@ -52,6 +55,7 @@ model User {
   approvalRequests                  PublishApprovalRequest[]   @relation("ApprovalRequester")
   reviewedApprovals                 PublishApprovalRequest[]   @relation("ApprovalReviewer")
   mediaAssets                       MediaAsset[]
+  studioAssetFolders                StudioAssetFolder[]
   optimizationCredits               Int                        @default(250)
   creditLedgers                     OptimizationCreditLedger[]
   licenses                          License[]
@@ -71,6 +75,11 @@ model Website {
   status                  String                   @default("DRAFT") @db.VarChar(50)
   // Dashboard organization only; publishing and editor content are independent.
   archivedAt              DateTime?                @db.Timestamptz(6)
+  moderationStatus        String                   @default("ACTIVE") @db.VarChar(50)
+  moderationReason        String?                  @db.Text
+  moderatedAt             DateTime?                @db.Timestamptz(6)
+  moderatedBy             String?                  @db.Uuid
+  version                 Int                      @default(1)
   editorData              Json                     @default("{\"version\": 1, \"elements\": []}")
   createdAt               DateTime                 @default(now()) @db.Timestamptz(6)
   updatedAt               DateTime                 @default(now()) @updatedAt @db.Timestamptz(6)
@@ -367,6 +376,10 @@ model AuditLog {
   targetResource String
   details        Json?
   ipAddress      String?
+  actorRole      String?  @db.VarChar(50)
+  result         String   @default("SUCCESS") @db.VarChar(20)
+  reason         String?  @db.Text
+  correlationId  String?  @db.VarChar(100)
   createdAt      DateTime @default(now())
 
   user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
@@ -485,7 +498,9 @@ model DeveloperApiKey {
   userId     String    @db.Uuid
   name       String
   tokenHash  String    @unique
+  maskedKey  String?
   scopes     Json      @default("[\"websites:read\"]")
+  expiresAt  DateTime?
   lastUsedAt DateTime?
   revokedAt  DateTime?
   createdAt  DateTime  @default(now())
@@ -807,22 +822,59 @@ model PublishApprovalRequest {
 }
 
 model BackgroundJob {
-  id          String    @id @default(uuid()) @db.Uuid
-  type        String    @db.VarChar(100)
-  payload     Json      @default("{}")
-  status      String    @default("QUEUED") @db.VarChar(50) // QUEUED, RUNNING, COMPLETED, FAILED, CANCELLED
-  attempts    Int       @default(0)
-  maxAttempts Int       @default(3)
-  lastError   String?   @db.VarChar(2000)
-  runAt       DateTime  @default(now()) @db.Timestamptz(6)
-  startedAt   DateTime? @db.Timestamptz(6)
-  completedAt DateTime? @db.Timestamptz(6)
-  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
-  updatedAt   DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+  id             String    @id @default(uuid()) @db.Uuid
+  type           String    @db.VarChar(100)
+  payload        Json      @default("{}")
+  status         String    @default("QUEUED") @db.VarChar(50) // QUEUED, RUNNING, COMPLETED, FAILED, CANCELLED
+  attempts       Int       @default(0)
+  maxAttempts    Int       @default(3)
+  lastError      String?   @db.VarChar(2000)
+  runAt          DateTime  @default(now()) @db.Timestamptz(6)
+  startedAt      DateTime? @db.Timestamptz(6)
+  completedAt    DateTime? @db.Timestamptz(6)
+  workerId       String?   @db.VarChar(100)
+  claimedAt      DateTime? @db.Timestamptz(6)
+  leaseExpiresAt DateTime? @db.Timestamptz(6)
+  heartbeatAt    DateTime? @db.Timestamptz(6)
+  fencingToken   Int       @default(0)
+  idempotencyKey String?   @db.VarChar(255)
+  correlationId  String?   @db.VarChar(100)
+  tenantId       String?   @db.Uuid
+  websiteId      String?   @db.Uuid
+  createdAt      DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt      DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
 
+  @@unique([tenantId, idempotencyKey])
   @@index([status, runAt])
+  @@index([status, runAt, leaseExpiresAt])
   @@index([type])
+  @@index([workerId])
+  @@index([websiteId])
   @@map("background_jobs")
+}
+
+model StudioAssetFolder {
+  id        String                @id @db.Uuid
+  userId    String                @db.Uuid
+  name      String                @db.VarChar(100)
+  createdAt DateTime              @default(now()) @db.Timestamptz(6)
+  user      User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assets    StudioAssetMetadata[]
+
+  @@unique([userId, name])
+  @@map("studio_asset_folders")
+}
+
+model StudioAssetMetadata {
+  assetId   String             @id @db.Uuid
+  folderId  String?            @db.Uuid
+  category  String?            @db.VarChar(30)
+  deletedAt DateTime?          @db.Timestamptz(6)
+  asset     MediaAsset         @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  folder    StudioAssetFolder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
+
+  @@index([folderId], map: "studio_asset_folder_idx")
+  @@map("studio_asset_metadata")
 }
 
 model MediaAsset {
@@ -841,8 +893,9 @@ model MediaAsset {
   createdAt    DateTime @default(now()) @db.Timestamptz(6)
   updatedAt    DateTime @default(now()) @updatedAt @db.Timestamptz(6)
 
-  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  website Website? @relation(fields: [websiteId], references: [id], onDelete: SetNull)
+  user           User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  website        Website?             @relation(fields: [websiteId], references: [id], onDelete: SetNull)
+  studioMetadata StudioAssetMetadata?
 
   @@index([userId])
   @@index([websiteId])

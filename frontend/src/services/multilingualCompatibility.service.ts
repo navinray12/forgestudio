@@ -1,4 +1,5 @@
 import type { MultilingualExportOptions } from "../types/accessibility.types";
+import type { EditorElement } from "../pages/editor/types";
 
 export interface HreflangTag {
   lang: string;
@@ -22,10 +23,10 @@ export function generateHreflangTags(baseUrl: string, pageSlug: string, language
 /**
  * Exports site content strings into format compatible with WPML, Polylang, TranslatePress, or Weglot
  */
-export function exportMultilingualStrings(elements: any[], options: MultilingualExportOptions): string {
+export function exportMultilingualStrings(elements: EditorElement[], options: MultilingualExportOptions): string {
   const stringsToTranslate: { id: string; type: string; originalText: string }[] = [];
 
-  const extractStrings = (items: any[]) => {
+  const extractStrings = (items: EditorElement[]) => {
     if (!Array.isArray(items)) return;
     for (const item of items) {
       if (!item) continue;

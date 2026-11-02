@@ -1,4 +1,31 @@
-export interface CustomCodeSnippetData { name: string; priority: number; location: 'head' | 'body-start' | 'body-end'; codeType: 'css' | 'html' | 'javascript'; conditions?: any; scope?: string; enabled?: boolean; } export interface CustomCodeSnippet { id: string; status: string; draft?: CustomCodeSnippetData; published?: CustomCodeSnippetData; }
+export interface CustomCodeRule {
+    type: string;
+    operator: string;
+    value: string;
+}
+
+export interface CustomCodeConditions {
+    applyTo?: string;
+    includes?: CustomCodeRule[];
+    excludes?: CustomCodeRule[];
+}
+
+export interface CustomCodeSnippetData {
+    name: string;
+    priority: number;
+    location: 'head' | 'body-start' | 'body-end';
+    codeType: 'css' | 'html' | 'javascript';
+    conditions?: CustomCodeConditions;
+    scope?: string;
+    enabled?: boolean;
+}
+
+export interface CustomCodeSnippet {
+    id: string;
+    status: string;
+    draft?: CustomCodeSnippetData;
+    published?: CustomCodeSnippetData;
+}
 
 export interface OrderedSnippetData {
     id: string;
@@ -43,7 +70,7 @@ export function getApplicableCustomCode(
         } else {
             let isExcluded = false;
             if (conditions.excludes && conditions.excludes.length > 0) {
-                isExcluded = conditions.excludes.some((rule: any) => {
+                isExcluded = conditions.excludes.some((rule: CustomCodeRule) => {
                     if (rule.type === "page") {
                         return rule.operator === "is" ? currentPageId === rule.value : currentPageId !== rule.value;
                     }
@@ -55,7 +82,7 @@ export function getApplicableCustomCode(
             else if (conditions.applyTo === "specific") {
                 if (!conditions.includes || conditions.includes.length === 0) applies = false;
                 else {
-                    applies = conditions.includes.some((rule: any) => {
+                    applies = conditions.includes.some((rule: CustomCodeRule) => {
                         if (rule.type === "page") {
                             return rule.operator === "is" ? currentPageId === rule.value : currentPageId !== rule.value;
                         }
@@ -92,7 +119,7 @@ export function getOrderedCustomCode(
 
     applicable.sort((a, b) => {
         // 1. Location (Although DOM rendering already splits by Head/Body conceptually for HTML, let's strictly order them here)
-        const locOpts: any = { "head": 1, "body-start": 2, "body-end": 3 };
+        const locOpts: Record<'head' | 'body-start' | 'body-end', number> = { "head": 1, "body-start": 2, "body-end": 3 };
         const locDiff = locOpts[a.data.location] - locOpts[b.data.location];
         if (locDiff !== 0) return locDiff;
 

@@ -136,6 +136,11 @@ export function useRevisionHistory(websiteId: string, apiUrl: string = "") {
           );
           restoredData = serverResult?.restoredRevision?.data;
         } catch (serverErr: any) {
+          if (serverErr?.message?.includes("Conflict")) {
+            setError(serverErr.message);
+            setIsLoading(false);
+            return;
+          }
           console.warn("Server restore API failed, checking local snapshot:", serverErr);
         }
 

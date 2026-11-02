@@ -58,6 +58,7 @@ export interface PublishResult {
   filesTransferred?: number;
   warnings?: ValidationIssue[];
   releaseId?: string;
+  updatedAt?: string;
 }
 
 /**
@@ -247,6 +248,15 @@ export async function publishWebsite(
   const canPublish = await canUserAccessResource(userId, websiteId, "*", "PUBLISH");
   if (!canPublish) {
     throw new AppError("You do not have permission to publish this website.", 403, "FORBIDDEN");
+  }
+
+  // 1.1 Administrative moderation check (Phase 2)
+  if ((website as any).moderationStatus === "SUSPENDED") {
+    throw new AppError(
+      "This website has been suspended by administration and cannot be published.",
+      403,
+      "WEBSITE_SUSPENDED"
+    );
   }
 
   // Approval Workflow Gating (Optional, backwards compatible)
@@ -630,6 +640,11 @@ export async function publishWebsite(
       }
     } catch (auditErr) {}
 
+    const finalWebsite = await prisma.website.findUnique({
+      where: { id: websiteId },
+      select: { updatedAt: true },
+    });
+
     return {
       success: true,
       deploymentId: deployment.id,
@@ -643,6 +658,7 @@ export async function publishWebsite(
       sourceRevisionId: publishRevision?.id,
       filesTransferred,
       warnings: validation.warnings,
+      updatedAt: finalWebsite?.updatedAt ? finalWebsite.updatedAt.toISOString() : verifiedWebsite.updatedAt,
     };
   } catch (error: any) {
     // If deployment has not entered a terminal failure state yet, mark DEPLOY_FAILED

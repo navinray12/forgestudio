@@ -70,7 +70,12 @@ apiRouter.use("/sftp", sftpRoutes);
 apiRouter.use("/plugins-integration", pluginIntegrationRoutes);
 apiRouter.use("/multisite", multisiteRoutes);
 
+import themeBuilderRoutes from "./themeBuilder.routes.js";
+
 // Custom Types, Code, and Components
+apiRouter.use("/theme", themeBuilderRoutes);
+apiRouter.use("/", themeBuilderRoutes);
+apiRouter.use("/cpt", customPostTypeRoutes);
 apiRouter.use("/", customPostTypeRoutes);
 apiRouter.use("/", customCodeRoutes);
 apiRouter.use("/", pluginCompatRoutes);
@@ -119,4 +124,5 @@ export { default as imageOptimizationRoutes } from "./imageOptimization.routes.j
 export { default as aiHostingRoutes } from "./aiHosting.routes.js";
 export { default as elementorCloudRoutes } from "./elementorCloud.routes.js";
 export { default as exportRoutes } from "./export.routes.js";
+export { default as themeBuilderRoutes } from "./themeBuilder.routes.js";
 

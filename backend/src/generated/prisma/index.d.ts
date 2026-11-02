@@ -214,6 +214,16 @@ export type PublishApprovalRequest = $Result.DefaultSelection<Prisma.$PublishApp
  */
 export type BackgroundJob = $Result.DefaultSelection<Prisma.$BackgroundJobPayload>
 /**
+ * Model StudioAssetFolder
+ * 
+ */
+export type StudioAssetFolder = $Result.DefaultSelection<Prisma.$StudioAssetFolderPayload>
+/**
+ * Model StudioAssetMetadata
+ * 
+ */
+export type StudioAssetMetadata = $Result.DefaultSelection<Prisma.$StudioAssetMetadataPayload>
+/**
  * Model MediaAsset
  * 
  */
@@ -881,6 +891,26 @@ export class PrismaClient<
   get backgroundJob(): Prisma.BackgroundJobDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.studioAssetFolder`: Exposes CRUD operations for the **StudioAssetFolder** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more StudioAssetFolders
+    * const studioAssetFolders = await prisma.studioAssetFolder.findMany()
+    * ```
+    */
+  get studioAssetFolder(): Prisma.StudioAssetFolderDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.studioAssetMetadata`: Exposes CRUD operations for the **StudioAssetMetadata** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more StudioAssetMetadata
+    * const studioAssetMetadata = await prisma.studioAssetMetadata.findMany()
+    * ```
+    */
+  get studioAssetMetadata(): Prisma.StudioAssetMetadataDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.mediaAsset`: Exposes CRUD operations for the **MediaAsset** model.
     * Example usage:
     * ```ts
@@ -1476,6 +1506,8 @@ export namespace Prisma {
     WorkspaceMember: 'WorkspaceMember',
     PublishApprovalRequest: 'PublishApprovalRequest',
     BackgroundJob: 'BackgroundJob',
+    StudioAssetFolder: 'StudioAssetFolder',
+    StudioAssetMetadata: 'StudioAssetMetadata',
     MediaAsset: 'MediaAsset',
     SiteMailerConfig: 'SiteMailerConfig',
     EmailDeliveryLog: 'EmailDeliveryLog',
@@ -1502,7 +1534,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "website" | "otpVerification" | "identity" | "session" | "passwordResetToken" | "subscriptionPlan" | "userSubscription" | "templates" | "customCodeSnippet" | "customCodeRevision" | "formSubmission" | "customPostType" | "themeLocationRule" | "auditLog" | "sftpConnection" | "pluginIntegration" | "multisiteNetwork" | "customField" | "customEntry" | "designNote" | "pluginCompatibility" | "developerApiKey" | "componentAccess" | "websiteCollaborator" | "websiteRevision" | "deployment" | "wordPressConnection" | "wordPressPageMapping" | "granularPermission" | "team" | "teamMember" | "teamInvitation" | "websiteInvitation" | "workspace" | "organization" | "organizationMember" | "workspaceMember" | "publishApprovalRequest" | "backgroundJob" | "mediaAsset" | "siteMailerConfig" | "emailDeliveryLog" | "sitePerformanceMetric" | "mediaOptimizationAsset" | "optimizationCreditLedger" | "license" | "licenseActivation" | "whiteLabelConfig" | "billingInvoice" | "workspaceEmailInvitation"
+      modelProps: "user" | "website" | "otpVerification" | "identity" | "session" | "passwordResetToken" | "subscriptionPlan" | "userSubscription" | "templates" | "customCodeSnippet" | "customCodeRevision" | "formSubmission" | "customPostType" | "themeLocationRule" | "auditLog" | "sftpConnection" | "pluginIntegration" | "multisiteNetwork" | "customField" | "customEntry" | "designNote" | "pluginCompatibility" | "developerApiKey" | "componentAccess" | "websiteCollaborator" | "websiteRevision" | "deployment" | "wordPressConnection" | "wordPressPageMapping" | "granularPermission" | "team" | "teamMember" | "teamInvitation" | "websiteInvitation" | "workspace" | "organization" | "organizationMember" | "workspaceMember" | "publishApprovalRequest" | "backgroundJob" | "studioAssetFolder" | "studioAssetMetadata" | "mediaAsset" | "siteMailerConfig" | "emailDeliveryLog" | "sitePerformanceMetric" | "mediaOptimizationAsset" | "optimizationCreditLedger" | "license" | "licenseActivation" | "whiteLabelConfig" | "billingInvoice" | "workspaceEmailInvitation"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -4466,6 +4498,154 @@ export namespace Prisma {
           }
         }
       }
+      StudioAssetFolder: {
+        payload: Prisma.$StudioAssetFolderPayload<ExtArgs>
+        fields: Prisma.StudioAssetFolderFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.StudioAssetFolderFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudioAssetFolderPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.StudioAssetFolderFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudioAssetFolderPayload>
+          }
+          findFirst: {
+            args: Prisma.StudioAssetFolderFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudioAssetFolderPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.StudioAssetFolderFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudioAssetFolderPayload>
+          }
+          findMany: {
+            args: Prisma.StudioAssetFolderFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudioAssetFolderPayload>[]
+          }
+          create: {
+            args: Prisma.StudioAssetFolderCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudioAssetFolderPayload>
+          }
+          createMany: {
+            args: Prisma.StudioAssetFolderCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.StudioAssetFolderCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudioAssetFolderPayload>[]
+          }
+          delete: {
+            args: Prisma.StudioAssetFolderDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudioAssetFolderPayload>
+          }
+          update: {
+            args: Prisma.StudioAssetFolderUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudioAssetFolderPayload>
+          }
+          deleteMany: {
+            args: Prisma.StudioAssetFolderDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.StudioAssetFolderUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.StudioAssetFolderUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudioAssetFolderPayload>[]
+          }
+          upsert: {
+            args: Prisma.StudioAssetFolderUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudioAssetFolderPayload>
+          }
+          aggregate: {
+            args: Prisma.StudioAssetFolderAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateStudioAssetFolder>
+          }
+          groupBy: {
+            args: Prisma.StudioAssetFolderGroupByArgs<ExtArgs>
+            result: $Utils.Optional<StudioAssetFolderGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.StudioAssetFolderCountArgs<ExtArgs>
+            result: $Utils.Optional<StudioAssetFolderCountAggregateOutputType> | number
+          }
+        }
+      }
+      StudioAssetMetadata: {
+        payload: Prisma.$StudioAssetMetadataPayload<ExtArgs>
+        fields: Prisma.StudioAssetMetadataFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.StudioAssetMetadataFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudioAssetMetadataPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.StudioAssetMetadataFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudioAssetMetadataPayload>
+          }
+          findFirst: {
+            args: Prisma.StudioAssetMetadataFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudioAssetMetadataPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.StudioAssetMetadataFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudioAssetMetadataPayload>
+          }
+          findMany: {
+            args: Prisma.StudioAssetMetadataFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudioAssetMetadataPayload>[]
+          }
+          create: {
+            args: Prisma.StudioAssetMetadataCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudioAssetMetadataPayload>
+          }
+          createMany: {
+            args: Prisma.StudioAssetMetadataCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.StudioAssetMetadataCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudioAssetMetadataPayload>[]
+          }
+          delete: {
+            args: Prisma.StudioAssetMetadataDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudioAssetMetadataPayload>
+          }
+          update: {
+            args: Prisma.StudioAssetMetadataUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudioAssetMetadataPayload>
+          }
+          deleteMany: {
+            args: Prisma.StudioAssetMetadataDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.StudioAssetMetadataUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.StudioAssetMetadataUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudioAssetMetadataPayload>[]
+          }
+          upsert: {
+            args: Prisma.StudioAssetMetadataUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudioAssetMetadataPayload>
+          }
+          aggregate: {
+            args: Prisma.StudioAssetMetadataAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateStudioAssetMetadata>
+          }
+          groupBy: {
+            args: Prisma.StudioAssetMetadataGroupByArgs<ExtArgs>
+            result: $Utils.Optional<StudioAssetMetadataGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.StudioAssetMetadataCountArgs<ExtArgs>
+            result: $Utils.Optional<StudioAssetMetadataCountAggregateOutputType> | number
+          }
+        }
+      }
       MediaAsset: {
         payload: Prisma.$MediaAssetPayload<ExtArgs>
         fields: Prisma.MediaAssetFieldRefs
@@ -5443,6 +5623,8 @@ export namespace Prisma {
     workspaceMember?: WorkspaceMemberOmit
     publishApprovalRequest?: PublishApprovalRequestOmit
     backgroundJob?: BackgroundJobOmit
+    studioAssetFolder?: StudioAssetFolderOmit
+    studioAssetMetadata?: StudioAssetMetadataOmit
     mediaAsset?: MediaAssetOmit
     siteMailerConfig?: SiteMailerConfigOmit
     emailDeliveryLog?: EmailDeliveryLogOmit
@@ -5564,6 +5746,7 @@ export namespace Prisma {
     approvalRequests: number
     reviewedApprovals: number
     mediaAssets: number
+    studioAssetFolders: number
     creditLedgers: number
     licenses: number
     invoices: number
@@ -5600,6 +5783,7 @@ export namespace Prisma {
     approvalRequests?: boolean | UserCountOutputTypeCountApprovalRequestsArgs
     reviewedApprovals?: boolean | UserCountOutputTypeCountReviewedApprovalsArgs
     mediaAssets?: boolean | UserCountOutputTypeCountMediaAssetsArgs
+    studioAssetFolders?: boolean | UserCountOutputTypeCountStudioAssetFoldersArgs
     creditLedgers?: boolean | UserCountOutputTypeCountCreditLedgersArgs
     licenses?: boolean | UserCountOutputTypeCountLicensesArgs
     invoices?: boolean | UserCountOutputTypeCountInvoicesArgs
@@ -5824,6 +6008,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountMediaAssetsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: MediaAssetWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountStudioAssetFoldersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: StudioAssetFolderWhereInput
   }
 
   /**
@@ -6291,6 +6482,37 @@ export namespace Prisma {
 
 
   /**
+   * Count Type StudioAssetFolderCountOutputType
+   */
+
+  export type StudioAssetFolderCountOutputType = {
+    assets: number
+  }
+
+  export type StudioAssetFolderCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    assets?: boolean | StudioAssetFolderCountOutputTypeCountAssetsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * StudioAssetFolderCountOutputType without action
+   */
+  export type StudioAssetFolderCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudioAssetFolderCountOutputType
+     */
+    select?: StudioAssetFolderCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * StudioAssetFolderCountOutputType without action
+   */
+  export type StudioAssetFolderCountOutputTypeCountAssetsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: StudioAssetMetadataWhereInput
+  }
+
+
+  /**
    * Count Type LicenseCountOutputType
    */
 
@@ -6356,6 +6578,9 @@ export namespace Prisma {
     phoneVerified: boolean | null
     status: $Enums.UserStatus | null
     role: $Enums.UserRole | null
+    suspensionReason: string | null
+    suspendedAt: Date | null
+    suspendedBy: string | null
     lastLoginAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -6373,6 +6598,9 @@ export namespace Prisma {
     phoneVerified: boolean | null
     status: $Enums.UserStatus | null
     role: $Enums.UserRole | null
+    suspensionReason: string | null
+    suspendedAt: Date | null
+    suspendedBy: string | null
     lastLoginAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -6390,6 +6618,9 @@ export namespace Prisma {
     phoneVerified: number
     status: number
     role: number
+    suspensionReason: number
+    suspendedAt: number
+    suspendedBy: number
     lastLoginAt: number
     createdAt: number
     updatedAt: number
@@ -6417,6 +6648,9 @@ export namespace Prisma {
     phoneVerified?: true
     status?: true
     role?: true
+    suspensionReason?: true
+    suspendedAt?: true
+    suspendedBy?: true
     lastLoginAt?: true
     createdAt?: true
     updatedAt?: true
@@ -6434,6 +6668,9 @@ export namespace Prisma {
     phoneVerified?: true
     status?: true
     role?: true
+    suspensionReason?: true
+    suspendedAt?: true
+    suspendedBy?: true
     lastLoginAt?: true
     createdAt?: true
     updatedAt?: true
@@ -6451,6 +6688,9 @@ export namespace Prisma {
     phoneVerified?: true
     status?: true
     role?: true
+    suspensionReason?: true
+    suspendedAt?: true
+    suspendedBy?: true
     lastLoginAt?: true
     createdAt?: true
     updatedAt?: true
@@ -6555,6 +6795,9 @@ export namespace Prisma {
     phoneVerified: boolean
     status: $Enums.UserStatus
     role: $Enums.UserRole
+    suspensionReason: string | null
+    suspendedAt: Date | null
+    suspendedBy: string | null
     lastLoginAt: Date | null
     createdAt: Date
     updatedAt: Date
@@ -6591,6 +6834,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: boolean
     role?: boolean
+    suspensionReason?: boolean
+    suspendedAt?: boolean
+    suspendedBy?: boolean
     lastLoginAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -6626,6 +6872,7 @@ export namespace Prisma {
     approvalRequests?: boolean | User$approvalRequestsArgs<ExtArgs>
     reviewedApprovals?: boolean | User$reviewedApprovalsArgs<ExtArgs>
     mediaAssets?: boolean | User$mediaAssetsArgs<ExtArgs>
+    studioAssetFolders?: boolean | User$studioAssetFoldersArgs<ExtArgs>
     creditLedgers?: boolean | User$creditLedgersArgs<ExtArgs>
     licenses?: boolean | User$licensesArgs<ExtArgs>
     whiteLabelConfig?: boolean | User$whiteLabelConfigArgs<ExtArgs>
@@ -6644,6 +6891,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: boolean
     role?: boolean
+    suspensionReason?: boolean
+    suspendedAt?: boolean
+    suspendedBy?: boolean
     lastLoginAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -6661,6 +6911,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: boolean
     role?: boolean
+    suspensionReason?: boolean
+    suspendedAt?: boolean
+    suspendedBy?: boolean
     lastLoginAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -6678,13 +6931,16 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: boolean
     role?: boolean
+    suspensionReason?: boolean
+    suspendedAt?: boolean
+    suspendedBy?: boolean
     lastLoginAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     optimizationCredits?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "fullName" | "email" | "phone" | "passwordHash" | "verificationMethod" | "emailVerified" | "phoneVerified" | "status" | "role" | "lastLoginAt" | "createdAt" | "updatedAt" | "optimizationCredits", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "fullName" | "email" | "phone" | "passwordHash" | "verificationMethod" | "emailVerified" | "phoneVerified" | "status" | "role" | "suspensionReason" | "suspendedAt" | "suspendedBy" | "lastLoginAt" | "createdAt" | "updatedAt" | "optimizationCredits", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     identities?: boolean | User$identitiesArgs<ExtArgs>
     otpVerifications?: boolean | User$otpVerificationsArgs<ExtArgs>
@@ -6717,6 +6973,7 @@ export namespace Prisma {
     approvalRequests?: boolean | User$approvalRequestsArgs<ExtArgs>
     reviewedApprovals?: boolean | User$reviewedApprovalsArgs<ExtArgs>
     mediaAssets?: boolean | User$mediaAssetsArgs<ExtArgs>
+    studioAssetFolders?: boolean | User$studioAssetFoldersArgs<ExtArgs>
     creditLedgers?: boolean | User$creditLedgersArgs<ExtArgs>
     licenses?: boolean | User$licensesArgs<ExtArgs>
     whiteLabelConfig?: boolean | User$whiteLabelConfigArgs<ExtArgs>
@@ -6760,6 +7017,7 @@ export namespace Prisma {
       approvalRequests: Prisma.$PublishApprovalRequestPayload<ExtArgs>[]
       reviewedApprovals: Prisma.$PublishApprovalRequestPayload<ExtArgs>[]
       mediaAssets: Prisma.$MediaAssetPayload<ExtArgs>[]
+      studioAssetFolders: Prisma.$StudioAssetFolderPayload<ExtArgs>[]
       creditLedgers: Prisma.$OptimizationCreditLedgerPayload<ExtArgs>[]
       licenses: Prisma.$LicensePayload<ExtArgs>[]
       whiteLabelConfig: Prisma.$WhiteLabelConfigPayload<ExtArgs> | null
@@ -6776,6 +7034,9 @@ export namespace Prisma {
       phoneVerified: boolean
       status: $Enums.UserStatus
       role: $Enums.UserRole
+      suspensionReason: string | null
+      suspendedAt: Date | null
+      suspendedBy: string | null
       lastLoginAt: Date | null
       createdAt: Date
       updatedAt: Date
@@ -7205,6 +7466,7 @@ export namespace Prisma {
     approvalRequests<T extends User$approvalRequestsArgs<ExtArgs> = {}>(args?: Subset<T, User$approvalRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PublishApprovalRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     reviewedApprovals<T extends User$reviewedApprovalsArgs<ExtArgs> = {}>(args?: Subset<T, User$reviewedApprovalsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PublishApprovalRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     mediaAssets<T extends User$mediaAssetsArgs<ExtArgs> = {}>(args?: Subset<T, User$mediaAssetsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MediaAssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    studioAssetFolders<T extends User$studioAssetFoldersArgs<ExtArgs> = {}>(args?: Subset<T, User$studioAssetFoldersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StudioAssetFolderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     creditLedgers<T extends User$creditLedgersArgs<ExtArgs> = {}>(args?: Subset<T, User$creditLedgersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OptimizationCreditLedgerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     licenses<T extends User$licensesArgs<ExtArgs> = {}>(args?: Subset<T, User$licensesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LicensePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     whiteLabelConfig<T extends User$whiteLabelConfigArgs<ExtArgs> = {}>(args?: Subset<T, User$whiteLabelConfigArgs<ExtArgs>>): Prisma__WhiteLabelConfigClient<$Result.GetResult<Prisma.$WhiteLabelConfigPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -7248,6 +7510,9 @@ export namespace Prisma {
     readonly phoneVerified: FieldRef<"User", 'Boolean'>
     readonly status: FieldRef<"User", 'UserStatus'>
     readonly role: FieldRef<"User", 'UserRole'>
+    readonly suspensionReason: FieldRef<"User", 'String'>
+    readonly suspendedAt: FieldRef<"User", 'DateTime'>
+    readonly suspendedBy: FieldRef<"User", 'String'>
     readonly lastLoginAt: FieldRef<"User", 'DateTime'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
     readonly updatedAt: FieldRef<"User", 'DateTime'>
@@ -8384,6 +8649,30 @@ export namespace Prisma {
   }
 
   /**
+   * User.studioAssetFolders
+   */
+  export type User$studioAssetFoldersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudioAssetFolder
+     */
+    select?: StudioAssetFolderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudioAssetFolder
+     */
+    omit?: StudioAssetFolderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudioAssetFolderInclude<ExtArgs> | null
+    where?: StudioAssetFolderWhereInput
+    orderBy?: StudioAssetFolderOrderByWithRelationInput | StudioAssetFolderOrderByWithRelationInput[]
+    cursor?: StudioAssetFolderWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: StudioAssetFolderScalarFieldEnum | StudioAssetFolderScalarFieldEnum[]
+  }
+
+  /**
    * User.creditLedgers
    */
   export type User$creditLedgersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -8499,8 +8788,18 @@ export namespace Prisma {
 
   export type AggregateWebsite = {
     _count: WebsiteCountAggregateOutputType | null
+    _avg: WebsiteAvgAggregateOutputType | null
+    _sum: WebsiteSumAggregateOutputType | null
     _min: WebsiteMinAggregateOutputType | null
     _max: WebsiteMaxAggregateOutputType | null
+  }
+
+  export type WebsiteAvgAggregateOutputType = {
+    version: number | null
+  }
+
+  export type WebsiteSumAggregateOutputType = {
+    version: number | null
   }
 
   export type WebsiteMinAggregateOutputType = {
@@ -8510,6 +8809,11 @@ export namespace Prisma {
     slug: string | null
     status: string | null
     archivedAt: Date | null
+    moderationStatus: string | null
+    moderationReason: string | null
+    moderatedAt: Date | null
+    moderatedBy: string | null
+    version: number | null
     createdAt: Date | null
     updatedAt: Date | null
     teamId: string | null
@@ -8525,6 +8829,11 @@ export namespace Prisma {
     slug: string | null
     status: string | null
     archivedAt: Date | null
+    moderationStatus: string | null
+    moderationReason: string | null
+    moderatedAt: Date | null
+    moderatedBy: string | null
+    version: number | null
     createdAt: Date | null
     updatedAt: Date | null
     teamId: string | null
@@ -8540,6 +8849,11 @@ export namespace Prisma {
     slug: number
     status: number
     archivedAt: number
+    moderationStatus: number
+    moderationReason: number
+    moderatedAt: number
+    moderatedBy: number
+    version: number
     editorData: number
     createdAt: number
     updatedAt: number
@@ -8551,6 +8865,14 @@ export namespace Prisma {
   }
 
 
+  export type WebsiteAvgAggregateInputType = {
+    version?: true
+  }
+
+  export type WebsiteSumAggregateInputType = {
+    version?: true
+  }
+
   export type WebsiteMinAggregateInputType = {
     id?: true
     userId?: true
@@ -8558,6 +8880,11 @@ export namespace Prisma {
     slug?: true
     status?: true
     archivedAt?: true
+    moderationStatus?: true
+    moderationReason?: true
+    moderatedAt?: true
+    moderatedBy?: true
+    version?: true
     createdAt?: true
     updatedAt?: true
     teamId?: true
@@ -8573,6 +8900,11 @@ export namespace Prisma {
     slug?: true
     status?: true
     archivedAt?: true
+    moderationStatus?: true
+    moderationReason?: true
+    moderatedAt?: true
+    moderatedBy?: true
+    version?: true
     createdAt?: true
     updatedAt?: true
     teamId?: true
@@ -8588,6 +8920,11 @@ export namespace Prisma {
     slug?: true
     status?: true
     archivedAt?: true
+    moderationStatus?: true
+    moderationReason?: true
+    moderatedAt?: true
+    moderatedBy?: true
+    version?: true
     editorData?: true
     createdAt?: true
     updatedAt?: true
@@ -8636,6 +8973,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: WebsiteAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: WebsiteSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: WebsiteMinAggregateInputType
@@ -8666,6 +9015,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: WebsiteCountAggregateInputType | true
+    _avg?: WebsiteAvgAggregateInputType
+    _sum?: WebsiteSumAggregateInputType
     _min?: WebsiteMinAggregateInputType
     _max?: WebsiteMaxAggregateInputType
   }
@@ -8677,6 +9028,11 @@ export namespace Prisma {
     slug: string
     status: string
     archivedAt: Date | null
+    moderationStatus: string
+    moderationReason: string | null
+    moderatedAt: Date | null
+    moderatedBy: string | null
+    version: number
     editorData: JsonValue
     createdAt: Date
     updatedAt: Date
@@ -8685,6 +9041,8 @@ export namespace Prisma {
     organizationId: string | null
     approvalWorkflowEnabled: boolean
     _count: WebsiteCountAggregateOutputType | null
+    _avg: WebsiteAvgAggregateOutputType | null
+    _sum: WebsiteSumAggregateOutputType | null
     _min: WebsiteMinAggregateOutputType | null
     _max: WebsiteMaxAggregateOutputType | null
   }
@@ -8710,6 +9068,11 @@ export namespace Prisma {
     slug?: boolean
     status?: boolean
     archivedAt?: boolean
+    moderationStatus?: boolean
+    moderationReason?: boolean
+    moderatedAt?: boolean
+    moderatedBy?: boolean
+    version?: boolean
     editorData?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -8752,6 +9115,11 @@ export namespace Prisma {
     slug?: boolean
     status?: boolean
     archivedAt?: boolean
+    moderationStatus?: boolean
+    moderationReason?: boolean
+    moderatedAt?: boolean
+    moderatedBy?: boolean
+    version?: boolean
     editorData?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -8772,6 +9140,11 @@ export namespace Prisma {
     slug?: boolean
     status?: boolean
     archivedAt?: boolean
+    moderationStatus?: boolean
+    moderationReason?: boolean
+    moderatedAt?: boolean
+    moderatedBy?: boolean
+    version?: boolean
     editorData?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -8792,6 +9165,11 @@ export namespace Prisma {
     slug?: boolean
     status?: boolean
     archivedAt?: boolean
+    moderationStatus?: boolean
+    moderationReason?: boolean
+    moderatedAt?: boolean
+    moderatedBy?: boolean
+    version?: boolean
     editorData?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -8801,7 +9179,7 @@ export namespace Prisma {
     approvalWorkflowEnabled?: boolean
   }
 
-  export type WebsiteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "name" | "slug" | "status" | "archivedAt" | "editorData" | "createdAt" | "updatedAt" | "teamId" | "workspaceId" | "organizationId" | "approvalWorkflowEnabled", ExtArgs["result"]["website"]>
+  export type WebsiteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "name" | "slug" | "status" | "archivedAt" | "moderationStatus" | "moderationReason" | "moderatedAt" | "moderatedBy" | "version" | "editorData" | "createdAt" | "updatedAt" | "teamId" | "workspaceId" | "organizationId" | "approvalWorkflowEnabled", ExtArgs["result"]["website"]>
   export type WebsiteInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     customCodeSnippets?: boolean | Website$customCodeSnippetsArgs<ExtArgs>
@@ -8879,6 +9257,11 @@ export namespace Prisma {
       slug: string
       status: string
       archivedAt: Date | null
+      moderationStatus: string
+      moderationReason: string | null
+      moderatedAt: Date | null
+      moderatedBy: string | null
+      version: number
       editorData: Prisma.JsonValue
       createdAt: Date
       updatedAt: Date
@@ -9340,6 +9723,11 @@ export namespace Prisma {
     readonly slug: FieldRef<"Website", 'String'>
     readonly status: FieldRef<"Website", 'String'>
     readonly archivedAt: FieldRef<"Website", 'DateTime'>
+    readonly moderationStatus: FieldRef<"Website", 'String'>
+    readonly moderationReason: FieldRef<"Website", 'String'>
+    readonly moderatedAt: FieldRef<"Website", 'DateTime'>
+    readonly moderatedBy: FieldRef<"Website", 'String'>
+    readonly version: FieldRef<"Website", 'Int'>
     readonly editorData: FieldRef<"Website", 'Json'>
     readonly createdAt: FieldRef<"Website", 'DateTime'>
     readonly updatedAt: FieldRef<"Website", 'DateTime'>
@@ -23983,6 +24371,10 @@ export namespace Prisma {
     action: string | null
     targetResource: string | null
     ipAddress: string | null
+    actorRole: string | null
+    result: string | null
+    reason: string | null
+    correlationId: string | null
     createdAt: Date | null
   }
 
@@ -23992,6 +24384,10 @@ export namespace Prisma {
     action: string | null
     targetResource: string | null
     ipAddress: string | null
+    actorRole: string | null
+    result: string | null
+    reason: string | null
+    correlationId: string | null
     createdAt: Date | null
   }
 
@@ -24002,6 +24398,10 @@ export namespace Prisma {
     targetResource: number
     details: number
     ipAddress: number
+    actorRole: number
+    result: number
+    reason: number
+    correlationId: number
     createdAt: number
     _all: number
   }
@@ -24013,6 +24413,10 @@ export namespace Prisma {
     action?: true
     targetResource?: true
     ipAddress?: true
+    actorRole?: true
+    result?: true
+    reason?: true
+    correlationId?: true
     createdAt?: true
   }
 
@@ -24022,6 +24426,10 @@ export namespace Prisma {
     action?: true
     targetResource?: true
     ipAddress?: true
+    actorRole?: true
+    result?: true
+    reason?: true
+    correlationId?: true
     createdAt?: true
   }
 
@@ -24032,6 +24440,10 @@ export namespace Prisma {
     targetResource?: true
     details?: true
     ipAddress?: true
+    actorRole?: true
+    result?: true
+    reason?: true
+    correlationId?: true
     createdAt?: true
     _all?: true
   }
@@ -24115,6 +24527,10 @@ export namespace Prisma {
     targetResource: string
     details: JsonValue | null
     ipAddress: string | null
+    actorRole: string | null
+    result: string
+    reason: string | null
+    correlationId: string | null
     createdAt: Date
     _count: AuditLogCountAggregateOutputType | null
     _min: AuditLogMinAggregateOutputType | null
@@ -24142,6 +24558,10 @@ export namespace Prisma {
     targetResource?: boolean
     details?: boolean
     ipAddress?: boolean
+    actorRole?: boolean
+    result?: boolean
+    reason?: boolean
+    correlationId?: boolean
     createdAt?: boolean
     user?: boolean | AuditLog$userArgs<ExtArgs>
   }, ExtArgs["result"]["auditLog"]>
@@ -24153,6 +24573,10 @@ export namespace Prisma {
     targetResource?: boolean
     details?: boolean
     ipAddress?: boolean
+    actorRole?: boolean
+    result?: boolean
+    reason?: boolean
+    correlationId?: boolean
     createdAt?: boolean
     user?: boolean | AuditLog$userArgs<ExtArgs>
   }, ExtArgs["result"]["auditLog"]>
@@ -24164,6 +24588,10 @@ export namespace Prisma {
     targetResource?: boolean
     details?: boolean
     ipAddress?: boolean
+    actorRole?: boolean
+    result?: boolean
+    reason?: boolean
+    correlationId?: boolean
     createdAt?: boolean
     user?: boolean | AuditLog$userArgs<ExtArgs>
   }, ExtArgs["result"]["auditLog"]>
@@ -24175,10 +24603,14 @@ export namespace Prisma {
     targetResource?: boolean
     details?: boolean
     ipAddress?: boolean
+    actorRole?: boolean
+    result?: boolean
+    reason?: boolean
+    correlationId?: boolean
     createdAt?: boolean
   }
 
-  export type AuditLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "action" | "targetResource" | "details" | "ipAddress" | "createdAt", ExtArgs["result"]["auditLog"]>
+  export type AuditLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "action" | "targetResource" | "details" | "ipAddress" | "actorRole" | "result" | "reason" | "correlationId" | "createdAt", ExtArgs["result"]["auditLog"]>
   export type AuditLogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | AuditLog$userArgs<ExtArgs>
   }
@@ -24201,6 +24633,10 @@ export namespace Prisma {
       targetResource: string
       details: Prisma.JsonValue | null
       ipAddress: string | null
+      actorRole: string | null
+      result: string
+      reason: string | null
+      correlationId: string | null
       createdAt: Date
     }, ExtArgs["result"]["auditLog"]>
     composites: {}
@@ -24632,6 +25068,10 @@ export namespace Prisma {
     readonly targetResource: FieldRef<"AuditLog", 'String'>
     readonly details: FieldRef<"AuditLog", 'Json'>
     readonly ipAddress: FieldRef<"AuditLog", 'String'>
+    readonly actorRole: FieldRef<"AuditLog", 'String'>
+    readonly result: FieldRef<"AuditLog", 'String'>
+    readonly reason: FieldRef<"AuditLog", 'String'>
+    readonly correlationId: FieldRef<"AuditLog", 'String'>
     readonly createdAt: FieldRef<"AuditLog", 'DateTime'>
   }
     
@@ -32761,6 +33201,8 @@ export namespace Prisma {
     userId: string | null
     name: string | null
     tokenHash: string | null
+    maskedKey: string | null
+    expiresAt: Date | null
     lastUsedAt: Date | null
     revokedAt: Date | null
     createdAt: Date | null
@@ -32772,6 +33214,8 @@ export namespace Prisma {
     userId: string | null
     name: string | null
     tokenHash: string | null
+    maskedKey: string | null
+    expiresAt: Date | null
     lastUsedAt: Date | null
     revokedAt: Date | null
     createdAt: Date | null
@@ -32783,7 +33227,9 @@ export namespace Prisma {
     userId: number
     name: number
     tokenHash: number
+    maskedKey: number
     scopes: number
+    expiresAt: number
     lastUsedAt: number
     revokedAt: number
     createdAt: number
@@ -32797,6 +33243,8 @@ export namespace Prisma {
     userId?: true
     name?: true
     tokenHash?: true
+    maskedKey?: true
+    expiresAt?: true
     lastUsedAt?: true
     revokedAt?: true
     createdAt?: true
@@ -32808,6 +33256,8 @@ export namespace Prisma {
     userId?: true
     name?: true
     tokenHash?: true
+    maskedKey?: true
+    expiresAt?: true
     lastUsedAt?: true
     revokedAt?: true
     createdAt?: true
@@ -32819,7 +33269,9 @@ export namespace Prisma {
     userId?: true
     name?: true
     tokenHash?: true
+    maskedKey?: true
     scopes?: true
+    expiresAt?: true
     lastUsedAt?: true
     revokedAt?: true
     createdAt?: true
@@ -32904,7 +33356,9 @@ export namespace Prisma {
     userId: string
     name: string
     tokenHash: string
+    maskedKey: string | null
     scopes: JsonValue
+    expiresAt: Date | null
     lastUsedAt: Date | null
     revokedAt: Date | null
     createdAt: Date
@@ -32933,7 +33387,9 @@ export namespace Prisma {
     userId?: boolean
     name?: boolean
     tokenHash?: boolean
+    maskedKey?: boolean
     scopes?: boolean
+    expiresAt?: boolean
     lastUsedAt?: boolean
     revokedAt?: boolean
     createdAt?: boolean
@@ -32946,7 +33402,9 @@ export namespace Prisma {
     userId?: boolean
     name?: boolean
     tokenHash?: boolean
+    maskedKey?: boolean
     scopes?: boolean
+    expiresAt?: boolean
     lastUsedAt?: boolean
     revokedAt?: boolean
     createdAt?: boolean
@@ -32959,7 +33417,9 @@ export namespace Prisma {
     userId?: boolean
     name?: boolean
     tokenHash?: boolean
+    maskedKey?: boolean
     scopes?: boolean
+    expiresAt?: boolean
     lastUsedAt?: boolean
     revokedAt?: boolean
     createdAt?: boolean
@@ -32972,14 +33432,16 @@ export namespace Prisma {
     userId?: boolean
     name?: boolean
     tokenHash?: boolean
+    maskedKey?: boolean
     scopes?: boolean
+    expiresAt?: boolean
     lastUsedAt?: boolean
     revokedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type DeveloperApiKeyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "name" | "tokenHash" | "scopes" | "lastUsedAt" | "revokedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["developerApiKey"]>
+  export type DeveloperApiKeyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "name" | "tokenHash" | "maskedKey" | "scopes" | "expiresAt" | "lastUsedAt" | "revokedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["developerApiKey"]>
   export type DeveloperApiKeyInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -33000,7 +33462,9 @@ export namespace Prisma {
       userId: string
       name: string
       tokenHash: string
+      maskedKey: string | null
       scopes: Prisma.JsonValue
+      expiresAt: Date | null
       lastUsedAt: Date | null
       revokedAt: Date | null
       createdAt: Date
@@ -33433,7 +33897,9 @@ export namespace Prisma {
     readonly userId: FieldRef<"DeveloperApiKey", 'String'>
     readonly name: FieldRef<"DeveloperApiKey", 'String'>
     readonly tokenHash: FieldRef<"DeveloperApiKey", 'String'>
+    readonly maskedKey: FieldRef<"DeveloperApiKey", 'String'>
     readonly scopes: FieldRef<"DeveloperApiKey", 'Json'>
+    readonly expiresAt: FieldRef<"DeveloperApiKey", 'DateTime'>
     readonly lastUsedAt: FieldRef<"DeveloperApiKey", 'DateTime'>
     readonly revokedAt: FieldRef<"DeveloperApiKey", 'DateTime'>
     readonly createdAt: FieldRef<"DeveloperApiKey", 'DateTime'>
@@ -52302,11 +52768,13 @@ export namespace Prisma {
   export type BackgroundJobAvgAggregateOutputType = {
     attempts: number | null
     maxAttempts: number | null
+    fencingToken: number | null
   }
 
   export type BackgroundJobSumAggregateOutputType = {
     attempts: number | null
     maxAttempts: number | null
+    fencingToken: number | null
   }
 
   export type BackgroundJobMinAggregateOutputType = {
@@ -52319,6 +52787,15 @@ export namespace Prisma {
     runAt: Date | null
     startedAt: Date | null
     completedAt: Date | null
+    workerId: string | null
+    claimedAt: Date | null
+    leaseExpiresAt: Date | null
+    heartbeatAt: Date | null
+    fencingToken: number | null
+    idempotencyKey: string | null
+    correlationId: string | null
+    tenantId: string | null
+    websiteId: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -52333,6 +52810,15 @@ export namespace Prisma {
     runAt: Date | null
     startedAt: Date | null
     completedAt: Date | null
+    workerId: string | null
+    claimedAt: Date | null
+    leaseExpiresAt: Date | null
+    heartbeatAt: Date | null
+    fencingToken: number | null
+    idempotencyKey: string | null
+    correlationId: string | null
+    tenantId: string | null
+    websiteId: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -52348,6 +52834,15 @@ export namespace Prisma {
     runAt: number
     startedAt: number
     completedAt: number
+    workerId: number
+    claimedAt: number
+    leaseExpiresAt: number
+    heartbeatAt: number
+    fencingToken: number
+    idempotencyKey: number
+    correlationId: number
+    tenantId: number
+    websiteId: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -52357,11 +52852,13 @@ export namespace Prisma {
   export type BackgroundJobAvgAggregateInputType = {
     attempts?: true
     maxAttempts?: true
+    fencingToken?: true
   }
 
   export type BackgroundJobSumAggregateInputType = {
     attempts?: true
     maxAttempts?: true
+    fencingToken?: true
   }
 
   export type BackgroundJobMinAggregateInputType = {
@@ -52374,6 +52871,15 @@ export namespace Prisma {
     runAt?: true
     startedAt?: true
     completedAt?: true
+    workerId?: true
+    claimedAt?: true
+    leaseExpiresAt?: true
+    heartbeatAt?: true
+    fencingToken?: true
+    idempotencyKey?: true
+    correlationId?: true
+    tenantId?: true
+    websiteId?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -52388,6 +52894,15 @@ export namespace Prisma {
     runAt?: true
     startedAt?: true
     completedAt?: true
+    workerId?: true
+    claimedAt?: true
+    leaseExpiresAt?: true
+    heartbeatAt?: true
+    fencingToken?: true
+    idempotencyKey?: true
+    correlationId?: true
+    tenantId?: true
+    websiteId?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -52403,6 +52918,15 @@ export namespace Prisma {
     runAt?: true
     startedAt?: true
     completedAt?: true
+    workerId?: true
+    claimedAt?: true
+    leaseExpiresAt?: true
+    heartbeatAt?: true
+    fencingToken?: true
+    idempotencyKey?: true
+    correlationId?: true
+    tenantId?: true
+    websiteId?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -52505,6 +53029,15 @@ export namespace Prisma {
     runAt: Date
     startedAt: Date | null
     completedAt: Date | null
+    workerId: string | null
+    claimedAt: Date | null
+    leaseExpiresAt: Date | null
+    heartbeatAt: Date | null
+    fencingToken: number
+    idempotencyKey: string | null
+    correlationId: string | null
+    tenantId: string | null
+    websiteId: string | null
     createdAt: Date
     updatedAt: Date
     _count: BackgroundJobCountAggregateOutputType | null
@@ -52539,6 +53072,15 @@ export namespace Prisma {
     runAt?: boolean
     startedAt?: boolean
     completedAt?: boolean
+    workerId?: boolean
+    claimedAt?: boolean
+    leaseExpiresAt?: boolean
+    heartbeatAt?: boolean
+    fencingToken?: boolean
+    idempotencyKey?: boolean
+    correlationId?: boolean
+    tenantId?: boolean
+    websiteId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["backgroundJob"]>
@@ -52554,6 +53096,15 @@ export namespace Prisma {
     runAt?: boolean
     startedAt?: boolean
     completedAt?: boolean
+    workerId?: boolean
+    claimedAt?: boolean
+    leaseExpiresAt?: boolean
+    heartbeatAt?: boolean
+    fencingToken?: boolean
+    idempotencyKey?: boolean
+    correlationId?: boolean
+    tenantId?: boolean
+    websiteId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["backgroundJob"]>
@@ -52569,6 +53120,15 @@ export namespace Prisma {
     runAt?: boolean
     startedAt?: boolean
     completedAt?: boolean
+    workerId?: boolean
+    claimedAt?: boolean
+    leaseExpiresAt?: boolean
+    heartbeatAt?: boolean
+    fencingToken?: boolean
+    idempotencyKey?: boolean
+    correlationId?: boolean
+    tenantId?: boolean
+    websiteId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["backgroundJob"]>
@@ -52584,11 +53144,20 @@ export namespace Prisma {
     runAt?: boolean
     startedAt?: boolean
     completedAt?: boolean
+    workerId?: boolean
+    claimedAt?: boolean
+    leaseExpiresAt?: boolean
+    heartbeatAt?: boolean
+    fencingToken?: boolean
+    idempotencyKey?: boolean
+    correlationId?: boolean
+    tenantId?: boolean
+    websiteId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type BackgroundJobOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "type" | "payload" | "status" | "attempts" | "maxAttempts" | "lastError" | "runAt" | "startedAt" | "completedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["backgroundJob"]>
+  export type BackgroundJobOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "type" | "payload" | "status" | "attempts" | "maxAttempts" | "lastError" | "runAt" | "startedAt" | "completedAt" | "workerId" | "claimedAt" | "leaseExpiresAt" | "heartbeatAt" | "fencingToken" | "idempotencyKey" | "correlationId" | "tenantId" | "websiteId" | "createdAt" | "updatedAt", ExtArgs["result"]["backgroundJob"]>
 
   export type $BackgroundJobPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "BackgroundJob"
@@ -52604,6 +53173,15 @@ export namespace Prisma {
       runAt: Date
       startedAt: Date | null
       completedAt: Date | null
+      workerId: string | null
+      claimedAt: Date | null
+      leaseExpiresAt: Date | null
+      heartbeatAt: Date | null
+      fencingToken: number
+      idempotencyKey: string | null
+      correlationId: string | null
+      tenantId: string | null
+      websiteId: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["backgroundJob"]>
@@ -53039,6 +53617,15 @@ export namespace Prisma {
     readonly runAt: FieldRef<"BackgroundJob", 'DateTime'>
     readonly startedAt: FieldRef<"BackgroundJob", 'DateTime'>
     readonly completedAt: FieldRef<"BackgroundJob", 'DateTime'>
+    readonly workerId: FieldRef<"BackgroundJob", 'String'>
+    readonly claimedAt: FieldRef<"BackgroundJob", 'DateTime'>
+    readonly leaseExpiresAt: FieldRef<"BackgroundJob", 'DateTime'>
+    readonly heartbeatAt: FieldRef<"BackgroundJob", 'DateTime'>
+    readonly fencingToken: FieldRef<"BackgroundJob", 'Int'>
+    readonly idempotencyKey: FieldRef<"BackgroundJob", 'String'>
+    readonly correlationId: FieldRef<"BackgroundJob", 'String'>
+    readonly tenantId: FieldRef<"BackgroundJob", 'String'>
+    readonly websiteId: FieldRef<"BackgroundJob", 'String'>
     readonly createdAt: FieldRef<"BackgroundJob", 'DateTime'>
     readonly updatedAt: FieldRef<"BackgroundJob", 'DateTime'>
   }
@@ -53413,6 +54000,2163 @@ export namespace Prisma {
 
 
   /**
+   * Model StudioAssetFolder
+   */
+
+  export type AggregateStudioAssetFolder = {
+    _count: StudioAssetFolderCountAggregateOutputType | null
+    _min: StudioAssetFolderMinAggregateOutputType | null
+    _max: StudioAssetFolderMaxAggregateOutputType | null
+  }
+
+  export type StudioAssetFolderMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    name: string | null
+    createdAt: Date | null
+  }
+
+  export type StudioAssetFolderMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    name: string | null
+    createdAt: Date | null
+  }
+
+  export type StudioAssetFolderCountAggregateOutputType = {
+    id: number
+    userId: number
+    name: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type StudioAssetFolderMinAggregateInputType = {
+    id?: true
+    userId?: true
+    name?: true
+    createdAt?: true
+  }
+
+  export type StudioAssetFolderMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    name?: true
+    createdAt?: true
+  }
+
+  export type StudioAssetFolderCountAggregateInputType = {
+    id?: true
+    userId?: true
+    name?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type StudioAssetFolderAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which StudioAssetFolder to aggregate.
+     */
+    where?: StudioAssetFolderWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StudioAssetFolders to fetch.
+     */
+    orderBy?: StudioAssetFolderOrderByWithRelationInput | StudioAssetFolderOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: StudioAssetFolderWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StudioAssetFolders from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StudioAssetFolders.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned StudioAssetFolders
+    **/
+    _count?: true | StudioAssetFolderCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: StudioAssetFolderMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: StudioAssetFolderMaxAggregateInputType
+  }
+
+  export type GetStudioAssetFolderAggregateType<T extends StudioAssetFolderAggregateArgs> = {
+        [P in keyof T & keyof AggregateStudioAssetFolder]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateStudioAssetFolder[P]>
+      : GetScalarType<T[P], AggregateStudioAssetFolder[P]>
+  }
+
+
+
+
+  export type StudioAssetFolderGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: StudioAssetFolderWhereInput
+    orderBy?: StudioAssetFolderOrderByWithAggregationInput | StudioAssetFolderOrderByWithAggregationInput[]
+    by: StudioAssetFolderScalarFieldEnum[] | StudioAssetFolderScalarFieldEnum
+    having?: StudioAssetFolderScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: StudioAssetFolderCountAggregateInputType | true
+    _min?: StudioAssetFolderMinAggregateInputType
+    _max?: StudioAssetFolderMaxAggregateInputType
+  }
+
+  export type StudioAssetFolderGroupByOutputType = {
+    id: string
+    userId: string
+    name: string
+    createdAt: Date
+    _count: StudioAssetFolderCountAggregateOutputType | null
+    _min: StudioAssetFolderMinAggregateOutputType | null
+    _max: StudioAssetFolderMaxAggregateOutputType | null
+  }
+
+  type GetStudioAssetFolderGroupByPayload<T extends StudioAssetFolderGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<StudioAssetFolderGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof StudioAssetFolderGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], StudioAssetFolderGroupByOutputType[P]>
+            : GetScalarType<T[P], StudioAssetFolderGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type StudioAssetFolderSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    name?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    assets?: boolean | StudioAssetFolder$assetsArgs<ExtArgs>
+    _count?: boolean | StudioAssetFolderCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["studioAssetFolder"]>
+
+  export type StudioAssetFolderSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    name?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["studioAssetFolder"]>
+
+  export type StudioAssetFolderSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    name?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["studioAssetFolder"]>
+
+  export type StudioAssetFolderSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    name?: boolean
+    createdAt?: boolean
+  }
+
+  export type StudioAssetFolderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "name" | "createdAt", ExtArgs["result"]["studioAssetFolder"]>
+  export type StudioAssetFolderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    assets?: boolean | StudioAssetFolder$assetsArgs<ExtArgs>
+    _count?: boolean | StudioAssetFolderCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type StudioAssetFolderIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type StudioAssetFolderIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $StudioAssetFolderPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "StudioAssetFolder"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+      assets: Prisma.$StudioAssetMetadataPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      name: string
+      createdAt: Date
+    }, ExtArgs["result"]["studioAssetFolder"]>
+    composites: {}
+  }
+
+  type StudioAssetFolderGetPayload<S extends boolean | null | undefined | StudioAssetFolderDefaultArgs> = $Result.GetResult<Prisma.$StudioAssetFolderPayload, S>
+
+  type StudioAssetFolderCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<StudioAssetFolderFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: StudioAssetFolderCountAggregateInputType | true
+    }
+
+  export interface StudioAssetFolderDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['StudioAssetFolder'], meta: { name: 'StudioAssetFolder' } }
+    /**
+     * Find zero or one StudioAssetFolder that matches the filter.
+     * @param {StudioAssetFolderFindUniqueArgs} args - Arguments to find a StudioAssetFolder
+     * @example
+     * // Get one StudioAssetFolder
+     * const studioAssetFolder = await prisma.studioAssetFolder.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends StudioAssetFolderFindUniqueArgs>(args: SelectSubset<T, StudioAssetFolderFindUniqueArgs<ExtArgs>>): Prisma__StudioAssetFolderClient<$Result.GetResult<Prisma.$StudioAssetFolderPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one StudioAssetFolder that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {StudioAssetFolderFindUniqueOrThrowArgs} args - Arguments to find a StudioAssetFolder
+     * @example
+     * // Get one StudioAssetFolder
+     * const studioAssetFolder = await prisma.studioAssetFolder.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends StudioAssetFolderFindUniqueOrThrowArgs>(args: SelectSubset<T, StudioAssetFolderFindUniqueOrThrowArgs<ExtArgs>>): Prisma__StudioAssetFolderClient<$Result.GetResult<Prisma.$StudioAssetFolderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first StudioAssetFolder that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StudioAssetFolderFindFirstArgs} args - Arguments to find a StudioAssetFolder
+     * @example
+     * // Get one StudioAssetFolder
+     * const studioAssetFolder = await prisma.studioAssetFolder.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends StudioAssetFolderFindFirstArgs>(args?: SelectSubset<T, StudioAssetFolderFindFirstArgs<ExtArgs>>): Prisma__StudioAssetFolderClient<$Result.GetResult<Prisma.$StudioAssetFolderPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first StudioAssetFolder that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StudioAssetFolderFindFirstOrThrowArgs} args - Arguments to find a StudioAssetFolder
+     * @example
+     * // Get one StudioAssetFolder
+     * const studioAssetFolder = await prisma.studioAssetFolder.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends StudioAssetFolderFindFirstOrThrowArgs>(args?: SelectSubset<T, StudioAssetFolderFindFirstOrThrowArgs<ExtArgs>>): Prisma__StudioAssetFolderClient<$Result.GetResult<Prisma.$StudioAssetFolderPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more StudioAssetFolders that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StudioAssetFolderFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all StudioAssetFolders
+     * const studioAssetFolders = await prisma.studioAssetFolder.findMany()
+     * 
+     * // Get first 10 StudioAssetFolders
+     * const studioAssetFolders = await prisma.studioAssetFolder.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const studioAssetFolderWithIdOnly = await prisma.studioAssetFolder.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends StudioAssetFolderFindManyArgs>(args?: SelectSubset<T, StudioAssetFolderFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StudioAssetFolderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a StudioAssetFolder.
+     * @param {StudioAssetFolderCreateArgs} args - Arguments to create a StudioAssetFolder.
+     * @example
+     * // Create one StudioAssetFolder
+     * const StudioAssetFolder = await prisma.studioAssetFolder.create({
+     *   data: {
+     *     // ... data to create a StudioAssetFolder
+     *   }
+     * })
+     * 
+     */
+    create<T extends StudioAssetFolderCreateArgs>(args: SelectSubset<T, StudioAssetFolderCreateArgs<ExtArgs>>): Prisma__StudioAssetFolderClient<$Result.GetResult<Prisma.$StudioAssetFolderPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many StudioAssetFolders.
+     * @param {StudioAssetFolderCreateManyArgs} args - Arguments to create many StudioAssetFolders.
+     * @example
+     * // Create many StudioAssetFolders
+     * const studioAssetFolder = await prisma.studioAssetFolder.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends StudioAssetFolderCreateManyArgs>(args?: SelectSubset<T, StudioAssetFolderCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many StudioAssetFolders and returns the data saved in the database.
+     * @param {StudioAssetFolderCreateManyAndReturnArgs} args - Arguments to create many StudioAssetFolders.
+     * @example
+     * // Create many StudioAssetFolders
+     * const studioAssetFolder = await prisma.studioAssetFolder.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many StudioAssetFolders and only return the `id`
+     * const studioAssetFolderWithIdOnly = await prisma.studioAssetFolder.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends StudioAssetFolderCreateManyAndReturnArgs>(args?: SelectSubset<T, StudioAssetFolderCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StudioAssetFolderPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a StudioAssetFolder.
+     * @param {StudioAssetFolderDeleteArgs} args - Arguments to delete one StudioAssetFolder.
+     * @example
+     * // Delete one StudioAssetFolder
+     * const StudioAssetFolder = await prisma.studioAssetFolder.delete({
+     *   where: {
+     *     // ... filter to delete one StudioAssetFolder
+     *   }
+     * })
+     * 
+     */
+    delete<T extends StudioAssetFolderDeleteArgs>(args: SelectSubset<T, StudioAssetFolderDeleteArgs<ExtArgs>>): Prisma__StudioAssetFolderClient<$Result.GetResult<Prisma.$StudioAssetFolderPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one StudioAssetFolder.
+     * @param {StudioAssetFolderUpdateArgs} args - Arguments to update one StudioAssetFolder.
+     * @example
+     * // Update one StudioAssetFolder
+     * const studioAssetFolder = await prisma.studioAssetFolder.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends StudioAssetFolderUpdateArgs>(args: SelectSubset<T, StudioAssetFolderUpdateArgs<ExtArgs>>): Prisma__StudioAssetFolderClient<$Result.GetResult<Prisma.$StudioAssetFolderPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more StudioAssetFolders.
+     * @param {StudioAssetFolderDeleteManyArgs} args - Arguments to filter StudioAssetFolders to delete.
+     * @example
+     * // Delete a few StudioAssetFolders
+     * const { count } = await prisma.studioAssetFolder.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends StudioAssetFolderDeleteManyArgs>(args?: SelectSubset<T, StudioAssetFolderDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more StudioAssetFolders.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StudioAssetFolderUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many StudioAssetFolders
+     * const studioAssetFolder = await prisma.studioAssetFolder.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends StudioAssetFolderUpdateManyArgs>(args: SelectSubset<T, StudioAssetFolderUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more StudioAssetFolders and returns the data updated in the database.
+     * @param {StudioAssetFolderUpdateManyAndReturnArgs} args - Arguments to update many StudioAssetFolders.
+     * @example
+     * // Update many StudioAssetFolders
+     * const studioAssetFolder = await prisma.studioAssetFolder.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more StudioAssetFolders and only return the `id`
+     * const studioAssetFolderWithIdOnly = await prisma.studioAssetFolder.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends StudioAssetFolderUpdateManyAndReturnArgs>(args: SelectSubset<T, StudioAssetFolderUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StudioAssetFolderPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one StudioAssetFolder.
+     * @param {StudioAssetFolderUpsertArgs} args - Arguments to update or create a StudioAssetFolder.
+     * @example
+     * // Update or create a StudioAssetFolder
+     * const studioAssetFolder = await prisma.studioAssetFolder.upsert({
+     *   create: {
+     *     // ... data to create a StudioAssetFolder
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the StudioAssetFolder we want to update
+     *   }
+     * })
+     */
+    upsert<T extends StudioAssetFolderUpsertArgs>(args: SelectSubset<T, StudioAssetFolderUpsertArgs<ExtArgs>>): Prisma__StudioAssetFolderClient<$Result.GetResult<Prisma.$StudioAssetFolderPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of StudioAssetFolders.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StudioAssetFolderCountArgs} args - Arguments to filter StudioAssetFolders to count.
+     * @example
+     * // Count the number of StudioAssetFolders
+     * const count = await prisma.studioAssetFolder.count({
+     *   where: {
+     *     // ... the filter for the StudioAssetFolders we want to count
+     *   }
+     * })
+    **/
+    count<T extends StudioAssetFolderCountArgs>(
+      args?: Subset<T, StudioAssetFolderCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], StudioAssetFolderCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a StudioAssetFolder.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StudioAssetFolderAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends StudioAssetFolderAggregateArgs>(args: Subset<T, StudioAssetFolderAggregateArgs>): Prisma.PrismaPromise<GetStudioAssetFolderAggregateType<T>>
+
+    /**
+     * Group by StudioAssetFolder.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StudioAssetFolderGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends StudioAssetFolderGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: StudioAssetFolderGroupByArgs['orderBy'] }
+        : { orderBy?: StudioAssetFolderGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, StudioAssetFolderGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetStudioAssetFolderGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the StudioAssetFolder model
+   */
+  readonly fields: StudioAssetFolderFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for StudioAssetFolder.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__StudioAssetFolderClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    assets<T extends StudioAssetFolder$assetsArgs<ExtArgs> = {}>(args?: Subset<T, StudioAssetFolder$assetsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StudioAssetMetadataPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the StudioAssetFolder model
+   */
+  interface StudioAssetFolderFieldRefs {
+    readonly id: FieldRef<"StudioAssetFolder", 'String'>
+    readonly userId: FieldRef<"StudioAssetFolder", 'String'>
+    readonly name: FieldRef<"StudioAssetFolder", 'String'>
+    readonly createdAt: FieldRef<"StudioAssetFolder", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * StudioAssetFolder findUnique
+   */
+  export type StudioAssetFolderFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudioAssetFolder
+     */
+    select?: StudioAssetFolderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudioAssetFolder
+     */
+    omit?: StudioAssetFolderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudioAssetFolderInclude<ExtArgs> | null
+    /**
+     * Filter, which StudioAssetFolder to fetch.
+     */
+    where: StudioAssetFolderWhereUniqueInput
+  }
+
+  /**
+   * StudioAssetFolder findUniqueOrThrow
+   */
+  export type StudioAssetFolderFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudioAssetFolder
+     */
+    select?: StudioAssetFolderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudioAssetFolder
+     */
+    omit?: StudioAssetFolderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudioAssetFolderInclude<ExtArgs> | null
+    /**
+     * Filter, which StudioAssetFolder to fetch.
+     */
+    where: StudioAssetFolderWhereUniqueInput
+  }
+
+  /**
+   * StudioAssetFolder findFirst
+   */
+  export type StudioAssetFolderFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudioAssetFolder
+     */
+    select?: StudioAssetFolderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudioAssetFolder
+     */
+    omit?: StudioAssetFolderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudioAssetFolderInclude<ExtArgs> | null
+    /**
+     * Filter, which StudioAssetFolder to fetch.
+     */
+    where?: StudioAssetFolderWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StudioAssetFolders to fetch.
+     */
+    orderBy?: StudioAssetFolderOrderByWithRelationInput | StudioAssetFolderOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for StudioAssetFolders.
+     */
+    cursor?: StudioAssetFolderWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StudioAssetFolders from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StudioAssetFolders.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of StudioAssetFolders.
+     */
+    distinct?: StudioAssetFolderScalarFieldEnum | StudioAssetFolderScalarFieldEnum[]
+  }
+
+  /**
+   * StudioAssetFolder findFirstOrThrow
+   */
+  export type StudioAssetFolderFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudioAssetFolder
+     */
+    select?: StudioAssetFolderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudioAssetFolder
+     */
+    omit?: StudioAssetFolderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudioAssetFolderInclude<ExtArgs> | null
+    /**
+     * Filter, which StudioAssetFolder to fetch.
+     */
+    where?: StudioAssetFolderWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StudioAssetFolders to fetch.
+     */
+    orderBy?: StudioAssetFolderOrderByWithRelationInput | StudioAssetFolderOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for StudioAssetFolders.
+     */
+    cursor?: StudioAssetFolderWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StudioAssetFolders from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StudioAssetFolders.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of StudioAssetFolders.
+     */
+    distinct?: StudioAssetFolderScalarFieldEnum | StudioAssetFolderScalarFieldEnum[]
+  }
+
+  /**
+   * StudioAssetFolder findMany
+   */
+  export type StudioAssetFolderFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudioAssetFolder
+     */
+    select?: StudioAssetFolderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudioAssetFolder
+     */
+    omit?: StudioAssetFolderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudioAssetFolderInclude<ExtArgs> | null
+    /**
+     * Filter, which StudioAssetFolders to fetch.
+     */
+    where?: StudioAssetFolderWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StudioAssetFolders to fetch.
+     */
+    orderBy?: StudioAssetFolderOrderByWithRelationInput | StudioAssetFolderOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing StudioAssetFolders.
+     */
+    cursor?: StudioAssetFolderWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StudioAssetFolders from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StudioAssetFolders.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of StudioAssetFolders.
+     */
+    distinct?: StudioAssetFolderScalarFieldEnum | StudioAssetFolderScalarFieldEnum[]
+  }
+
+  /**
+   * StudioAssetFolder create
+   */
+  export type StudioAssetFolderCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudioAssetFolder
+     */
+    select?: StudioAssetFolderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudioAssetFolder
+     */
+    omit?: StudioAssetFolderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudioAssetFolderInclude<ExtArgs> | null
+    /**
+     * The data needed to create a StudioAssetFolder.
+     */
+    data: XOR<StudioAssetFolderCreateInput, StudioAssetFolderUncheckedCreateInput>
+  }
+
+  /**
+   * StudioAssetFolder createMany
+   */
+  export type StudioAssetFolderCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many StudioAssetFolders.
+     */
+    data: StudioAssetFolderCreateManyInput | StudioAssetFolderCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * StudioAssetFolder createManyAndReturn
+   */
+  export type StudioAssetFolderCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudioAssetFolder
+     */
+    select?: StudioAssetFolderSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudioAssetFolder
+     */
+    omit?: StudioAssetFolderOmit<ExtArgs> | null
+    /**
+     * The data used to create many StudioAssetFolders.
+     */
+    data: StudioAssetFolderCreateManyInput | StudioAssetFolderCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudioAssetFolderIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * StudioAssetFolder update
+   */
+  export type StudioAssetFolderUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudioAssetFolder
+     */
+    select?: StudioAssetFolderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudioAssetFolder
+     */
+    omit?: StudioAssetFolderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudioAssetFolderInclude<ExtArgs> | null
+    /**
+     * The data needed to update a StudioAssetFolder.
+     */
+    data: XOR<StudioAssetFolderUpdateInput, StudioAssetFolderUncheckedUpdateInput>
+    /**
+     * Choose, which StudioAssetFolder to update.
+     */
+    where: StudioAssetFolderWhereUniqueInput
+  }
+
+  /**
+   * StudioAssetFolder updateMany
+   */
+  export type StudioAssetFolderUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update StudioAssetFolders.
+     */
+    data: XOR<StudioAssetFolderUpdateManyMutationInput, StudioAssetFolderUncheckedUpdateManyInput>
+    /**
+     * Filter which StudioAssetFolders to update
+     */
+    where?: StudioAssetFolderWhereInput
+    /**
+     * Limit how many StudioAssetFolders to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * StudioAssetFolder updateManyAndReturn
+   */
+  export type StudioAssetFolderUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudioAssetFolder
+     */
+    select?: StudioAssetFolderSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudioAssetFolder
+     */
+    omit?: StudioAssetFolderOmit<ExtArgs> | null
+    /**
+     * The data used to update StudioAssetFolders.
+     */
+    data: XOR<StudioAssetFolderUpdateManyMutationInput, StudioAssetFolderUncheckedUpdateManyInput>
+    /**
+     * Filter which StudioAssetFolders to update
+     */
+    where?: StudioAssetFolderWhereInput
+    /**
+     * Limit how many StudioAssetFolders to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudioAssetFolderIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * StudioAssetFolder upsert
+   */
+  export type StudioAssetFolderUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudioAssetFolder
+     */
+    select?: StudioAssetFolderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudioAssetFolder
+     */
+    omit?: StudioAssetFolderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudioAssetFolderInclude<ExtArgs> | null
+    /**
+     * The filter to search for the StudioAssetFolder to update in case it exists.
+     */
+    where: StudioAssetFolderWhereUniqueInput
+    /**
+     * In case the StudioAssetFolder found by the `where` argument doesn't exist, create a new StudioAssetFolder with this data.
+     */
+    create: XOR<StudioAssetFolderCreateInput, StudioAssetFolderUncheckedCreateInput>
+    /**
+     * In case the StudioAssetFolder was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<StudioAssetFolderUpdateInput, StudioAssetFolderUncheckedUpdateInput>
+  }
+
+  /**
+   * StudioAssetFolder delete
+   */
+  export type StudioAssetFolderDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudioAssetFolder
+     */
+    select?: StudioAssetFolderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudioAssetFolder
+     */
+    omit?: StudioAssetFolderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudioAssetFolderInclude<ExtArgs> | null
+    /**
+     * Filter which StudioAssetFolder to delete.
+     */
+    where: StudioAssetFolderWhereUniqueInput
+  }
+
+  /**
+   * StudioAssetFolder deleteMany
+   */
+  export type StudioAssetFolderDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which StudioAssetFolders to delete
+     */
+    where?: StudioAssetFolderWhereInput
+    /**
+     * Limit how many StudioAssetFolders to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * StudioAssetFolder.assets
+   */
+  export type StudioAssetFolder$assetsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudioAssetMetadata
+     */
+    select?: StudioAssetMetadataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudioAssetMetadata
+     */
+    omit?: StudioAssetMetadataOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudioAssetMetadataInclude<ExtArgs> | null
+    where?: StudioAssetMetadataWhereInput
+    orderBy?: StudioAssetMetadataOrderByWithRelationInput | StudioAssetMetadataOrderByWithRelationInput[]
+    cursor?: StudioAssetMetadataWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: StudioAssetMetadataScalarFieldEnum | StudioAssetMetadataScalarFieldEnum[]
+  }
+
+  /**
+   * StudioAssetFolder without action
+   */
+  export type StudioAssetFolderDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudioAssetFolder
+     */
+    select?: StudioAssetFolderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudioAssetFolder
+     */
+    omit?: StudioAssetFolderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudioAssetFolderInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model StudioAssetMetadata
+   */
+
+  export type AggregateStudioAssetMetadata = {
+    _count: StudioAssetMetadataCountAggregateOutputType | null
+    _min: StudioAssetMetadataMinAggregateOutputType | null
+    _max: StudioAssetMetadataMaxAggregateOutputType | null
+  }
+
+  export type StudioAssetMetadataMinAggregateOutputType = {
+    assetId: string | null
+    folderId: string | null
+    category: string | null
+    deletedAt: Date | null
+  }
+
+  export type StudioAssetMetadataMaxAggregateOutputType = {
+    assetId: string | null
+    folderId: string | null
+    category: string | null
+    deletedAt: Date | null
+  }
+
+  export type StudioAssetMetadataCountAggregateOutputType = {
+    assetId: number
+    folderId: number
+    category: number
+    deletedAt: number
+    _all: number
+  }
+
+
+  export type StudioAssetMetadataMinAggregateInputType = {
+    assetId?: true
+    folderId?: true
+    category?: true
+    deletedAt?: true
+  }
+
+  export type StudioAssetMetadataMaxAggregateInputType = {
+    assetId?: true
+    folderId?: true
+    category?: true
+    deletedAt?: true
+  }
+
+  export type StudioAssetMetadataCountAggregateInputType = {
+    assetId?: true
+    folderId?: true
+    category?: true
+    deletedAt?: true
+    _all?: true
+  }
+
+  export type StudioAssetMetadataAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which StudioAssetMetadata to aggregate.
+     */
+    where?: StudioAssetMetadataWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StudioAssetMetadata to fetch.
+     */
+    orderBy?: StudioAssetMetadataOrderByWithRelationInput | StudioAssetMetadataOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: StudioAssetMetadataWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StudioAssetMetadata from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StudioAssetMetadata.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned StudioAssetMetadata
+    **/
+    _count?: true | StudioAssetMetadataCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: StudioAssetMetadataMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: StudioAssetMetadataMaxAggregateInputType
+  }
+
+  export type GetStudioAssetMetadataAggregateType<T extends StudioAssetMetadataAggregateArgs> = {
+        [P in keyof T & keyof AggregateStudioAssetMetadata]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateStudioAssetMetadata[P]>
+      : GetScalarType<T[P], AggregateStudioAssetMetadata[P]>
+  }
+
+
+
+
+  export type StudioAssetMetadataGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: StudioAssetMetadataWhereInput
+    orderBy?: StudioAssetMetadataOrderByWithAggregationInput | StudioAssetMetadataOrderByWithAggregationInput[]
+    by: StudioAssetMetadataScalarFieldEnum[] | StudioAssetMetadataScalarFieldEnum
+    having?: StudioAssetMetadataScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: StudioAssetMetadataCountAggregateInputType | true
+    _min?: StudioAssetMetadataMinAggregateInputType
+    _max?: StudioAssetMetadataMaxAggregateInputType
+  }
+
+  export type StudioAssetMetadataGroupByOutputType = {
+    assetId: string
+    folderId: string | null
+    category: string | null
+    deletedAt: Date | null
+    _count: StudioAssetMetadataCountAggregateOutputType | null
+    _min: StudioAssetMetadataMinAggregateOutputType | null
+    _max: StudioAssetMetadataMaxAggregateOutputType | null
+  }
+
+  type GetStudioAssetMetadataGroupByPayload<T extends StudioAssetMetadataGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<StudioAssetMetadataGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof StudioAssetMetadataGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], StudioAssetMetadataGroupByOutputType[P]>
+            : GetScalarType<T[P], StudioAssetMetadataGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type StudioAssetMetadataSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    assetId?: boolean
+    folderId?: boolean
+    category?: boolean
+    deletedAt?: boolean
+    asset?: boolean | MediaAssetDefaultArgs<ExtArgs>
+    folder?: boolean | StudioAssetMetadata$folderArgs<ExtArgs>
+  }, ExtArgs["result"]["studioAssetMetadata"]>
+
+  export type StudioAssetMetadataSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    assetId?: boolean
+    folderId?: boolean
+    category?: boolean
+    deletedAt?: boolean
+    asset?: boolean | MediaAssetDefaultArgs<ExtArgs>
+    folder?: boolean | StudioAssetMetadata$folderArgs<ExtArgs>
+  }, ExtArgs["result"]["studioAssetMetadata"]>
+
+  export type StudioAssetMetadataSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    assetId?: boolean
+    folderId?: boolean
+    category?: boolean
+    deletedAt?: boolean
+    asset?: boolean | MediaAssetDefaultArgs<ExtArgs>
+    folder?: boolean | StudioAssetMetadata$folderArgs<ExtArgs>
+  }, ExtArgs["result"]["studioAssetMetadata"]>
+
+  export type StudioAssetMetadataSelectScalar = {
+    assetId?: boolean
+    folderId?: boolean
+    category?: boolean
+    deletedAt?: boolean
+  }
+
+  export type StudioAssetMetadataOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"assetId" | "folderId" | "category" | "deletedAt", ExtArgs["result"]["studioAssetMetadata"]>
+  export type StudioAssetMetadataInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    asset?: boolean | MediaAssetDefaultArgs<ExtArgs>
+    folder?: boolean | StudioAssetMetadata$folderArgs<ExtArgs>
+  }
+  export type StudioAssetMetadataIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    asset?: boolean | MediaAssetDefaultArgs<ExtArgs>
+    folder?: boolean | StudioAssetMetadata$folderArgs<ExtArgs>
+  }
+  export type StudioAssetMetadataIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    asset?: boolean | MediaAssetDefaultArgs<ExtArgs>
+    folder?: boolean | StudioAssetMetadata$folderArgs<ExtArgs>
+  }
+
+  export type $StudioAssetMetadataPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "StudioAssetMetadata"
+    objects: {
+      asset: Prisma.$MediaAssetPayload<ExtArgs>
+      folder: Prisma.$StudioAssetFolderPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      assetId: string
+      folderId: string | null
+      category: string | null
+      deletedAt: Date | null
+    }, ExtArgs["result"]["studioAssetMetadata"]>
+    composites: {}
+  }
+
+  type StudioAssetMetadataGetPayload<S extends boolean | null | undefined | StudioAssetMetadataDefaultArgs> = $Result.GetResult<Prisma.$StudioAssetMetadataPayload, S>
+
+  type StudioAssetMetadataCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<StudioAssetMetadataFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: StudioAssetMetadataCountAggregateInputType | true
+    }
+
+  export interface StudioAssetMetadataDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['StudioAssetMetadata'], meta: { name: 'StudioAssetMetadata' } }
+    /**
+     * Find zero or one StudioAssetMetadata that matches the filter.
+     * @param {StudioAssetMetadataFindUniqueArgs} args - Arguments to find a StudioAssetMetadata
+     * @example
+     * // Get one StudioAssetMetadata
+     * const studioAssetMetadata = await prisma.studioAssetMetadata.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends StudioAssetMetadataFindUniqueArgs>(args: SelectSubset<T, StudioAssetMetadataFindUniqueArgs<ExtArgs>>): Prisma__StudioAssetMetadataClient<$Result.GetResult<Prisma.$StudioAssetMetadataPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one StudioAssetMetadata that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {StudioAssetMetadataFindUniqueOrThrowArgs} args - Arguments to find a StudioAssetMetadata
+     * @example
+     * // Get one StudioAssetMetadata
+     * const studioAssetMetadata = await prisma.studioAssetMetadata.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends StudioAssetMetadataFindUniqueOrThrowArgs>(args: SelectSubset<T, StudioAssetMetadataFindUniqueOrThrowArgs<ExtArgs>>): Prisma__StudioAssetMetadataClient<$Result.GetResult<Prisma.$StudioAssetMetadataPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first StudioAssetMetadata that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StudioAssetMetadataFindFirstArgs} args - Arguments to find a StudioAssetMetadata
+     * @example
+     * // Get one StudioAssetMetadata
+     * const studioAssetMetadata = await prisma.studioAssetMetadata.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends StudioAssetMetadataFindFirstArgs>(args?: SelectSubset<T, StudioAssetMetadataFindFirstArgs<ExtArgs>>): Prisma__StudioAssetMetadataClient<$Result.GetResult<Prisma.$StudioAssetMetadataPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first StudioAssetMetadata that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StudioAssetMetadataFindFirstOrThrowArgs} args - Arguments to find a StudioAssetMetadata
+     * @example
+     * // Get one StudioAssetMetadata
+     * const studioAssetMetadata = await prisma.studioAssetMetadata.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends StudioAssetMetadataFindFirstOrThrowArgs>(args?: SelectSubset<T, StudioAssetMetadataFindFirstOrThrowArgs<ExtArgs>>): Prisma__StudioAssetMetadataClient<$Result.GetResult<Prisma.$StudioAssetMetadataPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more StudioAssetMetadata that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StudioAssetMetadataFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all StudioAssetMetadata
+     * const studioAssetMetadata = await prisma.studioAssetMetadata.findMany()
+     * 
+     * // Get first 10 StudioAssetMetadata
+     * const studioAssetMetadata = await prisma.studioAssetMetadata.findMany({ take: 10 })
+     * 
+     * // Only select the `assetId`
+     * const studioAssetMetadataWithAssetIdOnly = await prisma.studioAssetMetadata.findMany({ select: { assetId: true } })
+     * 
+     */
+    findMany<T extends StudioAssetMetadataFindManyArgs>(args?: SelectSubset<T, StudioAssetMetadataFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StudioAssetMetadataPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a StudioAssetMetadata.
+     * @param {StudioAssetMetadataCreateArgs} args - Arguments to create a StudioAssetMetadata.
+     * @example
+     * // Create one StudioAssetMetadata
+     * const StudioAssetMetadata = await prisma.studioAssetMetadata.create({
+     *   data: {
+     *     // ... data to create a StudioAssetMetadata
+     *   }
+     * })
+     * 
+     */
+    create<T extends StudioAssetMetadataCreateArgs>(args: SelectSubset<T, StudioAssetMetadataCreateArgs<ExtArgs>>): Prisma__StudioAssetMetadataClient<$Result.GetResult<Prisma.$StudioAssetMetadataPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many StudioAssetMetadata.
+     * @param {StudioAssetMetadataCreateManyArgs} args - Arguments to create many StudioAssetMetadata.
+     * @example
+     * // Create many StudioAssetMetadata
+     * const studioAssetMetadata = await prisma.studioAssetMetadata.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends StudioAssetMetadataCreateManyArgs>(args?: SelectSubset<T, StudioAssetMetadataCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many StudioAssetMetadata and returns the data saved in the database.
+     * @param {StudioAssetMetadataCreateManyAndReturnArgs} args - Arguments to create many StudioAssetMetadata.
+     * @example
+     * // Create many StudioAssetMetadata
+     * const studioAssetMetadata = await prisma.studioAssetMetadata.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many StudioAssetMetadata and only return the `assetId`
+     * const studioAssetMetadataWithAssetIdOnly = await prisma.studioAssetMetadata.createManyAndReturn({
+     *   select: { assetId: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends StudioAssetMetadataCreateManyAndReturnArgs>(args?: SelectSubset<T, StudioAssetMetadataCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StudioAssetMetadataPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a StudioAssetMetadata.
+     * @param {StudioAssetMetadataDeleteArgs} args - Arguments to delete one StudioAssetMetadata.
+     * @example
+     * // Delete one StudioAssetMetadata
+     * const StudioAssetMetadata = await prisma.studioAssetMetadata.delete({
+     *   where: {
+     *     // ... filter to delete one StudioAssetMetadata
+     *   }
+     * })
+     * 
+     */
+    delete<T extends StudioAssetMetadataDeleteArgs>(args: SelectSubset<T, StudioAssetMetadataDeleteArgs<ExtArgs>>): Prisma__StudioAssetMetadataClient<$Result.GetResult<Prisma.$StudioAssetMetadataPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one StudioAssetMetadata.
+     * @param {StudioAssetMetadataUpdateArgs} args - Arguments to update one StudioAssetMetadata.
+     * @example
+     * // Update one StudioAssetMetadata
+     * const studioAssetMetadata = await prisma.studioAssetMetadata.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends StudioAssetMetadataUpdateArgs>(args: SelectSubset<T, StudioAssetMetadataUpdateArgs<ExtArgs>>): Prisma__StudioAssetMetadataClient<$Result.GetResult<Prisma.$StudioAssetMetadataPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more StudioAssetMetadata.
+     * @param {StudioAssetMetadataDeleteManyArgs} args - Arguments to filter StudioAssetMetadata to delete.
+     * @example
+     * // Delete a few StudioAssetMetadata
+     * const { count } = await prisma.studioAssetMetadata.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends StudioAssetMetadataDeleteManyArgs>(args?: SelectSubset<T, StudioAssetMetadataDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more StudioAssetMetadata.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StudioAssetMetadataUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many StudioAssetMetadata
+     * const studioAssetMetadata = await prisma.studioAssetMetadata.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends StudioAssetMetadataUpdateManyArgs>(args: SelectSubset<T, StudioAssetMetadataUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more StudioAssetMetadata and returns the data updated in the database.
+     * @param {StudioAssetMetadataUpdateManyAndReturnArgs} args - Arguments to update many StudioAssetMetadata.
+     * @example
+     * // Update many StudioAssetMetadata
+     * const studioAssetMetadata = await prisma.studioAssetMetadata.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more StudioAssetMetadata and only return the `assetId`
+     * const studioAssetMetadataWithAssetIdOnly = await prisma.studioAssetMetadata.updateManyAndReturn({
+     *   select: { assetId: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends StudioAssetMetadataUpdateManyAndReturnArgs>(args: SelectSubset<T, StudioAssetMetadataUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StudioAssetMetadataPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one StudioAssetMetadata.
+     * @param {StudioAssetMetadataUpsertArgs} args - Arguments to update or create a StudioAssetMetadata.
+     * @example
+     * // Update or create a StudioAssetMetadata
+     * const studioAssetMetadata = await prisma.studioAssetMetadata.upsert({
+     *   create: {
+     *     // ... data to create a StudioAssetMetadata
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the StudioAssetMetadata we want to update
+     *   }
+     * })
+     */
+    upsert<T extends StudioAssetMetadataUpsertArgs>(args: SelectSubset<T, StudioAssetMetadataUpsertArgs<ExtArgs>>): Prisma__StudioAssetMetadataClient<$Result.GetResult<Prisma.$StudioAssetMetadataPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of StudioAssetMetadata.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StudioAssetMetadataCountArgs} args - Arguments to filter StudioAssetMetadata to count.
+     * @example
+     * // Count the number of StudioAssetMetadata
+     * const count = await prisma.studioAssetMetadata.count({
+     *   where: {
+     *     // ... the filter for the StudioAssetMetadata we want to count
+     *   }
+     * })
+    **/
+    count<T extends StudioAssetMetadataCountArgs>(
+      args?: Subset<T, StudioAssetMetadataCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], StudioAssetMetadataCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a StudioAssetMetadata.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StudioAssetMetadataAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends StudioAssetMetadataAggregateArgs>(args: Subset<T, StudioAssetMetadataAggregateArgs>): Prisma.PrismaPromise<GetStudioAssetMetadataAggregateType<T>>
+
+    /**
+     * Group by StudioAssetMetadata.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StudioAssetMetadataGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends StudioAssetMetadataGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: StudioAssetMetadataGroupByArgs['orderBy'] }
+        : { orderBy?: StudioAssetMetadataGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, StudioAssetMetadataGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetStudioAssetMetadataGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the StudioAssetMetadata model
+   */
+  readonly fields: StudioAssetMetadataFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for StudioAssetMetadata.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__StudioAssetMetadataClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    asset<T extends MediaAssetDefaultArgs<ExtArgs> = {}>(args?: Subset<T, MediaAssetDefaultArgs<ExtArgs>>): Prisma__MediaAssetClient<$Result.GetResult<Prisma.$MediaAssetPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    folder<T extends StudioAssetMetadata$folderArgs<ExtArgs> = {}>(args?: Subset<T, StudioAssetMetadata$folderArgs<ExtArgs>>): Prisma__StudioAssetFolderClient<$Result.GetResult<Prisma.$StudioAssetFolderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the StudioAssetMetadata model
+   */
+  interface StudioAssetMetadataFieldRefs {
+    readonly assetId: FieldRef<"StudioAssetMetadata", 'String'>
+    readonly folderId: FieldRef<"StudioAssetMetadata", 'String'>
+    readonly category: FieldRef<"StudioAssetMetadata", 'String'>
+    readonly deletedAt: FieldRef<"StudioAssetMetadata", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * StudioAssetMetadata findUnique
+   */
+  export type StudioAssetMetadataFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudioAssetMetadata
+     */
+    select?: StudioAssetMetadataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudioAssetMetadata
+     */
+    omit?: StudioAssetMetadataOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudioAssetMetadataInclude<ExtArgs> | null
+    /**
+     * Filter, which StudioAssetMetadata to fetch.
+     */
+    where: StudioAssetMetadataWhereUniqueInput
+  }
+
+  /**
+   * StudioAssetMetadata findUniqueOrThrow
+   */
+  export type StudioAssetMetadataFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudioAssetMetadata
+     */
+    select?: StudioAssetMetadataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudioAssetMetadata
+     */
+    omit?: StudioAssetMetadataOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudioAssetMetadataInclude<ExtArgs> | null
+    /**
+     * Filter, which StudioAssetMetadata to fetch.
+     */
+    where: StudioAssetMetadataWhereUniqueInput
+  }
+
+  /**
+   * StudioAssetMetadata findFirst
+   */
+  export type StudioAssetMetadataFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudioAssetMetadata
+     */
+    select?: StudioAssetMetadataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudioAssetMetadata
+     */
+    omit?: StudioAssetMetadataOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudioAssetMetadataInclude<ExtArgs> | null
+    /**
+     * Filter, which StudioAssetMetadata to fetch.
+     */
+    where?: StudioAssetMetadataWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StudioAssetMetadata to fetch.
+     */
+    orderBy?: StudioAssetMetadataOrderByWithRelationInput | StudioAssetMetadataOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for StudioAssetMetadata.
+     */
+    cursor?: StudioAssetMetadataWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StudioAssetMetadata from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StudioAssetMetadata.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of StudioAssetMetadata.
+     */
+    distinct?: StudioAssetMetadataScalarFieldEnum | StudioAssetMetadataScalarFieldEnum[]
+  }
+
+  /**
+   * StudioAssetMetadata findFirstOrThrow
+   */
+  export type StudioAssetMetadataFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudioAssetMetadata
+     */
+    select?: StudioAssetMetadataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudioAssetMetadata
+     */
+    omit?: StudioAssetMetadataOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudioAssetMetadataInclude<ExtArgs> | null
+    /**
+     * Filter, which StudioAssetMetadata to fetch.
+     */
+    where?: StudioAssetMetadataWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StudioAssetMetadata to fetch.
+     */
+    orderBy?: StudioAssetMetadataOrderByWithRelationInput | StudioAssetMetadataOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for StudioAssetMetadata.
+     */
+    cursor?: StudioAssetMetadataWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StudioAssetMetadata from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StudioAssetMetadata.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of StudioAssetMetadata.
+     */
+    distinct?: StudioAssetMetadataScalarFieldEnum | StudioAssetMetadataScalarFieldEnum[]
+  }
+
+  /**
+   * StudioAssetMetadata findMany
+   */
+  export type StudioAssetMetadataFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudioAssetMetadata
+     */
+    select?: StudioAssetMetadataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudioAssetMetadata
+     */
+    omit?: StudioAssetMetadataOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudioAssetMetadataInclude<ExtArgs> | null
+    /**
+     * Filter, which StudioAssetMetadata to fetch.
+     */
+    where?: StudioAssetMetadataWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StudioAssetMetadata to fetch.
+     */
+    orderBy?: StudioAssetMetadataOrderByWithRelationInput | StudioAssetMetadataOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing StudioAssetMetadata.
+     */
+    cursor?: StudioAssetMetadataWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StudioAssetMetadata from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StudioAssetMetadata.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of StudioAssetMetadata.
+     */
+    distinct?: StudioAssetMetadataScalarFieldEnum | StudioAssetMetadataScalarFieldEnum[]
+  }
+
+  /**
+   * StudioAssetMetadata create
+   */
+  export type StudioAssetMetadataCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudioAssetMetadata
+     */
+    select?: StudioAssetMetadataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudioAssetMetadata
+     */
+    omit?: StudioAssetMetadataOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudioAssetMetadataInclude<ExtArgs> | null
+    /**
+     * The data needed to create a StudioAssetMetadata.
+     */
+    data: XOR<StudioAssetMetadataCreateInput, StudioAssetMetadataUncheckedCreateInput>
+  }
+
+  /**
+   * StudioAssetMetadata createMany
+   */
+  export type StudioAssetMetadataCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many StudioAssetMetadata.
+     */
+    data: StudioAssetMetadataCreateManyInput | StudioAssetMetadataCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * StudioAssetMetadata createManyAndReturn
+   */
+  export type StudioAssetMetadataCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudioAssetMetadata
+     */
+    select?: StudioAssetMetadataSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudioAssetMetadata
+     */
+    omit?: StudioAssetMetadataOmit<ExtArgs> | null
+    /**
+     * The data used to create many StudioAssetMetadata.
+     */
+    data: StudioAssetMetadataCreateManyInput | StudioAssetMetadataCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudioAssetMetadataIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * StudioAssetMetadata update
+   */
+  export type StudioAssetMetadataUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudioAssetMetadata
+     */
+    select?: StudioAssetMetadataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudioAssetMetadata
+     */
+    omit?: StudioAssetMetadataOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudioAssetMetadataInclude<ExtArgs> | null
+    /**
+     * The data needed to update a StudioAssetMetadata.
+     */
+    data: XOR<StudioAssetMetadataUpdateInput, StudioAssetMetadataUncheckedUpdateInput>
+    /**
+     * Choose, which StudioAssetMetadata to update.
+     */
+    where: StudioAssetMetadataWhereUniqueInput
+  }
+
+  /**
+   * StudioAssetMetadata updateMany
+   */
+  export type StudioAssetMetadataUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update StudioAssetMetadata.
+     */
+    data: XOR<StudioAssetMetadataUpdateManyMutationInput, StudioAssetMetadataUncheckedUpdateManyInput>
+    /**
+     * Filter which StudioAssetMetadata to update
+     */
+    where?: StudioAssetMetadataWhereInput
+    /**
+     * Limit how many StudioAssetMetadata to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * StudioAssetMetadata updateManyAndReturn
+   */
+  export type StudioAssetMetadataUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudioAssetMetadata
+     */
+    select?: StudioAssetMetadataSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudioAssetMetadata
+     */
+    omit?: StudioAssetMetadataOmit<ExtArgs> | null
+    /**
+     * The data used to update StudioAssetMetadata.
+     */
+    data: XOR<StudioAssetMetadataUpdateManyMutationInput, StudioAssetMetadataUncheckedUpdateManyInput>
+    /**
+     * Filter which StudioAssetMetadata to update
+     */
+    where?: StudioAssetMetadataWhereInput
+    /**
+     * Limit how many StudioAssetMetadata to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudioAssetMetadataIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * StudioAssetMetadata upsert
+   */
+  export type StudioAssetMetadataUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudioAssetMetadata
+     */
+    select?: StudioAssetMetadataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudioAssetMetadata
+     */
+    omit?: StudioAssetMetadataOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudioAssetMetadataInclude<ExtArgs> | null
+    /**
+     * The filter to search for the StudioAssetMetadata to update in case it exists.
+     */
+    where: StudioAssetMetadataWhereUniqueInput
+    /**
+     * In case the StudioAssetMetadata found by the `where` argument doesn't exist, create a new StudioAssetMetadata with this data.
+     */
+    create: XOR<StudioAssetMetadataCreateInput, StudioAssetMetadataUncheckedCreateInput>
+    /**
+     * In case the StudioAssetMetadata was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<StudioAssetMetadataUpdateInput, StudioAssetMetadataUncheckedUpdateInput>
+  }
+
+  /**
+   * StudioAssetMetadata delete
+   */
+  export type StudioAssetMetadataDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudioAssetMetadata
+     */
+    select?: StudioAssetMetadataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudioAssetMetadata
+     */
+    omit?: StudioAssetMetadataOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudioAssetMetadataInclude<ExtArgs> | null
+    /**
+     * Filter which StudioAssetMetadata to delete.
+     */
+    where: StudioAssetMetadataWhereUniqueInput
+  }
+
+  /**
+   * StudioAssetMetadata deleteMany
+   */
+  export type StudioAssetMetadataDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which StudioAssetMetadata to delete
+     */
+    where?: StudioAssetMetadataWhereInput
+    /**
+     * Limit how many StudioAssetMetadata to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * StudioAssetMetadata.folder
+   */
+  export type StudioAssetMetadata$folderArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudioAssetFolder
+     */
+    select?: StudioAssetFolderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudioAssetFolder
+     */
+    omit?: StudioAssetFolderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudioAssetFolderInclude<ExtArgs> | null
+    where?: StudioAssetFolderWhereInput
+  }
+
+  /**
+   * StudioAssetMetadata without action
+   */
+  export type StudioAssetMetadataDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudioAssetMetadata
+     */
+    select?: StudioAssetMetadataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudioAssetMetadata
+     */
+    omit?: StudioAssetMetadataOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudioAssetMetadataInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model MediaAsset
    */
 
@@ -53692,6 +56436,7 @@ export namespace Prisma {
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     website?: boolean | MediaAsset$websiteArgs<ExtArgs>
+    studioMetadata?: boolean | MediaAsset$studioMetadataArgs<ExtArgs>
   }, ExtArgs["result"]["mediaAsset"]>
 
   export type MediaAssetSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -53753,6 +56498,7 @@ export namespace Prisma {
   export type MediaAssetInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     website?: boolean | MediaAsset$websiteArgs<ExtArgs>
+    studioMetadata?: boolean | MediaAsset$studioMetadataArgs<ExtArgs>
   }
   export type MediaAssetIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -53768,6 +56514,7 @@ export namespace Prisma {
     objects: {
       user: Prisma.$UserPayload<ExtArgs>
       website: Prisma.$WebsitePayload<ExtArgs> | null
+      studioMetadata: Prisma.$StudioAssetMetadataPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -54180,6 +56927,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     website<T extends MediaAsset$websiteArgs<ExtArgs> = {}>(args?: Subset<T, MediaAsset$websiteArgs<ExtArgs>>): Prisma__WebsiteClient<$Result.GetResult<Prisma.$WebsitePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    studioMetadata<T extends MediaAsset$studioMetadataArgs<ExtArgs> = {}>(args?: Subset<T, MediaAsset$studioMetadataArgs<ExtArgs>>): Prisma__StudioAssetMetadataClient<$Result.GetResult<Prisma.$StudioAssetMetadataPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -54640,6 +57388,25 @@ export namespace Prisma {
      */
     include?: WebsiteInclude<ExtArgs> | null
     where?: WebsiteWhereInput
+  }
+
+  /**
+   * MediaAsset.studioMetadata
+   */
+  export type MediaAsset$studioMetadataArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudioAssetMetadata
+     */
+    select?: StudioAssetMetadataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudioAssetMetadata
+     */
+    omit?: StudioAssetMetadataOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudioAssetMetadataInclude<ExtArgs> | null
+    where?: StudioAssetMetadataWhereInput
   }
 
   /**
@@ -66354,6 +69121,9 @@ export namespace Prisma {
     phoneVerified: 'phoneVerified',
     status: 'status',
     role: 'role',
+    suspensionReason: 'suspensionReason',
+    suspendedAt: 'suspendedAt',
+    suspendedBy: 'suspendedBy',
     lastLoginAt: 'lastLoginAt',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
@@ -66370,6 +69140,11 @@ export namespace Prisma {
     slug: 'slug',
     status: 'status',
     archivedAt: 'archivedAt',
+    moderationStatus: 'moderationStatus',
+    moderationReason: 'moderationReason',
+    moderatedAt: 'moderatedAt',
+    moderatedBy: 'moderatedBy',
+    version: 'version',
     editorData: 'editorData',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
@@ -66571,6 +69346,10 @@ export namespace Prisma {
     targetResource: 'targetResource',
     details: 'details',
     ipAddress: 'ipAddress',
+    actorRole: 'actorRole',
+    result: 'result',
+    reason: 'reason',
+    correlationId: 'correlationId',
     createdAt: 'createdAt'
   };
 
@@ -66680,7 +69459,9 @@ export namespace Prisma {
     userId: 'userId',
     name: 'name',
     tokenHash: 'tokenHash',
+    maskedKey: 'maskedKey',
     scopes: 'scopes',
+    expiresAt: 'expiresAt',
     lastUsedAt: 'lastUsedAt',
     revokedAt: 'revokedAt',
     createdAt: 'createdAt',
@@ -66940,11 +69721,40 @@ export namespace Prisma {
     runAt: 'runAt',
     startedAt: 'startedAt',
     completedAt: 'completedAt',
+    workerId: 'workerId',
+    claimedAt: 'claimedAt',
+    leaseExpiresAt: 'leaseExpiresAt',
+    heartbeatAt: 'heartbeatAt',
+    fencingToken: 'fencingToken',
+    idempotencyKey: 'idempotencyKey',
+    correlationId: 'correlationId',
+    tenantId: 'tenantId',
+    websiteId: 'websiteId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
 
   export type BackgroundJobScalarFieldEnum = (typeof BackgroundJobScalarFieldEnum)[keyof typeof BackgroundJobScalarFieldEnum]
+
+
+  export const StudioAssetFolderScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    name: 'name',
+    createdAt: 'createdAt'
+  };
+
+  export type StudioAssetFolderScalarFieldEnum = (typeof StudioAssetFolderScalarFieldEnum)[keyof typeof StudioAssetFolderScalarFieldEnum]
+
+
+  export const StudioAssetMetadataScalarFieldEnum: {
+    assetId: 'assetId',
+    folderId: 'folderId',
+    category: 'category',
+    deletedAt: 'deletedAt'
+  };
+
+  export type StudioAssetMetadataScalarFieldEnum = (typeof StudioAssetMetadataScalarFieldEnum)[keyof typeof StudioAssetMetadataScalarFieldEnum]
 
 
   export const MediaAssetScalarFieldEnum: {
@@ -67363,6 +70173,9 @@ export namespace Prisma {
     phoneVerified?: BoolFilter<"User"> | boolean
     status?: EnumUserStatusFilter<"User"> | $Enums.UserStatus
     role?: EnumUserRoleFilter<"User"> | $Enums.UserRole
+    suspensionReason?: StringNullableFilter<"User"> | string | null
+    suspendedAt?: DateTimeNullableFilter<"User"> | Date | string | null
+    suspendedBy?: UuidNullableFilter<"User"> | string | null
     lastLoginAt?: DateTimeNullableFilter<"User"> | Date | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
@@ -67398,6 +70211,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestListRelationFilter
     reviewedApprovals?: PublishApprovalRequestListRelationFilter
     mediaAssets?: MediaAssetListRelationFilter
+    studioAssetFolders?: StudioAssetFolderListRelationFilter
     creditLedgers?: OptimizationCreditLedgerListRelationFilter
     licenses?: LicenseListRelationFilter
     whiteLabelConfig?: XOR<WhiteLabelConfigNullableScalarRelationFilter, WhiteLabelConfigWhereInput> | null
@@ -67415,6 +70229,9 @@ export namespace Prisma {
     phoneVerified?: SortOrder
     status?: SortOrder
     role?: SortOrder
+    suspensionReason?: SortOrderInput | SortOrder
+    suspendedAt?: SortOrderInput | SortOrder
+    suspendedBy?: SortOrderInput | SortOrder
     lastLoginAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -67450,6 +70267,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestOrderByRelationAggregateInput
     reviewedApprovals?: PublishApprovalRequestOrderByRelationAggregateInput
     mediaAssets?: MediaAssetOrderByRelationAggregateInput
+    studioAssetFolders?: StudioAssetFolderOrderByRelationAggregateInput
     creditLedgers?: OptimizationCreditLedgerOrderByRelationAggregateInput
     licenses?: LicenseOrderByRelationAggregateInput
     whiteLabelConfig?: WhiteLabelConfigOrderByWithRelationInput
@@ -67470,6 +70288,9 @@ export namespace Prisma {
     phoneVerified?: BoolFilter<"User"> | boolean
     status?: EnumUserStatusFilter<"User"> | $Enums.UserStatus
     role?: EnumUserRoleFilter<"User"> | $Enums.UserRole
+    suspensionReason?: StringNullableFilter<"User"> | string | null
+    suspendedAt?: DateTimeNullableFilter<"User"> | Date | string | null
+    suspendedBy?: UuidNullableFilter<"User"> | string | null
     lastLoginAt?: DateTimeNullableFilter<"User"> | Date | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
@@ -67505,6 +70326,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestListRelationFilter
     reviewedApprovals?: PublishApprovalRequestListRelationFilter
     mediaAssets?: MediaAssetListRelationFilter
+    studioAssetFolders?: StudioAssetFolderListRelationFilter
     creditLedgers?: OptimizationCreditLedgerListRelationFilter
     licenses?: LicenseListRelationFilter
     whiteLabelConfig?: XOR<WhiteLabelConfigNullableScalarRelationFilter, WhiteLabelConfigWhereInput> | null
@@ -67522,6 +70344,9 @@ export namespace Prisma {
     phoneVerified?: SortOrder
     status?: SortOrder
     role?: SortOrder
+    suspensionReason?: SortOrderInput | SortOrder
+    suspendedAt?: SortOrderInput | SortOrder
+    suspendedBy?: SortOrderInput | SortOrder
     lastLoginAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -67547,6 +70372,9 @@ export namespace Prisma {
     phoneVerified?: BoolWithAggregatesFilter<"User"> | boolean
     status?: EnumUserStatusWithAggregatesFilter<"User"> | $Enums.UserStatus
     role?: EnumUserRoleWithAggregatesFilter<"User"> | $Enums.UserRole
+    suspensionReason?: StringNullableWithAggregatesFilter<"User"> | string | null
+    suspendedAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+    suspendedBy?: UuidNullableWithAggregatesFilter<"User"> | string | null
     lastLoginAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
@@ -67563,6 +70391,11 @@ export namespace Prisma {
     slug?: StringFilter<"Website"> | string
     status?: StringFilter<"Website"> | string
     archivedAt?: DateTimeNullableFilter<"Website"> | Date | string | null
+    moderationStatus?: StringFilter<"Website"> | string
+    moderationReason?: StringNullableFilter<"Website"> | string | null
+    moderatedAt?: DateTimeNullableFilter<"Website"> | Date | string | null
+    moderatedBy?: UuidNullableFilter<"Website"> | string | null
+    version?: IntFilter<"Website"> | number
     editorData?: JsonFilter<"Website">
     createdAt?: DateTimeFilter<"Website"> | Date | string
     updatedAt?: DateTimeFilter<"Website"> | Date | string
@@ -67604,6 +70437,11 @@ export namespace Prisma {
     slug?: SortOrder
     status?: SortOrder
     archivedAt?: SortOrderInput | SortOrder
+    moderationStatus?: SortOrder
+    moderationReason?: SortOrderInput | SortOrder
+    moderatedAt?: SortOrderInput | SortOrder
+    moderatedBy?: SortOrderInput | SortOrder
+    version?: SortOrder
     editorData?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -67648,6 +70486,11 @@ export namespace Prisma {
     slug?: StringFilter<"Website"> | string
     status?: StringFilter<"Website"> | string
     archivedAt?: DateTimeNullableFilter<"Website"> | Date | string | null
+    moderationStatus?: StringFilter<"Website"> | string
+    moderationReason?: StringNullableFilter<"Website"> | string | null
+    moderatedAt?: DateTimeNullableFilter<"Website"> | Date | string | null
+    moderatedBy?: UuidNullableFilter<"Website"> | string | null
+    version?: IntFilter<"Website"> | number
     editorData?: JsonFilter<"Website">
     createdAt?: DateTimeFilter<"Website"> | Date | string
     updatedAt?: DateTimeFilter<"Website"> | Date | string
@@ -67689,6 +70532,11 @@ export namespace Prisma {
     slug?: SortOrder
     status?: SortOrder
     archivedAt?: SortOrderInput | SortOrder
+    moderationStatus?: SortOrder
+    moderationReason?: SortOrderInput | SortOrder
+    moderatedAt?: SortOrderInput | SortOrder
+    moderatedBy?: SortOrderInput | SortOrder
+    version?: SortOrder
     editorData?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -67697,8 +70545,10 @@ export namespace Prisma {
     organizationId?: SortOrderInput | SortOrder
     approvalWorkflowEnabled?: SortOrder
     _count?: WebsiteCountOrderByAggregateInput
+    _avg?: WebsiteAvgOrderByAggregateInput
     _max?: WebsiteMaxOrderByAggregateInput
     _min?: WebsiteMinOrderByAggregateInput
+    _sum?: WebsiteSumOrderByAggregateInput
   }
 
   export type WebsiteScalarWhereWithAggregatesInput = {
@@ -67711,6 +70561,11 @@ export namespace Prisma {
     slug?: StringWithAggregatesFilter<"Website"> | string
     status?: StringWithAggregatesFilter<"Website"> | string
     archivedAt?: DateTimeNullableWithAggregatesFilter<"Website"> | Date | string | null
+    moderationStatus?: StringWithAggregatesFilter<"Website"> | string
+    moderationReason?: StringNullableWithAggregatesFilter<"Website"> | string | null
+    moderatedAt?: DateTimeNullableWithAggregatesFilter<"Website"> | Date | string | null
+    moderatedBy?: UuidNullableWithAggregatesFilter<"Website"> | string | null
+    version?: IntWithAggregatesFilter<"Website"> | number
     editorData?: JsonWithAggregatesFilter<"Website">
     createdAt?: DateTimeWithAggregatesFilter<"Website"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Website"> | Date | string
@@ -68663,6 +71518,10 @@ export namespace Prisma {
     targetResource?: StringFilter<"AuditLog"> | string
     details?: JsonNullableFilter<"AuditLog">
     ipAddress?: StringNullableFilter<"AuditLog"> | string | null
+    actorRole?: StringNullableFilter<"AuditLog"> | string | null
+    result?: StringFilter<"AuditLog"> | string
+    reason?: StringNullableFilter<"AuditLog"> | string | null
+    correlationId?: StringNullableFilter<"AuditLog"> | string | null
     createdAt?: DateTimeFilter<"AuditLog"> | Date | string
     user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }
@@ -68674,6 +71533,10 @@ export namespace Prisma {
     targetResource?: SortOrder
     details?: SortOrderInput | SortOrder
     ipAddress?: SortOrderInput | SortOrder
+    actorRole?: SortOrderInput | SortOrder
+    result?: SortOrder
+    reason?: SortOrderInput | SortOrder
+    correlationId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     user?: UserOrderByWithRelationInput
   }
@@ -68688,6 +71551,10 @@ export namespace Prisma {
     targetResource?: StringFilter<"AuditLog"> | string
     details?: JsonNullableFilter<"AuditLog">
     ipAddress?: StringNullableFilter<"AuditLog"> | string | null
+    actorRole?: StringNullableFilter<"AuditLog"> | string | null
+    result?: StringFilter<"AuditLog"> | string
+    reason?: StringNullableFilter<"AuditLog"> | string | null
+    correlationId?: StringNullableFilter<"AuditLog"> | string | null
     createdAt?: DateTimeFilter<"AuditLog"> | Date | string
     user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }, "id">
@@ -68699,6 +71566,10 @@ export namespace Prisma {
     targetResource?: SortOrder
     details?: SortOrderInput | SortOrder
     ipAddress?: SortOrderInput | SortOrder
+    actorRole?: SortOrderInput | SortOrder
+    result?: SortOrder
+    reason?: SortOrderInput | SortOrder
+    correlationId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: AuditLogCountOrderByAggregateInput
     _max?: AuditLogMaxOrderByAggregateInput
@@ -68715,6 +71586,10 @@ export namespace Prisma {
     targetResource?: StringWithAggregatesFilter<"AuditLog"> | string
     details?: JsonNullableWithAggregatesFilter<"AuditLog">
     ipAddress?: StringNullableWithAggregatesFilter<"AuditLog"> | string | null
+    actorRole?: StringNullableWithAggregatesFilter<"AuditLog"> | string | null
+    result?: StringWithAggregatesFilter<"AuditLog"> | string
+    reason?: StringNullableWithAggregatesFilter<"AuditLog"> | string | null
+    correlationId?: StringNullableWithAggregatesFilter<"AuditLog"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"AuditLog"> | Date | string
   }
 
@@ -69221,7 +72096,9 @@ export namespace Prisma {
     userId?: UuidFilter<"DeveloperApiKey"> | string
     name?: StringFilter<"DeveloperApiKey"> | string
     tokenHash?: StringFilter<"DeveloperApiKey"> | string
+    maskedKey?: StringNullableFilter<"DeveloperApiKey"> | string | null
     scopes?: JsonFilter<"DeveloperApiKey">
+    expiresAt?: DateTimeNullableFilter<"DeveloperApiKey"> | Date | string | null
     lastUsedAt?: DateTimeNullableFilter<"DeveloperApiKey"> | Date | string | null
     revokedAt?: DateTimeNullableFilter<"DeveloperApiKey"> | Date | string | null
     createdAt?: DateTimeFilter<"DeveloperApiKey"> | Date | string
@@ -69234,7 +72111,9 @@ export namespace Prisma {
     userId?: SortOrder
     name?: SortOrder
     tokenHash?: SortOrder
+    maskedKey?: SortOrderInput | SortOrder
     scopes?: SortOrder
+    expiresAt?: SortOrderInput | SortOrder
     lastUsedAt?: SortOrderInput | SortOrder
     revokedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -69250,7 +72129,9 @@ export namespace Prisma {
     NOT?: DeveloperApiKeyWhereInput | DeveloperApiKeyWhereInput[]
     userId?: UuidFilter<"DeveloperApiKey"> | string
     name?: StringFilter<"DeveloperApiKey"> | string
+    maskedKey?: StringNullableFilter<"DeveloperApiKey"> | string | null
     scopes?: JsonFilter<"DeveloperApiKey">
+    expiresAt?: DateTimeNullableFilter<"DeveloperApiKey"> | Date | string | null
     lastUsedAt?: DateTimeNullableFilter<"DeveloperApiKey"> | Date | string | null
     revokedAt?: DateTimeNullableFilter<"DeveloperApiKey"> | Date | string | null
     createdAt?: DateTimeFilter<"DeveloperApiKey"> | Date | string
@@ -69263,7 +72144,9 @@ export namespace Prisma {
     userId?: SortOrder
     name?: SortOrder
     tokenHash?: SortOrder
+    maskedKey?: SortOrderInput | SortOrder
     scopes?: SortOrder
+    expiresAt?: SortOrderInput | SortOrder
     lastUsedAt?: SortOrderInput | SortOrder
     revokedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -69281,7 +72164,9 @@ export namespace Prisma {
     userId?: UuidWithAggregatesFilter<"DeveloperApiKey"> | string
     name?: StringWithAggregatesFilter<"DeveloperApiKey"> | string
     tokenHash?: StringWithAggregatesFilter<"DeveloperApiKey"> | string
+    maskedKey?: StringNullableWithAggregatesFilter<"DeveloperApiKey"> | string | null
     scopes?: JsonWithAggregatesFilter<"DeveloperApiKey">
+    expiresAt?: DateTimeNullableWithAggregatesFilter<"DeveloperApiKey"> | Date | string | null
     lastUsedAt?: DateTimeNullableWithAggregatesFilter<"DeveloperApiKey"> | Date | string | null
     revokedAt?: DateTimeNullableWithAggregatesFilter<"DeveloperApiKey"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"DeveloperApiKey"> | Date | string
@@ -70584,6 +73469,15 @@ export namespace Prisma {
     runAt?: DateTimeFilter<"BackgroundJob"> | Date | string
     startedAt?: DateTimeNullableFilter<"BackgroundJob"> | Date | string | null
     completedAt?: DateTimeNullableFilter<"BackgroundJob"> | Date | string | null
+    workerId?: StringNullableFilter<"BackgroundJob"> | string | null
+    claimedAt?: DateTimeNullableFilter<"BackgroundJob"> | Date | string | null
+    leaseExpiresAt?: DateTimeNullableFilter<"BackgroundJob"> | Date | string | null
+    heartbeatAt?: DateTimeNullableFilter<"BackgroundJob"> | Date | string | null
+    fencingToken?: IntFilter<"BackgroundJob"> | number
+    idempotencyKey?: StringNullableFilter<"BackgroundJob"> | string | null
+    correlationId?: StringNullableFilter<"BackgroundJob"> | string | null
+    tenantId?: UuidNullableFilter<"BackgroundJob"> | string | null
+    websiteId?: UuidNullableFilter<"BackgroundJob"> | string | null
     createdAt?: DateTimeFilter<"BackgroundJob"> | Date | string
     updatedAt?: DateTimeFilter<"BackgroundJob"> | Date | string
   }
@@ -70599,12 +73493,22 @@ export namespace Prisma {
     runAt?: SortOrder
     startedAt?: SortOrderInput | SortOrder
     completedAt?: SortOrderInput | SortOrder
+    workerId?: SortOrderInput | SortOrder
+    claimedAt?: SortOrderInput | SortOrder
+    leaseExpiresAt?: SortOrderInput | SortOrder
+    heartbeatAt?: SortOrderInput | SortOrder
+    fencingToken?: SortOrder
+    idempotencyKey?: SortOrderInput | SortOrder
+    correlationId?: SortOrderInput | SortOrder
+    tenantId?: SortOrderInput | SortOrder
+    websiteId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type BackgroundJobWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    tenantId_idempotencyKey?: BackgroundJobTenantIdIdempotencyKeyCompoundUniqueInput
     AND?: BackgroundJobWhereInput | BackgroundJobWhereInput[]
     OR?: BackgroundJobWhereInput[]
     NOT?: BackgroundJobWhereInput | BackgroundJobWhereInput[]
@@ -70617,9 +73521,18 @@ export namespace Prisma {
     runAt?: DateTimeFilter<"BackgroundJob"> | Date | string
     startedAt?: DateTimeNullableFilter<"BackgroundJob"> | Date | string | null
     completedAt?: DateTimeNullableFilter<"BackgroundJob"> | Date | string | null
+    workerId?: StringNullableFilter<"BackgroundJob"> | string | null
+    claimedAt?: DateTimeNullableFilter<"BackgroundJob"> | Date | string | null
+    leaseExpiresAt?: DateTimeNullableFilter<"BackgroundJob"> | Date | string | null
+    heartbeatAt?: DateTimeNullableFilter<"BackgroundJob"> | Date | string | null
+    fencingToken?: IntFilter<"BackgroundJob"> | number
+    idempotencyKey?: StringNullableFilter<"BackgroundJob"> | string | null
+    correlationId?: StringNullableFilter<"BackgroundJob"> | string | null
+    tenantId?: UuidNullableFilter<"BackgroundJob"> | string | null
+    websiteId?: UuidNullableFilter<"BackgroundJob"> | string | null
     createdAt?: DateTimeFilter<"BackgroundJob"> | Date | string
     updatedAt?: DateTimeFilter<"BackgroundJob"> | Date | string
-  }, "id">
+  }, "id" | "tenantId_idempotencyKey">
 
   export type BackgroundJobOrderByWithAggregationInput = {
     id?: SortOrder
@@ -70632,6 +73545,15 @@ export namespace Prisma {
     runAt?: SortOrder
     startedAt?: SortOrderInput | SortOrder
     completedAt?: SortOrderInput | SortOrder
+    workerId?: SortOrderInput | SortOrder
+    claimedAt?: SortOrderInput | SortOrder
+    leaseExpiresAt?: SortOrderInput | SortOrder
+    heartbeatAt?: SortOrderInput | SortOrder
+    fencingToken?: SortOrder
+    idempotencyKey?: SortOrderInput | SortOrder
+    correlationId?: SortOrderInput | SortOrder
+    tenantId?: SortOrderInput | SortOrder
+    websiteId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: BackgroundJobCountOrderByAggregateInput
@@ -70655,8 +73577,124 @@ export namespace Prisma {
     runAt?: DateTimeWithAggregatesFilter<"BackgroundJob"> | Date | string
     startedAt?: DateTimeNullableWithAggregatesFilter<"BackgroundJob"> | Date | string | null
     completedAt?: DateTimeNullableWithAggregatesFilter<"BackgroundJob"> | Date | string | null
+    workerId?: StringNullableWithAggregatesFilter<"BackgroundJob"> | string | null
+    claimedAt?: DateTimeNullableWithAggregatesFilter<"BackgroundJob"> | Date | string | null
+    leaseExpiresAt?: DateTimeNullableWithAggregatesFilter<"BackgroundJob"> | Date | string | null
+    heartbeatAt?: DateTimeNullableWithAggregatesFilter<"BackgroundJob"> | Date | string | null
+    fencingToken?: IntWithAggregatesFilter<"BackgroundJob"> | number
+    idempotencyKey?: StringNullableWithAggregatesFilter<"BackgroundJob"> | string | null
+    correlationId?: StringNullableWithAggregatesFilter<"BackgroundJob"> | string | null
+    tenantId?: UuidNullableWithAggregatesFilter<"BackgroundJob"> | string | null
+    websiteId?: UuidNullableWithAggregatesFilter<"BackgroundJob"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"BackgroundJob"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"BackgroundJob"> | Date | string
+  }
+
+  export type StudioAssetFolderWhereInput = {
+    AND?: StudioAssetFolderWhereInput | StudioAssetFolderWhereInput[]
+    OR?: StudioAssetFolderWhereInput[]
+    NOT?: StudioAssetFolderWhereInput | StudioAssetFolderWhereInput[]
+    id?: UuidFilter<"StudioAssetFolder"> | string
+    userId?: UuidFilter<"StudioAssetFolder"> | string
+    name?: StringFilter<"StudioAssetFolder"> | string
+    createdAt?: DateTimeFilter<"StudioAssetFolder"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    assets?: StudioAssetMetadataListRelationFilter
+  }
+
+  export type StudioAssetFolderOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    name?: SortOrder
+    createdAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+    assets?: StudioAssetMetadataOrderByRelationAggregateInput
+  }
+
+  export type StudioAssetFolderWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    userId_name?: StudioAssetFolderUserIdNameCompoundUniqueInput
+    AND?: StudioAssetFolderWhereInput | StudioAssetFolderWhereInput[]
+    OR?: StudioAssetFolderWhereInput[]
+    NOT?: StudioAssetFolderWhereInput | StudioAssetFolderWhereInput[]
+    userId?: UuidFilter<"StudioAssetFolder"> | string
+    name?: StringFilter<"StudioAssetFolder"> | string
+    createdAt?: DateTimeFilter<"StudioAssetFolder"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    assets?: StudioAssetMetadataListRelationFilter
+  }, "id" | "userId_name">
+
+  export type StudioAssetFolderOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    name?: SortOrder
+    createdAt?: SortOrder
+    _count?: StudioAssetFolderCountOrderByAggregateInput
+    _max?: StudioAssetFolderMaxOrderByAggregateInput
+    _min?: StudioAssetFolderMinOrderByAggregateInput
+  }
+
+  export type StudioAssetFolderScalarWhereWithAggregatesInput = {
+    AND?: StudioAssetFolderScalarWhereWithAggregatesInput | StudioAssetFolderScalarWhereWithAggregatesInput[]
+    OR?: StudioAssetFolderScalarWhereWithAggregatesInput[]
+    NOT?: StudioAssetFolderScalarWhereWithAggregatesInput | StudioAssetFolderScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"StudioAssetFolder"> | string
+    userId?: UuidWithAggregatesFilter<"StudioAssetFolder"> | string
+    name?: StringWithAggregatesFilter<"StudioAssetFolder"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"StudioAssetFolder"> | Date | string
+  }
+
+  export type StudioAssetMetadataWhereInput = {
+    AND?: StudioAssetMetadataWhereInput | StudioAssetMetadataWhereInput[]
+    OR?: StudioAssetMetadataWhereInput[]
+    NOT?: StudioAssetMetadataWhereInput | StudioAssetMetadataWhereInput[]
+    assetId?: UuidFilter<"StudioAssetMetadata"> | string
+    folderId?: UuidNullableFilter<"StudioAssetMetadata"> | string | null
+    category?: StringNullableFilter<"StudioAssetMetadata"> | string | null
+    deletedAt?: DateTimeNullableFilter<"StudioAssetMetadata"> | Date | string | null
+    asset?: XOR<MediaAssetScalarRelationFilter, MediaAssetWhereInput>
+    folder?: XOR<StudioAssetFolderNullableScalarRelationFilter, StudioAssetFolderWhereInput> | null
+  }
+
+  export type StudioAssetMetadataOrderByWithRelationInput = {
+    assetId?: SortOrder
+    folderId?: SortOrderInput | SortOrder
+    category?: SortOrderInput | SortOrder
+    deletedAt?: SortOrderInput | SortOrder
+    asset?: MediaAssetOrderByWithRelationInput
+    folder?: StudioAssetFolderOrderByWithRelationInput
+  }
+
+  export type StudioAssetMetadataWhereUniqueInput = Prisma.AtLeast<{
+    assetId?: string
+    AND?: StudioAssetMetadataWhereInput | StudioAssetMetadataWhereInput[]
+    OR?: StudioAssetMetadataWhereInput[]
+    NOT?: StudioAssetMetadataWhereInput | StudioAssetMetadataWhereInput[]
+    folderId?: UuidNullableFilter<"StudioAssetMetadata"> | string | null
+    category?: StringNullableFilter<"StudioAssetMetadata"> | string | null
+    deletedAt?: DateTimeNullableFilter<"StudioAssetMetadata"> | Date | string | null
+    asset?: XOR<MediaAssetScalarRelationFilter, MediaAssetWhereInput>
+    folder?: XOR<StudioAssetFolderNullableScalarRelationFilter, StudioAssetFolderWhereInput> | null
+  }, "assetId">
+
+  export type StudioAssetMetadataOrderByWithAggregationInput = {
+    assetId?: SortOrder
+    folderId?: SortOrderInput | SortOrder
+    category?: SortOrderInput | SortOrder
+    deletedAt?: SortOrderInput | SortOrder
+    _count?: StudioAssetMetadataCountOrderByAggregateInput
+    _max?: StudioAssetMetadataMaxOrderByAggregateInput
+    _min?: StudioAssetMetadataMinOrderByAggregateInput
+  }
+
+  export type StudioAssetMetadataScalarWhereWithAggregatesInput = {
+    AND?: StudioAssetMetadataScalarWhereWithAggregatesInput | StudioAssetMetadataScalarWhereWithAggregatesInput[]
+    OR?: StudioAssetMetadataScalarWhereWithAggregatesInput[]
+    NOT?: StudioAssetMetadataScalarWhereWithAggregatesInput | StudioAssetMetadataScalarWhereWithAggregatesInput[]
+    assetId?: UuidWithAggregatesFilter<"StudioAssetMetadata"> | string
+    folderId?: UuidNullableWithAggregatesFilter<"StudioAssetMetadata"> | string | null
+    category?: StringNullableWithAggregatesFilter<"StudioAssetMetadata"> | string | null
+    deletedAt?: DateTimeNullableWithAggregatesFilter<"StudioAssetMetadata"> | Date | string | null
   }
 
   export type MediaAssetWhereInput = {
@@ -70679,6 +73717,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"MediaAsset"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     website?: XOR<WebsiteNullableScalarRelationFilter, WebsiteWhereInput> | null
+    studioMetadata?: XOR<StudioAssetMetadataNullableScalarRelationFilter, StudioAssetMetadataWhereInput> | null
   }
 
   export type MediaAssetOrderByWithRelationInput = {
@@ -70698,6 +73737,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     user?: UserOrderByWithRelationInput
     website?: WebsiteOrderByWithRelationInput
+    studioMetadata?: StudioAssetMetadataOrderByWithRelationInput
   }
 
   export type MediaAssetWhereUniqueInput = Prisma.AtLeast<{
@@ -70720,6 +73760,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"MediaAsset"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     website?: XOR<WebsiteNullableScalarRelationFilter, WebsiteWhereInput> | null
+    studioMetadata?: XOR<StudioAssetMetadataNullableScalarRelationFilter, StudioAssetMetadataWhereInput> | null
   }, "id">
 
   export type MediaAssetOrderByWithAggregationInput = {
@@ -71625,6 +74666,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -71660,6 +74704,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
@@ -71677,6 +74722,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -71712,6 +74760,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
@@ -71729,6 +74778,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -71764,6 +74816,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
@@ -71781,6 +74834,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -71816,6 +74872,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
@@ -71833,6 +74890,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -71850,6 +74910,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -71867,6 +74930,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -71879,6 +74945,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -71917,6 +74988,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -71953,6 +75029,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -71991,6 +75072,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -72028,6 +75114,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -72043,6 +75134,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -72056,6 +75152,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -73096,6 +76197,10 @@ export namespace Prisma {
     targetResource: string
     details?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: string | null
+    actorRole?: string | null
+    result?: string
+    reason?: string | null
+    correlationId?: string | null
     createdAt?: Date | string
     user?: UserCreateNestedOneWithoutAuditLogsInput
   }
@@ -73107,6 +76212,10 @@ export namespace Prisma {
     targetResource: string
     details?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: string | null
+    actorRole?: string | null
+    result?: string
+    reason?: string | null
+    correlationId?: string | null
     createdAt?: Date | string
   }
 
@@ -73116,6 +76225,10 @@ export namespace Prisma {
     targetResource?: StringFieldUpdateOperationsInput | string
     details?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    actorRole?: NullableStringFieldUpdateOperationsInput | string | null
+    result?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    correlationId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneWithoutAuditLogsNestedInput
   }
@@ -73127,6 +76240,10 @@ export namespace Prisma {
     targetResource?: StringFieldUpdateOperationsInput | string
     details?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    actorRole?: NullableStringFieldUpdateOperationsInput | string | null
+    result?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    correlationId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -73137,6 +76254,10 @@ export namespace Prisma {
     targetResource: string
     details?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: string | null
+    actorRole?: string | null
+    result?: string
+    reason?: string | null
+    correlationId?: string | null
     createdAt?: Date | string
   }
 
@@ -73146,6 +76267,10 @@ export namespace Prisma {
     targetResource?: StringFieldUpdateOperationsInput | string
     details?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    actorRole?: NullableStringFieldUpdateOperationsInput | string | null
+    result?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    correlationId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -73156,6 +76281,10 @@ export namespace Prisma {
     targetResource?: StringFieldUpdateOperationsInput | string
     details?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    actorRole?: NullableStringFieldUpdateOperationsInput | string | null
+    result?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    correlationId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -73695,7 +76824,9 @@ export namespace Prisma {
     id?: string
     name: string
     tokenHash: string
+    maskedKey?: string | null
     scopes?: JsonNullValueInput | InputJsonValue
+    expiresAt?: Date | string | null
     lastUsedAt?: Date | string | null
     revokedAt?: Date | string | null
     createdAt?: Date | string
@@ -73708,7 +76839,9 @@ export namespace Prisma {
     userId: string
     name: string
     tokenHash: string
+    maskedKey?: string | null
     scopes?: JsonNullValueInput | InputJsonValue
+    expiresAt?: Date | string | null
     lastUsedAt?: Date | string | null
     revokedAt?: Date | string | null
     createdAt?: Date | string
@@ -73719,7 +76852,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     tokenHash?: StringFieldUpdateOperationsInput | string
+    maskedKey?: NullableStringFieldUpdateOperationsInput | string | null
     scopes?: JsonNullValueInput | InputJsonValue
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -73732,7 +76867,9 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     tokenHash?: StringFieldUpdateOperationsInput | string
+    maskedKey?: NullableStringFieldUpdateOperationsInput | string | null
     scopes?: JsonNullValueInput | InputJsonValue
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -73744,7 +76881,9 @@ export namespace Prisma {
     userId: string
     name: string
     tokenHash: string
+    maskedKey?: string | null
     scopes?: JsonNullValueInput | InputJsonValue
+    expiresAt?: Date | string | null
     lastUsedAt?: Date | string | null
     revokedAt?: Date | string | null
     createdAt?: Date | string
@@ -73755,7 +76894,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     tokenHash?: StringFieldUpdateOperationsInput | string
+    maskedKey?: NullableStringFieldUpdateOperationsInput | string | null
     scopes?: JsonNullValueInput | InputJsonValue
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -73767,7 +76908,9 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     tokenHash?: StringFieldUpdateOperationsInput | string
+    maskedKey?: NullableStringFieldUpdateOperationsInput | string | null
     scopes?: JsonNullValueInput | InputJsonValue
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -75128,6 +78271,15 @@ export namespace Prisma {
     runAt?: Date | string
     startedAt?: Date | string | null
     completedAt?: Date | string | null
+    workerId?: string | null
+    claimedAt?: Date | string | null
+    leaseExpiresAt?: Date | string | null
+    heartbeatAt?: Date | string | null
+    fencingToken?: number
+    idempotencyKey?: string | null
+    correlationId?: string | null
+    tenantId?: string | null
+    websiteId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -75143,6 +78295,15 @@ export namespace Prisma {
     runAt?: Date | string
     startedAt?: Date | string | null
     completedAt?: Date | string | null
+    workerId?: string | null
+    claimedAt?: Date | string | null
+    leaseExpiresAt?: Date | string | null
+    heartbeatAt?: Date | string | null
+    fencingToken?: number
+    idempotencyKey?: string | null
+    correlationId?: string | null
+    tenantId?: string | null
+    websiteId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -75158,6 +78319,15 @@ export namespace Prisma {
     runAt?: DateTimeFieldUpdateOperationsInput | Date | string
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    workerId?: NullableStringFieldUpdateOperationsInput | string | null
+    claimedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    leaseExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    heartbeatAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fencingToken?: IntFieldUpdateOperationsInput | number
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    correlationId?: NullableStringFieldUpdateOperationsInput | string | null
+    tenantId?: NullableStringFieldUpdateOperationsInput | string | null
+    websiteId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -75173,6 +78343,15 @@ export namespace Prisma {
     runAt?: DateTimeFieldUpdateOperationsInput | Date | string
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    workerId?: NullableStringFieldUpdateOperationsInput | string | null
+    claimedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    leaseExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    heartbeatAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fencingToken?: IntFieldUpdateOperationsInput | number
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    correlationId?: NullableStringFieldUpdateOperationsInput | string | null
+    tenantId?: NullableStringFieldUpdateOperationsInput | string | null
+    websiteId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -75188,6 +78367,15 @@ export namespace Prisma {
     runAt?: Date | string
     startedAt?: Date | string | null
     completedAt?: Date | string | null
+    workerId?: string | null
+    claimedAt?: Date | string | null
+    leaseExpiresAt?: Date | string | null
+    heartbeatAt?: Date | string | null
+    fencingToken?: number
+    idempotencyKey?: string | null
+    correlationId?: string | null
+    tenantId?: string | null
+    websiteId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -75203,6 +78391,15 @@ export namespace Prisma {
     runAt?: DateTimeFieldUpdateOperationsInput | Date | string
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    workerId?: NullableStringFieldUpdateOperationsInput | string | null
+    claimedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    leaseExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    heartbeatAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fencingToken?: IntFieldUpdateOperationsInput | number
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    correlationId?: NullableStringFieldUpdateOperationsInput | string | null
+    tenantId?: NullableStringFieldUpdateOperationsInput | string | null
+    websiteId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -75218,8 +78415,116 @@ export namespace Prisma {
     runAt?: DateTimeFieldUpdateOperationsInput | Date | string
     startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    workerId?: NullableStringFieldUpdateOperationsInput | string | null
+    claimedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    leaseExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    heartbeatAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fencingToken?: IntFieldUpdateOperationsInput | number
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    correlationId?: NullableStringFieldUpdateOperationsInput | string | null
+    tenantId?: NullableStringFieldUpdateOperationsInput | string | null
+    websiteId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StudioAssetFolderCreateInput = {
+    id: string
+    name: string
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutStudioAssetFoldersInput
+    assets?: StudioAssetMetadataCreateNestedManyWithoutFolderInput
+  }
+
+  export type StudioAssetFolderUncheckedCreateInput = {
+    id: string
+    userId: string
+    name: string
+    createdAt?: Date | string
+    assets?: StudioAssetMetadataUncheckedCreateNestedManyWithoutFolderInput
+  }
+
+  export type StudioAssetFolderUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutStudioAssetFoldersNestedInput
+    assets?: StudioAssetMetadataUpdateManyWithoutFolderNestedInput
+  }
+
+  export type StudioAssetFolderUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    assets?: StudioAssetMetadataUncheckedUpdateManyWithoutFolderNestedInput
+  }
+
+  export type StudioAssetFolderCreateManyInput = {
+    id: string
+    userId: string
+    name: string
+    createdAt?: Date | string
+  }
+
+  export type StudioAssetFolderUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StudioAssetFolderUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StudioAssetMetadataCreateInput = {
+    category?: string | null
+    deletedAt?: Date | string | null
+    asset: MediaAssetCreateNestedOneWithoutStudioMetadataInput
+    folder?: StudioAssetFolderCreateNestedOneWithoutAssetsInput
+  }
+
+  export type StudioAssetMetadataUncheckedCreateInput = {
+    assetId: string
+    folderId?: string | null
+    category?: string | null
+    deletedAt?: Date | string | null
+  }
+
+  export type StudioAssetMetadataUpdateInput = {
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    asset?: MediaAssetUpdateOneRequiredWithoutStudioMetadataNestedInput
+    folder?: StudioAssetFolderUpdateOneWithoutAssetsNestedInput
+  }
+
+  export type StudioAssetMetadataUncheckedUpdateInput = {
+    assetId?: StringFieldUpdateOperationsInput | string
+    folderId?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type StudioAssetMetadataCreateManyInput = {
+    assetId: string
+    folderId?: string | null
+    category?: string | null
+    deletedAt?: Date | string | null
+  }
+
+  export type StudioAssetMetadataUpdateManyMutationInput = {
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type StudioAssetMetadataUncheckedUpdateManyInput = {
+    assetId?: StringFieldUpdateOperationsInput | string
+    folderId?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type MediaAssetCreateInput = {
@@ -75237,6 +78542,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutMediaAssetsInput
     website?: WebsiteCreateNestedOneWithoutMediaAssetsInput
+    studioMetadata?: StudioAssetMetadataCreateNestedOneWithoutAssetInput
   }
 
   export type MediaAssetUncheckedCreateInput = {
@@ -75254,6 +78560,7 @@ export namespace Prisma {
     format?: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    studioMetadata?: StudioAssetMetadataUncheckedCreateNestedOneWithoutAssetInput
   }
 
   export type MediaAssetUpdateInput = {
@@ -75271,6 +78578,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutMediaAssetsNestedInput
     website?: WebsiteUpdateOneWithoutMediaAssetsNestedInput
+    studioMetadata?: StudioAssetMetadataUpdateOneWithoutAssetNestedInput
   }
 
   export type MediaAssetUncheckedUpdateInput = {
@@ -75288,6 +78596,7 @@ export namespace Prisma {
     format?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    studioMetadata?: StudioAssetMetadataUncheckedUpdateOneWithoutAssetNestedInput
   }
 
   export type MediaAssetCreateManyInput = {
@@ -76340,6 +79649,18 @@ export namespace Prisma {
     not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
+  export type UuidNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedUuidNullableFilter<$PrismaModel> | string | null
+  }
+
   export type DateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -76535,6 +79856,12 @@ export namespace Prisma {
     none?: MediaAssetWhereInput
   }
 
+  export type StudioAssetFolderListRelationFilter = {
+    every?: StudioAssetFolderWhereInput
+    some?: StudioAssetFolderWhereInput
+    none?: StudioAssetFolderWhereInput
+  }
+
   export type OptimizationCreditLedgerListRelationFilter = {
     every?: OptimizationCreditLedgerWhereInput
     some?: OptimizationCreditLedgerWhereInput
@@ -76675,6 +80002,10 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type StudioAssetFolderOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type OptimizationCreditLedgerOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -76698,6 +80029,9 @@ export namespace Prisma {
     phoneVerified?: SortOrder
     status?: SortOrder
     role?: SortOrder
+    suspensionReason?: SortOrder
+    suspendedAt?: SortOrder
+    suspendedBy?: SortOrder
     lastLoginAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -76719,6 +80053,9 @@ export namespace Prisma {
     phoneVerified?: SortOrder
     status?: SortOrder
     role?: SortOrder
+    suspensionReason?: SortOrder
+    suspendedAt?: SortOrder
+    suspendedBy?: SortOrder
     lastLoginAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -76736,6 +80073,9 @@ export namespace Prisma {
     phoneVerified?: SortOrder
     status?: SortOrder
     role?: SortOrder
+    suspensionReason?: SortOrder
+    suspendedAt?: SortOrder
+    suspendedBy?: SortOrder
     lastLoginAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -76831,6 +80171,21 @@ export namespace Prisma {
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
+  export type UuidNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedUuidNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
   export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -76897,18 +80252,6 @@ export namespace Prisma {
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
-
-  export type UuidNullableFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    mode?: QueryMode
-    not?: NestedUuidNullableFilter<$PrismaModel> | string | null
   }
 
   export type UserScalarRelationFilter = {
@@ -77048,6 +80391,11 @@ export namespace Prisma {
     slug?: SortOrder
     status?: SortOrder
     archivedAt?: SortOrder
+    moderationStatus?: SortOrder
+    moderationReason?: SortOrder
+    moderatedAt?: SortOrder
+    moderatedBy?: SortOrder
+    version?: SortOrder
     editorData?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -77057,6 +80405,10 @@ export namespace Prisma {
     approvalWorkflowEnabled?: SortOrder
   }
 
+  export type WebsiteAvgOrderByAggregateInput = {
+    version?: SortOrder
+  }
+
   export type WebsiteMaxOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
@@ -77064,6 +80416,11 @@ export namespace Prisma {
     slug?: SortOrder
     status?: SortOrder
     archivedAt?: SortOrder
+    moderationStatus?: SortOrder
+    moderationReason?: SortOrder
+    moderatedAt?: SortOrder
+    moderatedBy?: SortOrder
+    version?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     teamId?: SortOrder
@@ -77079,12 +80436,21 @@ export namespace Prisma {
     slug?: SortOrder
     status?: SortOrder
     archivedAt?: SortOrder
+    moderationStatus?: SortOrder
+    moderationReason?: SortOrder
+    moderatedAt?: SortOrder
+    moderatedBy?: SortOrder
+    version?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     teamId?: SortOrder
     workspaceId?: SortOrder
     organizationId?: SortOrder
     approvalWorkflowEnabled?: SortOrder
+  }
+
+  export type WebsiteSumOrderByAggregateInput = {
+    version?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -77129,21 +80495,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedJsonFilter<$PrismaModel>
     _max?: NestedJsonFilter<$PrismaModel>
-  }
-
-  export type UuidNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    mode?: QueryMode
-    not?: NestedUuidNullableWithAggregatesFilter<$PrismaModel> | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedStringNullableFilter<$PrismaModel>
-    _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
   export type EnumOtpPurposeFilter<$PrismaModel = never> = {
@@ -77759,6 +81110,10 @@ export namespace Prisma {
     targetResource?: SortOrder
     details?: SortOrder
     ipAddress?: SortOrder
+    actorRole?: SortOrder
+    result?: SortOrder
+    reason?: SortOrder
+    correlationId?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -77768,6 +81123,10 @@ export namespace Prisma {
     action?: SortOrder
     targetResource?: SortOrder
     ipAddress?: SortOrder
+    actorRole?: SortOrder
+    result?: SortOrder
+    reason?: SortOrder
+    correlationId?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -77777,6 +81136,10 @@ export namespace Prisma {
     action?: SortOrder
     targetResource?: SortOrder
     ipAddress?: SortOrder
+    actorRole?: SortOrder
+    result?: SortOrder
+    reason?: SortOrder
+    correlationId?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -78034,7 +81397,9 @@ export namespace Prisma {
     userId?: SortOrder
     name?: SortOrder
     tokenHash?: SortOrder
+    maskedKey?: SortOrder
     scopes?: SortOrder
+    expiresAt?: SortOrder
     lastUsedAt?: SortOrder
     revokedAt?: SortOrder
     createdAt?: SortOrder
@@ -78046,6 +81411,8 @@ export namespace Prisma {
     userId?: SortOrder
     name?: SortOrder
     tokenHash?: SortOrder
+    maskedKey?: SortOrder
+    expiresAt?: SortOrder
     lastUsedAt?: SortOrder
     revokedAt?: SortOrder
     createdAt?: SortOrder
@@ -78057,6 +81424,8 @@ export namespace Prisma {
     userId?: SortOrder
     name?: SortOrder
     tokenHash?: SortOrder
+    maskedKey?: SortOrder
+    expiresAt?: SortOrder
     lastUsedAt?: SortOrder
     revokedAt?: SortOrder
     createdAt?: SortOrder
@@ -78717,6 +82086,11 @@ export namespace Prisma {
     targetVersion?: SortOrder
   }
 
+  export type BackgroundJobTenantIdIdempotencyKeyCompoundUniqueInput = {
+    tenantId: string
+    idempotencyKey: string
+  }
+
   export type BackgroundJobCountOrderByAggregateInput = {
     id?: SortOrder
     type?: SortOrder
@@ -78728,6 +82102,15 @@ export namespace Prisma {
     runAt?: SortOrder
     startedAt?: SortOrder
     completedAt?: SortOrder
+    workerId?: SortOrder
+    claimedAt?: SortOrder
+    leaseExpiresAt?: SortOrder
+    heartbeatAt?: SortOrder
+    fencingToken?: SortOrder
+    idempotencyKey?: SortOrder
+    correlationId?: SortOrder
+    tenantId?: SortOrder
+    websiteId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -78735,6 +82118,7 @@ export namespace Prisma {
   export type BackgroundJobAvgOrderByAggregateInput = {
     attempts?: SortOrder
     maxAttempts?: SortOrder
+    fencingToken?: SortOrder
   }
 
   export type BackgroundJobMaxOrderByAggregateInput = {
@@ -78747,6 +82131,15 @@ export namespace Prisma {
     runAt?: SortOrder
     startedAt?: SortOrder
     completedAt?: SortOrder
+    workerId?: SortOrder
+    claimedAt?: SortOrder
+    leaseExpiresAt?: SortOrder
+    heartbeatAt?: SortOrder
+    fencingToken?: SortOrder
+    idempotencyKey?: SortOrder
+    correlationId?: SortOrder
+    tenantId?: SortOrder
+    websiteId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -78761,6 +82154,15 @@ export namespace Prisma {
     runAt?: SortOrder
     startedAt?: SortOrder
     completedAt?: SortOrder
+    workerId?: SortOrder
+    claimedAt?: SortOrder
+    leaseExpiresAt?: SortOrder
+    heartbeatAt?: SortOrder
+    fencingToken?: SortOrder
+    idempotencyKey?: SortOrder
+    correlationId?: SortOrder
+    tenantId?: SortOrder
+    websiteId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -78768,6 +82170,74 @@ export namespace Prisma {
   export type BackgroundJobSumOrderByAggregateInput = {
     attempts?: SortOrder
     maxAttempts?: SortOrder
+    fencingToken?: SortOrder
+  }
+
+  export type StudioAssetMetadataListRelationFilter = {
+    every?: StudioAssetMetadataWhereInput
+    some?: StudioAssetMetadataWhereInput
+    none?: StudioAssetMetadataWhereInput
+  }
+
+  export type StudioAssetMetadataOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type StudioAssetFolderUserIdNameCompoundUniqueInput = {
+    userId: string
+    name: string
+  }
+
+  export type StudioAssetFolderCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    name?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type StudioAssetFolderMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    name?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type StudioAssetFolderMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    name?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type MediaAssetScalarRelationFilter = {
+    is?: MediaAssetWhereInput
+    isNot?: MediaAssetWhereInput
+  }
+
+  export type StudioAssetFolderNullableScalarRelationFilter = {
+    is?: StudioAssetFolderWhereInput | null
+    isNot?: StudioAssetFolderWhereInput | null
+  }
+
+  export type StudioAssetMetadataCountOrderByAggregateInput = {
+    assetId?: SortOrder
+    folderId?: SortOrder
+    category?: SortOrder
+    deletedAt?: SortOrder
+  }
+
+  export type StudioAssetMetadataMaxOrderByAggregateInput = {
+    assetId?: SortOrder
+    folderId?: SortOrder
+    category?: SortOrder
+    deletedAt?: SortOrder
+  }
+
+  export type StudioAssetMetadataMinOrderByAggregateInput = {
+    assetId?: SortOrder
+    folderId?: SortOrder
+    category?: SortOrder
+    deletedAt?: SortOrder
   }
 
   export type IntNullableFilter<$PrismaModel = never> = {
@@ -78784,6 +82254,11 @@ export namespace Prisma {
   export type WebsiteNullableScalarRelationFilter = {
     is?: WebsiteWhereInput | null
     isNot?: WebsiteWhereInput | null
+  }
+
+  export type StudioAssetMetadataNullableScalarRelationFilter = {
+    is?: StudioAssetMetadataWhereInput | null
+    isNot?: StudioAssetMetadataWhereInput | null
   }
 
   export type MediaAssetCountOrderByAggregateInput = {
@@ -79604,6 +83079,13 @@ export namespace Prisma {
     connect?: MediaAssetWhereUniqueInput | MediaAssetWhereUniqueInput[]
   }
 
+  export type StudioAssetFolderCreateNestedManyWithoutUserInput = {
+    create?: XOR<StudioAssetFolderCreateWithoutUserInput, StudioAssetFolderUncheckedCreateWithoutUserInput> | StudioAssetFolderCreateWithoutUserInput[] | StudioAssetFolderUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: StudioAssetFolderCreateOrConnectWithoutUserInput | StudioAssetFolderCreateOrConnectWithoutUserInput[]
+    createMany?: StudioAssetFolderCreateManyUserInputEnvelope
+    connect?: StudioAssetFolderWhereUniqueInput | StudioAssetFolderWhereUniqueInput[]
+  }
+
   export type OptimizationCreditLedgerCreateNestedManyWithoutUserInput = {
     create?: XOR<OptimizationCreditLedgerCreateWithoutUserInput, OptimizationCreditLedgerUncheckedCreateWithoutUserInput> | OptimizationCreditLedgerCreateWithoutUserInput[] | OptimizationCreditLedgerUncheckedCreateWithoutUserInput[]
     connectOrCreate?: OptimizationCreditLedgerCreateOrConnectWithoutUserInput | OptimizationCreditLedgerCreateOrConnectWithoutUserInput[]
@@ -79845,6 +83327,13 @@ export namespace Prisma {
     connectOrCreate?: MediaAssetCreateOrConnectWithoutUserInput | MediaAssetCreateOrConnectWithoutUserInput[]
     createMany?: MediaAssetCreateManyUserInputEnvelope
     connect?: MediaAssetWhereUniqueInput | MediaAssetWhereUniqueInput[]
+  }
+
+  export type StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<StudioAssetFolderCreateWithoutUserInput, StudioAssetFolderUncheckedCreateWithoutUserInput> | StudioAssetFolderCreateWithoutUserInput[] | StudioAssetFolderUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: StudioAssetFolderCreateOrConnectWithoutUserInput | StudioAssetFolderCreateOrConnectWithoutUserInput[]
+    createMany?: StudioAssetFolderCreateManyUserInputEnvelope
+    connect?: StudioAssetFolderWhereUniqueInput | StudioAssetFolderWhereUniqueInput[]
   }
 
   export type OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput = {
@@ -80344,6 +83833,20 @@ export namespace Prisma {
     deleteMany?: MediaAssetScalarWhereInput | MediaAssetScalarWhereInput[]
   }
 
+  export type StudioAssetFolderUpdateManyWithoutUserNestedInput = {
+    create?: XOR<StudioAssetFolderCreateWithoutUserInput, StudioAssetFolderUncheckedCreateWithoutUserInput> | StudioAssetFolderCreateWithoutUserInput[] | StudioAssetFolderUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: StudioAssetFolderCreateOrConnectWithoutUserInput | StudioAssetFolderCreateOrConnectWithoutUserInput[]
+    upsert?: StudioAssetFolderUpsertWithWhereUniqueWithoutUserInput | StudioAssetFolderUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: StudioAssetFolderCreateManyUserInputEnvelope
+    set?: StudioAssetFolderWhereUniqueInput | StudioAssetFolderWhereUniqueInput[]
+    disconnect?: StudioAssetFolderWhereUniqueInput | StudioAssetFolderWhereUniqueInput[]
+    delete?: StudioAssetFolderWhereUniqueInput | StudioAssetFolderWhereUniqueInput[]
+    connect?: StudioAssetFolderWhereUniqueInput | StudioAssetFolderWhereUniqueInput[]
+    update?: StudioAssetFolderUpdateWithWhereUniqueWithoutUserInput | StudioAssetFolderUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: StudioAssetFolderUpdateManyWithWhereWithoutUserInput | StudioAssetFolderUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: StudioAssetFolderScalarWhereInput | StudioAssetFolderScalarWhereInput[]
+  }
+
   export type OptimizationCreditLedgerUpdateManyWithoutUserNestedInput = {
     create?: XOR<OptimizationCreditLedgerCreateWithoutUserInput, OptimizationCreditLedgerUncheckedCreateWithoutUserInput> | OptimizationCreditLedgerCreateWithoutUserInput[] | OptimizationCreditLedgerUncheckedCreateWithoutUserInput[]
     connectOrCreate?: OptimizationCreditLedgerCreateOrConnectWithoutUserInput | OptimizationCreditLedgerCreateOrConnectWithoutUserInput[]
@@ -80824,6 +84327,20 @@ export namespace Prisma {
     update?: MediaAssetUpdateWithWhereUniqueWithoutUserInput | MediaAssetUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: MediaAssetUpdateManyWithWhereWithoutUserInput | MediaAssetUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: MediaAssetScalarWhereInput | MediaAssetScalarWhereInput[]
+  }
+
+  export type StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<StudioAssetFolderCreateWithoutUserInput, StudioAssetFolderUncheckedCreateWithoutUserInput> | StudioAssetFolderCreateWithoutUserInput[] | StudioAssetFolderUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: StudioAssetFolderCreateOrConnectWithoutUserInput | StudioAssetFolderCreateOrConnectWithoutUserInput[]
+    upsert?: StudioAssetFolderUpsertWithWhereUniqueWithoutUserInput | StudioAssetFolderUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: StudioAssetFolderCreateManyUserInputEnvelope
+    set?: StudioAssetFolderWhereUniqueInput | StudioAssetFolderWhereUniqueInput[]
+    disconnect?: StudioAssetFolderWhereUniqueInput | StudioAssetFolderWhereUniqueInput[]
+    delete?: StudioAssetFolderWhereUniqueInput | StudioAssetFolderWhereUniqueInput[]
+    connect?: StudioAssetFolderWhereUniqueInput | StudioAssetFolderWhereUniqueInput[]
+    update?: StudioAssetFolderUpdateWithWhereUniqueWithoutUserInput | StudioAssetFolderUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: StudioAssetFolderUpdateManyWithWhereWithoutUserInput | StudioAssetFolderUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: StudioAssetFolderScalarWhereInput | StudioAssetFolderScalarWhereInput[]
   }
 
   export type OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput = {
@@ -83106,6 +86623,92 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutReviewedApprovalsInput, UserUpdateWithoutReviewedApprovalsInput>, UserUncheckedUpdateWithoutReviewedApprovalsInput>
   }
 
+  export type UserCreateNestedOneWithoutStudioAssetFoldersInput = {
+    create?: XOR<UserCreateWithoutStudioAssetFoldersInput, UserUncheckedCreateWithoutStudioAssetFoldersInput>
+    connectOrCreate?: UserCreateOrConnectWithoutStudioAssetFoldersInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type StudioAssetMetadataCreateNestedManyWithoutFolderInput = {
+    create?: XOR<StudioAssetMetadataCreateWithoutFolderInput, StudioAssetMetadataUncheckedCreateWithoutFolderInput> | StudioAssetMetadataCreateWithoutFolderInput[] | StudioAssetMetadataUncheckedCreateWithoutFolderInput[]
+    connectOrCreate?: StudioAssetMetadataCreateOrConnectWithoutFolderInput | StudioAssetMetadataCreateOrConnectWithoutFolderInput[]
+    createMany?: StudioAssetMetadataCreateManyFolderInputEnvelope
+    connect?: StudioAssetMetadataWhereUniqueInput | StudioAssetMetadataWhereUniqueInput[]
+  }
+
+  export type StudioAssetMetadataUncheckedCreateNestedManyWithoutFolderInput = {
+    create?: XOR<StudioAssetMetadataCreateWithoutFolderInput, StudioAssetMetadataUncheckedCreateWithoutFolderInput> | StudioAssetMetadataCreateWithoutFolderInput[] | StudioAssetMetadataUncheckedCreateWithoutFolderInput[]
+    connectOrCreate?: StudioAssetMetadataCreateOrConnectWithoutFolderInput | StudioAssetMetadataCreateOrConnectWithoutFolderInput[]
+    createMany?: StudioAssetMetadataCreateManyFolderInputEnvelope
+    connect?: StudioAssetMetadataWhereUniqueInput | StudioAssetMetadataWhereUniqueInput[]
+  }
+
+  export type UserUpdateOneRequiredWithoutStudioAssetFoldersNestedInput = {
+    create?: XOR<UserCreateWithoutStudioAssetFoldersInput, UserUncheckedCreateWithoutStudioAssetFoldersInput>
+    connectOrCreate?: UserCreateOrConnectWithoutStudioAssetFoldersInput
+    upsert?: UserUpsertWithoutStudioAssetFoldersInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutStudioAssetFoldersInput, UserUpdateWithoutStudioAssetFoldersInput>, UserUncheckedUpdateWithoutStudioAssetFoldersInput>
+  }
+
+  export type StudioAssetMetadataUpdateManyWithoutFolderNestedInput = {
+    create?: XOR<StudioAssetMetadataCreateWithoutFolderInput, StudioAssetMetadataUncheckedCreateWithoutFolderInput> | StudioAssetMetadataCreateWithoutFolderInput[] | StudioAssetMetadataUncheckedCreateWithoutFolderInput[]
+    connectOrCreate?: StudioAssetMetadataCreateOrConnectWithoutFolderInput | StudioAssetMetadataCreateOrConnectWithoutFolderInput[]
+    upsert?: StudioAssetMetadataUpsertWithWhereUniqueWithoutFolderInput | StudioAssetMetadataUpsertWithWhereUniqueWithoutFolderInput[]
+    createMany?: StudioAssetMetadataCreateManyFolderInputEnvelope
+    set?: StudioAssetMetadataWhereUniqueInput | StudioAssetMetadataWhereUniqueInput[]
+    disconnect?: StudioAssetMetadataWhereUniqueInput | StudioAssetMetadataWhereUniqueInput[]
+    delete?: StudioAssetMetadataWhereUniqueInput | StudioAssetMetadataWhereUniqueInput[]
+    connect?: StudioAssetMetadataWhereUniqueInput | StudioAssetMetadataWhereUniqueInput[]
+    update?: StudioAssetMetadataUpdateWithWhereUniqueWithoutFolderInput | StudioAssetMetadataUpdateWithWhereUniqueWithoutFolderInput[]
+    updateMany?: StudioAssetMetadataUpdateManyWithWhereWithoutFolderInput | StudioAssetMetadataUpdateManyWithWhereWithoutFolderInput[]
+    deleteMany?: StudioAssetMetadataScalarWhereInput | StudioAssetMetadataScalarWhereInput[]
+  }
+
+  export type StudioAssetMetadataUncheckedUpdateManyWithoutFolderNestedInput = {
+    create?: XOR<StudioAssetMetadataCreateWithoutFolderInput, StudioAssetMetadataUncheckedCreateWithoutFolderInput> | StudioAssetMetadataCreateWithoutFolderInput[] | StudioAssetMetadataUncheckedCreateWithoutFolderInput[]
+    connectOrCreate?: StudioAssetMetadataCreateOrConnectWithoutFolderInput | StudioAssetMetadataCreateOrConnectWithoutFolderInput[]
+    upsert?: StudioAssetMetadataUpsertWithWhereUniqueWithoutFolderInput | StudioAssetMetadataUpsertWithWhereUniqueWithoutFolderInput[]
+    createMany?: StudioAssetMetadataCreateManyFolderInputEnvelope
+    set?: StudioAssetMetadataWhereUniqueInput | StudioAssetMetadataWhereUniqueInput[]
+    disconnect?: StudioAssetMetadataWhereUniqueInput | StudioAssetMetadataWhereUniqueInput[]
+    delete?: StudioAssetMetadataWhereUniqueInput | StudioAssetMetadataWhereUniqueInput[]
+    connect?: StudioAssetMetadataWhereUniqueInput | StudioAssetMetadataWhereUniqueInput[]
+    update?: StudioAssetMetadataUpdateWithWhereUniqueWithoutFolderInput | StudioAssetMetadataUpdateWithWhereUniqueWithoutFolderInput[]
+    updateMany?: StudioAssetMetadataUpdateManyWithWhereWithoutFolderInput | StudioAssetMetadataUpdateManyWithWhereWithoutFolderInput[]
+    deleteMany?: StudioAssetMetadataScalarWhereInput | StudioAssetMetadataScalarWhereInput[]
+  }
+
+  export type MediaAssetCreateNestedOneWithoutStudioMetadataInput = {
+    create?: XOR<MediaAssetCreateWithoutStudioMetadataInput, MediaAssetUncheckedCreateWithoutStudioMetadataInput>
+    connectOrCreate?: MediaAssetCreateOrConnectWithoutStudioMetadataInput
+    connect?: MediaAssetWhereUniqueInput
+  }
+
+  export type StudioAssetFolderCreateNestedOneWithoutAssetsInput = {
+    create?: XOR<StudioAssetFolderCreateWithoutAssetsInput, StudioAssetFolderUncheckedCreateWithoutAssetsInput>
+    connectOrCreate?: StudioAssetFolderCreateOrConnectWithoutAssetsInput
+    connect?: StudioAssetFolderWhereUniqueInput
+  }
+
+  export type MediaAssetUpdateOneRequiredWithoutStudioMetadataNestedInput = {
+    create?: XOR<MediaAssetCreateWithoutStudioMetadataInput, MediaAssetUncheckedCreateWithoutStudioMetadataInput>
+    connectOrCreate?: MediaAssetCreateOrConnectWithoutStudioMetadataInput
+    upsert?: MediaAssetUpsertWithoutStudioMetadataInput
+    connect?: MediaAssetWhereUniqueInput
+    update?: XOR<XOR<MediaAssetUpdateToOneWithWhereWithoutStudioMetadataInput, MediaAssetUpdateWithoutStudioMetadataInput>, MediaAssetUncheckedUpdateWithoutStudioMetadataInput>
+  }
+
+  export type StudioAssetFolderUpdateOneWithoutAssetsNestedInput = {
+    create?: XOR<StudioAssetFolderCreateWithoutAssetsInput, StudioAssetFolderUncheckedCreateWithoutAssetsInput>
+    connectOrCreate?: StudioAssetFolderCreateOrConnectWithoutAssetsInput
+    upsert?: StudioAssetFolderUpsertWithoutAssetsInput
+    disconnect?: StudioAssetFolderWhereInput | boolean
+    delete?: StudioAssetFolderWhereInput | boolean
+    connect?: StudioAssetFolderWhereUniqueInput
+    update?: XOR<XOR<StudioAssetFolderUpdateToOneWithWhereWithoutAssetsInput, StudioAssetFolderUpdateWithoutAssetsInput>, StudioAssetFolderUncheckedUpdateWithoutAssetsInput>
+  }
+
   export type UserCreateNestedOneWithoutMediaAssetsInput = {
     create?: XOR<UserCreateWithoutMediaAssetsInput, UserUncheckedCreateWithoutMediaAssetsInput>
     connectOrCreate?: UserCreateOrConnectWithoutMediaAssetsInput
@@ -83116,6 +86719,18 @@ export namespace Prisma {
     create?: XOR<WebsiteCreateWithoutMediaAssetsInput, WebsiteUncheckedCreateWithoutMediaAssetsInput>
     connectOrCreate?: WebsiteCreateOrConnectWithoutMediaAssetsInput
     connect?: WebsiteWhereUniqueInput
+  }
+
+  export type StudioAssetMetadataCreateNestedOneWithoutAssetInput = {
+    create?: XOR<StudioAssetMetadataCreateWithoutAssetInput, StudioAssetMetadataUncheckedCreateWithoutAssetInput>
+    connectOrCreate?: StudioAssetMetadataCreateOrConnectWithoutAssetInput
+    connect?: StudioAssetMetadataWhereUniqueInput
+  }
+
+  export type StudioAssetMetadataUncheckedCreateNestedOneWithoutAssetInput = {
+    create?: XOR<StudioAssetMetadataCreateWithoutAssetInput, StudioAssetMetadataUncheckedCreateWithoutAssetInput>
+    connectOrCreate?: StudioAssetMetadataCreateOrConnectWithoutAssetInput
+    connect?: StudioAssetMetadataWhereUniqueInput
   }
 
   export type NullableIntFieldUpdateOperationsInput = {
@@ -83142,6 +86757,26 @@ export namespace Prisma {
     delete?: WebsiteWhereInput | boolean
     connect?: WebsiteWhereUniqueInput
     update?: XOR<XOR<WebsiteUpdateToOneWithWhereWithoutMediaAssetsInput, WebsiteUpdateWithoutMediaAssetsInput>, WebsiteUncheckedUpdateWithoutMediaAssetsInput>
+  }
+
+  export type StudioAssetMetadataUpdateOneWithoutAssetNestedInput = {
+    create?: XOR<StudioAssetMetadataCreateWithoutAssetInput, StudioAssetMetadataUncheckedCreateWithoutAssetInput>
+    connectOrCreate?: StudioAssetMetadataCreateOrConnectWithoutAssetInput
+    upsert?: StudioAssetMetadataUpsertWithoutAssetInput
+    disconnect?: StudioAssetMetadataWhereInput | boolean
+    delete?: StudioAssetMetadataWhereInput | boolean
+    connect?: StudioAssetMetadataWhereUniqueInput
+    update?: XOR<XOR<StudioAssetMetadataUpdateToOneWithWhereWithoutAssetInput, StudioAssetMetadataUpdateWithoutAssetInput>, StudioAssetMetadataUncheckedUpdateWithoutAssetInput>
+  }
+
+  export type StudioAssetMetadataUncheckedUpdateOneWithoutAssetNestedInput = {
+    create?: XOR<StudioAssetMetadataCreateWithoutAssetInput, StudioAssetMetadataUncheckedCreateWithoutAssetInput>
+    connectOrCreate?: StudioAssetMetadataCreateOrConnectWithoutAssetInput
+    upsert?: StudioAssetMetadataUpsertWithoutAssetInput
+    disconnect?: StudioAssetMetadataWhereInput | boolean
+    delete?: StudioAssetMetadataWhereInput | boolean
+    connect?: StudioAssetMetadataWhereUniqueInput
+    update?: XOR<XOR<StudioAssetMetadataUpdateToOneWithWhereWithoutAssetInput, StudioAssetMetadataUpdateWithoutAssetInput>, StudioAssetMetadataUncheckedUpdateWithoutAssetInput>
   }
 
   export type WebsiteCreateNestedOneWithoutMailerConfigInput = {
@@ -83426,6 +87061,17 @@ export namespace Prisma {
     not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
+  export type NestedUuidNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedUuidNullableFilter<$PrismaModel> | string | null
+  }
+
   export type NestedDateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -83556,6 +87202,20 @@ export namespace Prisma {
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
+  export type NestedUuidNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedUuidNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
   export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -83597,17 +87257,6 @@ export namespace Prisma {
     not?: NestedFloatFilter<$PrismaModel> | number
   }
 
-  export type NestedUuidNullableFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedUuidNullableFilter<$PrismaModel> | string | null
-  }
-
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -83646,20 +87295,6 @@ export namespace Prisma {
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
-
-  export type NestedUuidNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedUuidNullableWithAggregatesFilter<$PrismaModel> | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedStringNullableFilter<$PrismaModel>
-    _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
   export type NestedEnumOtpPurposeFilter<$PrismaModel = never> = {
@@ -83962,6 +87597,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -83998,6 +87638,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -84068,6 +87713,10 @@ export namespace Prisma {
     targetResource: string
     details?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: string | null
+    actorRole?: string | null
+    result?: string
+    reason?: string | null
+    correlationId?: string | null
     createdAt?: Date | string
   }
 
@@ -84077,6 +87726,10 @@ export namespace Prisma {
     targetResource: string
     details?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: string | null
+    actorRole?: string | null
+    result?: string
+    reason?: string | null
+    correlationId?: string | null
     createdAt?: Date | string
   }
 
@@ -84094,7 +87747,9 @@ export namespace Prisma {
     id?: string
     name: string
     tokenHash: string
+    maskedKey?: string | null
     scopes?: JsonNullValueInput | InputJsonValue
+    expiresAt?: Date | string | null
     lastUsedAt?: Date | string | null
     revokedAt?: Date | string | null
     createdAt?: Date | string
@@ -84105,7 +87760,9 @@ export namespace Prisma {
     id?: string
     name: string
     tokenHash: string
+    maskedKey?: string | null
     scopes?: JsonNullValueInput | InputJsonValue
+    expiresAt?: Date | string | null
     lastUsedAt?: Date | string | null
     revokedAt?: Date | string | null
     createdAt?: Date | string
@@ -84850,6 +88507,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     website?: WebsiteCreateNestedOneWithoutMediaAssetsInput
+    studioMetadata?: StudioAssetMetadataCreateNestedOneWithoutAssetInput
   }
 
   export type MediaAssetUncheckedCreateWithoutUserInput = {
@@ -84866,6 +88524,7 @@ export namespace Prisma {
     format?: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    studioMetadata?: StudioAssetMetadataUncheckedCreateNestedOneWithoutAssetInput
   }
 
   export type MediaAssetCreateOrConnectWithoutUserInput = {
@@ -84875,6 +88534,30 @@ export namespace Prisma {
 
   export type MediaAssetCreateManyUserInputEnvelope = {
     data: MediaAssetCreateManyUserInput | MediaAssetCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type StudioAssetFolderCreateWithoutUserInput = {
+    id: string
+    name: string
+    createdAt?: Date | string
+    assets?: StudioAssetMetadataCreateNestedManyWithoutFolderInput
+  }
+
+  export type StudioAssetFolderUncheckedCreateWithoutUserInput = {
+    id: string
+    name: string
+    createdAt?: Date | string
+    assets?: StudioAssetMetadataUncheckedCreateNestedManyWithoutFolderInput
+  }
+
+  export type StudioAssetFolderCreateOrConnectWithoutUserInput = {
+    where: StudioAssetFolderWhereUniqueInput
+    create: XOR<StudioAssetFolderCreateWithoutUserInput, StudioAssetFolderUncheckedCreateWithoutUserInput>
+  }
+
+  export type StudioAssetFolderCreateManyUserInputEnvelope = {
+    data: StudioAssetFolderCreateManyUserInput | StudioAssetFolderCreateManyUserInput[]
     skipDuplicates?: boolean
   }
 
@@ -85209,6 +88892,11 @@ export namespace Prisma {
     slug?: StringFilter<"Website"> | string
     status?: StringFilter<"Website"> | string
     archivedAt?: DateTimeNullableFilter<"Website"> | Date | string | null
+    moderationStatus?: StringFilter<"Website"> | string
+    moderationReason?: StringNullableFilter<"Website"> | string | null
+    moderatedAt?: DateTimeNullableFilter<"Website"> | Date | string | null
+    moderatedBy?: UuidNullableFilter<"Website"> | string | null
+    version?: IntFilter<"Website"> | number
     editorData?: JsonFilter<"Website">
     createdAt?: DateTimeFilter<"Website"> | Date | string
     updatedAt?: DateTimeFilter<"Website"> | Date | string
@@ -85271,6 +88959,10 @@ export namespace Prisma {
     targetResource?: StringFilter<"AuditLog"> | string
     details?: JsonNullableFilter<"AuditLog">
     ipAddress?: StringNullableFilter<"AuditLog"> | string | null
+    actorRole?: StringNullableFilter<"AuditLog"> | string | null
+    result?: StringFilter<"AuditLog"> | string
+    reason?: StringNullableFilter<"AuditLog"> | string | null
+    correlationId?: StringNullableFilter<"AuditLog"> | string | null
     createdAt?: DateTimeFilter<"AuditLog"> | Date | string
   }
 
@@ -85298,7 +88990,9 @@ export namespace Prisma {
     userId?: UuidFilter<"DeveloperApiKey"> | string
     name?: StringFilter<"DeveloperApiKey"> | string
     tokenHash?: StringFilter<"DeveloperApiKey"> | string
+    maskedKey?: StringNullableFilter<"DeveloperApiKey"> | string | null
     scopes?: JsonFilter<"DeveloperApiKey">
+    expiresAt?: DateTimeNullableFilter<"DeveloperApiKey"> | Date | string | null
     lastUsedAt?: DateTimeNullableFilter<"DeveloperApiKey"> | Date | string | null
     revokedAt?: DateTimeNullableFilter<"DeveloperApiKey"> | Date | string | null
     createdAt?: DateTimeFilter<"DeveloperApiKey"> | Date | string
@@ -85943,6 +89637,32 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"MediaAsset"> | Date | string
   }
 
+  export type StudioAssetFolderUpsertWithWhereUniqueWithoutUserInput = {
+    where: StudioAssetFolderWhereUniqueInput
+    update: XOR<StudioAssetFolderUpdateWithoutUserInput, StudioAssetFolderUncheckedUpdateWithoutUserInput>
+    create: XOR<StudioAssetFolderCreateWithoutUserInput, StudioAssetFolderUncheckedCreateWithoutUserInput>
+  }
+
+  export type StudioAssetFolderUpdateWithWhereUniqueWithoutUserInput = {
+    where: StudioAssetFolderWhereUniqueInput
+    data: XOR<StudioAssetFolderUpdateWithoutUserInput, StudioAssetFolderUncheckedUpdateWithoutUserInput>
+  }
+
+  export type StudioAssetFolderUpdateManyWithWhereWithoutUserInput = {
+    where: StudioAssetFolderScalarWhereInput
+    data: XOR<StudioAssetFolderUpdateManyMutationInput, StudioAssetFolderUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type StudioAssetFolderScalarWhereInput = {
+    AND?: StudioAssetFolderScalarWhereInput | StudioAssetFolderScalarWhereInput[]
+    OR?: StudioAssetFolderScalarWhereInput[]
+    NOT?: StudioAssetFolderScalarWhereInput | StudioAssetFolderScalarWhereInput[]
+    id?: UuidFilter<"StudioAssetFolder"> | string
+    userId?: UuidFilter<"StudioAssetFolder"> | string
+    name?: StringFilter<"StudioAssetFolder"> | string
+    createdAt?: DateTimeFilter<"StudioAssetFolder"> | Date | string
+  }
+
   export type OptimizationCreditLedgerUpsertWithWhereUniqueWithoutUserInput = {
     where: OptimizationCreditLedgerWhereUniqueInput
     update: XOR<OptimizationCreditLedgerUpdateWithoutUserInput, OptimizationCreditLedgerUncheckedUpdateWithoutUserInput>
@@ -86079,6 +89799,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -86113,6 +89836,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
@@ -86130,6 +89854,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -86164,6 +89891,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
@@ -86823,6 +90551,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutMediaAssetsInput
+    studioMetadata?: StudioAssetMetadataCreateNestedOneWithoutAssetInput
   }
 
   export type MediaAssetUncheckedCreateWithoutWebsiteInput = {
@@ -86839,6 +90568,7 @@ export namespace Prisma {
     format?: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    studioMetadata?: StudioAssetMetadataUncheckedCreateNestedOneWithoutAssetInput
   }
 
   export type MediaAssetCreateOrConnectWithoutWebsiteInput = {
@@ -87002,6 +90732,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -87036,6 +90769,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
@@ -87053,6 +90787,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -87087,6 +90824,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
@@ -87759,6 +91497,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -87793,6 +91534,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
@@ -87810,6 +91552,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -87844,6 +91589,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
@@ -87877,6 +91623,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -87911,6 +91660,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
@@ -87928,6 +91678,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -87962,6 +91715,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
@@ -87979,6 +91733,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -88013,6 +91770,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
@@ -88030,6 +91788,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -88064,6 +91825,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
@@ -88097,6 +91859,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -88131,6 +91896,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
@@ -88148,6 +91914,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -88182,6 +91951,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
@@ -88199,6 +91969,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -88233,6 +92006,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
@@ -88250,6 +92024,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -88284,6 +92061,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
@@ -88317,6 +92095,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -88351,6 +92132,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
@@ -88368,6 +92150,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -88402,6 +92187,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
@@ -88419,6 +92205,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -88453,6 +92242,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
@@ -88470,6 +92260,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -88504,6 +92297,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
@@ -88537,6 +92331,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -88571,6 +92368,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
@@ -88588,6 +92386,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -88622,6 +92423,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
@@ -88736,6 +92538,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -88770,6 +92575,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
@@ -88787,6 +92593,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -88821,6 +92630,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
@@ -88897,6 +92707,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -88931,6 +92744,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
@@ -88948,6 +92762,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -88982,6 +92799,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
@@ -88999,6 +92817,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -89033,6 +92854,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
@@ -89050,6 +92872,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -89084,6 +92909,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
@@ -89117,6 +92943,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -89151,6 +92980,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
@@ -89168,6 +92998,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -89202,6 +93035,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
@@ -89214,6 +93048,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -89251,6 +93090,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -89326,6 +93170,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -89363,6 +93212,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -89470,6 +93324,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -89504,6 +93361,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
@@ -89521,6 +93379,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -89555,6 +93416,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
@@ -89645,6 +93507,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -89679,6 +93544,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
@@ -89696,6 +93562,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -89730,6 +93599,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
@@ -89742,6 +93612,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -89779,6 +93654,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -89830,6 +93710,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -89867,6 +93752,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -89902,6 +93792,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -89939,6 +93834,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -90054,6 +93954,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -90091,6 +93996,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -90173,6 +94083,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -90210,6 +94125,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -90261,6 +94181,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -90298,6 +94223,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -90338,6 +94268,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -90372,6 +94305,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
@@ -90389,6 +94323,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -90423,6 +94360,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
@@ -90456,6 +94394,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -90490,6 +94431,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
@@ -90507,6 +94449,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -90541,6 +94486,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
@@ -90553,6 +94499,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -90590,6 +94541,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -90641,6 +94597,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -90678,6 +94639,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -90713,6 +94679,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -90750,6 +94721,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -90801,6 +94777,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -90838,6 +94819,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -90971,6 +94957,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -91005,6 +94994,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
@@ -91022,6 +95012,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -91056,6 +95049,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
@@ -91124,6 +95118,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -91158,6 +95155,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
@@ -91175,6 +95173,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -91209,6 +95210,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
@@ -91221,6 +95223,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -91258,6 +95265,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -91303,6 +95315,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -91337,6 +95352,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
@@ -91354,6 +95370,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -91388,6 +95407,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
@@ -91416,6 +95436,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -91453,6 +95478,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -91504,6 +95534,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -91538,6 +95571,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
@@ -91555,6 +95589,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -91589,6 +95626,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
@@ -91606,6 +95644,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -91640,6 +95681,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
@@ -91657,6 +95699,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -91691,6 +95736,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
@@ -91724,6 +95770,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -91758,6 +95807,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
@@ -91775,6 +95825,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -91809,6 +95862,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
@@ -91821,6 +95875,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -91858,6 +95917,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -91903,6 +95967,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -91937,6 +96004,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
@@ -91954,6 +96022,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -91988,6 +96059,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
@@ -92016,6 +96088,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -92053,6 +96130,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -92104,6 +96186,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -92138,6 +96223,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
@@ -92155,6 +96241,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -92189,6 +96278,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
@@ -92201,6 +96291,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -92238,6 +96333,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -92283,6 +96383,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -92317,6 +96420,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
@@ -92334,6 +96438,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -92368,6 +96475,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
@@ -92396,6 +96504,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -92433,6 +96546,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -92484,6 +96602,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -92518,6 +96639,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
@@ -92535,6 +96657,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -92569,6 +96694,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
@@ -92581,6 +96707,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -92618,6 +96749,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -92663,6 +96799,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -92697,6 +96836,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
@@ -92714,6 +96854,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -92748,6 +96891,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
@@ -92776,6 +96920,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -92813,6 +96962,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -92864,6 +97018,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -92898,6 +97055,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
@@ -92915,6 +97073,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -92949,6 +97110,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
@@ -92961,6 +97123,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -92998,6 +97165,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -93043,6 +97215,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -93077,6 +97252,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
@@ -93094,6 +97270,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -93128,6 +97307,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
@@ -93156,6 +97336,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -93193,6 +97378,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -93244,6 +97434,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -93278,6 +97471,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
@@ -93295,6 +97489,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -93329,6 +97526,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
@@ -93341,6 +97539,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -93378,6 +97581,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -93423,6 +97631,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -93457,6 +97668,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
@@ -93474,6 +97686,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -93508,6 +97723,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
@@ -93536,6 +97752,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -93573,6 +97794,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -93624,6 +97850,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -93658,6 +97887,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
@@ -93675,6 +97905,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -93709,6 +97942,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
@@ -93721,6 +97955,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -93758,6 +97997,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -93809,6 +98053,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -93846,6 +98095,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -93881,6 +98135,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -93918,6 +98177,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -93963,6 +98227,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -93997,6 +98264,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
@@ -94014,6 +98282,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -94048,6 +98319,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
@@ -94076,6 +98348,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -94113,6 +98390,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -94164,6 +98446,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -94198,6 +98483,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
@@ -94215,6 +98501,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -94249,6 +98538,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
@@ -94266,6 +98556,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -94300,6 +98593,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
@@ -94317,6 +98611,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -94351,6 +98648,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
@@ -94394,6 +98692,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -94431,6 +98734,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -94526,6 +98834,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -94560,6 +98871,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
@@ -94577,6 +98889,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -94611,6 +98926,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
@@ -94703,6 +99019,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -94737,6 +99056,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
@@ -94754,6 +99074,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -94788,6 +99111,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
@@ -94854,6 +99178,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -94888,6 +99215,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
@@ -94905,6 +99233,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -94939,6 +99270,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
@@ -94983,6 +99315,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -95017,6 +99352,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
@@ -95034,6 +99370,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -95068,6 +99407,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
@@ -95134,6 +99474,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95168,6 +99511,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
@@ -95185,6 +99529,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95219,6 +99566,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
@@ -95231,6 +99579,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -95268,6 +99621,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -95313,6 +99671,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -95347,6 +99708,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
@@ -95364,6 +99726,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -95398,6 +99763,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
@@ -95426,6 +99792,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95463,6 +99834,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95514,6 +99890,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95548,6 +99927,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
@@ -95565,6 +99945,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -95599,6 +99982,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
@@ -95645,6 +100029,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -95679,6 +100066,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
@@ -95696,6 +100084,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -95730,6 +100121,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
@@ -95833,6 +100225,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -95870,6 +100267,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -95966,6 +100368,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -96000,6 +100405,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
@@ -96017,6 +100423,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -96051,6 +100460,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
@@ -96116,6 +100526,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -96150,6 +100563,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
@@ -96167,6 +100581,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -96201,6 +100618,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
@@ -96284,6 +100702,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -96321,6 +100744,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -96382,6 +100810,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -96416,6 +100847,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
@@ -96433,6 +100865,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -96467,6 +100902,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
@@ -96561,6 +100997,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -96595,6 +101034,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
@@ -96612,6 +101052,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -96646,6 +101089,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
@@ -96714,6 +101158,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -96748,6 +101195,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
@@ -96765,6 +101213,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -96799,6 +101250,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
@@ -96851,6 +101303,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -96885,6 +101340,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
@@ -96902,6 +101358,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -96936,6 +101395,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
@@ -97010,6 +101470,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -97044,6 +101507,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
@@ -97061,6 +101525,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -97095,6 +101562,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
@@ -97107,6 +101575,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -97144,6 +101617,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -97189,6 +101667,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -97223,6 +101704,7 @@ export namespace Prisma {
     receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
@@ -97240,6 +101722,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -97274,6 +101759,7 @@ export namespace Prisma {
     receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
@@ -97296,6 +101782,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -97330,6 +101819,7 @@ export namespace Prisma {
     receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
@@ -97347,6 +101837,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -97381,6 +101874,7 @@ export namespace Prisma {
     receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
@@ -97409,6 +101903,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -97446,6 +101945,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -97497,6 +102001,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -97531,6 +102038,7 @@ export namespace Prisma {
     receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
@@ -97548,6 +102056,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -97582,6 +102093,7 @@ export namespace Prisma {
     receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
@@ -97610,6 +102122,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -97644,6 +102159,7 @@ export namespace Prisma {
     receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
@@ -97661,6 +102177,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -97695,13 +102214,14 @@ export namespace Prisma {
     receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
   }
 
-  export type UserCreateWithoutMediaAssetsInput = {
+  export type UserCreateWithoutStudioAssetFoldersInput = {
     id?: string
     fullName?: string | null
     email?: string | null
@@ -97712,6 +102232,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -97746,13 +102269,14 @@ export namespace Prisma {
     receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
   }
 
-  export type UserUncheckedCreateWithoutMediaAssetsInput = {
+  export type UserUncheckedCreateWithoutStudioAssetFoldersInput = {
     id?: string
     fullName?: string | null
     email?: string | null
@@ -97763,6 +102287,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -97797,6 +102324,419 @@ export namespace Prisma {
     receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
+    licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutStudioAssetFoldersInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutStudioAssetFoldersInput, UserUncheckedCreateWithoutStudioAssetFoldersInput>
+  }
+
+  export type StudioAssetMetadataCreateWithoutFolderInput = {
+    category?: string | null
+    deletedAt?: Date | string | null
+    asset: MediaAssetCreateNestedOneWithoutStudioMetadataInput
+  }
+
+  export type StudioAssetMetadataUncheckedCreateWithoutFolderInput = {
+    assetId: string
+    category?: string | null
+    deletedAt?: Date | string | null
+  }
+
+  export type StudioAssetMetadataCreateOrConnectWithoutFolderInput = {
+    where: StudioAssetMetadataWhereUniqueInput
+    create: XOR<StudioAssetMetadataCreateWithoutFolderInput, StudioAssetMetadataUncheckedCreateWithoutFolderInput>
+  }
+
+  export type StudioAssetMetadataCreateManyFolderInputEnvelope = {
+    data: StudioAssetMetadataCreateManyFolderInput | StudioAssetMetadataCreateManyFolderInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type UserUpsertWithoutStudioAssetFoldersInput = {
+    update: XOR<UserUpdateWithoutStudioAssetFoldersInput, UserUncheckedUpdateWithoutStudioAssetFoldersInput>
+    create: XOR<UserCreateWithoutStudioAssetFoldersInput, UserUncheckedCreateWithoutStudioAssetFoldersInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutStudioAssetFoldersInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutStudioAssetFoldersInput, UserUncheckedUpdateWithoutStudioAssetFoldersInput>
+  }
+
+  export type UserUpdateWithoutStudioAssetFoldersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
+    identities?: IdentityUpdateManyWithoutUserNestedInput
+    otpVerifications?: OtpVerificationUpdateManyWithoutUserNestedInput
+    passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    templates?: templatesUpdateManyWithoutUsersNestedInput
+    subscription?: UserSubscriptionUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUpdateManyWithoutUserNestedInput
+    codeRevisions?: CustomCodeRevisionUpdateManyWithoutAuthorNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    developerApiKeys?: DeveloperApiKeyUpdateManyWithoutUserNestedInput
+    designNotes?: DesignNoteUpdateManyWithoutAuthorNestedInput
+    collaborations?: WebsiteCollaboratorUpdateManyWithoutUserNestedInput
+    componentAccesses?: ComponentAccessUpdateManyWithoutUserNestedInput
+    customEntries?: CustomEntryUpdateManyWithoutAuthorNestedInput
+    websiteRevisions?: WebsiteRevisionUpdateManyWithoutCreatorNestedInput
+    deployments?: DeploymentUpdateManyWithoutCreatorNestedInput
+    wpConnections?: WordPressConnectionUpdateManyWithoutUserNestedInput
+    ownedTeams?: TeamUpdateManyWithoutOwnerNestedInput
+    teamMemberships?: TeamMemberUpdateManyWithoutUserNestedInput
+    sentTeamInvitations?: TeamInvitationUpdateManyWithoutInviterNestedInput
+    sentWebsiteInvitations?: WebsiteInvitationUpdateManyWithoutInviterNestedInput
+    granularPermissions?: GranularPermissionUpdateManyWithoutUserNestedInput
+    ownedWorkspaces?: WorkspaceUpdateManyWithoutOwnerNestedInput
+    ownedOrganizations?: OrganizationUpdateManyWithoutOwnerNestedInput
+    organizationMemberships?: OrganizationMemberUpdateManyWithoutUserNestedInput
+    workspaceMemberships?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
+    approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
+    reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutStudioAssetFoldersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationMethod?: NullableEnumVerificationMethodFieldUpdateOperationsInput | $Enums.VerificationMethod | null
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    phoneVerified?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    optimizationCredits?: IntFieldUpdateOperationsInput | number
+    identities?: IdentityUncheckedUpdateManyWithoutUserNestedInput
+    otpVerifications?: OtpVerificationUncheckedUpdateManyWithoutUserNestedInput
+    passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    templates?: templatesUncheckedUpdateManyWithoutUsersNestedInput
+    subscription?: UserSubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    websites?: WebsiteUncheckedUpdateManyWithoutUserNestedInput
+    codeRevisions?: CustomCodeRevisionUncheckedUpdateManyWithoutAuthorNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    developerApiKeys?: DeveloperApiKeyUncheckedUpdateManyWithoutUserNestedInput
+    designNotes?: DesignNoteUncheckedUpdateManyWithoutAuthorNestedInput
+    collaborations?: WebsiteCollaboratorUncheckedUpdateManyWithoutUserNestedInput
+    componentAccesses?: ComponentAccessUncheckedUpdateManyWithoutUserNestedInput
+    customEntries?: CustomEntryUncheckedUpdateManyWithoutAuthorNestedInput
+    websiteRevisions?: WebsiteRevisionUncheckedUpdateManyWithoutCreatorNestedInput
+    deployments?: DeploymentUncheckedUpdateManyWithoutCreatorNestedInput
+    wpConnections?: WordPressConnectionUncheckedUpdateManyWithoutUserNestedInput
+    ownedTeams?: TeamUncheckedUpdateManyWithoutOwnerNestedInput
+    teamMemberships?: TeamMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentTeamInvitations?: TeamInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    sentWebsiteInvitations?: WebsiteInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    granularPermissions?: GranularPermissionUncheckedUpdateManyWithoutUserNestedInput
+    ownedWorkspaces?: WorkspaceUncheckedUpdateManyWithoutOwnerNestedInput
+    ownedOrganizations?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
+    organizationMemberships?: OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
+    workspaceMemberships?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
+    approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
+    reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
+    licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
+    whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
+    invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type StudioAssetMetadataUpsertWithWhereUniqueWithoutFolderInput = {
+    where: StudioAssetMetadataWhereUniqueInput
+    update: XOR<StudioAssetMetadataUpdateWithoutFolderInput, StudioAssetMetadataUncheckedUpdateWithoutFolderInput>
+    create: XOR<StudioAssetMetadataCreateWithoutFolderInput, StudioAssetMetadataUncheckedCreateWithoutFolderInput>
+  }
+
+  export type StudioAssetMetadataUpdateWithWhereUniqueWithoutFolderInput = {
+    where: StudioAssetMetadataWhereUniqueInput
+    data: XOR<StudioAssetMetadataUpdateWithoutFolderInput, StudioAssetMetadataUncheckedUpdateWithoutFolderInput>
+  }
+
+  export type StudioAssetMetadataUpdateManyWithWhereWithoutFolderInput = {
+    where: StudioAssetMetadataScalarWhereInput
+    data: XOR<StudioAssetMetadataUpdateManyMutationInput, StudioAssetMetadataUncheckedUpdateManyWithoutFolderInput>
+  }
+
+  export type StudioAssetMetadataScalarWhereInput = {
+    AND?: StudioAssetMetadataScalarWhereInput | StudioAssetMetadataScalarWhereInput[]
+    OR?: StudioAssetMetadataScalarWhereInput[]
+    NOT?: StudioAssetMetadataScalarWhereInput | StudioAssetMetadataScalarWhereInput[]
+    assetId?: UuidFilter<"StudioAssetMetadata"> | string
+    folderId?: UuidNullableFilter<"StudioAssetMetadata"> | string | null
+    category?: StringNullableFilter<"StudioAssetMetadata"> | string | null
+    deletedAt?: DateTimeNullableFilter<"StudioAssetMetadata"> | Date | string | null
+  }
+
+  export type MediaAssetCreateWithoutStudioMetadataInput = {
+    id?: string
+    filename: string
+    originalName: string
+    mimeType: string
+    sizeBytes: number
+    url: string
+    width?: number | null
+    height?: number | null
+    altText?: string | null
+    format?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutMediaAssetsInput
+    website?: WebsiteCreateNestedOneWithoutMediaAssetsInput
+  }
+
+  export type MediaAssetUncheckedCreateWithoutStudioMetadataInput = {
+    id?: string
+    userId: string
+    websiteId?: string | null
+    filename: string
+    originalName: string
+    mimeType: string
+    sizeBytes: number
+    url: string
+    width?: number | null
+    height?: number | null
+    altText?: string | null
+    format?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MediaAssetCreateOrConnectWithoutStudioMetadataInput = {
+    where: MediaAssetWhereUniqueInput
+    create: XOR<MediaAssetCreateWithoutStudioMetadataInput, MediaAssetUncheckedCreateWithoutStudioMetadataInput>
+  }
+
+  export type StudioAssetFolderCreateWithoutAssetsInput = {
+    id: string
+    name: string
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutStudioAssetFoldersInput
+  }
+
+  export type StudioAssetFolderUncheckedCreateWithoutAssetsInput = {
+    id: string
+    userId: string
+    name: string
+    createdAt?: Date | string
+  }
+
+  export type StudioAssetFolderCreateOrConnectWithoutAssetsInput = {
+    where: StudioAssetFolderWhereUniqueInput
+    create: XOR<StudioAssetFolderCreateWithoutAssetsInput, StudioAssetFolderUncheckedCreateWithoutAssetsInput>
+  }
+
+  export type MediaAssetUpsertWithoutStudioMetadataInput = {
+    update: XOR<MediaAssetUpdateWithoutStudioMetadataInput, MediaAssetUncheckedUpdateWithoutStudioMetadataInput>
+    create: XOR<MediaAssetCreateWithoutStudioMetadataInput, MediaAssetUncheckedCreateWithoutStudioMetadataInput>
+    where?: MediaAssetWhereInput
+  }
+
+  export type MediaAssetUpdateToOneWithWhereWithoutStudioMetadataInput = {
+    where?: MediaAssetWhereInput
+    data: XOR<MediaAssetUpdateWithoutStudioMetadataInput, MediaAssetUncheckedUpdateWithoutStudioMetadataInput>
+  }
+
+  export type MediaAssetUpdateWithoutStudioMetadataInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    filename?: StringFieldUpdateOperationsInput | string
+    originalName?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    sizeBytes?: IntFieldUpdateOperationsInput | number
+    url?: StringFieldUpdateOperationsInput | string
+    width?: NullableIntFieldUpdateOperationsInput | number | null
+    height?: NullableIntFieldUpdateOperationsInput | number | null
+    altText?: NullableStringFieldUpdateOperationsInput | string | null
+    format?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutMediaAssetsNestedInput
+    website?: WebsiteUpdateOneWithoutMediaAssetsNestedInput
+  }
+
+  export type MediaAssetUncheckedUpdateWithoutStudioMetadataInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    websiteId?: NullableStringFieldUpdateOperationsInput | string | null
+    filename?: StringFieldUpdateOperationsInput | string
+    originalName?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    sizeBytes?: IntFieldUpdateOperationsInput | number
+    url?: StringFieldUpdateOperationsInput | string
+    width?: NullableIntFieldUpdateOperationsInput | number | null
+    height?: NullableIntFieldUpdateOperationsInput | number | null
+    altText?: NullableStringFieldUpdateOperationsInput | string | null
+    format?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StudioAssetFolderUpsertWithoutAssetsInput = {
+    update: XOR<StudioAssetFolderUpdateWithoutAssetsInput, StudioAssetFolderUncheckedUpdateWithoutAssetsInput>
+    create: XOR<StudioAssetFolderCreateWithoutAssetsInput, StudioAssetFolderUncheckedCreateWithoutAssetsInput>
+    where?: StudioAssetFolderWhereInput
+  }
+
+  export type StudioAssetFolderUpdateToOneWithWhereWithoutAssetsInput = {
+    where?: StudioAssetFolderWhereInput
+    data: XOR<StudioAssetFolderUpdateWithoutAssetsInput, StudioAssetFolderUncheckedUpdateWithoutAssetsInput>
+  }
+
+  export type StudioAssetFolderUpdateWithoutAssetsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutStudioAssetFoldersNestedInput
+  }
+
+  export type StudioAssetFolderUncheckedUpdateWithoutAssetsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserCreateWithoutMediaAssetsInput = {
+    id?: string
+    fullName?: string | null
+    email?: string | null
+    phone?: string | null
+    passwordHash?: string | null
+    verificationMethod?: $Enums.VerificationMethod | null
+    emailVerified?: boolean
+    phoneVerified?: boolean
+    status?: $Enums.UserStatus
+    role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    optimizationCredits?: number
+    identities?: IdentityCreateNestedManyWithoutUserInput
+    otpVerifications?: OtpVerificationCreateNestedManyWithoutUserInput
+    passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    templates?: templatesCreateNestedManyWithoutUsersInput
+    subscription?: UserSubscriptionCreateNestedOneWithoutUserInput
+    websites?: WebsiteCreateNestedManyWithoutUserInput
+    codeRevisions?: CustomCodeRevisionCreateNestedManyWithoutAuthorInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    developerApiKeys?: DeveloperApiKeyCreateNestedManyWithoutUserInput
+    designNotes?: DesignNoteCreateNestedManyWithoutAuthorInput
+    collaborations?: WebsiteCollaboratorCreateNestedManyWithoutUserInput
+    componentAccesses?: ComponentAccessCreateNestedManyWithoutUserInput
+    customEntries?: CustomEntryCreateNestedManyWithoutAuthorInput
+    websiteRevisions?: WebsiteRevisionCreateNestedManyWithoutCreatorInput
+    deployments?: DeploymentCreateNestedManyWithoutCreatorInput
+    wpConnections?: WordPressConnectionCreateNestedManyWithoutUserInput
+    ownedTeams?: TeamCreateNestedManyWithoutOwnerInput
+    teamMemberships?: TeamMemberCreateNestedManyWithoutUserInput
+    sentTeamInvitations?: TeamInvitationCreateNestedManyWithoutInviterInput
+    sentWebsiteInvitations?: WebsiteInvitationCreateNestedManyWithoutInviterInput
+    granularPermissions?: GranularPermissionCreateNestedManyWithoutUserInput
+    ownedWorkspaces?: WorkspaceCreateNestedManyWithoutOwnerInput
+    ownedOrganizations?: OrganizationCreateNestedManyWithoutOwnerInput
+    organizationMemberships?: OrganizationMemberCreateNestedManyWithoutUserInput
+    workspaceMemberships?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationCreateNestedManyWithoutRecipientInput
+    approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
+    reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
+    studioAssetFolders?: StudioAssetFolderCreateNestedManyWithoutUserInput
+    creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
+    licenses?: LicenseCreateNestedManyWithoutUserInput
+    whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
+    invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutMediaAssetsInput = {
+    id?: string
+    fullName?: string | null
+    email?: string | null
+    phone?: string | null
+    passwordHash?: string | null
+    verificationMethod?: $Enums.VerificationMethod | null
+    emailVerified?: boolean
+    phoneVerified?: boolean
+    status?: $Enums.UserStatus
+    role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    optimizationCredits?: number
+    identities?: IdentityUncheckedCreateNestedManyWithoutUserInput
+    otpVerifications?: OtpVerificationUncheckedCreateNestedManyWithoutUserInput
+    passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    templates?: templatesUncheckedCreateNestedManyWithoutUsersInput
+    subscription?: UserSubscriptionUncheckedCreateNestedOneWithoutUserInput
+    websites?: WebsiteUncheckedCreateNestedManyWithoutUserInput
+    codeRevisions?: CustomCodeRevisionUncheckedCreateNestedManyWithoutAuthorInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    developerApiKeys?: DeveloperApiKeyUncheckedCreateNestedManyWithoutUserInput
+    designNotes?: DesignNoteUncheckedCreateNestedManyWithoutAuthorInput
+    collaborations?: WebsiteCollaboratorUncheckedCreateNestedManyWithoutUserInput
+    componentAccesses?: ComponentAccessUncheckedCreateNestedManyWithoutUserInput
+    customEntries?: CustomEntryUncheckedCreateNestedManyWithoutAuthorInput
+    websiteRevisions?: WebsiteRevisionUncheckedCreateNestedManyWithoutCreatorInput
+    deployments?: DeploymentUncheckedCreateNestedManyWithoutCreatorInput
+    wpConnections?: WordPressConnectionUncheckedCreateNestedManyWithoutUserInput
+    ownedTeams?: TeamUncheckedCreateNestedManyWithoutOwnerInput
+    teamMemberships?: TeamMemberUncheckedCreateNestedManyWithoutUserInput
+    sentTeamInvitations?: TeamInvitationUncheckedCreateNestedManyWithoutInviterInput
+    sentWebsiteInvitations?: WebsiteInvitationUncheckedCreateNestedManyWithoutInviterInput
+    granularPermissions?: GranularPermissionUncheckedCreateNestedManyWithoutUserInput
+    ownedWorkspaces?: WorkspaceUncheckedCreateNestedManyWithoutOwnerInput
+    ownedOrganizations?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
+    organizationMemberships?: OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
+    workspaceMemberships?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    sentWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutInviterInput
+    receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedCreateNestedManyWithoutRecipientInput
+    approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
+    reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
+    studioAssetFolders?: StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
@@ -97814,6 +102754,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -97851,6 +102796,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -97885,6 +102835,23 @@ export namespace Prisma {
     create: XOR<WebsiteCreateWithoutMediaAssetsInput, WebsiteUncheckedCreateWithoutMediaAssetsInput>
   }
 
+  export type StudioAssetMetadataCreateWithoutAssetInput = {
+    category?: string | null
+    deletedAt?: Date | string | null
+    folder?: StudioAssetFolderCreateNestedOneWithoutAssetsInput
+  }
+
+  export type StudioAssetMetadataUncheckedCreateWithoutAssetInput = {
+    folderId?: string | null
+    category?: string | null
+    deletedAt?: Date | string | null
+  }
+
+  export type StudioAssetMetadataCreateOrConnectWithoutAssetInput = {
+    where: StudioAssetMetadataWhereUniqueInput
+    create: XOR<StudioAssetMetadataCreateWithoutAssetInput, StudioAssetMetadataUncheckedCreateWithoutAssetInput>
+  }
+
   export type UserUpsertWithoutMediaAssetsInput = {
     update: XOR<UserUpdateWithoutMediaAssetsInput, UserUncheckedUpdateWithoutMediaAssetsInput>
     create: XOR<UserCreateWithoutMediaAssetsInput, UserUncheckedCreateWithoutMediaAssetsInput>
@@ -97907,6 +102874,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -97941,6 +102911,7 @@ export namespace Prisma {
     receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
+    studioAssetFolders?: StudioAssetFolderUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
@@ -97958,6 +102929,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -97992,6 +102966,7 @@ export namespace Prisma {
     receivedWorkspaceEmailInvitations?: WorkspaceEmailInvitationUncheckedUpdateManyWithoutRecipientNestedInput
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
+    studioAssetFolders?: StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
@@ -98015,6 +102990,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -98052,6 +103032,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -98081,12 +103066,40 @@ export namespace Prisma {
     optimizedMedia?: MediaOptimizationAssetUncheckedUpdateManyWithoutWebsiteNestedInput
   }
 
+  export type StudioAssetMetadataUpsertWithoutAssetInput = {
+    update: XOR<StudioAssetMetadataUpdateWithoutAssetInput, StudioAssetMetadataUncheckedUpdateWithoutAssetInput>
+    create: XOR<StudioAssetMetadataCreateWithoutAssetInput, StudioAssetMetadataUncheckedCreateWithoutAssetInput>
+    where?: StudioAssetMetadataWhereInput
+  }
+
+  export type StudioAssetMetadataUpdateToOneWithWhereWithoutAssetInput = {
+    where?: StudioAssetMetadataWhereInput
+    data: XOR<StudioAssetMetadataUpdateWithoutAssetInput, StudioAssetMetadataUncheckedUpdateWithoutAssetInput>
+  }
+
+  export type StudioAssetMetadataUpdateWithoutAssetInput = {
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    folder?: StudioAssetFolderUpdateOneWithoutAssetsNestedInput
+  }
+
+  export type StudioAssetMetadataUncheckedUpdateWithoutAssetInput = {
+    folderId?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
   export type WebsiteCreateWithoutMailerConfigInput = {
     id?: string
     name: string
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -98124,6 +103137,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -98175,6 +103193,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -98212,6 +103235,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -98247,6 +103275,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -98284,6 +103317,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -98335,6 +103373,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -98372,6 +103415,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -98407,6 +103455,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -98444,6 +103497,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -98495,6 +103553,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -98532,6 +103595,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -98567,6 +103635,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -98604,6 +103677,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -98655,6 +103733,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -98692,6 +103775,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -98732,6 +103820,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -98767,6 +103858,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
@@ -98783,6 +103875,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -98818,6 +103913,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
@@ -98850,6 +103946,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -98885,6 +103984,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
@@ -98901,6 +104001,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -98936,6 +104039,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
@@ -98952,6 +104056,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -98987,6 +104094,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
@@ -99003,6 +104111,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -99038,6 +104149,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
@@ -99100,6 +104212,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99135,6 +104250,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
@@ -99151,6 +104267,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99186,6 +104305,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
@@ -99296,6 +104416,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -99331,6 +104454,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     invoices?: BillingInvoiceCreateNestedManyWithoutUserInput
@@ -99347,6 +104471,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -99382,6 +104509,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     invoices?: BillingInvoiceUncheckedCreateNestedManyWithoutUserInput
@@ -99414,6 +104542,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99449,6 +104580,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     invoices?: BillingInvoiceUpdateManyWithoutUserNestedInput
@@ -99465,6 +104597,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99500,6 +104635,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     invoices?: BillingInvoiceUncheckedUpdateManyWithoutUserNestedInput
@@ -99516,6 +104652,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -99551,6 +104690,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
@@ -99567,6 +104707,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -99602,6 +104745,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
@@ -99634,6 +104778,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99669,6 +104816,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
@@ -99685,6 +104833,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -99720,6 +104871,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
@@ -99771,6 +104923,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -99805,6 +104960,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
@@ -99822,6 +104978,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -99856,6 +105015,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
@@ -99878,6 +105038,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -99912,6 +105075,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerCreateNestedManyWithoutUserInput
     licenses?: LicenseCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigCreateNestedOneWithoutUserInput
@@ -99929,6 +105093,9 @@ export namespace Prisma {
     phoneVerified?: boolean
     status?: $Enums.UserStatus
     role?: $Enums.UserRole
+    suspensionReason?: string | null
+    suspendedAt?: Date | string | null
+    suspendedBy?: string | null
     lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -99963,6 +105130,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedCreateNestedManyWithoutRequesterInput
     reviewedApprovals?: PublishApprovalRequestUncheckedCreateNestedManyWithoutReviewerInput
     mediaAssets?: MediaAssetUncheckedCreateNestedManyWithoutUserInput
+    studioAssetFolders?: StudioAssetFolderUncheckedCreateNestedManyWithoutUserInput
     creditLedgers?: OptimizationCreditLedgerUncheckedCreateNestedManyWithoutUserInput
     licenses?: LicenseUncheckedCreateNestedManyWithoutUserInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedCreateNestedOneWithoutUserInput
@@ -100037,6 +105205,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -100071,6 +105242,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
@@ -100088,6 +105260,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -100122,6 +105297,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
@@ -100150,6 +105326,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -100184,6 +105363,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUpdateManyWithoutUserNestedInput
     licenses?: LicenseUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUpdateOneWithoutUserNestedInput
@@ -100201,6 +105381,9 @@ export namespace Prisma {
     phoneVerified?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    suspensionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suspendedBy?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -100235,6 +105418,7 @@ export namespace Prisma {
     approvalRequests?: PublishApprovalRequestUncheckedUpdateManyWithoutRequesterNestedInput
     reviewedApprovals?: PublishApprovalRequestUncheckedUpdateManyWithoutReviewerNestedInput
     mediaAssets?: MediaAssetUncheckedUpdateManyWithoutUserNestedInput
+    studioAssetFolders?: StudioAssetFolderUncheckedUpdateManyWithoutUserNestedInput
     creditLedgers?: OptimizationCreditLedgerUncheckedUpdateManyWithoutUserNestedInput
     licenses?: LicenseUncheckedUpdateManyWithoutUserNestedInput
     whiteLabelConfig?: WhiteLabelConfigUncheckedUpdateOneWithoutUserNestedInput
@@ -100298,6 +105482,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -100320,6 +105509,10 @@ export namespace Prisma {
     targetResource: string
     details?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: string | null
+    actorRole?: string | null
+    result?: string
+    reason?: string | null
+    correlationId?: string | null
     createdAt?: Date | string
   }
 
@@ -100327,7 +105520,9 @@ export namespace Prisma {
     id?: string
     name: string
     tokenHash: string
+    maskedKey?: string | null
     scopes?: JsonNullValueInput | InputJsonValue
+    expiresAt?: Date | string | null
     lastUsedAt?: Date | string | null
     revokedAt?: Date | string | null
     createdAt?: Date | string
@@ -100598,6 +105793,12 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type StudioAssetFolderCreateManyUserInput = {
+    id: string
+    name: string
+    createdAt?: Date | string
+  }
+
   export type OptimizationCreditLedgerCreateManyUserInput = {
     id?: string
     websiteId?: string | null
@@ -100789,6 +105990,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -100825,6 +106031,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -100861,6 +106072,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -100897,6 +106113,10 @@ export namespace Prisma {
     targetResource?: StringFieldUpdateOperationsInput | string
     details?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    actorRole?: NullableStringFieldUpdateOperationsInput | string | null
+    result?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    correlationId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -100906,6 +106126,10 @@ export namespace Prisma {
     targetResource?: StringFieldUpdateOperationsInput | string
     details?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    actorRole?: NullableStringFieldUpdateOperationsInput | string | null
+    result?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    correlationId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -100915,6 +106139,10 @@ export namespace Prisma {
     targetResource?: StringFieldUpdateOperationsInput | string
     details?: NullableJsonNullValueInput | InputJsonValue
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    actorRole?: NullableStringFieldUpdateOperationsInput | string | null
+    result?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    correlationId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -100922,7 +106150,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     tokenHash?: StringFieldUpdateOperationsInput | string
+    maskedKey?: NullableStringFieldUpdateOperationsInput | string | null
     scopes?: JsonNullValueInput | InputJsonValue
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -100933,7 +106163,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     tokenHash?: StringFieldUpdateOperationsInput | string
+    maskedKey?: NullableStringFieldUpdateOperationsInput | string | null
     scopes?: JsonNullValueInput | InputJsonValue
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -100944,7 +106176,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     tokenHash?: StringFieldUpdateOperationsInput | string
+    maskedKey?: NullableStringFieldUpdateOperationsInput | string | null
     scopes?: JsonNullValueInput | InputJsonValue
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -101727,6 +106961,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     website?: WebsiteUpdateOneWithoutMediaAssetsNestedInput
+    studioMetadata?: StudioAssetMetadataUpdateOneWithoutAssetNestedInput
   }
 
   export type MediaAssetUncheckedUpdateWithoutUserInput = {
@@ -101743,6 +106978,7 @@ export namespace Prisma {
     format?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    studioMetadata?: StudioAssetMetadataUncheckedUpdateOneWithoutAssetNestedInput
   }
 
   export type MediaAssetUncheckedUpdateManyWithoutUserInput = {
@@ -101759,6 +106995,26 @@ export namespace Prisma {
     format?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StudioAssetFolderUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    assets?: StudioAssetMetadataUpdateManyWithoutFolderNestedInput
+  }
+
+  export type StudioAssetFolderUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    assets?: StudioAssetMetadataUncheckedUpdateManyWithoutFolderNestedInput
+  }
+
+  export type StudioAssetFolderUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type OptimizationCreditLedgerUpdateWithoutUserInput = {
@@ -102617,6 +107873,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutMediaAssetsNestedInput
+    studioMetadata?: StudioAssetMetadataUpdateOneWithoutAssetNestedInput
   }
 
   export type MediaAssetUncheckedUpdateWithoutWebsiteInput = {
@@ -102633,6 +107890,7 @@ export namespace Prisma {
     format?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    studioMetadata?: StudioAssetMetadataUncheckedUpdateOneWithoutAssetNestedInput
   }
 
   export type MediaAssetUncheckedUpdateManyWithoutWebsiteInput = {
@@ -102924,6 +108182,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -102974,6 +108237,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -103011,6 +108279,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -103047,6 +108320,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -103131,6 +108409,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -103244,6 +108527,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -103281,6 +108569,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -103317,6 +108610,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -103352,6 +108650,11 @@ export namespace Prisma {
     slug: string
     status?: string
     archivedAt?: Date | string | null
+    moderationStatus?: string
+    moderationReason?: string | null
+    moderatedAt?: Date | string | null
+    moderatedBy?: string | null
+    version?: number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -103432,6 +108735,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -103469,6 +108777,11 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -103505,12 +108818,41 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderationStatus?: StringFieldUpdateOperationsInput | string
+    moderationReason?: NullableStringFieldUpdateOperationsInput | string | null
+    moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    moderatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    version?: IntFieldUpdateOperationsInput | number
     editorData?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     workspaceId?: NullableStringFieldUpdateOperationsInput | string | null
     approvalWorkflowEnabled?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type StudioAssetMetadataCreateManyFolderInput = {
+    assetId: string
+    category?: string | null
+    deletedAt?: Date | string | null
+  }
+
+  export type StudioAssetMetadataUpdateWithoutFolderInput = {
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    asset?: MediaAssetUpdateOneRequiredWithoutStudioMetadataNestedInput
+  }
+
+  export type StudioAssetMetadataUncheckedUpdateWithoutFolderInput = {
+    assetId?: StringFieldUpdateOperationsInput | string
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type StudioAssetMetadataUncheckedUpdateManyWithoutFolderInput = {
+    assetId?: StringFieldUpdateOperationsInput | string
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type LicenseActivationCreateManyLicenseInput = {

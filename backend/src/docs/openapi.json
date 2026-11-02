@@ -1,0 +1,240 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "ForgeStudio Developer API v1",
+    "version": "1.0.0",
+    "description": "Programmatic REST API for managing websites, pages, publishing, deployments, and rollbacks on the ForgeStudio platform."
+  },
+  "servers": [
+    {
+      "url": "/api/v1",
+      "description": "API v1 Endpoint Base"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "API Key (fsk_...)",
+        "description": "Bearer authentication using ForgeStudio API key"
+      }
+    },
+    "schemas": {
+      "StandardEnvelope": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "data": { "type": "object" },
+          "meta": { "type": "object" },
+          "requestId": { "type": "string" }
+        }
+      },
+      "ErrorEnvelope": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": false },
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": { "type": "string", "example": "FORBIDDEN" },
+              "message": { "type": "string", "example": "Insufficient permissions" },
+              "details": { "type": "object" },
+              "requestId": { "type": "string" }
+            }
+          }
+        }
+      },
+      "Website": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "slug": { "type": "string" },
+          "status": { "type": "string", "enum": ["DRAFT", "PUBLISHED", "ARCHIVED"] },
+          "version": { "type": "integer" },
+          "editorData": { "type": "object" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Page": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "slug": { "type": "string" },
+          "elements": { "type": "array", "items": { "type": "object" } },
+          "seo": { "type": "object" },
+          "status": { "type": "string" }
+        }
+      },
+      "Deployment": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "websiteId": { "type": "string", "format": "uuid" },
+          "version": { "type": "integer" },
+          "status": { "type": "string" },
+          "environment": { "type": "string" },
+          "destinationType": { "type": "string" },
+          "startedAt": { "type": "string", "format": "date-time" },
+          "completedAt": { "type": "string", "format": "date-time" }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ],
+  "paths": {
+    "/websites": {
+      "get": {
+        "summary": "List websites",
+        "description": "List all websites accessible to the authenticated user.",
+        "parameters": [
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 20 } },
+          { "name": "status", "in": "query", "schema": { "type": "string" } },
+          { "name": "search", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Websites list retrieved successfully." },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden - requires websites:read scope" },
+          "429": { "description": "Rate limit exceeded" }
+        }
+      },
+      "post": {
+        "summary": "Create website",
+        "description": "Create a new website in the workspace.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name"],
+                "properties": {
+                  "name": { "type": "string" },
+                  "slug": { "type": "string" },
+                  "templateId": { "type": "string" },
+                  "editorData": { "type": "object" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Website created successfully." },
+          "400": { "description": "Validation error" },
+          "403": { "description": "Forbidden - requires websites:write scope" }
+        }
+      }
+    },
+    "/websites/{id}": {
+      "get": {
+        "summary": "Get website by ID",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": { "description": "Website details retrieved." },
+          "403": { "description": "Forbidden - cross-tenant or missing websites:read scope" },
+          "404": { "description": "Website not found" }
+        }
+      },
+      "put": {
+        "summary": "Update website",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": { "description": "Website updated successfully." },
+          "403": { "description": "Forbidden - requires websites:write scope" },
+          "409": { "description": "Stale version conflict" }
+        }
+      }
+    },
+    "/websites/{id}/pages": {
+      "get": {
+        "summary": "Get website pages",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": { "description": "Pages array returned." },
+          "403": { "description": "Forbidden - requires websites:read scope" }
+        }
+      },
+      "put": {
+        "summary": "Update website pages",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["pages"],
+                "properties": {
+                  "pages": { "type": "array", "items": { "$ref": "#/components/schemas/Page" } },
+                  "expectedVersion": { "type": "integer" },
+                  "lastKnownUpdatedAt": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Pages updated successfully." },
+          "400": { "description": "Missing revision or invalid payload" },
+          "403": { "description": "Forbidden - requires websites:write scope" },
+          "409": { "description": "Stale version conflict (concurrent edit)" }
+        }
+      }
+    },
+    "/websites/{id}/publish": {
+      "post": {
+        "summary": "Publish website",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "201": { "description": "Deployment queued or completed." },
+          "403": { "description": "Forbidden - requires publish:write scope" },
+          "429": { "description": "Rate limit exceeded (10 publishes/min)" }
+        }
+      }
+    },
+    "/websites/{id}/deployments": {
+      "get": {
+        "summary": "List website deployments",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": { "description": "Deployments history list." },
+          "403": { "description": "Forbidden - requires websites:read scope" }
+        }
+      }
+    },
+    "/websites/{id}/deployments/{deploymentId}/rollback": {
+      "post": {
+        "summary": "Rollback deployment",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } },
+          { "name": "deploymentId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": { "description": "Rollback initiated successfully." },
+          "403": { "description": "Forbidden - requires publish:write scope" }
+        }
+      }
+    }
+  }
+}
