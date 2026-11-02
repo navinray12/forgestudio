@@ -619,4 +619,30 @@ export function initJobHandlers() {
 
     return { status: "COMPLETED", websiteId, operationType, scope };
   });
+
+  // 14. FORM_EMAIL_NOTIFICATION_RETRY Handler
+  registerJobHandler("FORM_EMAIL_NOTIFICATION_RETRY", async (payload) => {
+    const { websiteId, to, subject, html, text, fromName } = payload;
+    if (!websiteId || !to || !subject) {
+      throw new PermanentJobError("Missing websiteId, to, or subject in FORM_EMAIL_NOTIFICATION_RETRY payload");
+    }
+
+    const { sendSiteEmail } = await import("../siteMailer.service.js");
+    const result = await sendSiteEmail(websiteId, {
+      to,
+      subject,
+      html,
+      text,
+      fromName,
+    });
+    return result;
+  });
+
+  // 15. SSL_CERTIFICATE_RENEWAL Handler
+  registerJobHandler("SSL_CERTIFICATE_RENEWAL", async (payload) => {
+    const { processExpiringSslCertificates } = await import("../domains/customDomain.service.js");
+    const windowDays = payload?.windowDays ? Number(payload.windowDays) : 30;
+    const summary = await processExpiringSslCertificates(windowDays);
+    return summary;
+  });
 }

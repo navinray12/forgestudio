@@ -1,4 +1,5 @@
 import React from "react";
+import { useParams } from "react-router-dom";
 import { useAtomicEditor } from "../hooks/useAtomicEditor";
 import { AtomicEditorNavigation } from "./AtomicEditorNavigation";
 import { AtomicEditorContent } from "./AtomicEditorContent";
@@ -15,9 +16,12 @@ export const AtomicEditor: React.FC<AtomicEditorProps> = ({
   onClose,
   onInsertGlobalElement,
   onInsertComponent,
-  websiteId,
+  websiteId: propWebsiteId,
   elements,
 }) => {
+  const routeParams = useParams<{ websiteId?: string }>();
+  const websiteId = propWebsiteId || routeParams.websiteId;
+
   const {
     sections,
     activeSection,

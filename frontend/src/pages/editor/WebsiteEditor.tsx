@@ -187,7 +187,8 @@ import {
   reorderTreeElement,
   resolveMotionAttrs,
   resolveStickyStyles,
-  initMotionRuntime
+  initMotionRuntime,
+  compileDesignSystemCss
 } from "./utils";
 
 import {
@@ -1032,61 +1033,31 @@ export default function WebsiteEditor() {
 
   // F-339 & F-344: Dynamic compile for Design System Tokens (:root, Dark theme) and Global Classes on Canvas
   const compiledDesignTokensCss = useMemo(() => {
-    let css = "";
-    if (globalVariables && globalVariables.length > 0) {
-      css += "/* --- ForgeStudio Design Tokens (:root) --- */\n:root {\n";
-      for (const v of globalVariables) {
-        if (v && (v.token || v.key)) {
-          const tok = v.token || v.key;
-          const lightVal = v.modes?.light || v.value;
-          if (lightVal) {
-            css += `  ${tok}: ${lightVal};\n`;
-          }
-        }
-      }
-      css += "}\n\n";
-
-      const darkModeVars = globalVariables.filter((v: any) => v && (v.token || v.key) && v.modes?.dark);
-      if (darkModeVars.length > 0) {
-        css += "/* --- ForgeStudio Design Tokens (Dark Theme Overrides) --- */\n[data-theme=\"dark\"], .dark {\n";
-        for (const v of darkModeVars) {
-          const tok = v.token || v.key;
-          css += `  ${tok}: ${v.modes.dark};\n`;
-        }
-        css += "}\n\n";
-
-        css += "@media (prefers-color-scheme: dark) {\n  :root:not([data-theme=\"light\"]) {\n";
-        for (const v of darkModeVars) {
-          const tok = v.token || v.key;
-          css += `    ${tok}: ${v.modes.dark};\n`;
-        }
-        css += "  }\n}\n\n";
-      }
-    }
-    if (globalClasses && globalClasses.length > 0) {
-      css += "/* --- ForgeStudio Global Utility Classes --- */\n";
-      for (const c of globalClasses) {
-        const clsName = c.className || c.key;
-        if (c && clsName && c.styles) {
-          const toCss = (obj: any) =>
-            Object.entries(obj)
-              .map(([k, v]) => `  ${k.replace(/[A-Z]/g, (m) => "-" + m.toLowerCase())}: ${v};`)
-              .join("\n");
-          css += `.${clsName} {\n${toCss(c.styles)}\n}\n`;
-          if (c.pseudoStyles?.hover && Object.keys(c.pseudoStyles.hover).length > 0) {
-            css += `.${clsName}:hover {\n${toCss(c.pseudoStyles.hover)}\n}\n`;
-          }
-          if (c.pseudoStyles?.focus && Object.keys(c.pseudoStyles.focus).length > 0) {
-            css += `.${clsName}:focus {\n${toCss(c.pseudoStyles.focus)}\n}\n`;
-          }
-          if (c.pseudoStyles?.active && Object.keys(c.pseudoStyles.active).length > 0) {
-            css += `.${clsName}:active {\n${toCss(c.pseudoStyles.active)}\n}\n`;
-          }
-        }
-      }
-    }
-    return css;
+    return compileDesignSystemCss(globalVariables, globalClasses);
   }, [globalVariables, globalClasses]);
+
+  // Synchronize on external design system updates (e.g. from AtomicEditor, ClassManagerModal, etc.)
+  useEffect(() => {
+    const handleDesignSystemUpdate = (e: any) => {
+      const detail = e?.detail;
+      if (!detail) return;
+      if (detail.websiteId && websiteId && detail.websiteId !== websiteId) return;
+      if (Array.isArray(detail.variables)) {
+        setGlobalVariables(detail.variables);
+      }
+      if (Array.isArray(detail.classes)) {
+        setGlobalClasses(detail.classes);
+      }
+      if (typeof detail.version === "number") {
+        setWebsite((prev: any) => (prev ? { ...prev, version: detail.version } : prev));
+      }
+    };
+
+    window.addEventListener("fs-design-system-updated" as any, handleDesignSystemUpdate);
+    return () => {
+      window.removeEventListener("fs-design-system-updated" as any, handleDesignSystemUpdate);
+    };
+  }, [websiteId]);
 
   const [isAddPageModalOpen, setIsAddPageModalOpen] = useState<boolean>(false);
   const [newPageName, setNewPageName] = useState<string>("");
