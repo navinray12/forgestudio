@@ -66,4 +66,7 @@ export async function initializeDatabaseBootstrap(): Promise<void> {
   await validateDatabaseSchema();
 }
 
+// Schema changes and account provisioning are explicit operational tasks.
+// Importing this client must not rewrite migration history or reset passwords.
+
 export default prisma;

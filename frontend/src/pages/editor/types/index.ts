@@ -775,6 +775,11 @@ export interface TiltConfig {
  * Read priority: el.motionConfig > legacy el.styles.* motion fields.
  */
 export interface MotionConfig {
+  text?: { enabled: boolean; durationMs?: string };
+  press?: { enabled: boolean; scale?: string; durationMs?: string };
+  loop?: { enabled: boolean; variant?: 'float' | 'pulse' | 'spin'; durationMs?: string };
+  drag?: { enabled: boolean; axis?: 'both' | 'x' | 'y' };
+  overlay?: { enabled: boolean; color?: string; opacity?: string };
   entranceAnimation?: EntranceAnimationType;
   /** Duration in ms. Default "600" */
   entranceDurationMs?: string;

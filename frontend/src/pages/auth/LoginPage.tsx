@@ -1,3 +1,5 @@
+import TwoFactorLogin from '../../features/security/TwoFactorLogin';
+import { invitationReturnFromAuth, invitationReturnFromDashboard, invitationAuthLink, markInvitationManagedAuthentication } from "../../features/workspaces/invitation-context";
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { PhoneInput, type PhoneInputValue } from "../../components/phone-input";
@@ -14,7 +16,8 @@ function LoginPage() {
   // =========================
   // OTP Verification States
   // =========================
-  const [step, setStep] = useState<"credentials" | "create_password" | "select_method" | "otp">("credentials");
+  const [step, setStep] = useState<"credentials" | "create_password" | "select_method" | "otp" | "mfa">("credentials");
+  const [twoFactorChallenge, setTwoFactorChallenge] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -88,7 +91,7 @@ function LoginPage() {
       setSelectedChannel("EMAIL");
     } else if (oauthStatus === "google_success" || oauthStatus === "github_success") {
       console.log("OAuth login successful, redirecting to dashboard...");
-      window.location.href = "/dashboard";
+      window.location.href = invitationReturnFromAuth(window.location.search) || invitationReturnFromDashboard() || "/dashboard";
     }
 
     if (oauthError === "google_auth_failed") {
@@ -104,6 +107,7 @@ function LoginPage() {
   // Google OAuth
   // =========================
   const handleGoogleLogin = () => {
+    markInvitationManagedAuthentication(window.location.search);
     window.location.href = `${apiUrl}/api/v1/auth/google`;
   };
 
@@ -111,6 +115,7 @@ function LoginPage() {
   // GitHub OAuth
   // =========================
   const handleGithubLogin = () => {
+    markInvitationManagedAuthentication(window.location.search);
     window.location.href = `${apiUrl}/api/v1/auth/github`;
   };
 
@@ -255,7 +260,7 @@ function LoginPage() {
       }
 
       console.log("Login successful:", data);
-      window.location.href = "/dashboard";
+      window.location.href = invitationReturnFromAuth(window.location.search) || invitationReturnFromDashboard() || "/dashboard";
     } catch (error) {
       setError(
         error instanceof Error
@@ -361,8 +366,8 @@ function LoginPage() {
         );
       }
 
-      console.log("OTP Verification successful:", data);
-      window.location.href = "/dashboard";
+      if (data.requireTwoFactor) {setTwoFactorChallenge(data.challenge);setOtp('');setStep('mfa');return;}
+      window.location.href = invitationReturnFromAuth(window.location.search) || invitationReturnFromDashboard() || "/dashboard";
     } catch (error) {
       setError(
         error instanceof Error
@@ -522,7 +527,7 @@ function LoginPage() {
                   <p className="mt-3 text-[13px] text-slate-500">
                     Don't have an account?{" "}
                     <a
-                      href="/signup"
+                      href={invitationAuthLink("signup", window.location.search)}
                       className="font-semibold text-blue-600 hover:text-blue-700"
                     >
                       Sign up
@@ -813,6 +818,8 @@ function LoginPage() {
                   </button>
                 </form>
               </>
+            ) : step === "mfa" ? (
+              <TwoFactorLogin challenge={twoFactorChallenge} onSuccess={()=>{window.location.href = invitationReturnFromAuth(window.location.search) || invitationReturnFromDashboard() || "/dashboard";}} onBack={()=>{setTwoFactorChallenge('');setStep('credentials');setError('');}}/>
             ) : step === "select_method" ? (
               /* ================= CHOOSE VERIFICATION METHOD STEP ================= */
               <>

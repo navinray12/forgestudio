@@ -1,173 +1,28 @@
-import { useState, useEffect } from "react";
-
-const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
-
-interface ComposerStatus {
-    available: boolean;
-    version?: string;
-    phpAvailable: boolean;
-    phpVersion?: string;
-    error?: string;
-}
-
-export default function ComposerPanel() {
-    const [status, setStatus] = useState<ComposerStatus | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [configInput, setConfigInput] = useState('{\n  "require": {\n    \n  }\n}');
-    const [validating, setValidating] = useState(false);
-    const [installing, setInstalling] = useState(false);
-    const [output, setOutput] = useState("");
-
-    useEffect(() => {
-        fetchStatus();
-    }, []);
-
-    const fetchStatus = async () => {
-        try {
-            // Composer routes use requireAuth (cookie-based session), mounted at /api/v1/composer
-            const res = await fetch(`${apiUrl}/api/v1/composer/status`, {
-                credentials: "include",
-            });
-            const data = await res.json();
-            if (data.success) {
-                setStatus(data.data);
-            }
-        } catch (e) {
-            console.error("Failed to fetch composer status", e);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleValidate = async () => {
-        setValidating(true);
-        setOutput("");
-        try {
-            const res = await fetch(`${apiUrl}/api/v1/composer/validate`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify({ config: configInput })
-            });
-            const data = await res.json();
-            if (data.success) {
-                setOutput(`✓ Validation passed: ${data.message}`);
-            } else {
-                setOutput(`⚠ Validation failed: ${data.error?.message}`);
-            }
-        } catch (e: any) {
-            setOutput(`⚠ Error: ${e.message}`);
-        } finally {
-            setValidating(false);
-        }
-    };
-
-    const handleInstall = async () => {
-        setInstalling(true);
-        setOutput("Starting installation...\n");
-        try {
-            const res = await fetch(`${apiUrl}/api/v1/composer/install`, {
-                method: "POST",
-                credentials: "include",
-            });
-            const data = await res.json();
-            if (data.success) {
-                setOutput(`✓ Success:\n${data.output}`);
-            } else {
-                setOutput(`⚠ Failed:\n${data.error?.details || data.error?.message}`);
-            }
-        } catch (e: any) {
-            setOutput(`⚠ Error: ${e.message}`);
-        } finally {
-            setInstalling(false);
-        }
-    };
-
-
-
-    if (loading) return <div className="text-slate-500 text-sm">Checking environment...</div>;
-
-    return (
-        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm p-8 max-w-4xl">
-            <h2 className="text-lg font-bold text-slate-900">Composer Integration</h2>
-            <p className="text-sm text-slate-500 mt-1 mb-8">Manage optional PHP/WordPress dependencies using Composer securely.</p>
-
-            <div className="grid grid-cols-2 gap-6 bg-slate-50 border border-slate-100 p-6 rounded-2xl mb-8">
-                <div>
-                    <h3 className="text-xs font-bold tracking-widest text-slate-400 uppercase mb-2">PHP Environment</h3>
-                    {status?.phpAvailable ? (
-                        <div className="flex items-center gap-2 text-green-700 font-bold text-sm bg-green-50 w-max px-3 py-1.5 rounded-lg border border-green-100">
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-                            PHP {status.phpVersion} detected
-                        </div>
-                    ) : (
-                        <div className="flex items-center gap-2 text-red-700 font-bold text-sm bg-red-50 w-max px-3 py-1.5 rounded-lg border border-red-100">
-                            ⚠ PHP not available
-                        </div>
-                    )}
-                </div>
-                <div>
-                    <h3 className="text-xs font-bold tracking-widest text-slate-400 uppercase mb-2">Composer Binary</h3>
-                    {status?.available ? (
-                        <div className="flex items-center gap-2 text-green-700 font-bold text-sm bg-green-50 w-max px-3 py-1.5 rounded-lg border border-green-100">
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-                            Composer {status.version} detected
-                        </div>
-                    ) : (
-                        <div className="flex items-center gap-2 text-red-700 font-bold text-sm bg-red-50 w-max px-3 py-1.5 rounded-lg border border-red-100">
-                            ⚠ Composer not detected
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            {status?.available && (
-                <div className="flex flex-col gap-6">
-                    <div className="border border-slate-200 rounded-xl overflow-hidden focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 transition">
-                        <div className="bg-slate-50 px-4 py-2 border-b border-slate-200 text-xs font-bold text-slate-600 flex justify-between">
-                            <span>composer.json</span>
-                            <span className="text-slate-400 font-mono">Sandbox: /integrations/php</span>
-                        </div>
-                        <textarea
-                            value={configInput}
-                            onChange={(e) => setConfigInput(e.target.value)}
-                            spellCheck={false}
-                            className="w-full bg-slate-800 text-green-400 font-mono text-sm p-4 h-48 border-none focus:ring-0 resize-y"
-                        />
-                    </div>
-
-                    <div className="flex justify-end gap-3">
-                        <button
-                            disabled={validating || installing}
-                            onClick={handleValidate}
-                            className="bg-white border border-slate-200 text-slate-700 font-bold px-5 py-2.5 rounded-xl text-sm hover:bg-slate-50 transition"
-                        >
-                            {validating ? "Validating..." : "Validate Configuration"}
-                        </button>
-                        <button
-                            disabled={installing || validating}
-                            onClick={handleInstall}
-                            className="bg-blue-600 border border-blue-600 text-white font-bold px-5 py-2.5 rounded-xl text-sm hover:bg-blue-700 transition"
-                        >
-                            {installing ? "Installing..." : "Install Dependencies"}
-                        </button>
-                    </div>
-
-                    {output && (
-                        <div className="mt-4 p-4 rounded-xl bg-slate-900 border border-slate-700">
-                            <h4 className="text-xs font-bold tracking-widest text-slate-500 mb-2 uppercase">Execution Output</h4>
-                            <pre className="text-xs text-slate-300 font-mono whitespace-pre-wrap">{output}</pre>
-                        </div>
-                    )}
-                </div>
-            )}
-
-            {status?.error && (
-                <div className="mt-6 p-4 rounded-xl bg-red-50 border border-red-100">
-                    <h4 className="text-xs font-bold text-red-800 mb-1">Environment Alert</h4>
-                    <p className="text-xs text-red-600">{status.error}</p>
-                </div>
-            )}
-        </div>
-    );
+import {useEffect,useRef,useState} from 'react';
+import {AlertTriangle,CheckCircle2,Layers,OctagonAlert,RefreshCw,SlidersHorizontal,Terminal} from 'lucide-react';
+import DeveloperToolsShell from './DeveloperToolsShell';
+import {composerConfigPayload,composerPathPayload} from '../../../services/composer-model';
+import './ComposerPanel.css';
+const base=(import.meta.env.VITE_API_URL||'http://localhost:5000').replace(/\/$/,'');
+type Choice={id:string;label:string};
+type Status={available:boolean;version?:string;phpAvailable:boolean;phpVersion?:string;error?:string;settings:{phpSource:string;composerSource:string;config:Record<string,unknown>;version:number};choices:{php:Choice[];composer:Choice[]};validated:boolean;installationEnabled:boolean;activeRun:null|{id:string;packages:{name:string;version:string}[];finishedAt:string};recentRun:null|{status:string;output:string;finishedAt:string}};
+async function request(path:string,options:RequestInit={}){const r=await fetch(`${base}/api/v1/composer${path}`,{...options,credentials:'include'});const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error?.message||d.message||'Composer is unavailable. Please try again.');return d.data;}
+export default function ComposerPanel(){
+ const [status,setStatus]=useState<Status|null>(null),[loading,setLoading]=useState(true),[error,setError]=useState(''),[notice,setNotice]=useState(''),[open,setOpen]=useState(false),[php,setPhp]=useState('AUTO'),[composer,setComposer]=useState('AUTO'),[pathVersion,setPathVersion]=useState(0),[saving,setSaving]=useState(false),[pathError,setPathError]=useState(''),[config,setConfig]=useState('{"require":{}}'),[editing,setEditing]=useState(false),[busy,setBusy]=useState<'validate'|'install'|null>(null);
+ const dialog=useRef<HTMLDialogElement>(null),activeRequest=useRef<AbortController|null>(null);
+ async function load(){activeRequest.current?.abort();const controller=new AbortController();activeRequest.current=controller;setLoading(true);setError('');try{const data=await request('/status',{signal:controller.signal}) as Status;if(!controller.signal.aborted){setStatus(data);if(!editing)setConfig(JSON.stringify(data.settings.config,null,2));}}catch(e){if(!controller.signal.aborted)setError((e as Error).message);}finally{if(!controller.signal.aborted)setLoading(false);}}
+ useEffect(()=>{void load();return()=>activeRequest.current?.abort();},[]);
+ useEffect(()=>{if(open)dialog.current?.showModal();else dialog.current?.close();},[open]);
+ function configure(){if(!status)return;setPhp(status.settings.phpSource);setComposer(status.settings.composerSource);setPathVersion(status.settings.version);setPathError('');setOpen(true);}
+ async function savePaths(){if(!status)return;setSaving(true);setPathError('');try{await request('/settings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(composerPathPayload(php,composer,pathVersion))});setOpen(false);setNotice('Runtime path preferences saved.');await load();}catch(e){setPathError((e as Error).message);}finally{setSaving(false);}}
+ async function validate(){if(!status)return;setBusy('validate');setError('');setNotice('');try{await request('/validate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(composerConfigPayload(config,status.settings.version))});setEditing(false);setNotice('Configuration validated and saved.');await load();}catch(e){setError((e as Error).message);}finally{setBusy(null);}}
+ async function install(){if(!status)return;setBusy('install');setError('');setNotice('');try{const result=await request('/install',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({version:status.settings.version})});setNotice(result.output);await load();}catch(e){const message=(e as Error).message;await load();setError(message);}finally{setBusy(null);}}
+ const ready=!!status?.available&&!!status?.phpAvailable;
+ return <DeveloperToolsShell active="composer-installation"><main className="dev-api-main composer-main"><header className="composer-page-heading"><div><h1>Composer</h1><p>Manage optional PHP/WordPress dependencies using<br className="composer-desktop-break"/> Composer securely.</p></div><div className="composer-page-actions"><button disabled={loading||!!busy||saving} onClick={()=>void load()}><RefreshCw size={15}/>{loading?'Checking...':<>Re-run<br/>Diagnostics</>}</button><button className="dev-api-primary" disabled={!status||loading||!!busy} onClick={configure}><SlidersHorizontal size={15}/><span>Configure<br/>Paths</span></button></div></header>
+ {error&&<div className="composer-request-error" role="alert"><span>{error}</span><button disabled={loading||!!busy} onClick={()=>void load()}>Retry diagnostics</button></div>}{notice&&<p className="composer-notice" role="status">{notice}</p>}
+ <section className="composer-integration" aria-busy={loading}><h2>Composer Integration</h2><p>Manage optional PHP/WordPress dependencies using Composer securely.</p><div className="composer-environments"><article><h3>PHP ENVIRONMENT</h3>{loading&&!status?<p role="status">Checking PHP environment...</p>:!status?<p>Diagnostics unavailable.</p>:<><span className={`composer-status ${status.phpAvailable?'is-ready':'is-missing'}`}>{status.phpAvailable?<CheckCircle2 size={16}/>:<AlertTriangle size={16}/>} {status.phpAvailable?`PHP ${status.phpVersion} detected`:'PHP not available'}</span><p>{status.phpAvailable?'The selected server PHP runtime is available.':'ForgeStudio could not verify the server PHP runtime. Minimum required: PHP 8.0+.'}</p></>}</article><article><h3>COMPOSER BINARY</h3>{loading&&!status?<p role="status">Checking Composer...</p>:!status?<p>Diagnostics unavailable.</p>:<><span className={`composer-status ${status.available?'is-ready':'is-missing'}`}>{status.available?<CheckCircle2 size={16}/>:<AlertTriangle size={16}/>} {status.available?`Composer ${status.version} detected`:'Composer not detected'}</span><p>{status.available?'The selected Composer runtime is available.':'Composer could not be resolved from the selected server path. Composer 2.2+ is required.'}</p></>}</article></div>{status?.error&&<div className="composer-environment-alert" role="status"><OctagonAlert size={21}/><div><h3>ENVIRONMENT ALERT</h3><p>{status.error}</p></div></div>}</section>
+ <div className="composer-details"><section className="composer-detail-card"><h2><span><Terminal size={19}/></span>Manual Path Setup</h2><p>If PHP or Composer are installed in custom binary directories (e.g., Homebrew, MAMP, Docker), configure their absolute execution paths on the server, then select them in Configure Paths.</p><pre><span># Backend .env (administrator setup)</span>{'\nCOMPOSER_BINARY_PATH="/usr/local/bin/composer"\nCOMPOSER_PHP_PATH="/opt/homebrew/bin/php"'}</pre><small>On Windows, use php.exe and composer.phar. Paths refer to the backend server.</small></section><section className="composer-detail-card composer-dependencies"><h2><span><Layers size={19}/></span>Lockfile & Dependencies</h2><p>{ready?'Review this account?s validated configuration and installed dependency release below. Installation builds a separate release and preserves previous dependencies on failure.':'Once the environment is resolved, you will be able to inspect installed packages, autoload configurations, and install dependencies in an account-specific sandbox.'}</p><div className="composer-file-status"><span>composer.json detected:</span><strong>{loading?'Checking environment':!status?'Diagnostics unavailable':!ready?'Pending environment setup':status.validated?'Validated configuration':'Validation required'}</strong></div>{status?.activeRun&&<div className="composer-packages"><h3>Installed packages</h3>{status.activeRun.packages.length?<ul>{status.activeRun.packages.map(p=><li key={p.name}><code>{p.name}</code><span>{p.version}</span></li>)}</ul>:<p>No runtime packages in the active lockfile.</p>}<small>Installed {new Date(status.activeRun.finishedAt).toLocaleString()}</small></div>}{status?.recentRun&&<div className="composer-run"><h3>Latest installation: {status.recentRun.status}</h3><p>{status.recentRun.output}</p></div>}</section></div>
+ {ready&&status&&<section className="composer-config"><h2>composer.json</h2><p>Package requirements and relative PSR-4 autoload paths. Package scripts and plugins remain disabled.</p><textarea aria-label="Composer configuration" value={config} maxLength={100000} spellCheck={false} rows={12} disabled={!!busy} onChange={e=>{setConfig(e.target.value);setEditing(true);}}/><div className="composer-config-actions"><button disabled={!!busy||loading} onClick={()=>void validate()}>{busy==='validate'?'Validating...':'Validate & Save'}</button><button className="dev-api-primary" disabled={!!busy||loading||editing||!status.validated||!status.installationEnabled} onClick={()=>void install()}>{busy==='install'?'Installing...':'Install Dependencies'}</button></div>{!status.installationEnabled&&<p className="composer-config-hint">Dependency installation is not enabled by the server administrator.</p>}{status.settings.config.autoload!==undefined&&<details><summary>Autoload configuration</summary><pre>{JSON.stringify(status.settings.config.autoload,null,2)}</pre></details>}</section>}
+ <dialog ref={dialog} className="composer-path-dialog" aria-labelledby="composer-path-title" onCancel={e=>{if(saving)e.preventDefault();else setOpen(false);}}><form onSubmit={e=>{e.preventDefault();void savePaths();}}><header><h2 id="composer-path-title">Configure Paths</h2><button type="button" disabled={saving} onClick={()=>setOpen(false)}>Close</button></header><p>Select trusted runtime paths configured on the backend server. Add custom paths through COMPOSER_PHP_PATH and COMPOSER_BINARY_PATH in the server environment.</p>{pathError&&<div className="composer-request-error" role="alert">{pathError}</div>}<fieldset disabled={saving}><label>PHP executable<select aria-label="PHP runtime path" value={php} onChange={e=>setPhp(e.target.value)}>{status?.choices.php.map(c=><option key={c.id} value={c.id}>{c.label}</option>)}</select></label><label>Composer executable / PHAR<select aria-label="Composer runtime path" value={composer} onChange={e=>setComposer(e.target.value)}>{status?.choices.composer.map(c=><option key={c.id} value={c.id}>{c.label}</option>)}</select></label></fieldset><footer><button type="button" disabled={saving} onClick={()=>setOpen(false)}>Cancel</button><button className="dev-api-primary" disabled={saving}>{saving?'Saving...':'Save Paths'}</button></footer></form></dialog>
+ </main></DeveloperToolsShell>;
 }

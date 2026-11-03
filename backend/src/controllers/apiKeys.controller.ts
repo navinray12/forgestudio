@@ -1,10 +1,15 @@
 import type { Request, Response, NextFunction } from "express";
+import { prisma as db } from "../config/prisma.js";
 import {
   listApiKeys,
   createApiKey,
   revokeApiKey,
   rotateApiKey,
 } from "../services/apiKey.service.js";
+import { apiKeyInput } from "../services/api-key-input.js";
+import {z} from "zod";
+import { AppError } from "../utils/app-error.js";
+
 
 export async function listApiKeysHandler(req: Request, res: Response, next: NextFunction) {
   try {
@@ -19,13 +24,33 @@ export async function listApiKeysHandler(req: Request, res: Response, next: Next
 export async function createApiKeyHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const user = res.locals.user;
-    const { name, scopes, expiresInDays } = req.body;
+
+    const requestSchema = apiKeyInput.extend({
+      expiresInDays: z.coerce
+        .number()
+        .int()
+        .min(1)
+        .max(365)
+        .nullish(),
+    });
+
+    const parsed = requestSchema.safeParse(req.body);
+
+    if (!parsed.success) {
+      throw new AppError(
+        "Enter a valid label, API scopes, and expiration period.",
+        400,
+        "INVALID_REQUEST"
+      );
+    }
+
+    const { name, scopes, expiresInDays } = parsed.data;
 
     const result = await createApiKey(
       user.id,
       name,
       scopes,
-      expiresInDays ? Number(expiresInDays) : null
+      expiresInDays ?? null
     );
 
     return res.status(201).json({
@@ -41,28 +66,36 @@ export async function createApiKeyHandler(req: Request, res: Response, next: Nex
         createdAt: result.apiKey.createdAt,
       },
     });
-  } catch (e: any) {
-    if (e.message && (e.message.includes("scope") || e.message.includes("Expiration"))) {
-      return res.status(400).json({
-        success: false,
-        error: { code: "VALIDATION_ERROR", message: e.message },
-      });
-    }
-    next(e);
+  } catch (error) {
+    next(error);
   }
 }
 
-export async function revokeApiKeyHandler(req: Request, res: Response, next: NextFunction) {
+export async function revokeApiKeyHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   try {
     const user = res.locals.user;
     const keyId = req.params.id as string;
 
-    const success = await revokeApiKey(user.id, keyId);
-    if (!success) {
-      return res.status(404).json({
-        success: false,
-        error: { code: "NOT_FOUND", message: "API key not found or already revoked." },
-      });
+    if (!z.uuid().safeParse(keyId).success) {
+      throw new AppError(
+        "Invalid API key identifier.",
+        400,
+        "INVALID_REQUEST"
+      );
+    }
+
+    const revoked = await revokeApiKey(user.id, keyId);
+
+    if (!revoked) {
+      throw new AppError(
+        "API key not found or already revoked.",
+        404,
+        "NOT_FOUND"
+      );
     }
 
     return res.status(200).json({ success: true, message: "API key revoked securely." });

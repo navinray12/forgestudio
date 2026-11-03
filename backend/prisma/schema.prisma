@@ -50,9 +50,12 @@ model User {
   ownedOrganizations      Organization[]       @relation("OrgOwner")
   organizationMemberships OrganizationMember[]
   workspaceMemberships    WorkspaceMember[]
+  sentWorkspaceEmailInvitations WorkspaceEmailInvitation[] @relation("WorkspaceEmailInviter")
+  receivedWorkspaceEmailInvitations WorkspaceEmailInvitation[] @relation("WorkspaceEmailRecipient")
   approvalRequests        PublishApprovalRequest[] @relation("ApprovalRequester")
   reviewedApprovals       PublishApprovalRequest[] @relation("ApprovalReviewer")
   mediaAssets             MediaAsset[]
+  studioAssetFolders      StudioAssetFolder[]
   optimizationCredits     Int                      @default(250)
   creditLedgers           OptimizationCreditLedger[]
   licenses                License[]
@@ -70,6 +73,8 @@ model Website {
   name               String                @db.VarChar(255)
   slug               String                @db.VarChar(255)
   status             String                @default("DRAFT") @db.VarChar(50)
+  // Dashboard organization only; publishing and editor content are independent.
+  archivedAt         DateTime?             @db.Timestamptz(6)
   moderationStatus   String                @default("ACTIVE") @db.VarChar(50)
   moderationReason   String?               @db.Text
   moderatedAt        DateTime?             @db.Timestamptz(6)
@@ -731,6 +736,10 @@ model Workspace {
 
   organization   Organization?     @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   owner          User              @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  // Independent optimistic version for Members commands; does not change legacy workspace data.
+  membersVersion Int               @default(1)
+  lifecycleStatus String           @default("ACTIVE") @db.VarChar(20)
+  emailInvitations WorkspaceEmailInvitation[]
   members        WorkspaceMember[]
   websites       Website[]
 
@@ -844,6 +853,28 @@ model BackgroundJob {
   @@map("background_jobs")
 }
 
+model StudioAssetFolder {
+  id String @id @db.Uuid
+  userId String @db.Uuid
+  name String @db.VarChar(100)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assets StudioAssetMetadata[]
+  @@unique([userId, name])
+  @@map("studio_asset_folders")
+}
+
+model StudioAssetMetadata {
+  assetId String @id @db.Uuid
+  folderId String? @db.Uuid
+  category String? @db.VarChar(30)
+  deletedAt DateTime? @db.Timestamptz(6)
+  asset MediaAsset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  folder StudioAssetFolder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  @@index([folderId], map: "studio_asset_folder_idx")
+  @@map("studio_asset_metadata")
+}
+
 model MediaAsset {
   id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId       String    @db.Uuid
@@ -865,6 +896,7 @@ model MediaAsset {
 
   @@index([userId])
   @@index([websiteId])
+  studioMetadata StudioAssetMetadata?
   @@map("media_assets")
 }
 
@@ -1030,3 +1062,38 @@ model BillingInvoice {
 
 
 
+
+// Target-owned invitation storage avoids colliding with unmanaged source-system tables.
+model WorkspaceEmailInvitation {
+  id                String    @id @default(uuid()) @db.Uuid
+  workspaceId       String    @db.Uuid
+  invitedBy         String    @db.Uuid
+  recipientUserId   String?   @db.Uuid
+  invitedEmail      String    @db.VarChar(254)
+  role              String    @db.VarChar(20)
+  status            String    @default("PENDING") @db.VarChar(20)
+  version           Int       @default(1)
+  tokenHash         String    @unique @db.Char(64)
+  expiresAt         DateTime  @db.Timestamptz(6)
+  acceptedAt        DateTime? @db.Timestamptz(6)
+  createdAt         DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt         DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+  createRequestKey  String    @db.Uuid
+  lastCommandKey    String?   @db.Uuid
+  lastCommandAction String?   @db.VarChar(20)
+  emailStatus       String    @default("QUEUED") @db.VarChar(20)
+  emailQueuedAt     DateTime  @default(now()) @db.Timestamptz(6)
+  emailSentAt       DateTime? @db.Timestamptz(6)
+  emailAttempts     Int       @default(0)
+  nextAttemptAt     DateTime  @default(now()) @db.Timestamptz(6)
+  leaseUntil        DateTime? @db.Timestamptz(6)
+  leaseToken        String?   @db.Uuid
+  workspace         Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  inviter           User @relation("WorkspaceEmailInviter", fields: [invitedBy], references: [id], onDelete: Cascade)
+  recipient         User? @relation("WorkspaceEmailRecipient", fields: [recipientUserId], references: [id], onDelete: SetNull)
+
+  @@unique([workspaceId, createRequestKey])
+  @@index([workspaceId, status])
+  @@index([emailStatus, nextAttemptAt])
+  @@map("workspace_email_invitations")
+}

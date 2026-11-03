@@ -1,0 +1,135 @@
+{
+  "purpose": "Reviewed existing-installation upgrade history; activation still requires operational approval and runtime/configuration gates.",
+  "sharedDatabaseModified": false,
+  "migrations": [
+    {
+      "name": "20260819115056_init_auth",
+      "checksum": "cef7f6b47c1bfe7274946baf9420e6e99d227a53b936fcba030b307c111156a0",
+      "provenance": "backend\\prisma\\migrations\\20260819115056_init_auth\\migration.sql",
+      "bytes": "raw",
+      "status": "finished"
+    },
+    {
+      "name": "20260821051943_add_google_identity",
+      "checksum": "9c1733a3cc36348f9114bbb9141995a1ae307d275ed528798588757a4391023a",
+      "provenance": "backend\\prisma\\migrations\\20260821051943_add_google_identity\\migration.sql",
+      "bytes": "raw",
+      "status": "finished"
+    },
+    {
+      "name": "20260914100000_add_website_revisions",
+      "checksum": "2e76f1c53c62a1913649124f8d00d3b0a17e4f5a806cf8d5d5f6d1d016f64fc6",
+      "provenance": "backend\\prisma\\migrations\\20260914100000_add_website_revisions\\migration.sql",
+      "bytes": "raw",
+      "status": "finished"
+    },
+    {
+      "name": "20260914200000_add_deployments",
+      "checksum": "80397b99d5281a5aa9abea71af4e675c1dee0b02c4af0c6d85f8dfd808c6c41b",
+      "provenance": "backend\\prisma\\migrations\\20260914200000_add_deployments\\migration.sql",
+      "bytes": "raw",
+      "status": "finished"
+    },
+    {
+      "name": "20260914300000_add_wordpress_integration",
+      "checksum": "6c92fd59c2b7811f5dd866479449f1bf979513bac8f3254e3eb5e84cefc907a6",
+      "provenance": "backend\\prisma\\migrations\\20260914300000_add_wordpress_integration\\migration.sql",
+      "bytes": "raw",
+      "status": "finished"
+    },
+    {
+      "name": "20260914400000_add_permissions_and_teams",
+      "checksum": "b6c72302a0a7040e73f85bbe43344084df9a8c155e5f3914cc0aeca27c2d48e4",
+      "provenance": "backend\\prisma\\migrations\\20260914400000_add_permissions_and_teams\\migration.sql",
+      "bytes": "raw",
+      "status": "finished"
+    },
+    {
+      "name": "20260914500000_add_collaboration_and_enterprise",
+      "checksum": "cf34bfb096ebcd22f094103360ff1896f71e5c94f7d3db4e551dc703c1af925a",
+      "provenance": "backend\\prisma\\migrations\\20260914500000_add_collaboration_and_enterprise\\migration.sql",
+      "bytes": "raw",
+      "status": "finished"
+    },
+    {
+      "name": "20260920000000_add_optimization_and_enterprise",
+      "checksum": "3198329c8793dd2898e9613c1ab48d967d01a282f85563caccc44a592cb25214",
+      "provenance": "backend\\prisma\\migrations\\20260920000000_add_optimization_and_enterprise\\migration.sql",
+      "bytes": "LF",
+      "status": "finished"
+    },
+    {
+      "name": "20260925000000_fix_wordpress_connection_and_block_templates",
+      "checksum": "5544397b2ad06b1979933abed6bfa120aa8f9d0af1883a537fce3706470171e1",
+      "provenance": ".integration-review\\source\\backend\\prisma\\migrations\\20260925000000_fix_wordpress_connection_and_block_templates\\migration.sql",
+      "bytes": "raw",
+      "status": "finished"
+    },
+    {
+      "name": "20260928090000_workspace_command_journal",
+      "checksum": "e05aab01de436aba5d14606e468a80d722822c787ef8f0e4972c3ab7b0fb0eb2",
+      "provenance": ".integration-review\\source\\backend\\prisma\\migrations\\20260928090000_workspace_command_journal\\migration.sql",
+      "bytes": "raw",
+      "status": "finished"
+    },
+    {
+      "name": "20260928122000_workspace_lifecycle",
+      "checksum": "51a67a2d4395cb9b1c6e1304a9dd4fcf448df3b03088efd84afe28a00fcb182e",
+      "provenance": "https://github.com/navinray12/forgestudio-ai/blob/397b56e13a16a074a55a2e4382453a27126276ba/backend/prisma/migrations/20260928122000_workspace_lifecycle/migration.sql",
+      "sourceCommit": "397b56e13a16a074a55a2e4382453a27126276ba",
+      "sourceGitBlob": "8b2611eb013bf6ae936d9882b2e924b92c4e6453",
+      "bytes": "LF",
+      "status": "finished"
+    },
+    {
+      "name": "20260928140000_document_concurrency",
+      "checksum": "4b69e9d447e51fb7a315a9c567e90410d919af8e0d9bf77f30df0b02ea6c588c",
+      "provenance": ".integration-review\\source\\backend\\prisma\\migrations\\20260928140000_document_concurrency\\migration.sql",
+      "bytes": "raw",
+      "status": "finished"
+    },
+    {
+      "name": "20260928170000_identity_boundary",
+      "checksum": "4459ec57a8fce3e26ad9a33f4ce929b04f7e4b0123fc5f442bd022fcbb369b39",
+      "provenance": ".integration-review\\source\\backend\\prisma\\migrations\\20260928170000_identity_boundary\\migration.sql",
+      "bytes": "raw",
+      "status": "finished"
+    },
+    {
+      "name": "20260929000000_complete_legacy_core",
+      "checksum": "8c2298897091d349b9944dbad7ee7c569370941da00a74a12c86d06d7b0c55d6",
+      "provenance": ".integration-review\\source\\backend\\prisma\\migrations\\20260929000000_complete_legacy_core\\migration.sql",
+      "bytes": "CRLF",
+      "status": "unfinished"
+    },
+    {
+      "name": "20260929093000_platform_foundations",
+      "checksum": "393b7a19174afec091db1af1e74906ca02014a3b7484c62620cd69e83432810c",
+      "provenance": ".integration-review\\source\\backend\\prisma\\migrations\\20260929093000_platform_foundations\\migration.sql",
+      "bytes": "raw",
+      "status": "finished"
+    },
+    {
+      "name": "20261022100000_workspace_email_invitations",
+      "checksum": "9985c892a42252710243f3f957f30f6a6f984992ed806871504422b82f516d9c",
+      "provenance": ".integration-review\\source\\backend\\prisma\\migrations\\20261022100000_workspace_email_invitations\\migration.sql",
+      "bytes": "raw",
+      "status": "finished"
+    },
+    {
+      "name": "20261023180000_repair_organization_billing_foundations",
+      "checksum": "3a937cb23bf799215ed627877ad8fa191137ef602dea9a3a040e72238219cdaa",
+      "provenance": ".integration-review\\source\\backend\\prisma\\migrations\\20261023180000_repair_organization_billing_foundations\\migration.sql",
+      "bytes": "CRLF",
+      "status": "finished"
+    },
+    {
+      "name": "20261026190000_workspace_members_email_invites",
+      "checksum": "ff98b7eeb0f058a3361e9751d6c81304583904a34df62569ed4f2efe69a5c017",
+      "provenance": "backend\\prisma\\migrations\\20261026190000_workspace_members_email_invites\\migration.sql",
+      "status": "proposed-only"
+    }
+  ],
+  "unrecovered": [],
+  "legacyContractSha256": "73627ce391bbfe106b49e3a76931622410ca3808fa00bcaaeb30084be3662cd5"
+}

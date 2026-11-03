@@ -66,6 +66,10 @@ export async function updateDesignSystem(req: Request, res: Response) {
     if (!websiteId) {
       return res.status(400).json({ success: false, message: "websiteId is required" });
     }
+    if (!userId || !await canUserAccessResource(userId, websiteId, "*", "EDIT_DESIGN")) {
+      return res.status(403).json({success:false,message:"Design permission is required to manage tokens and global classes."});
+    }
+
 
     // Role-based capability check: must have EDIT_DESIGN permission
     const canEdit = await canUserAccessResource(userId, websiteId, "*", "EDIT_DESIGN");
@@ -118,8 +122,8 @@ export async function updateDesignSystem(req: Request, res: Response) {
             ),
             '{globalClasses}',
             ${classesJson}::jsonb,
-            true
-          ),
+              true
+            ),
           "version" = "version" + 1,
           "updatedAt" = NOW()
       WHERE id = ${websiteId}::uuid
@@ -254,6 +258,10 @@ export async function importDesignSystemPayload(req: Request, res: Response) {
     if (!website) {
       return res.status(404).json({ success: false, message: "Website not found" });
     }
+    if (!userId || !await canUserAccessResource(userId, websiteId, "*", "EDIT_DESIGN")) {
+      return res.status(403).json({success:false,message:"Design permission is required to manage tokens and global classes."});
+    }
+
 
     if (!payload) {
       return res.status(400).json({ success: false, message: "Design system payload is required" });
@@ -333,8 +341,8 @@ export async function importDesignSystemPayload(req: Request, res: Response) {
             ),
             '{globalClasses}',
             ${classesJson}::jsonb,
-            true
-          ),
+              true
+            ),
           "version" = "version" + 1,
           "updatedAt" = NOW()
       WHERE id = ${websiteId}::uuid
@@ -369,4 +377,3 @@ export async function importDesignSystemPayload(req: Request, res: Response) {
     return res.status(400).json({ success: false, message: error.message || "Failed to import design system" });
   }
 }
-

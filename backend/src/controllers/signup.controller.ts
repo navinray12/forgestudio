@@ -68,7 +68,7 @@ export async function signupController(
       });
     }
 
-    const session = await createUserSession(user.id);
+    const session = await createUserSession(user.id, req.get('user-agent') || '');
     res.cookie(AUTH_COOKIE_NAME, session.token, AUTH_COOKIE_OPTIONS);
 
     return res.status(201).json({
@@ -129,7 +129,7 @@ export async function verifySignupOtpController(
       throw new AppError("User account not found.", 404, "USER_NOT_FOUND");
     }
 
-    const session = await createUserSession(user.id);
+    const session = await createUserSession(user.id, req.get('user-agent') || '');
     res.cookie(AUTH_COOKIE_NAME, session.token, AUTH_COOKIE_OPTIONS);
 
     return res.status(200).json({

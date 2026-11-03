@@ -146,6 +146,7 @@ exports.Prisma.WebsiteScalarFieldEnum = {
   name: 'name',
   slug: 'slug',
   status: 'status',
+  archivedAt: 'archivedAt',
   moderationStatus: 'moderationStatus',
   moderationReason: 'moderationReason',
   moderatedAt: 'moderatedAt',
@@ -555,7 +556,9 @@ exports.Prisma.WorkspaceScalarFieldEnum = {
   ownerId: 'ownerId',
   settings: 'settings',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  membersVersion: 'membersVersion',
+  lifecycleStatus: 'lifecycleStatus'
 };
 
 exports.Prisma.OrganizationScalarFieldEnum = {
@@ -622,6 +625,20 @@ exports.Prisma.BackgroundJobScalarFieldEnum = {
   websiteId: 'websiteId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.StudioAssetFolderScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  name: 'name',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.StudioAssetMetadataScalarFieldEnum = {
+  assetId: 'assetId',
+  folderId: 'folderId',
+  category: 'category',
+  deletedAt: 'deletedAt'
 };
 
 exports.Prisma.MediaAssetScalarFieldEnum = {
@@ -750,6 +767,32 @@ exports.Prisma.BillingInvoiceScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.WorkspaceEmailInvitationScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  invitedBy: 'invitedBy',
+  recipientUserId: 'recipientUserId',
+  invitedEmail: 'invitedEmail',
+  role: 'role',
+  status: 'status',
+  version: 'version',
+  tokenHash: 'tokenHash',
+  expiresAt: 'expiresAt',
+  acceptedAt: 'acceptedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  createRequestKey: 'createRequestKey',
+  lastCommandKey: 'lastCommandKey',
+  lastCommandAction: 'lastCommandAction',
+  emailStatus: 'emailStatus',
+  emailQueuedAt: 'emailQueuedAt',
+  emailSentAt: 'emailSentAt',
+  emailAttempts: 'emailAttempts',
+  nextAttemptAt: 'nextAttemptAt',
+  leaseUntil: 'leaseUntil',
+  leaseToken: 'leaseToken'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -863,6 +906,8 @@ exports.Prisma.ModelName = {
   WorkspaceMember: 'WorkspaceMember',
   PublishApprovalRequest: 'PublishApprovalRequest',
   BackgroundJob: 'BackgroundJob',
+  StudioAssetFolder: 'StudioAssetFolder',
+  StudioAssetMetadata: 'StudioAssetMetadata',
   MediaAsset: 'MediaAsset',
   SiteMailerConfig: 'SiteMailerConfig',
   EmailDeliveryLog: 'EmailDeliveryLog',
@@ -872,7 +917,8 @@ exports.Prisma.ModelName = {
   License: 'License',
   LicenseActivation: 'LicenseActivation',
   WhiteLabelConfig: 'WhiteLabelConfig',
-  BillingInvoice: 'BillingInvoice'
+  BillingInvoice: 'BillingInvoice',
+  WorkspaceEmailInvitation: 'WorkspaceEmailInvitation'
 };
 
 /**

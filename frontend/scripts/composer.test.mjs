@@ -1,0 +1,3 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {composerPathPayload,composerConfigPayload} from '../src/services/composer-model.ts';
+test('path requests use allowlisted choice identifiers rather than executable strings',()=>{assert.deepEqual(composerPathPayload('AUTO','CONFIGURED',3),{phpSource:'AUTO',composerSource:'CONFIGURED',version:3});assert.throws(()=>composerPathPayload('/tmp/command','AUTO',1));});
+test('configuration requests retain version and reject malformed JSON objects',()=>{assert.deepEqual(composerConfigPayload('{"require":{}}',7),{config:'{"require":{}}',version:7});for(const v of ['null','[]','{'])assert.throws(()=>composerConfigPayload(v,0));});

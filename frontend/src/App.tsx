@@ -1,3 +1,5 @@
+import WorkspaceInvitationPage from "./features/workspaces/WorkspaceInvitationPage";
+import { invitationReturnFromAuth, invitationReturnFromDashboard } from "./features/workspaces/invitation-context";
 import React, { Suspense, lazy } from "react";
 import {
   BrowserRouter,
@@ -12,6 +14,7 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 
 import LoginPage from "./pages/auth/LoginPage";
 import SignupPage from "./pages/auth/SignupPage";
+import DashboardPage from "./pages/dashboard/DashboardPage";
 import UserDashboard from "./pages/dashboard/UserDashboard";
 
 // Route-based code splitting for optimal initial bundle size and load performance
@@ -90,6 +93,8 @@ function LoginRoute() {
   }
 
   if (user) {
+    const invitationReturn = invitationReturnFromAuth(window.location.search) || invitationReturnFromDashboard();
+    if (invitationReturn) return <Navigate to={invitationReturn} replace />;
     switch (user.role) {
       case "SUPER_ADMIN":
         return (
@@ -135,6 +140,8 @@ function SignupRoute() {
   }
 
   if (user) {
+    const invitationReturn = invitationReturnFromAuth(window.location.search) || invitationReturnFromDashboard();
+    if (invitationReturn) return <Navigate to={invitationReturn} replace />;
     switch (user.role) {
       case "SUPER_ADMIN":
         return (
@@ -214,6 +221,8 @@ function App() {
             <Suspense fallback={<RouteLoading />}>
               <Routes>
 
+          <Route path="/workspace-invitations/:invitationId" element={<WorkspaceInvitationPage />} />
+          <Route path="/dashboard/workspaces/:workspaceId" element={<RoleRoute allowedRoles={["USER", "ADMIN", "SUPER_ADMIN", "PLATFORM_ADMIN", "SUPPORT_ADMIN", "DEVELOPER", "AI_CONTENT_ADMIN", "TEAM_MEMBER"]}><DashboardPage /></RoleRoute>} />
           {/* ================= AUTH ================= */}
 
           <Route
@@ -260,7 +269,7 @@ function App() {
             path="/dashboard"
             element={
               <RoleRoute allowedRoles={["USER"]}>
-                <UserDashboard />
+                <DashboardPage />
               </RoleRoute>
             }
           />
@@ -339,6 +348,7 @@ function App() {
             }
           />
 
+          <Route path="/dashboard/tools" element={<RoleRoute allowedRoles={["USER"]}><UserDashboard /></RoleRoute>} />
           {/* ================= ADMIN ================= */}
 
 

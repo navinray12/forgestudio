@@ -1,0 +1,4 @@
+export const postFieldTypes=['text','textarea','rich-text','number','email','url','date','boolean','select','image','file'];
+export function postSlug(value:string){return value.toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');}
+export type PostField={id?:string;name:string;key:string;type:string;required:boolean;order:number;options:Record<string,unknown>};
+export function fieldsPayload(fields:PostField[],version:string){if(new Set(fields.map(f=>f.key)).size!==fields.length)throw Error('Field keys must be unique.');if(fields.some(f=>!f.name.trim()||!f.key.trim()))throw Error('Field names and keys are required.');return{expectedUpdatedAt:version,fields:fields.map((f,order)=>({...(f.id?{id:f.id}:{}),name:f.name.trim(),key:f.key,type:f.type,required:f.required,options:f.options,order}))};}

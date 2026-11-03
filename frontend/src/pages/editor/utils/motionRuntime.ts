@@ -1,3 +1,4 @@
+import { initStudioMotion } from "./studioMotionRuntime";
 import type { InteractionRule } from "../types";
 
 /**
@@ -101,12 +102,26 @@ export interface MotionRuntimeController {
  * - Scroll effects: Parallax, Transparency, Rotate, Scale, Blur
  * - Multi-rule Interaction Engine (safe selectors, allowlisted actions, keyboard accessibility)
  */
-export function initMotionRuntime(root: HTMLElement | Document = document): MotionRuntimeController {
+export function initMotionRuntime(root: HTMLElement | Document = document, forceReducedMotion = false): MotionRuntimeController {
   const cleanupFns: (() => void)[] = [];
   const modifiedElements = new Set<HTMLElement>();
+  const initialStyles = new Map<HTMLElement,{transform:string;opacity:string;filter:string}>();
+  root.querySelectorAll<HTMLElement>('[data-scroll-effects], [data-entrance]').forEach(el=>initialStyles.set(el,{transform:el.style.transform,opacity:el.style.opacity,filter:el.style.filter}));
+  const restoreStyles = () => {
+    modifiedElements.forEach(el=>{
+      const original=initialStyles.get(el);
+      if(original) Object.assign(el.style,original);
+      else {const state=transformStates.get(el);el.style.transform=state?.base||'';}
+      transformStates.delete(el);
+      el.classList.remove('fs-entrance-active');
+    });
+    modifiedElements.clear();
+  };
+
 
   // Check prefers-reduced-motion
-  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const prefersReducedMotion = forceReducedMotion || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  cleanupFns.push(initStudioMotion(root, prefersReducedMotion));
 
   // ──────────────────────────────────────────────────────────────────────────
   // 1. Entrance Animations via IntersectionObserver
@@ -127,7 +142,7 @@ export function initMotionRuntime(root: HTMLElement | Document = document): Moti
               if (delay) target.style.setProperty("--fs-entrance-delay", delay);
 
               target.classList.add("fs-entrance-active");
-              target.style.opacity = "1";
+              target.style.opacity = initialStyles.get(target)?.opacity || "1";
               modifiedElements.add(target);
 
               if (!isReplay) {
@@ -154,7 +169,7 @@ export function initMotionRuntime(root: HTMLElement | Document = document): Moti
     "[data-hover-scale], [data-hover-rotate], [data-hover-translate-y], [data-hover-opacity]"
   );
 
-  if (hoverElements.length > 0) {
+  if (hoverElements.length > 0 && !prefersReducedMotion) {
     const styleId = "fs-motion-hover-styles";
     let styleTag = document.getElementById(styleId) as HTMLStyleElement | null;
     if (!styleTag) {
@@ -394,11 +409,11 @@ export function initMotionRuntime(root: HTMLElement | Document = document): Moti
         });
       };
 
-      window.addEventListener("scroll", handleScroll, { passive: true });
+      root.addEventListener("scroll", handleScroll, { passive: true, capture: true });
       handleScroll(); // Trigger initial position
 
       cleanupFns.push(() => {
-        window.removeEventListener("scroll", handleScroll);
+        root.removeEventListener("scroll", handleScroll, true);
         if (scrollRaf) cancelAnimationFrame(scrollRaf);
       });
     }
@@ -551,18 +566,7 @@ export function initMotionRuntime(root: HTMLElement | Document = document): Moti
       });
       cleanupFns.length = 0;
 
-      // Reset modified element transforms, opacity, and filter to their pre-runtime base
-      modifiedElements.forEach((el) => {
-        const state = transformStates.get(el);
-        if (state) {
-          el.style.transform = state.base;
-        } else {
-          el.style.transform = "";
-        }
-        el.style.opacity = "";
-        el.style.filter = "";
-      });
-      modifiedElements.clear();
+      restoreStyles();
     },
     refresh: () => {
       if (!active) return;
@@ -576,7 +580,8 @@ export function initMotionRuntime(root: HTMLElement | Document = document): Moti
         } catch {}
       });
       cleanupFns.length = 0;
-      childController = initMotionRuntime(root);
+      restoreStyles();
+      childController = initMotionRuntime(root, forceReducedMotion);
     },
   };
 }

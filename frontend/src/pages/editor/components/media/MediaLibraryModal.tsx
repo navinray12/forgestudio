@@ -26,6 +26,7 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
   onSelect,
   websiteId,
 }) => {
+  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
   const [assets, setAssets] = useState<MediaAssetItem[]>([]);
   const [selectedAsset, setSelectedAsset] = useState<MediaAssetItem | null>(null);
   const [loading, setLoading] = useState(false);
@@ -55,7 +56,7 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
       if (websiteId) params.append("websiteId", websiteId);
       if (searchQuery) params.append("search", searchQuery);
 
-      const res = await fetch(`/api/media?${params.toString()}`, {
+      const res = await fetch(`${apiUrl}/api/media?${params.toString()}`, {
         credentials: "include",
       });
       if (res.ok) {
@@ -82,7 +83,7 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
         const formData = new FormData();
         formData.append("image", file);
 
-        const res = await fetch("/api/uploads/image", {
+        const res = await fetch(`${apiUrl}/api/uploads/image`, {
           method: "POST",
           body: formData,
           credentials: "include",
@@ -109,7 +110,7 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
     if (!selectedAsset) return;
     setSavingAlt(true);
     try {
-      const res = await fetch(`/api/media/${selectedAsset.id}`, {
+      const res = await fetch(`${apiUrl}/api/media/${selectedAsset.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ altText: altTextInput }),
@@ -133,7 +134,7 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
   const handleDeleteAsset = async (id: string) => {
     if (!window.confirm("Are you sure you want to delete this media asset?")) return;
     try {
-      const res = await fetch(`/api/media/${id}`, {
+      const res = await fetch(`${apiUrl}/api/media/${id}`, {
         method: "DELETE",
         credentials: "include",
       });
@@ -162,6 +163,9 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
 
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Media library"
       style={{
         position: "fixed",
         inset: 0,

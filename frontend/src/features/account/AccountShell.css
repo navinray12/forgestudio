@@ -1,0 +1,68 @@
+.account-shell{--account-header-height:80px;--account-rail-width:72px;background:#0b0917;font-family:Inter,ui-sans-serif,system-ui,sans-serif}
+.account-shell .account-shell-header{height:var(--account-header-height);padding:0 16px;gap:15px;background:#0e0b1a;border-bottom:1px solid #292333}
+.account-shell .account-shell-back{width:30px;height:30px;border:1px solid #293348;border-radius:7px;display:grid;place-items:center;background:#101725;color:#bbc8dc;flex-shrink:0;cursor:pointer}
+.account-shell .studio-brand{font-size:40px;font-weight:650;line-height:1;letter-spacing:-1.5px;border:0;background:none;padding:0;cursor:pointer}
+.account-shell .header-divider{height:23px;margin-left:6px}
+.account-shell .header-actions{gap:15px}
+.account-shell .account-history{display:flex;align-items:center;border:1px solid #30283f;background:#181326;border-radius:8px;padding:4px 3px}
+.account-shell .account-history button{border:0;background:none;color:#aca1bb;width:26px;height:24px;display:grid;place-items:center;padding:0}
+.account-shell .account-shell-bell{background:none;border:0;color:#b7a9c6;padding:3px;display:grid;place-items:center;margin-left:10px}
+.account-shell .upgrade-button{height:31px;font-size:12px;font-weight:500;padding:0 14px;margin-left:0;border-radius:8px;gap:7px}
+.account-shell .profile-button{margin-left:0;gap:9px}
+.account-shell .profile-avatar{width:30px;height:30px}
+.account-shell .profile-name{font-size:12px;font-weight:400}
+.account-shell .profile-button>svg{display:none}
+.account-shell-body{display:flex;height:calc(100dvh - var(--account-header-height));min-height:0;overflow:hidden}
+.account-tool-rail{width:var(--account-rail-width);flex:0 0 var(--account-rail-width);display:flex;flex-direction:column;align-items:center;gap:17px;border-right:1px solid #282132;background:#0c0917;padding:16px 0 12px;overflow-y:auto;scrollbar-width:thin}
+.account-tool-rail>button,.account-tool-rail>a,.account-tool-current{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:53px;min-height:48px;padding:5px 1px;border:1px solid transparent;border-radius:9px;background:none;color:#8e879b;font:inherit;font-size:10px;text-decoration:none;flex-shrink:0;cursor:pointer}
+.account-shell .account-tool-rail>button:disabled{opacity:.7;cursor:not-allowed}
+.account-tool-rail>button:not(:disabled):hover,.account-tool-rail>a:hover{background:#211433;color:#ceaff5}
+.account-tool-rail .account-tool-add{width:43px;min-height:43px;height:43px;gap:1px;padding:3px;color:#fff;background:linear-gradient(135deg,#d13ce7,#9233f3);border-radius:13px;box-shadow:0 4px 14px #8e27c644;margin-bottom:0}
+.account-tool-add span{font-size:8px}
+.account-tool-rule{width:32px;height:1px;background:#2a2234;flex-shrink:0;margin:2px 0 0}
+.account-tool-rail .account-tool-ai{color:#e875f6}
+.account-tool-rail .account-tool-current{margin-top:auto;border:1px solid #9850ee;color:#ac76f3;background:#1c1232;cursor:default}
+.account-shell .account-settings-page{flex:1;min-width:0;min-height:0;height:100%;margin:0;display:grid;grid-template-columns:192px minmax(0,1fr);gap:0;font-size:13px;color:#f7f4fc;background:radial-gradient(ellipse at 7% 25%,#251b4844,transparent 32%),radial-gradient(ellipse at 100% 50%,#1e164344,transparent 35%),#0c0a18}
+.account-shell .account-settings-nav{height:100%;border-right:1px solid #292235;border-bottom:0;background:#120e23;padding:12px;gap:5px;overflow:auto;flex-direction:column}
+.account-shell .account-settings-nav button{font-size:12px;min-height:32px;padding:7px 12px;border-radius:7px;gap:10px}
+.account-shell .account-settings-nav button:disabled{opacity:.8}
+.account-shell .account-settings-main{overflow-y:auto;height:100%;max-width:none;padding:31px 40px 24px;background:none;scrollbar-width:thin;scrollbar-color:#342541 transparent}
+.account-shell .account-settings-main>header{margin-bottom:33px}
+.account-shell .account-settings-main h1{font-size:30px;font-weight:650;letter-spacing:-1px;line-height:1.3}
+.account-shell .account-settings-main>header p{font-size:13px;margin-top:6px;line-height:1.6}
+.account-shell .account-row{grid-template-columns:240px minmax(0,1fr);gap:25px;padding:32px 0 47px;min-height:142px;display:grid}
+.account-shell .account-profile{padding-top:0;padding-bottom:24px;min-height:208px}
+.account-shell .account-section-info h2{font-size:15px;font-weight:550;line-height:1.45}
+.account-shell .account-section-info p{font-size:11px;line-height:1.45;margin-top:4px}
+.account-shell .account-photo{width:98px;height:98px;margin:4px auto 10px;border-color:#514a5b}
+.account-shell .account-photo-actions{justify-content:center;gap:8px}
+.account-shell .account-photo-actions button{font-size:11px;padding:5px 10px;border-radius:10px;height:30px}
+.account-shell .account-fields{gap:14px;margin-top:0}
+.account-shell .account-fields>label{font-size:12px}
+.account-shell .account-fields input:not([type=range]),.account-shell .account-fields select{height:38px;padding:8px 13px;font-size:13px;border-radius:11px;margin-top:6px}
+.account-shell .account-name-fields{grid-template-columns:1fr 1fr;padding-top:20px}
+.account-shell .account-email small{font-size:9px;line-height:1.4;margin-top:4px}
+.account-shell .account-preferences{grid-template-columns:1fr 1.18fr 1.1fr;gap:12px}
+.account-shell .account-preferences>label:last-child{grid-column:auto}
+.account-shell .account-preferences input,.account-shell .account-preferences select{font-size:13px!important}
+.account-shell .account-goals{grid-template-columns:1fr 1fr;gap:45px;padding:2px 4px 0}
+.account-shell .account-goals label,.account-shell .account-core-label{font-size:11px;line-height:1.6;font-weight:500;color:#f0e9f8}
+.account-shell .account-core-label{padding:0;background:none;border:0;text-align:left;display:block;width:100%;cursor:pointer}
+.account-shell .account-goals input[type=range]{max-width:275px;margin:24px 0 17px;height:7px;display:block}
+.account-shell .account-core-ranges{display:block}
+.account-shell .account-goals p{font-size:11px;line-height:1.65;max-width:375px}
+.account-shell .account-core-minimum{display:flex;gap:10px;align-items:center;margin:0 0 10px;color:#aaa0bb;font-size:11px}
+.account-shell .account-core-minimum input{width:55px;border:1px solid #9162c7;border-radius:6px;background:#181322;color:#f0e8f7;padding:3px 7px}
+.account-shell .account-learn{max-width:212px;font-size:11px;padding:8px 12px;margin-top:16px}
+.account-shell .account-work{min-height:130px;padding-top:32px;padding-bottom:36px}
+.account-shell .account-work-fields{max-width:675px;grid-template-columns:1fr 1fr;gap:16px}
+.account-shell .account-save-footer{padding-top:13px;font-size:10px;border-color:transparent}
+.account-shell .account-save-footer>span{font-size:10px}
+@media(min-width:1800px){.account-shell .account-settings-main{padding-right:60px}.account-shell .account-row{grid-template-columns:250px minmax(0,1fr)}.account-shell .account-goals{gap:70px}}
+@media(max-width:1200px){.account-shell{--account-header-height:64px;--account-rail-width:58px}.account-shell .account-shell-header{padding:0 13px;gap:12px}.account-shell .studio-brand{font-size:32px}.account-shell .account-shell-back{width:24px;height:24px;border-radius:6px}.account-shell .header-actions{gap:11px}.account-shell .account-settings-page{grid-template-columns:154px minmax(0,1fr)}.account-shell .account-settings-nav{padding:10px;gap:4px}.account-shell .account-settings-nav button{font-size:10px;min-height:27px;padding:5px 9px;gap:8px}.account-shell .account-settings-main{padding:25px 30px 20px}.account-shell .account-settings-main h1{font-size:25px}.account-shell .account-settings-main>header p{font-size:11px}.account-shell .account-settings-main>header{margin-bottom:27px}.account-shell .account-row{grid-template-columns:195px minmax(0,1fr);gap:18px;padding:26px 0 37px;min-height:114px}.account-shell .account-profile{padding-top:0;padding-bottom:19px;min-height:166px}.account-shell .account-photo{width:78px;height:78px;margin:3px auto 8px}.account-shell .account-photo svg{width:55px;height:55px}.account-shell .account-photo-actions button{height:25px;padding:4px 8px;font-size:10px}.account-shell .account-section-info h2{font-size:13px}.account-shell .account-section-info p{font-size:10px}.account-shell .account-fields>label{font-size:10px}.account-shell .account-fields{gap:11px}.account-shell .account-fields input:not([type=range]),.account-shell .account-fields select{height:31px;padding:6px 10px;font-size:11px;margin-top:5px}.account-shell .account-name-fields{padding-top:16px}.account-shell .account-preferences input,.account-shell .account-preferences select{font-size:11px!important}.account-shell .account-goals label,.account-shell .account-core-label{font-size:9px}.account-shell .account-goals p{font-size:10px}.account-shell .account-goals{gap:35px;padding-top:2px}.account-shell .account-goals input[type=range]{max-width:220px;margin:19px 0 14px;height:6px}.account-shell .account-learn{font-size:10px;max-width:170px;margin-top:12px;padding:7px 10px}.account-tool-rail{gap:12px;padding-top:13px}.account-tool-rail>button,.account-tool-rail>a,.account-tool-current{width:43px;min-height:42px;font-size:9px;gap:5px}.account-tool-rail .account-tool-add{width:35px;height:35px;min-height:35px;border-radius:10px}.account-shell .account-work{min-height:105px;padding-top:26px}.account-shell .account-work-fields{max-width:540px}}
+@media(max-width:850px){.account-shell .account-settings-page{grid-template-columns:145px minmax(0,1fr)}.account-shell .account-row{grid-template-columns:1fr;gap:18px}.account-shell .account-profile .account-section-info{display:grid;grid-template-columns:1fr auto;align-items:start}.account-shell .account-profile .account-section-info h2,.account-shell .account-profile .account-section-info>p{grid-column:1}.account-shell .account-photo{grid-column:2;grid-row:1/4;margin:0}.account-shell .account-photo-actions{justify-content:flex-start;margin-top:10px}.account-shell .account-name-fields{padding-top:0}.account-shell .account-settings-main{padding:24px}.account-shell .account-preferences{grid-template-columns:1fr 1fr}.account-shell .account-preferences>label:last-child{grid-column:1/-1}.account-shell .account-history{display:none}.account-shell .account-goals{gap:20px}.account-shell .account-work-fields{max-width:none}}
+@media(max-width:600px){.account-shell{--account-header-height:64px;--account-rail-width:48px}.account-shell .account-shell-header{padding:0 9px;gap:8px}.account-shell .studio-brand{font-size:25px;letter-spacing:-1px}.account-shell .header-divider,.account-shell .account-shell-bell{display:none}.account-shell .header-actions{gap:7px;margin-left:auto}.account-shell .upgrade-button{font-size:10px;padding:0 9px;height:28px}.account-shell .profile-button{padding:0}.account-shell .profile-avatar{width:27px;height:27px}.account-shell .profile-name{display:none}.account-shell .account-settings-page{display:flex;flex-direction:column}.account-shell .account-settings-nav{height:auto;flex:none;flex-direction:row;border-right:0;border-bottom:1px solid #2b2138;padding:9px 10px;gap:5px;overflow-x:auto}.account-shell .account-settings-nav button{flex-shrink:0}.account-shell .account-settings-main{height:auto;flex:1;padding:22px 16px}.account-shell .account-fields input:not([type=range]),.account-shell .account-fields select{height:36px;font-size:12px}.account-shell .account-fields>label{font-size:11px}.account-shell .account-preferences{grid-template-columns:1fr}.account-shell .account-preferences>label:last-child{grid-column:auto}.account-shell .account-goals{grid-template-columns:1fr;gap:22px}.account-shell .account-goals label,.account-shell .account-core-label{font-size:10px}.account-shell .account-goals p{font-size:11px}.account-shell .account-goals input[type=range]{max-width:none}.account-shell .account-work-fields{grid-template-columns:1fr}.account-shell .account-row{padding:24px 0}.account-shell .account-profile{padding-top:0}.account-shell .account-settings-main>header p{font-size:11px}.account-tool-rail{gap:9px}.account-tool-rail>button,.account-tool-rail>a,.account-tool-current{width:40px;min-height:40px;font-size:8px}.account-shell .account-save-footer>div{width:100%;justify-content:flex-end}}
+
+.account-shell .account-name-fields{padding-left:12px}.account-shell .account-work-fields{padding-left:16px}.account-shell .account-photo,.account-shell .account-photo-actions{transform:translateX(-8px)}
+@media(max-width:1200px){.account-shell .account-name-fields{padding-left:10px}.account-shell .account-work-fields{padding-left:12px}.account-shell .account-photo,.account-shell .account-photo-actions{transform:translateX(-6px)}}
+@media(max-width:850px){.account-shell .account-name-fields,.account-shell .account-work-fields{padding-left:0}.account-shell .account-photo,.account-shell .account-photo-actions{transform:none}}

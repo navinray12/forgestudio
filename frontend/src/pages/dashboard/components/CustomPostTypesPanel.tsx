@@ -1,324 +1,38 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-
-const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
-
-// ── Real backend field mapping (from customPostType.controller.ts) ──────
-// CPT fields: name, singular, plural, slug, description, hasArchive
-// Fields: name, key, type, required, order, options
-// Entries: title, slug, status, values
-
-interface CPT {
-    id: string;
-    name: string;
-    singular: string;
-    plural: string;
-    slug: string;
-    description?: string;
-    hasArchive: boolean;
-    _count?: { entries: number; fields: number };
-    createdAt: string;
-}
-
-interface CustomField {
-    id?: string;
-    name: string;
-    key: string;
-    type: string;
-    required: boolean;
-    order: number;
-    options?: Record<string, any>;
-}
-
-const FIELD_TYPES = ["text", "textarea", "number", "email", "url", "date", "boolean", "select", "image", "file"];
-
-type View = "list" | "create" | "fields";
-
-export default function CustomPostTypesPanel() {
-    const navigate = useNavigate();
-    const [websites, setWebsites] = useState<any[]>([]);
-    const [siteId, setSiteId] = useState("");
-    const [cpts, setCpts] = useState<CPT[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [view, setView] = useState<View>("list");
-    const [activeCpt, setActiveCpt] = useState<CPT | null>(null);
-    const [fields, setFields] = useState<CustomField[]>([]);
-    const [fieldsLoading, setFieldsLoading] = useState(false);
-    const [globalError, setGlobalError] = useState<string | null>(null);
-
-    // Create form
-    const [name, setName] = useState("");
-    const [singular, setSingular] = useState("");
-    const [plural, setPlural] = useState("");
-    const [slug, setSlug] = useState("");
-    const [description, setDescription] = useState("");
-    const [hasArchive, setHasArchive] = useState(false);
-    const [creating, setCreating] = useState(false);
-    const [createError, setCreateError] = useState<string | null>(null);
-
-    // Field editor
-    const [savingFields, setSavingFields] = useState(false);
-
-    useEffect(() => { loadWebsites(); }, []);
-    useEffect(() => { if (siteId) loadCpts(); }, [siteId]);
-
-    const loadWebsites = async () => {
-        try {
-            const r = await fetch(`${apiUrl}/api/websites`, { credentials: "include" });
-            const d = await r.json();
-            if (r.ok && d.websites) { setWebsites(d.websites); if (d.websites[0]) setSiteId(d.websites[0].id); }
-        } catch { setGlobalError("Could not load websites."); }
-    };
-
-    const loadCpts = async () => {
-        setLoading(true); setGlobalError(null);
-        try {
-            // Route: GET /api/cpt/websites/:websiteId/types
-            const r = await fetch(`${apiUrl}/api/cpt/websites/${siteId}/types`, { credentials: "include" });
-            const d = await r.json();
-            if (r.ok) setCpts(d.data ?? []);
-            else setGlobalError(d.error?.message || d.message || "Failed to load post types.");
-        } catch { setGlobalError("Network error."); }
-        finally { setLoading(false); }
-    };
-
-    const autoSlug = (val: string) => val.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
-
-    const handleCreate = async (e: React.FormEvent) => {
-        e.preventDefault(); setCreateError(null);
-        if (!name.trim() || !slug.trim() || !singular.trim() || !plural.trim()) {
-            setCreateError("Name, singular, plural, and slug are all required."); return;
-        }
-        setCreating(true);
-        try {
-            // Route: POST /api/cpt/websites/:websiteId/types
-            const r = await fetch(`${apiUrl}/api/cpt/websites/${siteId}/types`, {
-                method: "POST", credentials: "include",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name, singular, plural, slug, description, hasArchive }),
-            });
-            const d = await r.json();
-            if (r.ok) {
-                setView("list"); loadCpts();
-                setName(""); setSingular(""); setPlural(""); setSlug(""); setDescription(""); setHasArchive(false);
-            } else setCreateError(d.error?.message || d.message || "Failed to create.");
-        } catch { setCreateError("Network error."); }
-        finally { setCreating(false); }
-    };
-
-    const loadFields = async (cpt: CPT) => {
-        setActiveCpt(cpt); setFieldsLoading(true); setView("fields");
-        try {
-            // Route: GET /api/cpt/types/:cptId/fields
-            const r = await fetch(`${apiUrl}/api/cpt/types/${cpt.id}/fields`, { credentials: "include" });
-            const d = await r.json();
-            if (r.ok) setFields(d.data ?? []);
-        } catch { /* show empty */ }
-        finally { setFieldsLoading(false); }
-    };
-
-    const addField = () => setFields(prev => [...prev, { name: "", key: "", type: "text", required: false, order: prev.length }]);
-
-    const updateField = (i: number, patch: Partial<CustomField>) =>
-        setFields(prev => prev.map((f, idx) => idx === i ? { ...f, ...patch } : f));
-
-    const removeField = (i: number) =>
-        setFields(prev => prev.filter((_, idx) => idx !== i).map((f, idx) => ({ ...f, order: idx })));
-
-    const saveFields = async () => {
-        if (!activeCpt) return;
-        setSavingFields(true);
-        try {
-            // Route: POST /api/cpt/types/:cptId/fields
-            const r = await fetch(`${apiUrl}/api/cpt/types/${activeCpt.id}/fields`, {
-                method: "POST", credentials: "include",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ fields: fields.map((f, i) => ({ ...f, order: i })) }),
-            });
-            if (r.ok) { alert("Fields saved!"); loadCpts(); } // refresh counts
-            else alert("Save failed.");
-        } catch { alert("Network error."); }
-        finally { setSavingFields(false); }
-    };
-
-    const handleDelete = async (cpt: CPT) => {
-        if (!confirm(`Delete "${cpt.name}" and all its fields/entries? This cannot be undone.`)) return;
-        try {
-            // Route: DELETE /api/cpt/types/:cptId
-            const r = await fetch(`${apiUrl}/api/cpt/types/${cpt.id}`, { method: "DELETE", credentials: "include" });
-            const d = await r.json();
-            if (r.ok) {
-                loadCpts();
-                if (activeCpt?.id === cpt.id) { setView("list"); setActiveCpt(null); }
-            } else {
-                alert(d.error?.message || d.message || "Failed to delete CPT.");
-            }
-        } catch {
-            alert("Network error while deleting.");
-        }
-    };
-
-    // ── FIELD EDITOR ─────────────────────────────────────────────
-    if (view === "fields" && activeCpt) return (
-        <div className="space-y-6">
-            <div className="flex items-center gap-3">
-                <button onClick={() => setView("list")} className="text-xs font-bold text-slate-500 hover:text-slate-900 transition">← Back</button>
-                <div>
-                    <h2 className="text-lg font-bold text-slate-900">Fields: {activeCpt.name}</h2>
-                    <p className="text-xs text-slate-500">/{activeCpt.slug}</p>
-                </div>
-            </div>
-
-            {fieldsLoading ? (
-                <div className="text-xs text-slate-400 text-center py-8">Loading fields…</div>
-            ) : (
-                <div className="space-y-3">
-                    {fields.map((f, i) => (
-                        <div key={i} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                <div>
-                                    <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-500 mb-1">Field Name</label>
-                                    <input type="text" value={f.name} onChange={e => updateField(i, { name: e.target.value, key: autoSlug(e.target.value) })} placeholder="Field Name" className="h-8 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-slate-300" />
-                                </div>
-                                <div>
-                                    <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-500 mb-1">Key</label>
-                                    <input type="text" value={f.key} onChange={e => updateField(i, { key: autoSlug(e.target.value) })} placeholder="field_key" className="h-8 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-slate-300" />
-                                </div>
-                                <div>
-                                    <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-500 mb-1">Type</label>
-                                    <select value={f.type} onChange={e => updateField(i, { type: e.target.value })} className="h-8 w-full rounded-lg border border-slate-200 bg-slate-50 px-2 text-xs font-semibold focus:outline-none">
-                                        {FIELD_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-                                    </select>
-                                </div>
-                                <div className="flex items-end gap-2">
-                                    <label className="inline-flex items-center gap-1.5 cursor-pointer mb-1">
-                                        <input type="checkbox" checked={f.required} onChange={e => updateField(i, { required: e.target.checked })} className="w-3.5 h-3.5" />
-                                        <span className="text-[11px] font-semibold text-slate-600">Required</span>
-                                    </label>
-                                    <button onClick={() => removeField(i)} className="ml-auto h-8 px-3 rounded-lg border border-red-200 text-[11px] font-bold text-red-500 hover:bg-red-50 transition">Remove</button>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-
-                    <div className="flex gap-3">
-                        <button onClick={addField} className="h-9 px-4 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 transition">+ Add Field</button>
-                        <button onClick={saveFields} disabled={savingFields} className="h-9 px-5 rounded-xl bg-slate-900 text-xs font-bold text-white hover:bg-slate-700 transition disabled:opacity-50">{savingFields ? "Saving…" : "Save Fields"}</button>
-                    </div>
-                </div>
-            )}
-        </div>
-    );
-
-    // ── CREATE FORM ───────────────────────────────────────────────
-    if (view === "create") return (
-        <div className="space-y-6">
-            <div className="flex items-center gap-3">
-                <button onClick={() => setView("list")} className="text-xs font-bold text-slate-500 hover:text-slate-900 transition">← Back</button>
-                <h2 className="text-lg font-bold text-slate-900">New Custom Post Type</h2>
-            </div>
-
-            <form onSubmit={handleCreate} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-5">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-500 mb-1.5">Display Name *</label>
-                        <input type="text" value={name} onChange={e => { setName(e.target.value); setSlug(autoSlug(e.target.value)); setSingular(e.target.value); setPlural(e.target.value + "s"); }}
-                            placeholder="e.g. Portfolio" className="h-9 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-slate-300" required />
-                    </div>
-                    <div>
-                        <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-500 mb-1.5">Slug * (auto-generated)</label>
-                        <input type="text" value={slug} onChange={e => setSlug(autoSlug(e.target.value))}
-                            placeholder="e.g. portfolio" className="h-9 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-slate-300" required />
-                    </div>
-                    <div>
-                        <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-500 mb-1.5">Singular Label *</label>
-                        <input type="text" value={singular} onChange={e => setSingular(e.target.value)}
-                            placeholder="e.g. Portfolio Item" className="h-9 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-slate-300" required />
-                    </div>
-                    <div>
-                        <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-500 mb-1.5">Plural Label *</label>
-                        <input type="text" value={plural} onChange={e => setPlural(e.target.value)}
-                            placeholder="e.g. Portfolio Items" className="h-9 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-slate-300" required />
-                    </div>
-                </div>
-
-                <div>
-                    <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-500 mb-1.5">Description</label>
-                    <input type="text" value={description} onChange={e => setDescription(e.target.value)}
-                        placeholder="Brief description of this post type" className="h-9 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs focus:outline-none focus:ring-2 focus:ring-slate-300" />
-                </div>
-
-                <label className="inline-flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" checked={hasArchive} onChange={e => setHasArchive(e.target.checked)} className="w-4 h-4" />
-                    <span className="text-xs font-semibold text-slate-700">Has archive page</span>
-                </label>
-
-                {createError && <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold text-red-700">{createError}</div>}
-
-                <div className="flex justify-end gap-3 pt-2">
-                    <button type="button" onClick={() => setView("list")} className="h-9 px-4 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100 transition">Cancel</button>
-                    <button type="submit" disabled={creating} className="h-9 px-5 rounded-xl bg-slate-900 text-xs font-bold text-white hover:bg-slate-700 transition disabled:opacity-50">{creating ? "Creating…" : "Create Post Type"}</button>
-                </div>
-            </form>
-        </div>
-    );
-
-    // ── LIST VIEW ─────────────────────────────────────────────────
-    return (
-        <div className="space-y-6">
-            <div className="flex items-start justify-between flex-wrap gap-4">
-                <div>
-                    <h2 className="text-xl font-bold text-slate-900">Custom Post Types</h2>
-                    <p className="text-sm text-slate-500 mt-1">Create custom content types with dynamic fields and entries.</p>
-                </div>
-                <div className="flex items-center gap-2">
-                    {websites.length > 1 && (
-                        <select value={siteId} onChange={e => setSiteId(e.target.value)} className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 shadow-sm focus:outline-none">
-                            {websites.map(w => <option key={w.id} value={w.id}>{w.name}</option>)}
-                        </select>
-                    )}
-                    <button onClick={() => setView("create")} className="inline-flex h-9 items-center gap-2 rounded-xl bg-slate-900 px-4 text-xs font-bold text-white shadow hover:bg-slate-700 transition">
-                        + New Post Type
-                    </button>
-                </div>
-            </div>
-
-            {globalError && <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold text-red-700">{globalError}</div>}
-
-            {loading ? (
-                <div className="flex items-center justify-center py-16 text-xs font-semibold text-slate-400">Loading…</div>
-            ) : cpts.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16 rounded-2xl border border-dashed border-slate-200 bg-slate-50 text-center">
-                    <div className="text-3xl mb-3">📝</div>
-                    <p className="text-sm font-bold text-slate-700">No custom post types yet</p>
-                    <p className="text-xs text-slate-400 mt-1">Create your first CPT to power dynamic, structured content.</p>
-                    <button onClick={() => setView("create")} className="mt-4 h-8 px-4 rounded-xl bg-slate-900 text-xs font-bold text-white hover:bg-slate-700 transition">+ Create Post Type</button>
-                </div>
-            ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {cpts.map(cpt => (
-                        <div key={cpt.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                            <div className="flex items-start justify-between gap-3">
-                                <div className="min-w-0">
-                                    <h3 className="text-sm font-bold text-slate-900 truncate">{cpt.name}</h3>
-                                    <p className="text-xs font-mono text-slate-400 mt-0.5">/{cpt.slug}</p>
-                                    <p className="text-xs text-slate-500 mt-0.5">{cpt.singular} / {cpt.plural}</p>
-                                    {cpt.description && <p className="text-xs text-slate-400 mt-1">{cpt.description}</p>}
-                                </div>
-                                <div className="flex flex-col items-end gap-1 shrink-0">
-                                    <span className="text-[10px] font-bold bg-slate-100 text-slate-500 px-2 py-0.5 rounded">{cpt._count?.fields ?? 0} Fields</span>
-                                    <span className="text-[10px] font-bold bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded">{cpt._count?.entries ?? 0} Entries</span>
-                                </div>
-                            </div>
-                            <div className="flex gap-2 mt-4 pt-3 border-t border-slate-100">
-                                <button onClick={() => loadFields(cpt)} className="h-7 px-3 rounded-lg bg-slate-900 text-[11px] font-bold text-white hover:bg-slate-700 transition">Manage Fields</button>
-                                <button onClick={() => navigate(`/dashboard/cpts/${siteId}/entries/${cpt.id}`)} className="h-7 px-3 rounded-lg border border-slate-200 text-[11px] font-bold text-slate-600 hover:bg-slate-50 transition">View Entries</button>
-                                <button onClick={() => handleDelete(cpt)} className="ml-auto h-7 px-3 rounded-lg border border-red-200 text-[11px] font-bold text-red-500 hover:bg-red-50 transition">Delete</button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            )}
-        </div>
-    );
+import {useEffect,useRef,useState} from 'react';
+import type {FormEvent} from 'react';
+import {Link} from 'react-router-dom';
+import {BarChart3,CodeXml,FileCode,Globe,Info,Plus,Puzzle,Zap} from 'lucide-react';
+import {useAuth} from '../../../context/AuthContext';
+import DeveloperToolsShell from './DeveloperToolsShell';
+import {fieldsPayload,postFieldTypes,postSlug} from '../../../services/post-types-model';
+import type {PostField} from '../../../services/post-types-model';
+import './CustomPostTypesPanel.css';
+const base=(import.meta.env.VITE_API_URL||'http://localhost:5000').replace(/\/$/,'');
+async function request(path:string,options:RequestInit={}){const r=await fetch(`${base}/api/${path}`,{...options,credentials:'include'});const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error?.message||d.message||'Content could not be loaded. Please try again.');return d;}
+type CPT={id:string;name:string;slug:string;singular:string;plural:string;description?:string;hasArchive:boolean;updatedAt:string;_count:{fields:number;entries:number}};
+type Entry={id:string;title:string;slug:string;status:string;values:Record<string,unknown>;updatedAt:string};
+const initialType={name:'',slug:'',singular:'',plural:'',description:'',hasArchive:false},initialEntry={title:'',slug:'',status:'DRAFT',values:{} as Record<string,unknown>};
+export default function CustomPostTypesPanel(){
+ const {user}=useAuth();const [sites,setSites]=useState<{id:string;name:string}[]>([]),[site,setSite]=useState(''),[siteLoading,setSiteLoading]=useState(true),[siteError,setSiteError]=useState(''),[types,setTypes]=useState<CPT[]>([]),[loading,setLoading]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState(''),[revision,reload]=useState(0),[kind,setKind]=useState<'create'|'fields'|'entries'|'guide'|null>(null),[active,setActive]=useState<CPT|null>(null),[draft,setDraft]=useState({...initialType}),[fields,setFields]=useState<PostField[]>([]),[version,setVersion]=useState(''),[entries,setEntries]=useState<Entry[]>([]),[modalLoading,setModalLoading]=useState(false),[modalError,setModalError]=useState(''),[modalRevision,retryModal]=useState(0),[saving,setSaving]=useState(false),[entryForm,setEntryForm]=useState(false),[editing,setEditing]=useState<Entry|null>(null),[entry,setEntry]=useState({...initialEntry});
+ const dialog=useRef<HTMLDialogElement>(null);
+ async function loadSites(){setSiteLoading(true);setSiteError('');try{const d=await request('websites');setSites(d.websites||[]);setSite(current=>(d.websites||[]).some((s:{id:string})=>s.id===current)?current:d.websites?.[0]?.id||'');}catch(e){setSiteError((e as Error).message);}finally{setSiteLoading(false);}}
+ useEffect(()=>{void loadSites();},[]);
+ useEffect(()=>{setTypes([]);setError('');if(!site){setLoading(false);return;}const controller=new AbortController();setLoading(true);request(`cpt/websites/${site}/types`,{signal:controller.signal}).then(d=>{if(!controller.signal.aborted)setTypes(d.data);}).catch(e=>{if(!controller.signal.aborted)setError(e.message);}).finally(()=>{if(!controller.signal.aborted)setLoading(false);});return()=>controller.abort();},[site,revision]);
+ useEffect(()=>{if(kind)dialog.current?.showModal();else dialog.current?.close();},[kind]);
+ useEffect(()=>{setModalError('');setFields([]);setEntries([]);if(!active||!['fields','entries'].includes(kind||'')){setModalLoading(false);return;}const controller=new AbortController();setModalLoading(true);Promise.all([request(`cpt/types/${active.id}/fields`,{signal:controller.signal}),kind==='entries'?request(`cpt/types/${active.id}/entries`,{signal:controller.signal}):Promise.resolve(null)]).then(([f,e])=>{if(!controller.signal.aborted){setFields(f.data);setVersion(f.updatedAt);if(e)setEntries(e.data);}}).catch(e=>{if(!controller.signal.aborted)setModalError(e.message);}).finally(()=>{if(!controller.signal.aborted)setModalLoading(false);});return()=>controller.abort();},[kind,active,modalRevision]);
+ function open(next:typeof kind,cpt?:CPT){setActive(cpt||null);setKind(next);setModalError('');setEntryForm(false);if(next==='create')setDraft({...initialType});}
+ function close(){if(!saving)setKind(null);}
+ async function create(e:FormEvent){e.preventDefault();setSaving(true);setModalError('');try{await request(`cpt/websites/${site}/types`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(draft)});setKind(null);setNotice('Post type created.');reload(v=>v+1);}catch(e){setModalError((e as Error).message);}finally{setSaving(false);}}
+ async function saveFields(e:FormEvent){e.preventDefault();if(!active)return;setSaving(true);setModalError('');try{await request(`cpt/types/${active.id}/fields`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(fieldsPayload(fields,version))});setKind(null);setNotice('Fields saved. Existing entries were preserved.');reload(v=>v+1);}catch(e){setModalError((e as Error).message);}finally{setSaving(false);}}
+ function editField(i:number,patch:Partial<PostField>){setFields(all=>all.map((f,n)=>i===n?{...f,...patch}:f));}
+ function startEntry(value?:Entry){setEditing(value||null);setEntry(value?{title:value.title,slug:value.slug,status:value.status,values:{...value.values}}:{...initialEntry,values:Object.fromEntries(fields.filter(f=>f.type==='boolean').map(f=>[f.key,false]))});setModalError('');setEntryForm(true);}
+ async function saveEntry(e:FormEvent){e.preventDefault();if(!active)return;setSaving(true);setModalError('');try{await request(editing?`cpt/entries/${editing.id}`:`cpt/types/${active.id}/entries`,{method:editing?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...entry,...(editing?{expectedUpdatedAt:editing.updatedAt}:{})})});setEntryForm(false);setNotice('Entry saved.');retryModal(v=>v+1);reload(v=>v+1);}catch(e){setModalError((e as Error).message);}finally{setSaving(false);}}
+ const ready=!!site&&!siteLoading&&!loading&&!siteError&&!error,name=user?.fullName?.split(' ')[0]||'there',hour=new Date().getHours(),greeting=hour<12?'morning':hour<18?'afternoon':'evening';
+ return <DeveloperToolsShell active="cpts"><main className="dev-api-main cpt-main"><section className="cpt-welcome"><div className="cpt-welcome-top"><div><p>Good {greeting}, {name} <span aria-hidden="true">&#128075;</span></p><h1>Welcome back to</h1><p>Build, customize and manage your websites &mdash; all in one place.</p></div><div className="cpt-welcome-art" aria-hidden="true"><div><i/><i/><i/><strong><Zap size={22}/></strong><b/><b/></div><small>Your ideas.<br/>Our tools.</small></div></div><div className="cpt-shortcuts">{[['/dashboard','Create & manage websites',Globe],['/dashboard/tools?tab=plugin-hub','Extend with powerful plugins',Puzzle],['/dashboard/tools?tab=advanced-code','Customize with developer tools',CodeXml],['/dashboard?section=usage','Track usage & performance',BarChart3]].map(([to,label,Icon])=>{const Symbol=Icon as typeof Globe;return <Link key={to as string} to={to as string}><Symbol size={19}/><span>{label as string}</span></Link>;})}</div></section>
+ <section className="cpt-panel"><header className="cpt-heading"><span className="cpt-heading-icon"><FileCode size={23}/></span><div><h2>Custom Post Types</h2><p>Create custom content types with dynamic fields and entries.</p></div><button className="cpt-guide" onClick={()=>open('guide')}><Info size={14}/>Quick Guide</button></header><div className="cpt-site-row"><label>Website<select aria-label="Website" disabled={siteLoading||kind!==null} value={site} onChange={e=>{setSite(e.target.value);setNotice('');}}>{!sites.length?<option value="">{siteLoading?'Loading websites...':'No websites available'}</option>:sites.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}</select></label>{!!types.length&&<button className="dev-api-primary" disabled={!ready} onClick={()=>open('create')}><Plus size={16}/>Create Post Type</button>}</div>
+ {siteError&&<div role="alert" className="cpt-error">{siteError}<button onClick={()=>void loadSites()}>Retry websites</button></div>}{error&&<div role="alert" className="cpt-error">{error}<button onClick={()=>reload(v=>v+1)}>Retry post types</button></div>}{notice&&<p role="status" className="cpt-notice">{notice}</p>}
+ <div className="cpt-content" aria-busy={loading||siteLoading}>{loading||siteLoading?<p className="cpt-state" role="status">Loading post types...</p>:siteError||error?<p className="cpt-state">Post types could not be loaded. Please retry above.</p>:!types.length?<div className="cpt-empty"><div className="cpt-empty-art" aria-hidden="true"><b/><b/><b/><span>+</span></div><h3>{site?'No custom post types yet':'No websites yet'}</h3><p>{site?'Create your first CPT to power dynamic, structured content.':'Create a website in your dashboard to manage structured content.'}</p>{site?<button className="dev-api-primary" disabled={!ready} onClick={()=>open('create')}><Plus size={20}/>Create Post Type</button>:<Link to="/dashboard">Go to dashboard</Link>}</div>:<div className="cpt-cards">{types.map(cpt=><article key={cpt.id}><header><h3>{cpt.name}</h3><span>{cpt._count.fields} fields ? {cpt._count.entries} entries</span></header><code>/{cpt.slug}</code><p>{cpt.singular} / {cpt.plural}</p>{cpt.description&&<p>{cpt.description}</p>}<footer><button onClick={()=>open('fields',cpt)}>Manage Fields</button><button onClick={()=>open('entries',cpt)}>View Entries</button></footer></article>)}</div>}</div></section>
+ <dialog ref={dialog} className="cpt-dialog" aria-labelledby="cpt-dialog-title" onCancel={e=>{if(saving)e.preventDefault();else close();}}><header><h2 id="cpt-dialog-title">{kind==='guide'?'Quick Guide':kind==='create'?'Create Post Type':kind==='fields'?`Fields: ${active?.name}`:`Entries: ${active?.name}`}</h2><button disabled={saving} onClick={close}>Close</button></header>{modalError&&<div role="alert" className="cpt-error">{modalError}{!saving&&kind!=='create'&&!entryForm&&<button onClick={()=>retryModal(v=>v+1)}>Reload content</button>}</div>}
+ {kind==='guide'?<div className="cpt-guide-copy"><p>1. Select a website and create a post type, such as Projects or Team Members.</p><p>2. Add fields with stable keys. Keys connect fields to stored entry values.</p><p>3. Open View Entries to add draft or published content.</p><p>Changes require the website permissions assigned to your account. Fields with stored values cannot be removed or change key/type. The archive setting stores your content preference; an archive layout must be configured in the website editor.</p></div>:kind==='create'?<form onSubmit={create}><fieldset disabled={saving}><label>Display Name<input aria-label="Display name" autoFocus required maxLength={150} value={draft.name} onChange={e=>{const value=e.target.value;setDraft({...draft,name:value,slug:draft.slug===postSlug(draft.name)?postSlug(value):draft.slug,singular:draft.singular===draft.name?value:draft.singular,plural:draft.plural===(/s$/i.test(draft.name)?draft.name:draft.name+'s')||!draft.plural?(/s$/i.test(value)?value:value+'s'):draft.plural});}}/></label><label>Slug<input aria-label="Post type slug" required maxLength={100} value={draft.slug} onChange={e=>setDraft({...draft,slug:e.target.value})}/></label><div className="cpt-form-grid"><label>Singular Label<input aria-label="Singular label" required maxLength={150} value={draft.singular} onChange={e=>setDraft({...draft,singular:e.target.value})}/></label><label>Plural Label<input aria-label="Plural label" required maxLength={150} value={draft.plural} onChange={e=>setDraft({...draft,plural:e.target.value})}/></label></div><label>Description<textarea aria-label="Description" maxLength={3000} value={draft.description} onChange={e=>setDraft({...draft,description:e.target.value})}/></label><label className="cpt-checkbox"><input type="checkbox" checked={draft.hasArchive} onChange={e=>setDraft({...draft,hasArchive:e.target.checked})}/>Has archive page</label></fieldset><footer><button type="button" disabled={saving} onClick={close}>Cancel</button><button className="dev-api-primary" disabled={saving}>{saving?'Creating...':'Create Post Type'}</button></footer></form>:modalLoading?<p role="status">Loading content...</p>:kind==='fields'?<form onSubmit={saveFields}><fieldset disabled={saving||!!modalError&&fields.length===0}>{fields.map((f,i)=><section className="cpt-field-row" key={f.id||i}><div className="cpt-form-grid"><label>Field Name<input aria-label={`Field name ${i+1}`} required value={f.name} maxLength={150} onChange={e=>editField(i,{name:e.target.value,...(!f.id&&f.key===postSlug(f.name)?{key:postSlug(e.target.value)}:{})})}/></label><label>Key<input aria-label={`Field key ${i+1}`} required value={f.key} maxLength={100} onChange={e=>editField(i,{key:e.target.value})}/></label><label>Type<select aria-label={`Field type ${i+1}`} value={f.type} onChange={e=>editField(i,{type:e.target.value})}>{postFieldTypes.map(t=><option key={t}>{t}</option>)}</select></label></div>{f.type==='select'&&<label>Choices (one per line)<textarea aria-label={`Choices ${i+1}`} value={Array.isArray(f.options?.choices)?f.options.choices.join('\n'):''} onChange={e=>editField(i,{options:{...f.options,choices:e.target.value.split('\n').filter(Boolean)}})}/></label>}<div className="cpt-field-actions"><label className="cpt-checkbox"><input type="checkbox" checked={f.required} onChange={e=>editField(i,{required:e.target.checked})}/>Required</label><button type="button" onClick={()=>setFields(all=>all.filter((_,n)=>n!==i))}>Remove</button></div></section>)}<button type="button" disabled={fields.length>=100} onClick={()=>setFields(all=>[...all,{name:'',key:'',type:'text',required:false,order:all.length,options:{}}])}>Add Field</button></fieldset><footer><button type="button" disabled={saving} onClick={close}>Cancel</button><button className="dev-api-primary" disabled={saving||!!modalError&&fields.length===0}>{saving?'Saving...':'Save Fields'}</button></footer></form>:kind==='entries'&&<>{!entryForm?<div className="cpt-entry-list"><button className="dev-api-primary" disabled={!!modalError} onClick={()=>startEntry()}>Add Entry</button>{!entries.length?<p>No entries yet.</p>:entries.map(e=><article key={e.id}><div><h3>{e.title}</h3><p>/{e.slug} ? {e.status}</p></div><button onClick={()=>startEntry(e)}>Edit Entry</button></article>)}</div>:<form onSubmit={saveEntry}><fieldset disabled={saving}><label>Title<input aria-label="Entry title" required maxLength={300} value={entry.title} onChange={e=>setEntry({...entry,title:e.target.value,...(!editing&&entry.slug===postSlug(entry.title)?{slug:postSlug(e.target.value)}:{})})}/></label><label>Slug<input aria-label="Entry slug" required maxLength={100} value={entry.slug} onChange={e=>setEntry({...entry,slug:e.target.value})}/></label><label>Status<select aria-label="Entry status" value={entry.status} onChange={e=>setEntry({...entry,status:e.target.value})}><option>DRAFT</option><option>PUBLISHED</option></select></label>{fields.map(f=>{const update=(v:unknown)=>setEntry({...entry,values:{...entry.values,[f.key]:v}});return <label key={f.id}>{f.name}{f.required?' *':''}{f.type==='boolean'?<input aria-label={f.name} type="checkbox" checked={entry.values[f.key]===true} onChange={e=>update(e.target.checked)}/>:f.type==='select'?<select aria-label={f.name} required={f.required} value={String(entry.values[f.key]??'')} onChange={e=>update(e.target.value)}><option value="">Select...</option>{(Array.isArray(f.options?.choices)?f.options.choices:[]).map(v=><option key={String(v)}>{String(v)}</option>)}</select>:['textarea','rich-text'].includes(f.type)?<textarea aria-label={f.name} required={f.required} value={String(entry.values[f.key]??'')} onChange={e=>update(e.target.value)}/>:<input aria-label={f.name} type={['number','email','date','url'].includes(f.type)?f.type:['image','file'].includes(f.type)?'url':'text'} required={f.required} value={String(entry.values[f.key]??'')} onChange={e=>update(e.target.value)}/>}</label>;})}</fieldset><footer><button type="button" disabled={saving} onClick={()=>{setEntryForm(false);setModalError('');}}>Back to entries</button><button className="dev-api-primary" disabled={saving}>{saving?'Saving...':'Save Entry'}</button></footer></form>}</>}
+ </dialog></main></DeveloperToolsShell>;
 }

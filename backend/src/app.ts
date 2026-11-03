@@ -1,3 +1,19 @@
+import studioAssetsRoutes from "./routes/studio-assets.routes.js";
+import {createDashboardNotificationsRouter} from './routes/dashboard-notifications.routes.js';
+import {createDashboardNotificationsService} from './services/dashboard-notifications.service.js';
+import {createDashboardHelpService} from './services/dashboard-help.service.js';
+import {createDashboardHelpRouter} from './routes/dashboard-help.routes.js';
+import {createDashboardSecurityRouter} from './routes/dashboard-security.routes.js';
+import {dashboardSecurity} from './services/dashboard-security.js';
+import { createDashboardCommunityRouter } from "./routes/dashboard-community.routes.js";
+import { createDashboardCommunityService } from "./services/dashboard-community.service.js";
+import { createDashboardAccountRouter } from "./routes/dashboard-account.routes.js";
+import { createDashboardAccountService } from "./services/dashboard-account.service.js";
+import { createDashboardTemplatesRouter } from "./routes/dashboard-templates.routes.js";
+import { createDashboardTemplatesService } from "./services/dashboard-templates.service.js";
+import { createDashboardBillingService } from "./services/dashboard-billing.service.js";
+import { createStripeBillingProvider } from "./services/dashboard-billing-provider.js";
+import { createDashboardBillingRouter } from "./routes/dashboard-billing.routes.js";
 import path from "path";
 import express, { type Request, type Response } from "express";
 import cors from "cors";
@@ -73,6 +89,21 @@ const authRateLimiter = rateLimit({
   },
 });
 
+import { createWorkspaceMembersRouter } from "./routes/workspace-members.routes.js";
+import { createWorkspaceMembersService } from "./services/workspace-members.service.js";
+import { assertInvitationSmtpConfigured } from "./services/email.service.js";
+import { createWorkspace } from "./services/workspace.service.js";
+import { createDashboardRouter } from "./routes/dashboard.routes.js";
+import { requireAuth } from "./middlewares/auth.middleware.js";
+import { createWorkspaceDashboardServices } from "./services/workspace-dashboard.service.js";
+import { createWorkspaceDashboardRouter } from "./routes/workspace-dashboard.routes.js";
+import { createDashboardUsageService } from "./services/dashboard-usage.service.js";
+import { createDashboardForumService } from "./services/dashboard-forum.service.js";
+import { createDashboardForumRouter } from "./routes/dashboard-forum.routes.js";
+import { createDashboardUsageRouter } from "./routes/dashboard-usage.routes.js";
+import { createDashboardServices } from "./services/dashboard.service.js";
+import { prisma } from "./config/prisma.js";
+import { createWebsite } from "./services/website.service.js";
 const app = express();
 
 app.use(
@@ -91,6 +122,8 @@ app.use(
   })
 );
 
+// A 2 MB profile photo expands when encoded as JSON/base64. Keep the larger limit scoped to account settings.
+app.use(["/api/dashboard/account", "/api/v1/dashboard/account"], express.json({ limit: "3mb" }));
 app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true, limit: "2mb" }));
 app.use(cookieParser());
@@ -128,6 +161,44 @@ app.use("/api/agency", whitelabelRoutes);
 app.use("/api/v1/users/me", usageRoutes);
 app.use("/api/users/me", usageRoutes);
 
+const { listDashboardWorkspaces, listDashboardSites, setDashboardSiteArchived, createDashboardSite, updateDashboardProfile } = createDashboardServices(prisma, createWebsite);
+const notificationsRouter = createDashboardNotificationsRouter(requireAuth, createDashboardNotificationsService(prisma));
+app.use("/api/v1", notificationsRouter);
+app.use("/api", notificationsRouter);
+const helpRouter = createDashboardHelpRouter(requireAuth, createDashboardHelpService(prisma));
+app.use("/api/v1", helpRouter);
+app.use("/api", helpRouter);
+const securityRouter = createDashboardSecurityRouter(requireAuth, dashboardSecurity);
+app.use("/api/v1", securityRouter);
+app.use("/api", securityRouter);
+const dashboardCommunity = createDashboardCommunityRouter(requireAuth, createDashboardCommunityService(prisma, createDashboardForumService(prisma)));
+app.use("/api/v1", dashboardCommunity);
+app.use("/api", dashboardCommunity);
+const dashboardAccount = createDashboardAccountRouter(requireAuth, createDashboardAccountService(prisma));
+app.use("/api/v1", dashboardAccount);
+app.use("/api", dashboardAccount);
+const dashboardTemplates = createDashboardTemplatesRouter(requireAuth, createDashboardTemplatesService(prisma));
+app.use("/api/v1", dashboardTemplates);
+app.use("/api", dashboardTemplates);
+const dashboardBilling = createDashboardBillingRouter(requireAuth, createDashboardBillingService(prisma, createStripeBillingProvider(process.env)));
+app.use("/api/v1", dashboardBilling);
+app.use("/api", dashboardBilling);
+const dashboardForum = createDashboardForumRouter(requireAuth, createDashboardForumService(prisma));
+app.use("/api/v1", dashboardForum);
+app.use("/api", dashboardForum);
+const dashboardUsage = createDashboardUsageRouter(requireAuth, createDashboardUsageService(prisma, { listDashboardSites, listDashboardWorkspaces }));
+app.use("/api/v1", dashboardUsage);
+app.use("/api", dashboardUsage);
+const workspaceDashboardRoutes = createWorkspaceDashboardRouter(requireAuth, createWorkspaceDashboardServices(prisma, listDashboardWorkspaces));
+app.use("/api/v1", workspaceDashboardRoutes);
+app.use("/api", workspaceDashboardRoutes);
+const membersRoutes = createWorkspaceMembersRouter(requireAuth, createWorkspaceMembersService(prisma, assertInvitationSmtpConfigured), createWorkspace);
+app.use("/api/v1/tenant-workspaces", membersRoutes);
+app.use("/api/tenant-workspaces", membersRoutes);
+const dashboardRoutes = createDashboardRouter({ requireAuth, listWorkspaces: listDashboardWorkspaces, listSites: listDashboardSites, createSite: createDashboardSite, updateProfile: updateDashboardProfile, setSiteArchived: setDashboardSiteArchived });
+app.use("/api/v1", dashboardRoutes);
+app.use("/api", dashboardRoutes);
+
 // Public API v1 Standardized Endpoints
 app.use("/api/v1", apiV1Routes);
 
@@ -151,6 +222,7 @@ app.use("/api/organizations", organizationRoutes);
 app.use("/api/v1/uploads", uploadRoutes);
 app.use("/api/uploads", uploadRoutes);
 app.use("/api/v1/media", mediaRoutes);
+app.use("/api/media/library", studioAssetsRoutes);
 app.use("/api/media", mediaRoutes);
 
 // API Keys & Developer Access
