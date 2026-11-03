@@ -1,0 +1,37 @@
+{
+  "name": "@forgestudio/sdk",
+  "version": "1.0.0",
+  "description": "Official ForgeStudio TypeScript / JavaScript SDK for developer integrations, headless deployments, and content pipelines",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./client": {
+      "types": "./dist/client.d.ts",
+      "import": "./dist/client.js",
+      "default": "./dist/client.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json || node ../backend/node_modules/typescript/bin/tsc -p tsconfig.json"
+  },
+  "keywords": [
+    "forgestudio",
+    "sdk",
+    "headless",
+    "cms",
+    "website-builder"
+  ],
+  "author": "ForgeStudio Engineering",
+  "license": "ISC"
+}

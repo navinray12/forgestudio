@@ -20,6 +20,9 @@ interface UseAutosaveParams {
   apiUrl: string;
   isLoadingWebsite: boolean;
   debounceMs?: number;
+  expectedVersion?: number | null;
+  lastKnownUpdatedAt?: string | number | null;
+  onServerSaveSuccess?: (updatedWebsite: any) => void;
 }
 
 interface SavePayload {
@@ -55,6 +58,9 @@ export function useAutosave({
   apiUrl,
   isLoadingWebsite,
   debounceMs = 1500,
+  expectedVersion,
+  lastKnownUpdatedAt,
+  onServerSaveSuccess,
 }: UseAutosaveParams) {
   const [status, setStatus] = useState<AutosaveStatus>("saved");
   const [lastSavedAt, setLastSavedAt] = useState<number | null>(null);
@@ -83,6 +89,9 @@ export function useAutosave({
     popups,
     pageCss,
     apiUrl,
+    expectedVersion,
+    lastKnownUpdatedAt,
+    onServerSaveSuccess,
   });
 
   useEffect(() => {
@@ -101,6 +110,9 @@ export function useAutosave({
       popups,
       pageCss,
       apiUrl,
+      expectedVersion,
+      lastKnownUpdatedAt,
+      onServerSaveSuccess,
     };
   }, [
     websiteId,
@@ -117,6 +129,9 @@ export function useAutosave({
     popups,
     pageCss,
     apiUrl,
+    expectedVersion,
+    lastKnownUpdatedAt,
+    onServerSaveSuccess,
   ]);
 
   /**
@@ -239,6 +254,8 @@ export function useAutosave({
             popups: payload.popups,
             pageCss: payload.pageCss,
           },
+          expectedVersion: latestPropsRef.current.expectedVersion,
+          lastKnownUpdatedAt: latestPropsRef.current.lastKnownUpdatedAt,
         };
 
         // 1. Always persist snapshot to local storage as immediate fail-safe
@@ -249,6 +266,7 @@ export function useAutosave({
         }
 
         // 2. Attempt backend API save
+        let serverSaveSucceeded = false;
         try {
           const res = await fetch(`${currentApiUrl}/api/websites/${currentWebId}`, {
             method: "PUT",
@@ -261,16 +279,44 @@ export function useAutosave({
 
           if (!res.ok) {
             const data = await res.json().catch(() => ({}));
-            console.warn("Backend save endpoint returned non-OK status, saved locally:", data);
+            if (res.status === 409) {
+              setStatus("conflict");
+              setErrorMessage("Conflict: This website was modified in another session. Unsaved changes are preserved locally.");
+            } else {
+              setStatus("error");
+              setErrorMessage(data?.message || data?.error?.message || "Failed to persist changes to server. Changes preserved locally.");
+            }
+          } else {
+            const data = await res.json().catch(() => ({}));
+            serverSaveSucceeded = true;
+            if (data?.website) {
+              if (data.website.version !== undefined) {
+                latestPropsRef.current.expectedVersion = data.website.version;
+              }
+              if (data.website.updatedAt) {
+                latestPropsRef.current.lastKnownUpdatedAt = data.website.updatedAt;
+              }
+              if (latestPropsRef.current.onServerSaveSuccess) {
+                latestPropsRef.current.onServerSaveSuccess(data.website);
+              }
+            }
           }
         } catch (netErr) {
           console.warn("Backend save network request failed, saved locally:", netErr);
+          setStatus("offline");
+          setErrorMessage("Network error: Could not reach server. Changes preserved locally in browser.");
         }
 
-        // Update baseline to the snapshot that was persisted
+        if (!serverSaveSucceeded) {
+          isSavingRef.current = false;
+          return;
+        }
+
+        // Update baseline ONLY when backend save succeeded
         baselineRef.current = payload.snapshot;
         const now = Date.now();
         setLastSavedAt(now);
+        setErrorMessage(null);
 
         isSavingRef.current = false;
 
@@ -305,7 +351,8 @@ export function useAutosave({
         isSavingRef.current = false;
         queuedPayloadRef.current = null;
         console.error("Autosave error:", err);
-        setStatus("saved"); // Local save succeeded
+        setStatus("error");
+        setErrorMessage("Save failed. Changes preserved locally.");
       }
     },
     [serializeState]
@@ -489,11 +536,73 @@ export function useAutosave({
     };
   }, []);
 
+  /**
+   * Coordinated manual save: flushes debounce and executes immediately
+   */
+  const saveNow = useCallback(async (): Promise<boolean> => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    const snapshot = serializeState(
+      latestPropsRef.current.elements,
+      latestPropsRef.current.pageSettings,
+      latestPropsRef.current.pages,
+      latestPropsRef.current.homePageId,
+      latestPropsRef.current.siteParts,
+      latestPropsRef.current.globalSettings,
+      latestPropsRef.current.globalStyles || latestPropsRef.current.globalSettings?.globalStyles,
+      latestPropsRef.current.publishing,
+      latestPropsRef.current.deployment,
+      latestPropsRef.current.breakpoints,
+      latestPropsRef.current.popups,
+      latestPropsRef.current.pageCss
+    );
+
+    const payloadToSave: SavePayload = {
+      snapshot,
+      elements: JSON.parse(JSON.stringify(latestPropsRef.current.elements || [])),
+      pageSettings: JSON.parse(JSON.stringify(latestPropsRef.current.pageSettings || {})),
+      pages: JSON.parse(JSON.stringify(latestPropsRef.current.pages || [])),
+      homePageId: latestPropsRef.current.homePageId,
+      siteParts: latestPropsRef.current.siteParts
+        ? JSON.parse(JSON.stringify(latestPropsRef.current.siteParts))
+        : undefined,
+      globalSettings: latestPropsRef.current.globalSettings
+        ? JSON.parse(JSON.stringify(latestPropsRef.current.globalSettings))
+        : undefined,
+      globalStyles: latestPropsRef.current.globalStyles || latestPropsRef.current.globalSettings?.globalStyles
+        ? JSON.parse(JSON.stringify(latestPropsRef.current.globalStyles || latestPropsRef.current.globalSettings?.globalStyles))
+        : undefined,
+      publishing: latestPropsRef.current.publishing
+        ? JSON.parse(JSON.stringify(latestPropsRef.current.publishing))
+        : undefined,
+      deployment: latestPropsRef.current.deployment
+        ? JSON.parse(JSON.stringify(latestPropsRef.current.deployment))
+        : undefined,
+      breakpoints: latestPropsRef.current.breakpoints
+        ? JSON.parse(JSON.stringify(latestPropsRef.current.breakpoints))
+        : undefined,
+      popups: latestPropsRef.current.popups
+        ? JSON.parse(JSON.stringify(latestPropsRef.current.popups))
+        : undefined,
+      pageCss: latestPropsRef.current.pageCss,
+    };
+
+    if (isSavingRef.current) {
+      queuedPayloadRef.current = payloadToSave;
+      return true;
+    }
+    await performSave(payloadToSave);
+    return true;
+  }, [performSave, serializeState]);
+
   return {
     status,
     lastSavedAt,
     errorMessage,
     isDirty: status === "unsaved" || status === "saving",
     updateBaseline,
+    saveNow,
   };
 }

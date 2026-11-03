@@ -1,0 +1,2 @@
+migrations/**/migration.sql -text
+legacy-contract.json -text

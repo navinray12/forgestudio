@@ -1,0 +1,13 @@
+import {createCipheriv,createDecipheriv,createHash,createHmac,randomBytes,timingSafeEqual} from 'node:crypto';
+import {AppError} from '../utils/app-error.js';
+const alphabet='ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+export function newTotpSecret(){const bytes=randomBytes(20);let bits='';for(const b of bytes)bits+=b.toString(2).padStart(8,'0');return bits.match(/.{5}/g)!.map(b=>alphabet[parseInt(b,2)]).join('');}
+function decode(secret:string){const bits=[...secret].map(c=>alphabet.indexOf(c).toString(2).padStart(5,'0')).join('');return Buffer.from(bits.match(/.{8}/g)!.map(b=>parseInt(b,2)));}
+export function totp(secret:string,counter:number,digits=6){const b=Buffer.alloc(8);b.writeBigUInt64BE(BigInt(counter));const h=createHmac('sha1',decode(secret)).update(b).digest(),offset=h[h.length-1]&15;return String((h.readUInt32BE(offset)&0x7fffffff)%10**digits).padStart(digits,'0');}
+export function verifyTotp(secret:string,code:string,lastCounter=-1,now=Date.now()){if(!/^\d{6}$/.test(code))return null;const center=Math.floor(now/30000);for(const n of [center,center-1,center+1])if(n>lastCounter&&timingSafeEqual(Buffer.from(totp(secret,n)),Buffer.from(code)))return n;return null;}
+export const digest=(value:string)=>createHash('sha256').update(value).digest('hex');
+export function encryptionReady(){return /^[a-fA-F0-9]{64}$/.test(process.env.SECURITY_ENCRYPTION_KEY||'');}
+function key(){if(!encryptionReady())throw new AppError('Authenticator setup is unavailable until the server encryption key is configured.',503,'SECURITY_KEY_MISSING');return Buffer.from(process.env.SECURITY_ENCRYPTION_KEY!,'hex');}
+export function encryptSecret(secret:string,userId:string){const iv=randomBytes(12),c=createCipheriv('aes-256-gcm',key(),iv);c.setAAD(Buffer.from(userId));return Buffer.concat([iv,c.update(secret,'utf8'),c.final(),c.getAuthTag()]).toString('base64');}
+export function decryptSecret(value:string,userId:string){const b=Buffer.from(value,'base64'),d=createDecipheriv('aes-256-gcm',key(),b.subarray(0,12));d.setAAD(Buffer.from(userId));d.setAuthTag(b.subarray(-16));return Buffer.concat([d.update(b.subarray(12,-16)),d.final()]).toString('utf8');}
+export function describeDevice(ua:string|null){const s=ua||'';const device=/iPhone/.test(s)?'iPhone':/iPad/.test(s)?'iPad':/Android/.test(s)?'Android':/Windows/.test(s)?'Windows':/Macintosh|Mac OS/.test(s)?'Mac':/Linux/.test(s)?'Linux':'Unknown device';const browser=/Edg\//.test(s)?'Edge':/OPR\//.test(s)?'Opera':/Firefox\//.test(s)?'Firefox':/Chrome\//.test(s)?'Chrome':/Safari\//.test(s)?'Safari':'Unknown browser';return{device,browser};}

@@ -36,7 +36,7 @@ export interface PluginExtensionContext {
 
 // Global registry for Hooks/Filters
 interface HookRegistration {
-    callback: Function;
+    callback: (...args: any[]) => any;
     priority: number;
     pluginId: string;
 }
@@ -184,7 +184,7 @@ export class PluginManagerCore {
     // Core Hook/Filter Engine Methods
     // ==========================================
 
-    private addAction(hook: string, callback: Function, priority: number, pluginId: string) {
+    private addAction(hook: string, callback: (...args: any[]) => any, priority: number, pluginId: string) {
         if (!this.actions.has(hook)) this.actions.set(hook, []);
         this.actions.get(hook)!.push({ callback, priority, pluginId });
         this.actions.get(hook)!.sort((a, b) => a.priority - b.priority); // Chronological Deterministic Priority
@@ -201,7 +201,7 @@ export class PluginManagerCore {
         }
     }
 
-    private addFilter(hook: string, callback: Function, priority: number, pluginId: string) {
+    private addFilter(hook: string, callback: (...args: any[]) => any, priority: number, pluginId: string) {
         if (!this.filters.has(hook)) this.filters.set(hook, []);
         this.filters.get(hook)!.push({ callback, priority, pluginId });
         this.filters.get(hook)!.sort((a, b) => a.priority - b.priority);

@@ -1,3 +1,4 @@
+import {customCodePayload} from './custom-code-payload';
 const API_URL = `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/v1`;
 
 export interface CustomCodeSnippet {
@@ -34,7 +35,13 @@ export async function getCustomCodeSnippets(websiteId: string): Promise<CustomCo
     }
 }
 
-export async function createCustomCodeSnippet(websiteId: string, snippetData: Partial<CustomCodeSnippet>): Promise<any> {
+export interface CustomCodeMutationResult {
+    success: boolean;
+    snippet?: CustomCodeSnippet;
+    message?: string;
+}
+
+export async function createCustomCodeSnippet(websiteId: string, snippetData: Partial<CustomCodeSnippet>): Promise<CustomCodeMutationResult> {
     try {
         const response = await fetch(`${API_URL}/custom-code/website/${websiteId}`, {
             method: "POST",
@@ -42,17 +49,18 @@ export async function createCustomCodeSnippet(websiteId: string, snippetData: Pa
                 "Content-Type": "application/json",
             },
             credentials: "include",
-            body: JSON.stringify(snippetData),
+            body: JSON.stringify(customCodePayload(snippetData)),
         });
 
         return await response.json();
-    } catch (error: any) {
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : "Failed to create snippet";
         console.error("Failed to create custom code snippet:", error);
-        return { success: false, message: error.message };
+        return { success: false, message };
     }
 }
 
-export async function updateCustomCodeSnippet(snippetId: string, snippetData: Partial<CustomCodeSnippet>): Promise<any> {
+export async function updateCustomCodeSnippet(snippetId: string, snippetData: Partial<CustomCodeSnippet>): Promise<CustomCodeMutationResult> {
     try {
         const response = await fetch(`${API_URL}/custom-code/${snippetId}`, {
             method: "PUT",
@@ -60,13 +68,14 @@ export async function updateCustomCodeSnippet(snippetId: string, snippetData: Pa
                 "Content-Type": "application/json",
             },
             credentials: "include",
-            body: JSON.stringify(snippetData),
+            body: JSON.stringify(customCodePayload(snippetData,true)),
         });
 
         return await response.json();
-    } catch (error: any) {
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : "Failed to update snippet";
         console.error("Failed to update custom code snippet:", error);
-        return { success: false, message: error.message };
+        return { success: false, message };
     }
 }
 

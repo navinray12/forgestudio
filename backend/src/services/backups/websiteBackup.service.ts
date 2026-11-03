@@ -10,6 +10,7 @@
  */
 import fs from "fs";
 import path from "path";
+import { prisma } from "../../config/prisma.js";
 
 export type BackupTrigger = "manual" | "scheduled" | "pre-publish" | "pre-restore";
 export type BackupStatus = "creating" | "ready" | "restoring" | "failed" | "expired";
@@ -224,6 +225,8 @@ export interface BackupSchedulePolicy {
   cronExpression: string;
   retainCount: number;
   trigger: BackupTrigger;
+  lastRunAt?: string;
+  lastSlotAt?: string;
 }
 
 export const DEFAULT_BACKUP_POLICY: BackupSchedulePolicy = {
@@ -245,7 +248,314 @@ export function validateBackupPolicy(raw: any): BackupSchedulePolicy {
     trigger: (["manual", "scheduled", "pre-publish", "pre-restore"] as const).includes(raw?.trigger)
       ? raw.trigger
       : "scheduled",
+    lastRunAt: raw?.lastRunAt || undefined,
+    lastSlotAt: raw?.lastSlotAt || undefined,
   };
+}
+
+export function deleteBackupFile(
+  websiteId: string,
+  backupId: string,
+  storagePath?: string
+): { deleted: boolean; alreadyMissing: boolean; path: string } {
+  if (!websiteId || typeof websiteId !== "string") {
+    throw new Error("Invalid websiteId for backup file deletion");
+  }
+
+  const cleanBackupId = backupId ? String(backupId).trim() : "";
+  if (!cleanBackupId || !/^[a-zA-Z0-9_-]+$/.test(cleanBackupId)) {
+    throw new Error(`Invalid backupId "${backupId}": contains invalid characters`);
+  }
+
+  const safeWebsiteId = websiteId.replace(/[^a-zA-Z0-9_-]/g, "_");
+  const siteDir = path.resolve(BACKUPS_STORAGE_DIR, safeWebsiteId);
+
+  let targetPath: string;
+  if (storagePath) {
+    targetPath = path.resolve(storagePath);
+  } else {
+    targetPath = path.join(siteDir, `${cleanBackupId}.json`);
+  }
+
+  if (fs.existsSync(targetPath)) {
+    try {
+      fs.unlinkSync(targetPath);
+      return { deleted: true, alreadyMissing: false, path: targetPath };
+    } catch (err: any) {
+      throw new Error(`Failed to delete backup file at ${targetPath}: ${err.message}`);
+    }
+  }
+
+  return { deleted: false, alreadyMissing: true, path: targetPath };
+}
+
+export function matchCronField(fieldStr: string, val: number, isDow: boolean = false): boolean {
+  if (!fieldStr || typeof fieldStr !== "string") return false;
+  const clean = fieldStr.trim();
+  if (clean === "*") return true;
+
+  if (clean.includes(",")) {
+    return clean.split(",").some((part) => matchCronField(part, val, isDow));
+  }
+
+  if (clean.includes("/")) {
+    const [rangePart, stepPart] = clean.split("/");
+    const step = parseInt(stepPart, 10);
+    if (isNaN(step) || step <= 0) return false;
+
+    if (rangePart === "*" || rangePart === "") {
+      return val % step === 0;
+    }
+    if (rangePart.includes("-")) {
+      const [startStr, endStr] = rangePart.split("-");
+      const start = parseInt(startStr, 10);
+      const end = parseInt(endStr, 10);
+      if (isNaN(start) || isNaN(end) || val < start || val > end) return false;
+      return (val - start) % step === 0;
+    }
+    const single = parseInt(rangePart, 10);
+    return !isNaN(single) && val >= single && (val - single) % step === 0;
+  }
+
+  if (clean.includes("-")) {
+    const [startStr, endStr] = clean.split("-");
+    const start = parseInt(startStr, 10);
+    const end = parseInt(endStr, 10);
+    if (isNaN(start) || isNaN(end)) return false;
+    return val >= start && val <= end;
+  }
+
+  const num = parseInt(clean, 10);
+  if (isNaN(num)) return false;
+  if (isDow && num === 7 && val === 0) return true;
+  return num === val;
+}
+
+export function matchesCron(cronExpr: string, date: Date): boolean {
+  if (!cronExpr || typeof cronExpr !== "string") return false;
+  const parts = cronExpr.trim().split(/\s+/);
+  if (parts.length !== 5) return false;
+
+  const [minPart, hourPart, domPart, monthPart, dowPart] = parts;
+  const minute = date.getUTCMinutes();
+  const hour = date.getUTCHours();
+  const dom = date.getUTCDate();
+  const month = date.getUTCMonth() + 1;
+  const dow = date.getUTCDay();
+
+  if (!matchCronField(minPart, minute, false)) return false;
+  if (!matchCronField(hourPart, hour, false)) return false;
+  if (!matchCronField(domPart, dom, false)) return false;
+  if (!matchCronField(monthPart, month, false)) return false;
+  if (!matchCronField(dowPart, dow, true)) return false;
+
+  return true;
+}
+
+export function getMostRecentCronSlot(cronExpr: string, now: Date = new Date(), maxLookbackDays: number = 31): Date | null {
+  if (!cronExpr || typeof cronExpr !== "string") return null;
+  const parts = cronExpr.trim().split(/\s+/);
+  if (parts.length !== 5) return null;
+
+  const topOfMinute = new Date(Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate(),
+    now.getUTCHours(),
+    now.getUTCMinutes(),
+    0,
+    0
+  ));
+
+  const maxMinutes = maxLookbackDays * 24 * 60;
+  for (let m = 0; m <= maxMinutes; m++) {
+    const candidate = new Date(topOfMinute.getTime() - m * 60000);
+    if (matchesCron(cronExpr, candidate)) {
+      return candidate;
+    }
+  }
+  return null;
+}
+
+export function isBackupDue(
+  policy: BackupSchedulePolicy,
+  now: Date = new Date(),
+  referenceDate?: Date | null
+): boolean {
+  if (!policy || !policy.enabled) return false;
+
+  const slot = getMostRecentCronSlot(policy.cronExpression, now);
+  if (!slot) return false;
+
+  const lastRun = referenceDate !== undefined
+    ? referenceDate
+    : policy.lastRunAt
+    ? new Date(policy.lastRunAt)
+    : null;
+
+  if (!lastRun) return true;
+  return slot.getTime() > lastRun.getTime();
+}
+
+export function pruneBackupsByRetention(
+  websiteId: string,
+  backups: WebsiteBackup[],
+  retainCount: number
+): {
+  retained: WebsiteBackup[];
+  prunedCount: number;
+  errors: string[];
+} {
+  const safeRetainCount = Math.min(25, Math.max(1, retainCount || DEFAULT_BACKUP_POLICY.retainCount));
+
+  if (!Array.isArray(backups) || backups.length <= safeRetainCount) {
+    return { retained: backups || [], prunedCount: 0, errors: [] };
+  }
+
+  const sorted = [...backups].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+
+  const retained = sorted.slice(0, safeRetainCount);
+  const candidatesForDeletion = sorted.slice(safeRetainCount);
+
+  let prunedCount = 0;
+  const errors: string[] = [];
+
+  for (const b of candidatesForDeletion) {
+    try {
+      deleteBackupFile(websiteId, b.id, b.storagePath);
+      prunedCount++;
+    } catch (err: any) {
+      console.warn(`[Backup Retention] Could not delete obsolete backup file "${b.id}" for site "${websiteId}":`, err?.message);
+      errors.push(`Failed to delete backup ${b.id}: ${err?.message}`);
+      retained.push(b);
+    }
+  }
+
+  const finalRetained = pruneExpiredBackups(retained);
+
+  return {
+    retained: finalRetained,
+    prunedCount,
+    errors,
+  };
+}
+
+export async function processScheduledBackupsForWebsite(
+  website: { id: string; editorData?: any },
+  now: Date = new Date()
+): Promise<{
+  created: boolean;
+  backup?: WebsiteBackup;
+  prunedCount: number;
+  error?: string;
+}> {
+  const editorData = website.editorData || {};
+  const policy = validateBackupPolicy(editorData.backupPolicy);
+
+  if (!policy.enabled) {
+    return { created: false, prunedCount: 0 };
+  }
+
+  const slot = getMostRecentCronSlot(policy.cronExpression, now);
+  if (!slot) {
+    return { created: false, prunedCount: 0 };
+  }
+
+  const isDue = isBackupDue(policy, now);
+  if (!isDue) {
+    return { created: false, prunedCount: 0 };
+  }
+
+  const existingBackups: WebsiteBackup[] = Array.isArray(editorData.backups) ? editorData.backups : [];
+  const slotIso = slot.toISOString();
+  const label = `Scheduled Backup — ${slot.toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}`;
+
+  const newBackup = createBackupRecord(editorData, {
+    websiteId: website.id,
+    trigger: "scheduled",
+    label,
+    notes: `Automated scheduled backup created for slot ${slotIso}`,
+  });
+
+  const updatedBackups = appendBackup(existingBackups, newBackup);
+  const { retained, prunedCount } = pruneBackupsByRetention(website.id, updatedBackups, policy.retainCount);
+
+  const updatedPolicy: BackupSchedulePolicy = {
+    ...policy,
+    lastRunAt: now.toISOString(),
+    lastSlotAt: slotIso,
+  };
+
+  const updatedEditorData = {
+    ...editorData,
+    backupPolicy: updatedPolicy,
+    backups: retained,
+    _lastBackupAt: newBackup.createdAt,
+    _lastBackupTrigger: "scheduled",
+  };
+
+  await prisma.website.update({
+    where: { id: website.id },
+    data: {
+      editorData: updatedEditorData,
+    },
+  });
+
+  return {
+    created: true,
+    backup: newBackup,
+    prunedCount,
+  };
+}
+
+export async function processAllScheduledBackups(now: Date = new Date()): Promise<{
+  processed: number;
+  created: number;
+  pruned: number;
+  failed: number;
+  errors: Array<{ websiteId: string; error: string }>;
+}> {
+  try {
+    const websites = await prisma.website.findMany({
+      where: {
+        status: { not: "DELETED" },
+      },
+      select: {
+        id: true,
+        editorData: true,
+      },
+    });
+
+    let processed = 0;
+    let created = 0;
+    let pruned = 0;
+    let failed = 0;
+    const errors: Array<{ websiteId: string; error: string }> = [];
+
+    for (const website of websites) {
+      const ed: any = website.editorData || {};
+      if (!ed.backupPolicy?.enabled) {
+        continue;
+      }
+      processed++;
+      try {
+        const res = await processScheduledBackupsForWebsite(website, now);
+        if (res.created) created++;
+        pruned += res.prunedCount;
+      } catch (err: any) {
+        failed++;
+        errors.push({ websiteId: website.id, error: err?.message || String(err) });
+        console.error(`[Scheduled Backup] Error processing website "${website.id}":`, err?.message || err);
+      }
+    }
+
+    return { processed, created, pruned, failed, errors };
+  } catch (err: any) {
+    console.error("[Scheduled Backup] Error in processAllScheduledBackups:", err?.message || err);
+    return { processed: 0, created: 0, pruned: 0, failed: 0, errors: [] };
+  }
 }
 
 function generateBackupId(): string {

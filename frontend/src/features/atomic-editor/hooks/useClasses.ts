@@ -1,10 +1,15 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo } from "react";
+import { useParams } from "react-router-dom";
 import type { AtomicClass, CreateClassPayload, UpdateClassPayload } from "../types/classes.types";
 import { fetchClasses, saveClasses } from "../services/classService";
 import { formatClassName, validateClassName } from "../utils/class.utils";
 
-export function useClasses() {
+export function useClasses(explicitWebsiteId?: string, elements?: any[]) {
+  const routeParams = useParams<{ websiteId?: string }>();
+  const websiteId = explicitWebsiteId || routeParams.websiteId;
+
   const [classes, setClasses] = useState<AtomicClass[]>([]);
+  const [serverVersion, setServerVersion] = useState<number>(1);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -15,22 +20,81 @@ export function useClasses() {
   const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
   const [defaultIsGlobal, setDefaultIsGlobal] = useState<boolean>(true);
 
+  // Stale request guard to prevent responses from a previously selected website from overwriting new data
+  const activeWebsiteIdRef = useRef<string | undefined>(websiteId);
+  useLayoutEffect(() => {
+    activeWebsiteIdRef.current = websiteId;
+  }, [websiteId]);
+
   const loadClasses = useCallback(async () => {
+    const targetWebsiteId = websiteId;
     setIsLoading(true);
     setError(null);
     try {
-      const data = await fetchClasses();
-      setClasses(data);
+      const res = await fetchClasses(targetWebsiteId, undefined, elements);
+      if (activeWebsiteIdRef.current !== targetWebsiteId) {
+        return; // Ignore response from switched website
+      }
+      setClasses(res.classes);
+      setServerVersion(res.version);
     } catch (err: any) {
-      setError("Unable to load classes.");
+      if (activeWebsiteIdRef.current === targetWebsiteId) {
+        setError(err?.message || "Unable to load classes.");
+      }
     } finally {
-      setIsLoading(false);
+      if (activeWebsiteIdRef.current === targetWebsiteId) {
+        setIsLoading(false);
+      }
     }
-  }, []);
+  }, [websiteId, elements]);
 
   useEffect(() => {
-    loadClasses();
+    queueMicrotask(() => {
+      loadClasses();
+    });
   }, [loadClasses]);
+
+  // Synchronize on external design system update (e.g. from ClassManagerModal, WebsiteEditor, or another tab)
+  useEffect(() => {
+    const handleUpdate = (e: any) => {
+      const detail = e?.detail;
+      if (!detail) return;
+      if (detail.websiteId && websiteId && detail.websiteId !== websiteId) return;
+      if (detail.source === "useClasses") return; // Ignore own event to prevent redundant loops
+
+      if (Array.isArray(detail.classes)) {
+        const mapped: AtomicClass[] = detail.classes.map((c: any, idx: number) => {
+          const classKey = String(c.className || c.key || `fs-class-${idx + 1}`);
+          return {
+            id: String(c.id || `cls-${idx}`),
+            name: String(c.name || `Class ${idx + 1}`),
+            key: classKey,
+            className: classKey,
+            isGlobal: true,
+            scope: "global" as const,
+            styles: c.styles || {},
+            pseudoStyles: c.pseudoStyles,
+            description: c.description,
+            assignedCount: 0,
+            createdByRole: c.createdByRole,
+            createdAt: c.createdAt || new Date().toISOString(),
+            updatedAt: c.updatedAt || new Date().toISOString(),
+          };
+        });
+        setClasses(mapped);
+        if (typeof detail.version === "number") {
+          setServerVersion(detail.version);
+        }
+      } else {
+        loadClasses();
+      }
+    };
+
+    window.addEventListener("fs-design-system-updated" as any, handleUpdate);
+    return () => {
+      window.removeEventListener("fs-design-system-updated" as any, handleUpdate);
+    };
+  }, [websiteId, loadClasses]);
 
   const filteredClasses = useMemo(() => {
     return classes.filter((c) => {
@@ -85,12 +149,27 @@ export function useClasses() {
       };
 
       const updatedList = [newClass, ...classes];
-      setClasses(updatedList);
-      await saveClasses(updatedList);
-      setIsFormOpen(false);
-      return newClass;
+
+      // Priority 0: Do NOT optimistically update state before server acknowledges save
+      try {
+        const res = await saveClasses(updatedList, websiteId, serverVersion, undefined, "useClasses");
+        setClasses(updatedList);
+        if (typeof res.version === "number") {
+          setServerVersion(res.version);
+        }
+        setIsFormOpen(false);
+        return newClass;
+      } catch (err: any) {
+        if (err?.code === "STALE_VERSION_CONFLICT" || String(err?.message).includes("STALE_VERSION_CONFLICT") || err?.status === 409) {
+          setError("Design system was modified in another session. Reconciling with latest server changes.");
+          await loadClasses();
+        } else {
+          setError(err?.message || "Failed to save new class.");
+        }
+        throw err;
+      }
     },
-    [classes]
+    [classes, websiteId, serverVersion, loadClasses]
   );
 
   const handleUpdateClass = useCallback(
@@ -119,6 +198,7 @@ export function useClasses() {
         ...existing,
         name: updatedName,
         key: updatedKey,
+        className: updatedKey,
         isGlobal,
         scope: isGlobal ? "global" : "local",
         styles: payload.styles !== undefined ? payload.styles : existing.styles,
@@ -127,29 +207,60 @@ export function useClasses() {
       };
 
       const updatedList = classes.map((c) => (c.id === id ? updatedClass : c));
-      setClasses(updatedList);
-      await saveClasses(updatedList);
-      setEditingClass(null);
-      setIsFormOpen(false);
-      return updatedClass;
+
+      // Priority 0: Do NOT optimistically persist until acknowledged
+      try {
+        const res = await saveClasses(updatedList, websiteId, serverVersion, undefined, "useClasses");
+        setClasses(updatedList);
+        if (typeof res.version === "number") {
+          setServerVersion(res.version);
+        }
+        setEditingClass(null);
+        setIsFormOpen(false);
+        return updatedClass;
+      } catch (err: any) {
+        if (err?.code === "STALE_VERSION_CONFLICT" || String(err?.message).includes("STALE_VERSION_CONFLICT") || err?.status === 409) {
+          setError("Design system was modified in another session. Reconciling with latest server changes.");
+          await loadClasses();
+        } else {
+          setError(err?.message || "Failed to update class.");
+        }
+        throw err;
+      }
     },
-    [classes]
+    [classes, websiteId, serverVersion, loadClasses]
   );
 
   const handleDeleteClass = useCallback(
     async (id: string): Promise<void> => {
       setError(null);
       const updatedList = classes.filter((c) => c.id !== id);
-      setClasses(updatedList);
-      await saveClasses(updatedList);
-      setDeletingClass(null);
+
+      // Priority 0: Do NOT optimistically persist until acknowledged
+      try {
+        const res = await saveClasses(updatedList, websiteId, serverVersion, undefined, "useClasses");
+        setClasses(updatedList);
+        if (typeof res.version === "number") {
+          setServerVersion(res.version);
+        }
+        setDeletingClass(null);
+      } catch (err: any) {
+        if (err?.code === "STALE_VERSION_CONFLICT" || String(err?.message).includes("STALE_VERSION_CONFLICT") || err?.status === 409) {
+          setError("Design system was modified in another session. Reconciling with latest server changes.");
+          await loadClasses();
+        } else {
+          setError(err?.message || "Failed to delete class.");
+        }
+        throw err;
+      }
     },
-    [classes]
+    [classes, websiteId, serverVersion, loadClasses]
   );
 
   return {
     classes,
     filteredClasses,
+    serverVersion,
     isLoading,
     error,
     searchQuery,

@@ -29,13 +29,15 @@ export async function publishWebsiteHandler(req: Request, res: Response, next: N
   try {
     const websiteId = String(req.params.id);
     const userId = res.locals.user?.id;
-    const { editorData, environment, destinationType, metadata } = req.body || {};
+    const { editorData, environment, destinationType, metadata, expectedVersion, version } = req.body || {};
+    const expVer = expectedVersion !== undefined ? Number(expectedVersion) : (version !== undefined ? Number(version) : undefined);
 
     const result = await publishWebsite(websiteId, userId, {
       editorData,
       environment,
       destinationType,
       metadata,
+      expectedVersion: expVer,
     });
 
     return res.status(200).json(result);

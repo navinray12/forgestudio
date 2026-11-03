@@ -1,0 +1,17 @@
+--- a/backend/src/config/prisma.ts
++++ b/backend/src/config/prisma.ts
+@@ -130,12 +130,7 @@
+   }
+ }
+ 
+-ensureDbSchema().catch((err) => {
+-  console.error("Failed to run schema auto-migration:", err);
+-});
+-
+-ensureAdminAccounts().catch((err) => {
+-  console.error("Admin seeding check failed:", err);
+-});
++// Schema changes and account provisioning must run as explicit operational tasks.
++// Importing the database client must never rewrite migrations or account passwords.
+ 
+ export default prisma;

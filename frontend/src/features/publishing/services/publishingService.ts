@@ -5,10 +5,12 @@ export interface PublishApiResponse {
   deploymentId: string;
   status: DeploymentStatus;
   version: number;
+  siteVersion?: number;
   environment: string;
   destinationType: string;
   publishedAt: string;
   liveUrl: string;
+  absolutePublicUrl?: string;
   sourceRevisionId?: string;
   warnings?: Array<{ field: string; message: string; severity: "ERROR" | "WARNING" }>;
 }
@@ -51,8 +53,10 @@ export const publishingService = {
     websiteId: string,
     options: {
       editorData?: any;
+      expectedVersion?: number;
+      version?: number;
       environment?: "PRODUCTION" | "STAGING" | "DEVELOPMENT";
-      destinationType?: "INTERNAL" | "WORDPRESS" | "STATIC";
+      destinationType?: "INTERNAL" | "WORDPRESS" | "STATIC" | "SFTP";
       metadata?: Record<string, any>;
     } = {},
     apiUrl?: string

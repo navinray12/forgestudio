@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "websites" ADD COLUMN IF NOT EXISTS "version" INTEGER NOT NULL DEFAULT 1;

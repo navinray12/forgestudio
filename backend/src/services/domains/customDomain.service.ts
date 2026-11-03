@@ -7,11 +7,23 @@
  * Additive only — stored in Website.editorData.customDomains[].
  */
 import { createHash } from "crypto";
-
+import { prisma } from "../../config/prisma.js";
 
 export type DomainVerificationMethod = "TXT" | "CNAME" | "FILE";
 export type DomainStatus = "pending" | "verifying" | "active" | "failed" | "expired";
-export type SslStatus = "PENDING_DNS" | "VERIFYING" | "PROVISIONING_SSL" | "ACTIVE" | "FAILED_CHALLENGE";
+export type SslStatus =
+  | "NOT_CONFIGURED"
+  | "PENDING"
+  | "ISSUING"
+  | "ACTIVE"
+  | "RENEWING"
+  | "FAILED"
+  | "EXPIRED"
+  // Legacy status support
+  | "PENDING_DNS"
+  | "VERIFYING"
+  | "PROVISIONING_SSL"
+  | "FAILED_CHALLENGE";
 
 export interface CustomDomain {
   /** The domain itself, e.g. "shop.example.com" */
@@ -461,3 +473,112 @@ export function getDomainDiagnosticStatus(record: CustomDomain): SslDiagnosticSt
   };
 }
 
+/**
+ * Scans all websites with custom domains, identifies certificates approaching expiry
+ * or already expired, reconciles their status, and triggers renewals with bounded retries.
+ * Non-destructive: preserves existing valid certificates on renewal failure.
+ */
+export async function processExpiringSslCertificates(windowDays: number = 30): Promise<{
+  processed: number;
+  renewed: number;
+  failed: number;
+  expired: number;
+  results: Array<{ domain: string; websiteId: string; action: string; error?: string }>;
+}> {
+  try {
+    const sites: any[] = await prisma.$queryRaw`
+      SELECT id, "editorData"
+      FROM websites
+      WHERE ("editorData"->'customDomains') IS NOT NULL
+        AND jsonb_typeof("editorData"->'customDomains') = 'array'
+    `;
+
+    let processed = 0;
+    let renewed = 0;
+    let failed = 0;
+    let expired = 0;
+    const results: Array<{ domain: string; websiteId: string; action: string; error?: string }> = [];
+    const now = Date.now();
+
+    for (const site of sites) {
+      const rawDomains: CustomDomain[] = Array.isArray(site.editorData?.customDomains)
+        ? site.editorData.customDomains
+        : [];
+
+      let modified = false;
+      for (let i = 0; i < rawDomains.length; i++) {
+        const d = rawDomains[i];
+        if (d.status !== "active") continue;
+
+        processed++;
+
+        // Check expired
+        if (d.sslExpiresAt && new Date(d.sslExpiresAt).getTime() <= now) {
+          if (d.sslStatus !== "EXPIRED" || d.sslEnabled) {
+            rawDomains[i] = {
+              ...d,
+              sslStatus: "EXPIRED",
+              sslEnabled: false,
+            };
+            modified = true;
+            expired++;
+            results.push({ domain: d.domain, websiteId: site.id, action: "EXPIRED" });
+          }
+          continue;
+        }
+
+        // Check renewal window
+        if (d.sslStatus === "ACTIVE" && d.sslExpiresAt) {
+          const daysLeft = Math.floor((new Date(d.sslExpiresAt).getTime() - now) / (1000 * 60 * 60 * 24));
+          if (daysLeft <= windowDays) {
+            try {
+              const res = await initiateSslProvisioning(d, site.id);
+              // Handle both object { success, domain } and direct CustomDomain return
+              const updatedDomain: CustomDomain = (res as any)?.domain ? (res as any).domain : (res as any);
+              rawDomains[i] = updatedDomain;
+              modified = true;
+
+              if (updatedDomain.sslStatus === "ACTIVE" && updatedDomain.sslEnabled) {
+                renewed++;
+                results.push({ domain: d.domain, websiteId: site.id, action: "RENEWED" });
+              } else {
+                failed++;
+                results.push({
+                  domain: d.domain,
+                  websiteId: site.id,
+                  action: "RENEWAL_FAILED",
+                  error: (res as any)?.message || "SSL provisioning failed",
+                });
+              }
+            } catch (err: any) {
+              failed++;
+              results.push({
+                domain: d.domain,
+                websiteId: site.id,
+                action: "RENEWAL_FAILED",
+                error: err?.message || String(err),
+              });
+            }
+          }
+        }
+      }
+
+      if (modified) {
+        await prisma.website.update({
+          where: { id: site.id },
+          data: {
+            editorData: {
+              ...site.editorData,
+              customDomains: rawDomains,
+            },
+          },
+        });
+      }
+    }
+
+    return { processed, renewed, failed, expired, results };
+  } catch (error: any) {
+    console.error("[SSL Renewal] Error processing expiring SSL certificates:", error?.message || error);
+    return { processed: 0, renewed: 0, failed: 0, expired: 0, results: [] };
+  }
+}

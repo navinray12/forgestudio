@@ -1,3 +1,5 @@
+import {dashboardSecurity} from '../services/dashboard-security.js';
+import {AppError} from '../utils/app-error.js';
 import { Router, type Request, type Response, type NextFunction } from "express";
 import { requireAuth } from "../middlewares/auth.middleware.js";
 import { createSupportSession, revokeSupportSessions } from "../services/session.service.js";
@@ -59,6 +61,7 @@ router.post(
         });
       }
 
+      if(await dashboardSecurity.needsFactor(session.userId))throw new AppError('Use normal sign-in with your authenticator for this account.',403,'TWO_FACTOR_REQUIRED');
       res.cookie(AUTH_COOKIE_NAME, supportToken.trim(), AUTH_COOKIE_OPTIONS);
 
       return res.status(200).json({

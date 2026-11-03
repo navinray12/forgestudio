@@ -1,0 +1,2 @@
+export function composerPathPayload(phpSource:string,composerSource:string,version:number){if(!['AUTO','CONFIGURED'].includes(phpSource)||!['AUTO','CONFIGURED'].includes(composerSource))throw Error('Choose a server-configured runtime path.');return{phpSource,composerSource,version};}
+export function composerConfigPayload(config:string,version:number){let value:unknown;try{value=JSON.parse(config);}catch{throw Error('Enter valid composer.json.');}if(!value||typeof value!=='object'||Array.isArray(value))throw Error('composer.json must be an object.');return{config,version};}

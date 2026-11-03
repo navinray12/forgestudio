@@ -7,7 +7,10 @@ import { ClassFormModal } from "./ClassFormModal";
 import { DeleteClassConfirmModal } from "./DeleteClassConfirmModal";
 import { ImportClassesModal } from "./ImportClassesModal";
 
-export const ClassesPanel: React.FC = () => {
+export const ClassesPanel: React.FC<{ websiteId?: string; elements?: any[] }> = ({
+  websiteId,
+  elements,
+}) => {
   const {
     classes,
     filteredClasses,
@@ -28,7 +31,8 @@ export const ClassesPanel: React.FC = () => {
     createClass,
     updateClass,
     deleteClass,
-  } = useClasses();
+  } = useClasses(websiteId, elements);
+
 
   const [importError, setImportError] = useState<string | null>(null);
 
@@ -344,8 +348,9 @@ export const ClassesPanel: React.FC = () => {
                     <span className="flex items-center gap-1 text-[10px] bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 px-1.5 py-0.5 rounded-md font-mono text-slate-600 dark:text-slate-400">
                       <span
                         className="h-2.5 w-2.5 rounded-full border border-slate-300"
-                        style={{ backgroundColor: c.styles.backgroundColor }}
+                        style={{ backgroundColor: String(c.styles.backgroundColor) }}
                       />
+
                       {c.styles.backgroundColor}
                     </span>
                   )}

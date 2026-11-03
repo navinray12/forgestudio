@@ -40,6 +40,8 @@ export const PageManagerModal: React.FC<PageManagerModalProps> = ({
   const [editingPageId, setEditingPageId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [editSlug, setEditSlug] = useState("");
+  const [editTitle, setEditTitle] = useState("");
+  const [editDescription, setEditDescription] = useState("");
   const [editError, setEditError] = useState("");
 
   const [deleteWarningPage, setDeleteWarningPage] = useState<{
@@ -48,6 +50,15 @@ export const PageManagerModal: React.FC<PageManagerModalProps> = ({
   } | null>(null);
 
   if (!isOpen) return null;
+
+  const handleMovePage = (index: number, direction: "UP" | "DOWN") => {
+    const targetIndex = direction === "UP" ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= pages.length) return;
+    const newPages = [...pages];
+    const [moved] = newPages.splice(index, 1);
+    newPages.splice(targetIndex, 0, moved);
+    onUpdatePages(newPages, homePageId);
+  };
 
   const filteredPages = pages.filter(
     (p) =>
@@ -105,6 +116,8 @@ export const PageManagerModal: React.FC<PageManagerModalProps> = ({
     setEditingPageId(page.id);
     setEditName(page.name);
     setEditSlug(page.slug);
+    setEditTitle(page.pageSettings?.title || page.name);
+    setEditDescription(page.pageSettings?.description || "");
     setEditError("");
   };
 
@@ -138,7 +151,8 @@ export const PageManagerModal: React.FC<PageManagerModalProps> = ({
           slug: targetSlug,
           pageSettings: {
             ...(p.pageSettings || {}),
-            title: rawName,
+            title: editTitle.trim() || rawName,
+            description: editDescription.trim(),
             path: targetSlug,
           },
           updatedAt: new Date().toISOString(),
@@ -339,24 +353,50 @@ export const PageManagerModal: React.FC<PageManagerModalProps> = ({
                   {isEditing ? (
                     <div className="flex-1 space-y-2">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <input
-                          type="text"
-                          value={editName}
-                          onChange={(e) => setEditName(e.target.value)}
-                          className="rounded-lg border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs text-white"
-                          placeholder="Page Name"
-                        />
-                        <input
-                          type="text"
-                          value={editSlug}
-                          onChange={(e) => setEditSlug(e.target.value)}
-                          disabled={isHome}
-                          className="rounded-lg border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs font-mono text-white disabled:opacity-50"
-                          placeholder="/slug"
-                        />
+                        <div>
+                          <label className="block text-[10px] font-semibold text-slate-400 mb-0.5">Page Name</label>
+                          <input
+                            type="text"
+                            value={editName}
+                            onChange={(e) => setEditName(e.target.value)}
+                            className="w-full rounded-lg border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs text-white"
+                            placeholder="Page Name"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-semibold text-slate-400 mb-0.5">Slug / Path</label>
+                          <input
+                            type="text"
+                            value={editSlug}
+                            onChange={(e) => setEditSlug(e.target.value)}
+                            disabled={isHome}
+                            className="w-full rounded-lg border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs font-mono text-white disabled:opacity-50"
+                            placeholder="/slug"
+                          />
+                        </div>
+                        <div className="sm:col-span-2">
+                          <label className="block text-[10px] font-semibold text-slate-400 mb-0.5">SEO Title</label>
+                          <input
+                            type="text"
+                            value={editTitle}
+                            onChange={(e) => setEditTitle(e.target.value)}
+                            className="w-full rounded-lg border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs text-white"
+                            placeholder="SEO Page Title"
+                          />
+                        </div>
+                        <div className="sm:col-span-2">
+                          <label className="block text-[10px] font-semibold text-slate-400 mb-0.5">Meta Description</label>
+                          <input
+                            type="text"
+                            value={editDescription}
+                            onChange={(e) => setEditDescription(e.target.value)}
+                            className="w-full rounded-lg border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs text-white"
+                            placeholder="Meta description for search engines and social previews..."
+                          />
+                        </div>
                       </div>
                       {editError && <p className="text-[11px] text-red-400">{editError}</p>}
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 pt-1">
                         <button
                           type="button"
                           onClick={() => handleSaveEdit(page.id)}
@@ -404,6 +444,30 @@ export const PageManagerModal: React.FC<PageManagerModalProps> = ({
                   {/* Action Buttons */}
                   {!isEditing && (
                     <div className="flex items-center gap-1.5 shrink-0">
+                      {/* Reorder Buttons */}
+                      {pages.length > 1 && (
+                        <div className="flex items-center gap-0.5 border border-slate-700/60 rounded-lg p-0.5 bg-slate-900/60">
+                          <button
+                            type="button"
+                            disabled={pages.findIndex((p) => p.id === page.id) === 0}
+                            onClick={() => handleMovePage(pages.findIndex((p) => p.id === page.id), "UP")}
+                            className="p-1 rounded text-slate-400 hover:text-white disabled:opacity-30 disabled:hover:text-slate-400 transition cursor-pointer"
+                            title="Move page up"
+                          >
+                            ↑
+                          </button>
+                          <button
+                            type="button"
+                            disabled={pages.findIndex((p) => p.id === page.id) === pages.length - 1}
+                            onClick={() => handleMovePage(pages.findIndex((p) => p.id === page.id), "DOWN")}
+                            className="p-1 rounded text-slate-400 hover:text-white disabled:opacity-30 disabled:hover:text-slate-400 transition cursor-pointer"
+                            title="Move page down"
+                          >
+                            ↓
+                          </button>
+                        </div>
+                      )}
+
                       {!isActive && (
                         <button
                           type="button"
@@ -422,7 +486,7 @@ export const PageManagerModal: React.FC<PageManagerModalProps> = ({
                         type="button"
                         onClick={() => handleStartEdit(page)}
                         className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
-                        title="Rename page or edit slug"
+                        title="Rename page, slug or SEO settings"
                       >
                         ✏️
                       </button>

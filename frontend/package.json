@@ -7,19 +7,36 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:archive": "node --test scripts/site-archive.test.mjs scripts/workspace-selection.test.mjs",
+    "test:usage": "node --test scripts/dashboard-usage.test.mjs",
+    "test:forum": "node --test scripts/dashboard-forum.test.mjs",
+    "test:billing-dashboard": "node --test scripts/dashboard-billing.test.mjs",
+    "test:templates-dashboard": "node --test scripts/dashboard-templates.test.mjs",
+    "test:account-dashboard": "node --test scripts/dashboard-account.test.mjs",
+    "test:community-dashboard": "node --test scripts/dashboard-community.test.mjs",
+    "test:security-dashboard": "node --test scripts/dashboard-security.test.mjs",
+    "test:help-dashboard": "node --test scripts/dashboard-help.test.mjs",
+    "test:notifications-dashboard": "node --test scripts/dashboard-notifications.test.mjs",
+    "test:custom-code": "node --test scripts/custom-code.test.mjs",
+    "test:code-manager": "node --test scripts/code-manager.test.mjs scripts/custom-code.test.mjs",
+    "test:post-types": "node --test scripts/post-types.test.mjs",
+    "test:composer": "node --test scripts/composer.test.mjs"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
     "@tailwindcss/vite": "^4.3.3",
     "@types/dompurify": "^3.0.5",
-    "dompurify": "^3.4.15",
+    "dompurify": "^3.4.17",
     "lucide-react": "^1.43.0",
     "monaco-editor": "^0.56.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.2",
     "tailwindcss": "^4.3.3"
+  },
+  "overrides": {
+    "dompurify": "^3.4.17"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

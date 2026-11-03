@@ -84,8 +84,6 @@ export async function initSiteMailerTables() {
   }
 }
 
-initSiteMailerTables();
-
 export interface SaveMailerConfigInput {
   host: string;
   port?: number;

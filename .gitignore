@@ -26,4 +26,16 @@ Thumbs.db
 
 # Runtime / test generated files
 backend/artifacts/
-backend/uploads/backups/
+backend/uploads/
+# Extracted comparison archives
+.integration-review/
+
+# Account-scoped Composer build artifacts (never source content).
+backend/integrations/php/accounts/  
+
+# Agent scratch files & patches
+.agent/
+frontend/.agent/
+frontend/fix.js
+frontend/test.js
+*.tmp

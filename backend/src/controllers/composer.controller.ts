@@ -1,42 +1,8 @@
-import type { Request, Response, NextFunction } from "express";
-import { checkComposerEnvironment, validateComposerConfig, runComposerInstall } from "../services/composer.service.js";
-
-export async function getComposerStatus(req: Request, res: Response, next: NextFunction) {
-    try {
-        const status = await checkComposerEnvironment();
-        res.status(200).json({ success: true, data: status });
-    } catch (e) {
-        next(e);
-    }
-}
-
-export async function validateComposer(req: Request, res: Response, next: NextFunction) {
-    try {
-        const { config } = req.body;
-        if (!config || typeof config !== "string") {
-            return res.status(400).json({ success: false, error: { message: "Invalid configuration provided." } });
-        }
-
-        const isValid = await validateComposerConfig(config);
-        if (isValid) {
-            res.status(200).json({ success: true, message: "Composer configuration is valid." });
-        } else {
-            res.status(422).json({ success: false, error: { message: "Composer configuration is invalid." } });
-        }
-    } catch (e) {
-        next(e);
-    }
-}
-
-export async function installDependencies(req: Request, res: Response, next: NextFunction) {
-    try {
-        const result = await runComposerInstall();
-        if (result.success) {
-            res.status(200).json({ success: true, message: "Dependencies installed successfully", output: result.output });
-        } else {
-            res.status(500).json({ success: false, error: { message: "Dependency installation failed", details: result.output } });
-        }
-    } catch (e) {
-        next(e);
-    }
-}
+import type {Request,Response,NextFunction} from 'express';import {z} from 'zod';import {prisma} from '../config/prisma.js';import {createComposerRuntime} from '../services/composer-runtime.js';import {createComposerService} from '../services/composer-dashboard.service.js';import {AppError} from '../utils/app-error.js';
+const service=createComposerService(prisma,createComposerRuntime());
+const version=z.number().int().min(0).max(2147483646),paths=z.object({phpSource:z.enum(['AUTO','CONFIGURED']),composerSource:z.enum(['AUTO','CONFIGURED']),version}).strict(),config=z.object({config:z.string().max(100000),version}).strict(),install=z.object({version}).strict();
+function handler(schema:z.ZodType|null,method:(userId:string,input:any)=>Promise<any>){return async(req:Request,res:Response,next:NextFunction)=>{try{const parsed=schema?.safeParse(req.body);if(parsed&&!parsed.success)throw new AppError('Check the Composer settings and try again.',400,'INVALID_REQUEST');const result=await method(res.locals.user.id,parsed?.success?parsed.data:null);res.json({success:true,data:result,...(result.message?{message:result.message}:{}),...(result.output?{output:result.output}:{})});}catch(e:any){if(['P2021','P2010'].includes(e?.code)&&['42P01','42703'].includes(e?.meta?.code))next(new AppError('Composer storage is temporarily unavailable.',503,'STORAGE_UNAVAILABLE'));else next(e);}};}
+export const getComposerStatus=handler(null,u=>service.status(u));
+export const configureComposer=handler(paths,(u,i)=>service.configure(u,i));
+export const validateComposer=handler(config,(u,i)=>service.validate(u,i));
+export const installDependencies=handler(install,(u,i)=>service.install(u,i));

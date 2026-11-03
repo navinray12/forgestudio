@@ -6,6 +6,8 @@ import type {
 import crypto from "crypto";
 import { prisma } from "../config/prisma.js";
 import { AUTH_COOKIE_NAME } from "../config/auth.js";
+import { recordAuditLog } from "../services/audit.service.js";
+import { normalizeGlobalRole, authorizeCapability } from "../services/permission.service.js";
 
 function hashToken(token: string): string {
   return crypto
@@ -14,13 +16,29 @@ function hashToken(token: string): string {
     .digest("hex");
 }
 
+/**
+ * Primary authentication middleware.
+ * Supports session cookies (primary), Authorization: Bearer <token> headers, and x-auth-token.
+ * Also supports synthetic user context pre-attached to res.locals.user or req.user for tests/internal workers.
+ */
 export async function requireAuth(
   req: Request,
   res: Response,
   next: NextFunction
 ) {
   try {
-    const token = req.cookies?.[AUTH_COOKIE_NAME];
+    // 1. Synthetic user context bypass (e.g. for internal test harnesses and mock workers)
+    if (res.locals.user || (req as any).user) {
+      return next();
+    }
+
+    // 2. Token extraction: Cookie -> Bearer Header -> x-auth-token
+    let token = req.cookies?.[AUTH_COOKIE_NAME];
+    if (!token && req.headers.authorization && /^Bearer\s+/i.test(req.headers.authorization)) {
+      token = req.headers.authorization.replace(/^Bearer\s+/i, "").trim();
+    } else if (!token && typeof req.headers["x-auth-token"] === "string") {
+      token = req.headers["x-auth-token"].trim();
+    }
 
     if (!token) {
       return res.status(401).json({
@@ -31,40 +49,73 @@ export async function requireAuth(
 
     const tokenHash = hashToken(token);
 
-    let session: any = null;
-    try {
-      session = await prisma.session.findUnique({
-        where: {
-          tokenHash,
-        },
-        include: {
-          user: true,
-        },
-      });
-    } catch (dbErr: any) {
-      if (dbErr?.code === "P2022" || String(dbErr?.message || "").includes("optimizationCredits")) {
-        try {
-          await prisma.$executeRawUnsafe(`ALTER TABLE users ADD COLUMN IF NOT EXISTS "optimizationCredits" INTEGER NOT NULL DEFAULT 250;`);
-          session = await prisma.session.findUnique({
-            where: {
-              tokenHash,
-            },
-            include: {
-              user: true,
-            },
-          });
-        } catch (retryErr) {
-          throw dbErr;
-        }
-      } else {
-        throw dbErr;
-      }
-    }
+    const session = await prisma.session.findUnique({
+      where: {
+        tokenHash,
+      },
+      include: {
+        user: true,
+      },
+    });
 
     if (!session) {
       return res.status(401).json({
         success: false,
         message: "Invalid session",
+      });
+    }
+
+    const clientIp = (req.headers["x-forwarded-for"] as string) || req.ip || "unknown";
+
+    if (session.user.status === "SUSPENDED") {
+      // Invalidate session immediately upon suspended user attempt
+      await prisma.session.update({
+        where: { id: session.id },
+        data: { revokedAt: new Date() },
+      }).catch(() => {});
+
+      // Record security audit log asynchronously
+      recordAuditLog({
+        userId: session.user.id,
+        actorRole: session.user.role,
+        action: "SUSPENDED_USER_ACCESS_BLOCKED",
+        targetResource: req.originalUrl || req.path,
+        result: "FAILED",
+        reason: "Access attempted by suspended user account.",
+        ipAddress: clientIp,
+      }).catch(() => {});
+
+      return res.status(403).json({
+        success: false,
+        error: {
+          code: "ACCOUNT_SUSPENDED",
+          message: "Account has been suspended. Please contact support.",
+        },
+      });
+    }
+
+    if (session.user.status === "DELETED") {
+      await prisma.session.update({
+        where: { id: session.id },
+        data: { revokedAt: new Date() },
+      }).catch(() => {});
+
+      recordAuditLog({
+        userId: session.user.id,
+        actorRole: session.user.role,
+        action: "DELETED_USER_ACCESS_BLOCKED",
+        targetResource: req.originalUrl || req.path,
+        result: "FAILED",
+        reason: "Access attempted on deleted user account.",
+        ipAddress: clientIp,
+      }).catch(() => {});
+
+      return res.status(401).json({
+        success: false,
+        error: {
+          code: "ACCOUNT_DELETED",
+          message: "Account has been deleted.",
+        },
       });
     }
 
@@ -101,8 +152,13 @@ export async function requireAuth(
   }
 }
 
+/**
+ * Role-based authorization middleware.
+ * Verifies that the authenticated user possesses one of the allowed global roles.
+ */
 export function requireRole(allowedRoles: string | string[]) {
-  const roles = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];
+  const rawAllowed = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];
+  const normalizedAllowed = rawAllowed.map((r) => normalizeGlobalRole(r));
 
   return (req: Request, res: Response, next: NextFunction) => {
     const user = res.locals.user || (req as any).user;
@@ -114,7 +170,22 @@ export function requireRole(allowedRoles: string | string[]) {
       });
     }
 
-    if (!roles.includes(user.role)) {
+    const userGlobalRole = normalizeGlobalRole(user.role);
+
+    if (!rawAllowed.includes(user.role) && !normalizedAllowed.includes(userGlobalRole)) {
+      const clientIp = (req.headers["x-forwarded-for"] as string) || req.ip || "unknown";
+
+      // Asynchronously audit role access violation
+      recordAuditLog({
+        userId: user.id,
+        actorRole: user.role,
+        action: "PERMISSION_DENIED",
+        targetResource: req.originalUrl || req.path,
+        result: "FAILED",
+        reason: `Role '${user.role}' lacks required role (${rawAllowed.join(", ")})`,
+        ipAddress: clientIp,
+      }).catch(() => {});
+
       return res.status(403).json({
         success: false,
         error: {
@@ -127,3 +198,5 @@ export function requireRole(allowedRoles: string | string[]) {
     next();
   };
 }
+
+export { authorizeCapability };

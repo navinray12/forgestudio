@@ -147,7 +147,7 @@ export function getMergedStyles(el: EditorElement, device: DeviceMode, state: El
     "backgroundImage", "backgroundPosition", "backgroundSize", "backgroundRepeat",
     "borderStyle", "borderWidth", "borderColor",
     "borderTopLeftRadius", "borderTopRightRadius", "borderBottomRightRadius", "borderBottomLeftRadius",
-    "boxShadow", "position", "top", "right", "bottom", "left", "zIndex"
+    "boxShadow", "opacity", "filter", "cursor", "minWidth", "minHeight", "maxWidth", "maxHeight", "position", "top", "right", "bottom", "left", "zIndex"
   ];
   const res: ElementStyles = { ...el.styles };
   for (const k of styleKeys) {
@@ -207,7 +207,7 @@ export function generateElementsHoverCSS(elementsList: EditorElement[], device: 
         "backgroundImage", "backgroundPosition", "backgroundSize", "backgroundRepeat",
         "borderStyle", "borderWidth", "borderColor",
         "borderTopLeftRadius", "borderTopRightRadius", "borderBottomRightRadius", "borderBottomLeftRadius",
-        "boxShadow", "position", "top", "right", "bottom", "left", "zIndex"
+        "boxShadow", "opacity", "filter", "cursor", "minWidth", "minHeight", "maxWidth", "maxHeight", "position", "top", "right", "bottom", "left", "zIndex"
       ];
 
       const hoverRuleProps: string[] = [];
@@ -329,7 +329,7 @@ export function duplicateTreeElement(
   let newId: string | null = null;
 
   function process(items: EditorElement[]): EditorElement[] {
-    let result: EditorElement[] = [];
+    const result: EditorElement[] = [];
 
     for (const item of items) {
       if (item.id === id) {
@@ -617,14 +617,28 @@ export function resolveElementStyles(
   const gs = globalSettings?.globalStyles || globalSettings || {};
 
   // 1. Global Classes (F-068) - Apply reusable global class styles if defined
-  if (Array.isArray(el.classes) && globalSettings?.globalClasses) {
-    for (const className of el.classes) {
-      const globalClassObj = globalSettings.globalClasses.find((gc: any) => gc.name === className || gc.id === className);
+  const assignedClassList: string[] = [];
+  if (Array.isArray(el.classes)) {
+    assignedClassList.push(...el.classes.map((c: any) => typeof c === "string" ? c : (c?.className || c?.name || c?.id)));
+  }
+  const rawClassName = (el as any).className;
+  if (rawClassName && typeof rawClassName === "string") {
+    assignedClassList.push(...rawClassName.trim().split(/\s+/));
+  }
+
+
+  if (assignedClassList.length > 0 && globalSettings?.globalClasses) {
+    for (const className of assignedClassList) {
+      if (!className) continue;
+      const globalClassObj = globalSettings.globalClasses.find(
+        (gc: any) => gc.className === className || gc.name === className || gc.id === className
+      );
       if (globalClassObj && globalClassObj.styles) {
         Object.assign(styles, globalClassObj.styles);
       }
     }
   }
+
 
   // 2. Cascading Typography & Color Defaults (F-066, F-070, F-071)
   const color = getVal("color") || (el.type === "heading" ? gs.colors?.heading || gs.colors?.text : gs.colors?.text);
@@ -948,6 +962,21 @@ export function resolveMotionAttrs(el: EditorElement): Record<string, string> {
     }
   }
 
+  if (motion?.text?.enabled) attrs["data-studio-text"] = motion.text.durationMs || "900";
+  if (motion?.press?.enabled) {
+    attrs["data-studio-press"] = motion.press.scale || "0.95";
+    attrs["data-studio-press-duration"] = motion.press.durationMs || "150";
+  }
+  if (motion?.loop?.enabled) {
+    attrs["data-studio-loop"] = motion.loop.variant || "float";
+    attrs["data-studio-loop-duration"] = motion.loop.durationMs || "1800";
+  }
+  if (motion?.drag?.enabled) attrs["data-studio-drag"] = motion.drag.axis || "both";
+  if (motion?.overlay?.enabled) {
+    attrs["data-studio-overlay"] = motion.overlay.color || "#9b45e8";
+    attrs["data-studio-overlay-opacity"] = motion.overlay.opacity || "0.2";
+  }
+
   // 7. Interactions
   if (el.interactions && el.interactions.length > 0) {
     attrs["data-interactions"] = JSON.stringify(el.interactions);
@@ -975,6 +1004,174 @@ export function resolveStickyStyles(el: EditorElement): React.CSSProperties {
     [stickyPos]: formattedOffset,
     zIndex: 40,
   };
+}
+
+/**
+ * Converts camelCase to kebab-case CSS property names.
+ */
+function toKebabCase(prop: string): string {
+  return prop.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`);
+}
+
+/**
+ * Sanitizes CSS property values to prevent stylesheet breakout/injection
+ * while preserving legitimate CSS values (e.g. url(...), calc(...), rgba(...), var(...)).
+ */
+function sanitizeCssValue(value: string): string {
+  if (typeof value !== "string") return "";
+  return (
+    value
+      // eslint-disable-next-line no-control-regex
+      .replace(/[\u0000-\u001F\u007F]/g, "")
+      .replace(/[;{}]/g, "")
+      .replace(/<\/style/gi, "")
+      .replace(/expression\s*\(/gi, "")
+      .replace(/javascript\s*:/gi, "")
+      .trim()
+  );
+}
+
+/**
+ * Sanitizes class names to ensure valid CSS identifiers.
+ */
+function sanitizeClassName(name: string): string {
+  if (typeof name !== "string") return "";
+  const cleaned = name.trim().replace(/^\.+/, "");
+  return cleaned.replace(/[^a-zA-Z0-9_-]/g, "");
+}
+
+/**
+ * Sanitizes CSS custom property tokens (e.g. --color-primary).
+ */
+function sanitizeToken(token: string): string {
+  if (typeof token !== "string") return "";
+  const trimmed = token.trim();
+  const withPrefix = trimmed.startsWith("--") ? trimmed : `--${trimmed}`;
+  return withPrefix.replace(/[^a-zA-Z0-9_-]/g, "");
+}
+
+/**
+ * Formats a style dictionary into CSS property declarations.
+ */
+function formatStyleProperties(styles: Record<string, any> | undefined): string {
+  if (!styles || typeof styles !== "object") return "";
+  const lines: string[] = [];
+  for (const [key, val] of Object.entries(styles)) {
+    if (val === undefined || val === null || val === "") continue;
+    const cleanKey = toKebabCase(String(key).replace(/[^a-zA-Z0-9-]/g, ""));
+    const cleanVal = sanitizeCssValue(String(val));
+    if (cleanKey && cleanVal) {
+      lines.push(`  ${cleanKey}: ${cleanVal};`);
+    }
+  }
+  return lines.join("\n");
+}
+
+/**
+ * Compiles design system variables and global utility classes into valid CSS.
+ * Supports:
+ * - Both `token` and `key` for variables.
+ * - Both `className` and `key` for classes.
+ * - Base :root light variables, dark theme overrides ([data-theme="dark"], .dark), and prefers-color-scheme.
+ * - Base class styles, hover, focus, and active pseudo styles.
+ * - Safe CSS property formatting and injection protection.
+ */
+export function compileDesignSystemCss(variables: any[] = [], classes: any[] = []): string {
+  if (!Array.isArray(variables) && !Array.isArray(classes)) {
+    return "";
+  }
+
+  const cssSections: string[] = [];
+
+  // 1. Root variables (Light / Base)
+  if (Array.isArray(variables) && variables.length > 0) {
+    const rootVarLines: string[] = [];
+    const darkModeEntries: Array<{ token: string; darkVal: string }> = [];
+
+    for (const v of variables) {
+      if (!v || typeof v !== "object") continue;
+      const rawToken = v.token || v.key;
+      if (!rawToken || typeof rawToken !== "string") continue;
+
+      const safeToken = sanitizeToken(rawToken);
+      if (!safeToken || safeToken === "--") continue;
+
+      const lightVal = v.modes?.light || v.value;
+      if (lightVal !== undefined && lightVal !== null && lightVal !== "") {
+        const safeVal = sanitizeCssValue(String(lightVal));
+        if (safeVal) {
+          rootVarLines.push(`  ${safeToken}: ${safeVal};`);
+        }
+      }
+
+      if (v.modes?.dark !== undefined && v.modes?.dark !== null && v.modes?.dark !== "") {
+        const safeDarkVal = sanitizeCssValue(String(v.modes.dark));
+        if (safeDarkVal) {
+          darkModeEntries.push({ token: safeToken, darkVal: safeDarkVal });
+        }
+      }
+    }
+
+    if (rootVarLines.length > 0) {
+      cssSections.push(`/* --- ForgeStudio Design Tokens (:root) --- */\n:root {\n${rootVarLines.join("\n")}\n}`);
+    }
+
+    if (darkModeEntries.length > 0) {
+      const darkLines = darkModeEntries.map((d) => `  ${d.token}: ${d.darkVal};`).join("\n");
+      cssSections.push(`/* --- ForgeStudio Design Tokens (Dark Theme Overrides) --- */\n[data-theme="dark"], .dark {\n${darkLines}\n}`);
+      cssSections.push(`@media (prefers-color-scheme: dark) {\n  :root:not([data-theme="light"]) {\n${darkModeEntries.map((d) => `    ${d.token}: ${d.darkVal};`).join("\n")}\n  }\n}`);
+    }
+  }
+
+  // 2. Global Utility Classes
+  if (Array.isArray(classes) && classes.length > 0) {
+    const classRules: string[] = [];
+
+    for (const c of classes) {
+      if (!c || typeof c !== "object") continue;
+      const rawName = c.className || c.key || c.name;
+      if (!rawName || typeof rawName !== "string") continue;
+
+      const safeCls = sanitizeClassName(rawName);
+      if (!safeCls) continue;
+
+      // Base class styles
+      const baseProps = formatStyleProperties(c.styles);
+      if (baseProps) {
+        classRules.push(`.${safeCls} {\n${baseProps}\n}`);
+      }
+
+      // Pseudo classes
+      if (c.pseudoStyles && typeof c.pseudoStyles === "object") {
+        if (c.pseudoStyles.hover && typeof c.pseudoStyles.hover === "object") {
+          const hoverProps = formatStyleProperties(c.pseudoStyles.hover);
+          if (hoverProps) {
+            classRules.push(`.${safeCls}:hover {\n${hoverProps}\n}`);
+          }
+        }
+
+        if (c.pseudoStyles.focus && typeof c.pseudoStyles.focus === "object") {
+          const focusProps = formatStyleProperties(c.pseudoStyles.focus);
+          if (focusProps) {
+            classRules.push(`.${safeCls}:focus {\n${focusProps}\n}`);
+          }
+        }
+
+        if (c.pseudoStyles.active && typeof c.pseudoStyles.active === "object") {
+          const activeProps = formatStyleProperties(c.pseudoStyles.active);
+          if (activeProps) {
+            classRules.push(`.${safeCls}:active {\n${activeProps}\n}`);
+          }
+        }
+      }
+    }
+
+    if (classRules.length > 0) {
+      cssSections.push(`/* --- ForgeStudio Global Utility Classes --- */\n${classRules.join("\n\n")}`);
+    }
+  }
+
+  return cssSections.join("\n\n");
 }
 
 export * from "./motionRuntime";

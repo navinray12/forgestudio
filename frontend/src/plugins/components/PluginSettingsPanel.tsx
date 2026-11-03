@@ -1,14 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { PluginManager } from "../PluginManager";
 import type { PluginState } from "../PluginManager";
 
 export default function PluginSettingsPanel() {
-    const [plugins, setPlugins] = useState<any[]>([]);
-
-    useEffect(() => {
-        // Safe local evaluation querying the singleton instance natively globally.
-        setPlugins(PluginManager.getPlugins());
-    }, []);
+    const [plugins] = useState(() => PluginManager.getPlugins());
 
     const getStatusColor = (state: PluginState) => {
         switch (state) {

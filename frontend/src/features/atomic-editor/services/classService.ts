@@ -1,12 +1,28 @@
 import type { AtomicClass } from "../types/classes.types";
 
-const STORAGE_KEY = "forgestudio_atomic_classes";
+const LEGACY_STORAGE_KEY = "forgestudio_atomic_classes";
+const getStorageKey = (websiteId?: string) =>
+  websiteId ? `forgestudio_atomic_classes_${websiteId}` : LEGACY_STORAGE_KEY;
+
+const getBaseUrl = (override?: string) => override || (import.meta.env?.VITE_API_URL || "");
+
+const getAuthHeaders = (): Record<string, string> => {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  try {
+    const token = localStorage.getItem("token");
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+  } catch {
+    // Ignore in non-browser context
+  }
+  return headers;
+};
 
 export const DEFAULT_CLASSES: AtomicClass[] = [
   {
     id: "cls-heading-primary",
     name: "Heading Primary",
     key: "heading-primary",
+    className: "heading-primary",
     isGlobal: true,
     scope: "global",
     styles: {
@@ -17,7 +33,7 @@ export const DEFAULT_CLASSES: AtomicClass[] = [
       letterSpacing: "-0.02em",
     },
     description: "Site-wide primary section header text style",
-    assignedCount: 8,
+    assignedCount: 0,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
@@ -25,6 +41,7 @@ export const DEFAULT_CLASSES: AtomicClass[] = [
     id: "cls-button-global",
     name: "Global Action Button",
     key: "button-global",
+    className: "button-global",
     isGlobal: true,
     scope: "global",
     styles: {
@@ -36,8 +53,17 @@ export const DEFAULT_CLASSES: AtomicClass[] = [
       textAlign: "center",
       boxShadow: "0 4px 6px -1px rgba(37, 99, 235, 0.2)",
     },
+    pseudoStyles: {
+      hover: {
+        backgroundColor: "#1d4ed8",
+        transform: "translateY(-1px)",
+      },
+      active: {
+        transform: "translateY(0px)",
+      },
+    },
     description: "Global standard action button style",
-    assignedCount: 12,
+    assignedCount: 0,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
@@ -45,6 +71,7 @@ export const DEFAULT_CLASSES: AtomicClass[] = [
     id: "cls-card-global",
     name: "Global Card Container",
     key: "card-global",
+    className: "card-global",
     isGlobal: true,
     scope: "global",
     styles: {
@@ -57,7 +84,7 @@ export const DEFAULT_CLASSES: AtomicClass[] = [
       borderStyle: "solid",
     },
     description: "Site-wide elevated white card container style",
-    assignedCount: 5,
+    assignedCount: 0,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
@@ -65,6 +92,7 @@ export const DEFAULT_CLASSES: AtomicClass[] = [
     id: "cls-button-primary",
     name: "Primary Button",
     key: "button-primary",
+    className: "button-primary",
     isGlobal: false,
     scope: "local",
     styles: {
@@ -76,31 +104,237 @@ export const DEFAULT_CLASSES: AtomicClass[] = [
       textAlign: "center",
     },
     description: "Standard page button class style",
-    assignedCount: 3,
+    assignedCount: 0,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
 ];
 
-export async function fetchClasses(): Promise<AtomicClass[]> {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
-      }
+/**
+ * Count how many elements actively reference a given class name.
+ */
+function calculateAssignedCount(className: string, elements?: any[]): number {
+  if (!elements || !Array.isArray(elements) || !className) return 0;
+  let count = 0;
+
+  function traverse(el: any) {
+    if (!el) return;
+    const classStr = String(el.className || "");
+    const classesArr = Array.isArray(el.classes) ? el.classes : [];
+    if (
+      classStr.split(/\s+/).includes(className) ||
+      classesArr.includes(className) ||
+      classesArr.some((c: any) => c === className || c?.name === className || c?.className === className)
+    ) {
+      count++;
     }
-  } catch (e) {
-    // Fallback to defaults
+    if (Array.isArray(el.children)) {
+      for (const child of el.children) traverse(child);
+    }
   }
-  return DEFAULT_CLASSES;
+
+  for (const el of elements) traverse(el);
+  return count;
 }
 
-export async function saveClasses(classes: AtomicClass[]): Promise<void> {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(classes));
-  } catch (e) {
-    console.error("Failed to persist classes to storage", e);
-  }
+const getMigrationKey = (websiteId: string) => `forgestudio_migrated_legacy_classes_${websiteId}`;
+
+export interface FetchClassesResponse {
+  classes: AtomicClass[];
+  version: number;
 }
+
+/**
+ * Fetch classes authoritatively from backend website design system API,
+ * calculating real active element reference counts.
+ */
+export async function fetchClasses(
+  websiteId?: string,
+  apiUrl?: string,
+  elements?: any[]
+): Promise<FetchClassesResponse> {
+  const base = getBaseUrl(apiUrl);
+
+  if (websiteId) {
+    try {
+      const res = await fetch(`${base}/api/websites/${websiteId}/design-system`, {
+        method: "GET",
+        headers: getAuthHeaders(),
+        credentials: "include",
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        // Priority 1: Treat empty array from server as authoritative
+        if (Array.isArray(data?.classes)) {
+          const mapped: AtomicClass[] = data.classes.map((c: any, idx: number) => {
+            const classKey = String(c.className || c.key || `fs-class-${idx + 1}`);
+            return {
+              id: String(c.id || `cls-${idx}`),
+              name: String(c.name || `Class ${idx + 1}`),
+              key: classKey,
+              className: classKey,
+              isGlobal: true,
+              scope: "global",
+              styles: c.styles || {},
+              pseudoStyles: c.pseudoStyles,
+              description: c.description,
+              assignedCount: calculateAssignedCount(classKey, elements),
+              createdByRole: c.createdByRole,
+              createdAt: c.createdAt || new Date().toISOString(),
+              updatedAt: c.updatedAt || new Date().toISOString(),
+            };
+          });
+
+          const serverVersion = typeof data.version === "number" ? data.version : 1;
+
+          try {
+            localStorage.setItem(getStorageKey(websiteId), JSON.stringify(mapped));
+            localStorage.setItem(`${getStorageKey(websiteId)}_version`, String(serverVersion));
+            localStorage.setItem(getMigrationKey(websiteId), "true");
+          } catch {}
+
+          return { classes: mapped, version: serverVersion };
+        }
+      }
+    } catch (e) {
+      console.warn("Backend design-system API unavailable, falling back to local classes cache", e);
+    }
+
+    // Check website-scoped local cache
+    try {
+      const siteCache = localStorage.getItem(getStorageKey(websiteId));
+      if (siteCache !== null) {
+        const parsed = JSON.parse(siteCache);
+        if (Array.isArray(parsed)) {
+          const cachedVersion = parseInt(localStorage.getItem(`${getStorageKey(websiteId)}_version`) || "1", 10);
+          return {
+            classes: parsed.map((c: AtomicClass) => ({
+              ...c,
+              assignedCount: calculateAssignedCount(c.className || c.key, elements),
+            })),
+            version: isNaN(cachedVersion) ? 1 : cachedVersion,
+          };
+        }
+      }
+    } catch {}
+
+    // Priority 1: Safe one-time website-scoped migration only
+    try {
+      const alreadyMigrated = localStorage.getItem(getMigrationKey(websiteId)) === "true";
+      if (!alreadyMigrated) {
+        localStorage.setItem(getMigrationKey(websiteId), "true");
+        const legacyRaw = localStorage.getItem(LEGACY_STORAGE_KEY);
+        if (legacyRaw) {
+          const legacyClasses = JSON.parse(legacyRaw);
+          if (Array.isArray(legacyClasses) && legacyClasses.length > 0) {
+            console.info(`One-time migration of ${legacyClasses.length} legacy classes to website ${websiteId}`);
+            return {
+              classes: legacyClasses.map((c: AtomicClass) => ({
+                ...c,
+                assignedCount: calculateAssignedCount(c.className || c.key, elements),
+              })),
+              version: 1,
+            };
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("Legacy class migration failed, using defaults", e);
+    }
+  }
+
+  // Fallback to defaults
+  return {
+    classes: DEFAULT_CLASSES.map((c) => ({
+      ...c,
+      assignedCount: calculateAssignedCount(c.className || c.key, elements),
+    })),
+    version: 1,
+  };
+}
+
+/**
+ * Persist classes to backend website design system API,
+ * with CAS version check and fallback to website-scoped storage.
+ */
+export async function saveClasses(
+  classes: AtomicClass[],
+  websiteId?: string,
+  expectedVersion?: number,
+  apiUrl?: string,
+  source: string = "classService"
+): Promise<{ success: boolean; version?: number }> {
+  if (websiteId) {
+    if (typeof expectedVersion !== "number" || expectedVersion < 1) {
+      throw new Error("expectedVersion is required to save classes and prevent concurrent overwrite.");
+    }
+
+    const base = getBaseUrl(apiUrl);
+    const backendClasses = classes.map((c, index) => ({
+      id: c.id || `cls-${index}`,
+      name: c.name,
+      className: c.className || c.key,
+      description: c.description,
+      styles: c.styles || {},
+      pseudoStyles: c.pseudoStyles,
+      createdByRole: c.createdByRole || "DESIGNER",
+      createdAt: c.createdAt,
+      updatedAt: new Date().toISOString(),
+    }));
+
+    const res = await fetch(`${base}/api/websites/${websiteId}/design-system`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      credentials: "include",
+      body: JSON.stringify({
+        classes: backendClasses,
+        expectedVersion,
+      }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      if (res.status === 409) {
+        const conflictErr = new Error(data?.message || "STALE_VERSION_CONFLICT: Design system was modified elsewhere.");
+        (conflictErr as any).code = "STALE_VERSION_CONFLICT";
+        (conflictErr as any).status = 409;
+        throw conflictErr;
+      }
+      throw new Error(data?.message || "Failed to update website design system classes");
+    }
+
+    const serverConfirmedVersion = typeof data.version === "number" ? data.version : expectedVersion + 1;
+
+    // Only persist locally AFTER server confirms save
+    try {
+      localStorage.setItem(getStorageKey(websiteId), JSON.stringify(classes));
+      localStorage.setItem(`${getStorageKey(websiteId)}_version`, String(serverConfirmedVersion));
+    } catch (e) {
+      console.error("Failed to persist classes to storage", e);
+    }
+
+    // Dispatch reactive event for WebsiteEditor & Canvas live synchronization
+    try {
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("fs-design-system-updated", {
+            detail: {
+              websiteId,
+              classes: backendClasses,
+              version: serverConfirmedVersion,
+              source,
+            },
+          })
+        );
+      }
+    } catch (_) {
+      /* ignore event dispatch failure in non-browser context */
+    }
+
+    return { success: true, version: serverConfirmedVersion };
+  }
+
+  return { success: true, version: 1 };
+}
+
